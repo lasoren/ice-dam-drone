@@ -19,7 +19,7 @@ const char kTemplateEdgesWindowName[] = "Template Edges";
 const char kDetectWindowName[] = "Source with Matched Template";
 const char kDetectEdgesWindowName[] = "Source Edges";
 
-const double kThreshold = 1000000;
+const double kThreshold = 1500000;
 
 int main(int argc, char* argv[]) {
     // First create an icicle template from the image of a single icicle.
@@ -61,7 +61,7 @@ void LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat
     Mat& edg = *edges;
     cvtColor(orig, edg, CV_BGR2GRAY); 
     // Find edges in the template image, using Canny edge detection algorithm.
-    Canny(edg, edg, 80, 240, 3, true);
+    Canny(edg, edg, 100, 200, 3, true);
 }
 
 void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* detect) {
