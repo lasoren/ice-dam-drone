@@ -114,10 +114,14 @@ void FillShadedRectangle(const Point& start, double scalar, const Mat& templ, Ma
     Point end;
     end.x = start.x + templ.size().width * scalar;
     end.y = start.y + templ.size().height * scalar;
+    double midpoint = (start.x + end.x)/(double) 2;
+    double slope = (end.y - start.y)/(midpoint - start.x);
     for (int i = start.x; i < end.x; i++) {  // Cols
         for (int j = start.y; j < end.y; j++) {  // Rows
-            // Set the R channel to 255.
-            shaded->at<Vec3b>(j, i)[2] = 255;
+            if (j - start.y < abs(midpoint - i)*slope) {
+                // Set the R channel to 255.
+                shaded->at<Vec3b>(j, i)[2] = 255;
+            }
         }
     }
 }
