@@ -10,7 +10,7 @@ using namespace std;
 
 void LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat* edges);
 void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* detect);
-void DrawShadedRectangle(const Point& max, double scalar, const Mat& templ, Mat* detect);
+void FillShadedRectangle(const Point& start, double scalar, const Mat& templ, Mat* shaded);
 
 const char kTemplateName[] = "template.jpg";
 const char kTemplateWindowName[] = "Template";
@@ -66,6 +66,7 @@ void LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat
 
 void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* detect) {
     Mat resized_templ; 
+    Mat shaded(detect->size(), CV_8UC3, Scalar(0, 0, 0));
     Mat result;
     // Compute max scale value.
     double max_scale = detect_templ.size().height / (double) templ.size().height; 
@@ -80,14 +81,20 @@ void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* det
         }
         // Perform correlation coefficient template matching.
         matchTemplate(detect_templ, resized_templ, result, CV_TM_CCOEFF);
+        // Draw a shaded rectangle for whenever the template match is higher
+        // than threshold.
+        for (int r = 0; r < result.rows; r++) {
+            for (int c = 0; c < result.cols; c++) {
+                if (result.at<float>(r, c) > kThreshold) {
+                    FillShadedRectangle(Point(c, r), scale, templ, &shaded);
+                }
+            }
+        }
+        
         double current_max_value; Point current_max_location;
         // Get the maximum value and its location.
         minMaxLoc(result, NULL,
                   &current_max_value, NULL, &current_max_location);
-
-        if (current_max_value > kThreshold) {
-            DrawShadedRectangle(current_max_location, scale, templ, detect);
-        }
 
         // Record new globabl maximum if found.
         if (current_max_value > max_correlation_value) {
@@ -97,17 +104,21 @@ void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* det
         }
     }
 
+    const double alpha = 0.3;
+    addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect); 
+
     cout << "Max correlation value: " << max_correlation_value << endl;
 }
 
-void DrawShadedRectangle(const Point& max, double scalar, const Mat& templ, Mat* detect) {
+void FillShadedRectangle(const Point& start, double scalar, const Mat& templ, Mat* shaded) {
     Point end;
-    end.x = templ.size().width * scalar;
-    end.y = templ.size().height * scalar;
-    Mat rect = (*detect)(Rect(
-        max.x, max.y, end.x, end.y));
-    Mat color(rect.size(), CV_8UC3, cv::Scalar(0, 0, 255)); 
-    double alpha = 0.3;
-    addWeighted(color, alpha, rect, 1.0 - alpha , 0.0, rect); 
+    end.x = start.x + templ.size().width * scalar;
+    end.y = start.y + templ.size().height * scalar;
+    for (int i = start.x; i < end.x; i++) {  // Cols
+        for (int j = start.y; j < end.y; j++) {  // Rows
+            // Set the R channel to 255.
+            shaded->at<Vec3b>(j, i)[2] = 255;
+        }
+    }
 }
 
