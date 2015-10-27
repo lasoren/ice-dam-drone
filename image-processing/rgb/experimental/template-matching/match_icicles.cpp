@@ -19,7 +19,7 @@ const char kTemplateEdgesWindowName[] = "Template Edges";
 const char kDetectWindowName[] = "Source with Matched Template";
 const char kDetectEdgesWindowName[] = "Source Edges";
 
-const double kThreshold = 1500000;
+const double kThreshold = 2000000;
 
 int main(int argc, char* argv[]) {
     // First create an icicle template from the image of a single icicle.
