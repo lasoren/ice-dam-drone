@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-void LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat* edges);
+int LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat* edges);
 void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* detect);
 void FillShadedRectangle(const Point& start, double scalar, const Mat& templ, Mat* shaded);
 
@@ -25,7 +25,10 @@ int main(int argc, char* argv[]) {
     // First create an icicle template from the image of a single icicle.
     Mat icicle_template;
     Mat template_edges;
-    LoadAndCreateEdgesImage(false, kTemplateName, &icicle_template, &template_edges);
+    if (LoadAndCreateEdgesImage(false, kTemplateName,
+                &icicle_template, &template_edges) == -1) {
+        return -1;
+    }
     // Display the images for the template and it's edges.
     namedWindow(kTemplateWindowName, WINDOW_AUTOSIZE);
     imshow(kTemplateWindowName, icicle_template);
@@ -38,22 +41,32 @@ int main(int argc, char* argv[]) {
     }
     Mat detect;
     Mat detect_edges;
-    LoadAndCreateEdgesImage(
-            true, argv[1], &detect, &detect_edges);
+    if (LoadAndCreateEdgesImage(
+            true, argv[1], &detect, &detect_edges) == -1) {
+        return -1;
+    }
     // Display the images for the source after template matching.
     PerformTemplateMatching(template_edges, detect_edges, &detect);
     namedWindow(kDetectEdgesWindowName, WINDOW_AUTOSIZE);
     imshow(kDetectEdgesWindowName, detect_edges);
     namedWindow(kDetectWindowName, WINDOW_AUTOSIZE);
     imshow(kDetectWindowName, detect);
+
+    system("mkdir output");
+    imwrite("output/edges.jpg", detect_edges);
+    imwrite("output/matched.jpg", detect);
     // Wait for the user to end the program.
     waitKey(0);
 }
 
 // Loads the template image and performs edge detection to create the template.
-void LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat* edges) {
+int LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat* edges) {
     Mat& orig = *original;
     orig = imread(filename);
+    if (!orig.data) {
+        cout << "Could not find or open image: " << filename << endl;
+        return -1;
+    }
     if (blur) {
         GaussianBlur(orig, orig, Size(7, 7), 0, 0 );
     }
@@ -62,6 +75,7 @@ void LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat
     cvtColor(orig, edg, CV_BGR2GRAY); 
     // Find edges in the template image, using Canny edge detection algorithm.
     Canny(edg, edg, 100, 200, 3, true);
+    return 0;
 }
 
 void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* detect) {
