@@ -1,7 +1,10 @@
+#ifndef LIDAR
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include "i2c-dev.h"
+
+#define LIDAR
 
 #define DEF_ADDR 0x62
 
@@ -31,3 +34,5 @@ int isOkay(int file);
 int getDeviceStatus(int file);
 
 int isReady(int file);
+
+#endif
