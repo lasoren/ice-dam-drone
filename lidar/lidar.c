@@ -29,7 +29,7 @@ int getDeviceStatus(int file){
 }
 
 int isOkay(int file){
-  if((deviceStatus & DEVICE_OKAY) != DEVICE_OKAY){
+  if((getDeviceStatus(file) & DEVICE_OKAY) != DEVICE_OKAY){
     return 0;
   } else {
     return 1;
@@ -39,7 +39,7 @@ int isOkay(int file){
 int isReady(int file){
 
   // device is ready if bit 0 is 0
-  if((getDeviceStatus & DEVICE_READY) == 0){
+  if((getDeviceStatus(file) & DEVICE_READY) == 0){
     return 1;
   }
 
