@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "lidar.h"
 
 int openDevice(char* filename){
@@ -13,19 +14,19 @@ int openDevice(char* filename){
     return -1;
   }
 
-  deviceStatus = getDeviceStatus(file);
+  /*deviceStatus = getDeviceStatus(file);
 
   if(!isOkay(file)){
     close(file);
     return -1;
-  }
+  }*/
 
 
   return file;
 }
 
 int getDeviceStatus(int file){
-  return i2c_smbus_read_byte(file, STATUS_REG);
+  return i2c_smbus_read_byte_data(file, STATUS_REG);
 }
 
 int isOkay(int file){
@@ -50,7 +51,7 @@ int getDistance(int file){
   int ready, distance;
   ready = 0;
 
-  if(!isOkay(file)){
+  /*if(!isOkay(file)){
     return -1;
   }
 
@@ -62,8 +63,13 @@ int getDistance(int file){
 
   while(!isReady(file)){} // spin
 
-
-  distance = i2c_smbus_read_word_data(file, AQUISIT_REG);
+*/
+  i2c_smbus_write_byte_data(file, CONTROL_REG, RESET_FPGA);
+  usleep(20000);
+  i2c_smbus_write_byte_data(file, CONTROL_REG, AQUISIT_DC);
+  usleep(20000);
+  distance = i2c_smbus_read_byte_data(file, 0x0f);
+  distance = (distance << 8) | i2c_smbus_read_byte_data(file, 0x10);
 
   return distance;
 }
