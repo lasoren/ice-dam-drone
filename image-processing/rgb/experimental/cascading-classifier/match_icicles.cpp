@@ -1,4 +1,3 @@
-
 #include "opencv2/core/core.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -49,7 +48,7 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
     Mat greyscale;
     // Convert the image to greyscale.
     cvtColor(*detect, greyscale, CV_BGR2GRAY); 
-    cascade.detectMultiScale(greyscale, objects, 1.05, 2, 0 | CASCADE_DO_ROUGH_SEARCH, Size(10, 10));
+    cascade.detectMultiScale(greyscale, objects, 1.05, 1, 0 | CASCADE_DO_ROUGH_SEARCH | CASCADE_SCALE_IMAGE, Size(10, 10));
     Mat shaded(detect->size(), CV_8UC3, Scalar(0, 0, 0));
     for (int i = 0; i < objects.size(); i++) {
         const Rect& rect = objects[i];
