@@ -3,7 +3,6 @@
 
 int openDevice(char* filename){
   int file;
-  char deviceStatus;
 
   if((file = open(filename, O_RDWR)) < 0){
     return -1;
@@ -14,14 +13,11 @@ int openDevice(char* filename){
     return -1;
   }
 
-  /*deviceStatus = getDeviceStatus(file);
-
-  if(!isOkay(file)){
+  /*if(!isOkay(file)){
     close(file);
     return -1;
   }*/
-
-
+  
   return file;
 }
 
@@ -48,8 +44,7 @@ int isReady(int file){
 }
 
 int getDistance(int file){
-  int ready, distance;
-  ready = 0;
+  int distance;
 
   /*if(!isOkay(file)){
     return -1;
@@ -61,13 +56,12 @@ int getDistance(int file){
     return -1;
   }
 
-  while(!isReady(file)){} // spin
-
-*/
+  while(!isReady(file)){} // spin  */
+  
   i2c_smbus_write_byte_data(file, CONTROL_REG, RESET_FPGA);
-  usleep(20000);
+  usleep(20000); // wait for the fpga to reset 
   i2c_smbus_write_byte_data(file, CONTROL_REG, AQUISIT_DC);
-  usleep(20000);
+  usleep(20000); // for data to be aquired and written to the appropriate registers
   distance = i2c_smbus_read_byte_data(file, 0x0f);
   distance = (distance << 8) | i2c_smbus_read_byte_data(file, 0x10);
 
