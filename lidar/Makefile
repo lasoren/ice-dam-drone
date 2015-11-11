@@ -1,6 +1,6 @@
 CC=gcc
 all: main.o lidar.o
-	$(CC) main.o lidar.o -s -o lidar
+	$(CC) main.o lidar.o -s -lpthread -o lidar
 lidar.o:
 	$(CC) lidar.c -c -o $@
 main.o:
