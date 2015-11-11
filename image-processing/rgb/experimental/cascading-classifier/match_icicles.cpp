@@ -18,10 +18,17 @@ const char kDetectWindowName[] = "Source with Matched Classifier";
 const double kThreshold = 2000000;
 
 int main(int argc, char* argv[]) {
+
     if (argc != 2) {
-        cout << "usage: " << argv[0] << " <filename>" << endl;
+        cout << "usage: sudo " << argv[0] << " <filename>" << endl;
         return -1;
     }
+
+    if(system("raspistill -ss 5000 -vs -ex antishake -t 1 -o" + argv[1]) == -1) {
+      cout << "Error taking a picture. Are you running as root?" << endl;
+      return -1;
+    }
+    
     Mat detect;
     if (LoadImage(argv[1], &detect) == -1) {
         return -1;
@@ -47,7 +54,7 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
     vector<Rect> objects;
     Mat greyscale;
     // Convert the image to greyscale.
-    cvtColor(*detect, greyscale, CV_BGR2GRAY); 
+    cvtColor(*detect, greyscale, CV_BGR2GRAY);
     cascade.detectMultiScale(greyscale, objects, 1.05, 1, 0 | CASCADE_DO_ROUGH_SEARCH | CASCADE_SCALE_IMAGE, Size(10, 10));
     Mat shaded(detect->size(), CV_8UC3, Scalar(0, 0, 0));
     for (int i = 0; i < objects.size(); i++) {
@@ -56,7 +63,7 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
     }
     // Color the original image where objects were detected.
     const double alpha = 0.3;
-    addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect); 
+    addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect);
 }
 
 int LoadImage(const char* filename, Mat* original) {
@@ -80,4 +87,3 @@ void FillShadedRectangle(const Rect& rect, Mat* shaded) {
         }
     }
 }
-
