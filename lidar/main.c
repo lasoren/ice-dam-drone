@@ -13,7 +13,7 @@ void monitorDistance(void *arg){
   int *file = (int*) arg;
   while(keepChecking){
     distance = getDistance(*file);
-    printf("Distance %d\n", distance);
+    printf("Distance %d cm\n", distance);
     if(distance < MIN_THRESHOLD){
       if(distance){
         raise(SIGUSR1);
