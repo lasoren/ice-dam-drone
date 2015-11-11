@@ -4,7 +4,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <iostream>
-
+#include <stdio.h>
 using namespace cv;
 using namespace std;
 
@@ -24,7 +24,9 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    if(system("raspistill -ss 5000 -vs -ex antishake -t 1 -o" + argv[1]) == -1) {
+    char command[150];
+    sprintf(command, "raspistill -ss 5000 -vs -ex antishake -t 1 -o %s", argv[1]);
+	if(system(command) == -1) {
       cout << "Error taking a picture. Are you running as root?" << endl;
       return -1;
     }
