@@ -44,8 +44,6 @@ int isReady(int file){
 }
 
 int getDistance(int file){
-  int distance;
-
   /*if(!isOkay(file)){
     return -1;
   }
@@ -62,8 +60,6 @@ int getDistance(int file){
   usleep(20000); // wait for the fpga to reset 
   i2c_smbus_write_byte_data(file, CONTROL_REG, AQUISIT_DC);
   usleep(20000); // for data to be aquired and written to the appropriate registers
-  distance = i2c_smbus_read_byte_data(file, 0x0f);
-  distance = (distance << 8) | i2c_smbus_read_byte_data(file, 0x10);
 
-  return distance;
+  return (i2c_smbus_read_byte_data(file, AQUISIT_REG_MSB) << 8) | i2c_smbus_read_byte_data(file, AQUISIT_REG_LSB);
 }
