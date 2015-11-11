@@ -26,13 +26,9 @@
 #define DEVICE_READY 0x01
 
 int openDevice(char* filename);
-
 int getDistance(int file);
-
 int isOkay(int file);
-
 int getDeviceStatus(int file);
-
 int isReady(int file);
 
 #endif
