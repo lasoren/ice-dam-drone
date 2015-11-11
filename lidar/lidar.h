@@ -2,7 +2,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include "i2c-dev.h"
+#include <linux/i2c-dev.h>
 
 #define LIDAR
 
@@ -11,7 +11,8 @@
 //register addresses
 #define CONTROL_REG 0x00
 #define STATUS_REG 0x01
-#define AQUISIT_REG 0x8f
+#define AQUISIT_REG_MSB 0x0f
+#define AQUISIT_REG_LSB 0x10
 #define SERIAL_REG 0x96
 
 // commands
@@ -26,13 +27,9 @@
 #define DEVICE_READY 0x01
 
 int openDevice(char* filename);
-
 int getDistance(int file);
-
 int isOkay(int file);
-
 int getDeviceStatus(int file);
-
 int isReady(int file);
 
 #endif
