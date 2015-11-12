@@ -1,9 +1,13 @@
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <iostream>
+#include <stdio.h>
+
+#include <time.h>
+#include <errno.h>
 
 using namespace cv;
 using namespace std;
@@ -42,9 +46,17 @@ int main(int argc, char* argv[]) {
     imshow(kTemplateEdgesWindowName, template_edges);
     
     if (argc != 2) {
-        cout << "usage: " << argv[0] << " <filename>\n";
+        cout << "usage: sudo " << argv[0] << " <filename>\n";
         return -1;
     }
+
+    char command[150];
+    sprintf(command, "raspistill -w 640 -h 480 -ss 10000 -vs -ex antishake -t 1 -o %s", argv[1]);
+	if(system(command) == -1) {
+      cout << "Error taking a picture. Are you running as root?" << endl;
+      return -1;
+    }
+
     Mat detect;
     Mat detect_edges;
     if (LoadAndCreateEdgesImage(
@@ -156,7 +168,7 @@ void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* det
         exit(1);
     }
     calculation_time = time_in_seconds(&finish)-time_in_seconds(&start);
-    cout << "Calculation time for algorithm: " << calculation_time << endl;
+    cout << "Calculation time for algorithm: " << calculation_time << " seconds" << endl;
 
     const double alpha = 0.3;
     addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect); 
