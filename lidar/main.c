@@ -69,6 +69,7 @@ int main(int argc, char *argv[]){
   if(!print){
    while(keepChecking){
      scanf("%80s", buff);
+     printf("you typed %s\n", buff);
    }
   }
 
