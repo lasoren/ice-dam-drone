@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_page"
+    tools:showIn="@layout/activity_main"
+    tools:context="com.example.tberroa.girodicerapp.MainActivity">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:src="@drawable/app_logo"
+        android:contentDescription="@string/app_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="75dp" />
+
+    <Button
+        android:id="@+id/start_mission"
+        android:text="@string/start_mission"
+        android:textColor="@color/font_blue"
+        android:background="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_above="@+id/previous_missions" />
+
+    <Button
+        android:id="@+id/previous_missions"
+        android:text="@string/previous_missions"
+        android:textColor="@color/font_blue"
+        android:background="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
