@@ -2,6 +2,10 @@
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+// For the clock_gettime function.
+#include <time.h>
+// For error checking.
+#include <errno.h>
 
 #include <iostream>
 #include <stdio.h>
@@ -52,19 +56,50 @@ int main(int argc, char* argv[]) {
 }
 
 void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
+    // Calculate the time it takes to run the algorithm.
+    struct timespec start, finish, resolution;
+    double calculation_time;
+    int err; // error number for system calls
+
+    err = clock_getres(CLOCK_THREAD_CPUTIME_ID,&resolution);
+    if (err){
+        perror("Failed to get clock resolution in thread");
+        exit(1);
+    }
+
+    err = clock_gettime(CLOCK_THREAD_CPUTIME_ID,&start);
+    if (err){
+        perror("Failed to read thread_clock with error = %d\n");
+        exit(1);
+    }    
+ 
     vector<Rect> objects;
+    vector<Rect> objects_flipped;
     Mat greyscale;
     // Convert the image to greyscale.
     cvtColor(*detect, greyscale, CV_BGR2GRAY);
-    cascade.detectMultiScale(greyscale, objects, 1.05, 2, 0 | CASCADE_SCALE_IMAGE, Size(10, 10));
+
+    cascade.detectMultiScale(greyscale, objects, 1.05, 2,
+            0 | CASCADE_SCALE_IMAGE, Size(10, 10));
+    // Try the flipped version of the image.
+    flip(greyscale, greyscale, 1);
+    cascade.detectMultiScale(greyscale, objects_flipped, 1.05, 2,
+            0 | CASCADE_SCALE_IMAGE, Size(10, 10));
+
+    // Calculate the total time taken.
+    err = clock_gettime(CLOCK_THREAD_CPUTIME_ID,&finish);
+    if (err){
+        perror("Failed to read thread_clock with error = %d\n");
+        exit(1);
+    }
+    calculation_time = time_in_seconds(&finish)-time_in_seconds(&start);
+    cout << "Calculation time for algorithm: " << calculation_time << endl;
+    
     Mat shaded(detect->size(), CV_8UC3, Scalar(0, 0, 0));
     for (int i = 0; i < objects.size(); i++) {
         const Rect& rect = objects[i];
         FillShadedRectangle(rect, &shaded);
     }
-    // Try the flipped version of the image.
-    flip(greyscale, greyscale, 1);
-    cascade.detectMultiScale(greyscale, objects, 1.05, 1, 0 | CASCADE_DO_ROUGH_SEARCH | CASCADE_SCALE_IMAGE, Size(10, 10));
     for (int i = 0; i < objects.size(); i++) {
         Rect& rect = objects[i];
         // Flip the rectangle so that it appears correctly on the shaded image.

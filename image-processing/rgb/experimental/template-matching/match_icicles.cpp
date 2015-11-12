@@ -79,6 +79,31 @@ int LoadAndCreateEdgesImage(bool blur, const char* filename, Mat* original, Mat*
 }
 
 void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* detect) {
+    // Calculate the time it takes to run the algorithm.
+    struct timespec start, finish, resolution;
+    double calculation_time;
+    int err; // error number for system calls
+
+    err = clock_getres(CLOCK_THREAD_CPUTIME_ID,&resolution);
+    if (err){
+        perror("Failed to get clock resolution in thread");
+        exit(1);
+    }
+
+    err = clock_gettime(CLOCK_THREAD_CPUTIME_ID,&start);
+    if (err){
+        perror("Failed to read thread_clock with error = %d\n");
+        exit(1);
+    }    
+   
+    // This is just here to test the time it takes to do edge detection and
+    // converting to greyscale. The next 5 lines have no effect on operation. 
+    // Convert color to greyscale.
+    Mat detect_time_test;
+    cvtColor(*detect, detect_time_test, CV_BGR2GRAY); 
+    // Find edges in the template image, using Canny edge detection algorithm.
+    Canny(detect_time_test, detect_time_test, 100, 200, 3, true);
+
     Mat resized_templ; 
     Mat shaded(detect->size(), CV_8UC3, Scalar(0, 0, 0));
     Mat result;
@@ -117,6 +142,15 @@ void PerformTemplateMatching(const Mat& templ, const Mat& detect_templ, Mat* det
             max_correlation_scalar = scale;
         }
     }
+
+    // Calculate the total time taken.
+    err = clock_gettime(CLOCK_THREAD_CPUTIME_ID,&finish);
+    if (err){
+        perror("Failed to read thread_clock with error = %d\n");
+        exit(1);
+    }
+    calculation_time = time_in_seconds(&finish)-time_in_seconds(&start);
+    cout << "Calculation time for algorithm: " << calculation_time << endl;
 
     const double alpha = 0.3;
     addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect); 
