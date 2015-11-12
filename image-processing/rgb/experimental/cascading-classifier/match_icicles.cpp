@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     }
 
     char command[150];
-    sprintf(command, "raspistill -w 960 -h 640 -ss 10000 -vs -ex antishake -t 1 -o %s", argv[1]);
+    sprintf(command, "raspistill -w 640 -h 480 -ss 10000 -vs -ex antishake -t 1 -o %s", argv[1]);
 	if(system(command) == -1) {
       cout << "Error taking a picture. Are you running as root?" << endl;
       return -1;
@@ -106,8 +106,8 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
         const Rect& rect = objects[i];
         FillShadedRectangle(rect, &shaded);
     }
-    for (int i = 0; i < objects.size(); i++) {
-        Rect& rect = objects[i];
+    for (int i = 0; i < objects_flipped.size(); i++) {
+        Rect& rect = objects_flipped[i];
         // Flip the rectangle so that it appears correctly on the shaded image.
         rect.x = greyscale.cols - rect.x - rect.width;
         FillShadedRectangle(rect, &shaded);
