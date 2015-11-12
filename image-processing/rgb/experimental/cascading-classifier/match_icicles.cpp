@@ -16,6 +16,12 @@ int LoadImage(const char* filename, Mat* original);
 void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect);
 void FillShadedRectangle(const Rect& rect, Mat* shaded);
 
+// some helper functions for dealing with times
+double time_in_seconds(struct timespec *t){
+    // a timespec has integer values for seconds and nano seconds
+    return (t->tv_sec + 1.0e-9 * (t->tv_nsec));
+}
+
 const char kCascadeName[] = "icicle_classifier/cascade.xml";
 
 const char kDetectWindowName[] = "Source with Matched Classifier";

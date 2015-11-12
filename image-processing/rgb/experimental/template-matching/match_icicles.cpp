@@ -21,6 +21,12 @@ const char kDetectEdgesWindowName[] = "Source Edges";
 
 const double kThreshold = 2000000;
 
+// some helper functions for dealing with times
+double time_in_seconds(struct timespec *t){
+    // a timespec has integer values for seconds and nano seconds
+    return (t->tv_sec + 1.0e-9 * (t->tv_nsec));
+}
+
 int main(int argc, char* argv[]) {
     // First create an icicle template from the image of a single icicle.
     Mat icicle_template;
