@@ -15,7 +15,6 @@ void FillShadedRectangle(const Rect& rect, Mat* shaded);
 const char kCascadeName[] = "icicle_classifier/cascade.xml";
 
 const char kDetectWindowName[] = "Source with Matched Classifier";
-const double kThreshold = 2000000;
 
 int main(int argc, char* argv[]) {
 
@@ -25,7 +24,7 @@ int main(int argc, char* argv[]) {
     }
 
     char command[150];
-    sprintf(command, "raspistill -ss 5000 -vs -ex antishake -t 1 -o %s", argv[1]);
+    sprintf(command, "raspistill -w 960 -h 640 -ss 10000 -vs -ex antishake -t 1 -o %s", argv[1]);
 	if(system(command) == -1) {
       cout << "Error taking a picture. Are you running as root?" << endl;
       return -1;
@@ -57,7 +56,7 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
     Mat greyscale;
     // Convert the image to greyscale.
     cvtColor(*detect, greyscale, CV_BGR2GRAY);
-    cascade.detectMultiScale(greyscale, objects, 1.05, 1, 0 | CASCADE_DO_ROUGH_SEARCH | CASCADE_SCALE_IMAGE, Size(10, 10));
+    cascade.detectMultiScale(greyscale, objects, 1.05, 2, 0 | CASCADE_SCALE_IMAGE, Size(10, 10));
     Mat shaded(detect->size(), CV_8UC3, Scalar(0, 0, 0));
     for (int i = 0; i < objects.size(); i++) {
         const Rect& rect = objects[i];
