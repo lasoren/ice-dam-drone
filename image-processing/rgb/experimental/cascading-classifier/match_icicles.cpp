@@ -62,6 +62,15 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
         const Rect& rect = objects[i];
         FillShadedRectangle(rect, &shaded);
     }
+    // Try the flipped version of the image.
+    flip(greyscale, greyscale, 1);
+    cascade.detectMultiScale(greyscale, objects, 1.05, 1, 0 | CASCADE_DO_ROUGH_SEARCH | CASCADE_SCALE_IMAGE, Size(10, 10));
+    for (int i = 0; i < objects.size(); i++) {
+        Rect& rect = objects[i];
+        // Flip the rectangle so that it appears correctly on the shaded image.
+        rect.x = greyscale.cols - rect.x - rect.width;
+        FillShadedRectangle(rect, &shaded);
+    }
     // Color the original image where objects were detected.
     const double alpha = 0.3;
     addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect);
