@@ -18,6 +18,8 @@ int openDevice(char* filename){
     return -1;
   }*/
   
+  i2c_smbus_write_byte_data(file, CONTROL_REG, RESET_FPGA); 
+  usleep(20000);
   return file;
 }
 
@@ -44,22 +46,15 @@ int isReady(int file){
 }
 
 int getDistance(int file){
-  /*if(!isOkay(file)){
-    return -1;
-  }
-
+  while(!isReady(file)){} // spin
+  
   if(isReady(file)){
     i2c_smbus_write_byte_data(file, CONTROL_REG, AQUISIT_DC);
   } else {
     return -1;
   }
 
-  while(!isReady(file)){} // spin  */
+  while(!isReady(file)){} // spin  
   
-  i2c_smbus_write_byte_data(file, CONTROL_REG, RESET_FPGA);
-  usleep(20000); // wait for the fpga to reset 
-  i2c_smbus_write_byte_data(file, CONTROL_REG, AQUISIT_DC);
-  usleep(20000); // for data to be aquired and written to the appropriate registers
-
   return (i2c_smbus_read_byte_data(file, AQUISIT_REG_MSB) << 8) | i2c_smbus_read_byte_data(file, AQUISIT_REG_LSB);
 }
