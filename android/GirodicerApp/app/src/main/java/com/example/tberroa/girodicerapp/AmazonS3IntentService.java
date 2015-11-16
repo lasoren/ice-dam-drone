@@ -1,7 +1,6 @@
 package com.example.tberroa.girodicerapp;
 
 import android.app.IntentService;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -18,14 +17,6 @@ import java.util.ArrayList;
 
 public class AmazonS3IntentService extends IntentService {
 
-    private int number_of_missions;
-    private int number_of_aerials;
-    private int number_of_thermals;
-    private int number_of_iceDams;
-    private int number_of_salts;
-    private ArrayList<Mission> missions;
-
-    // constructor
     public AmazonS3IntentService() {
         super("AmazonS3IntentService");
     }
@@ -33,12 +24,12 @@ public class AmazonS3IntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // currently fetching
-        BucketInfo bucketInfo = new BucketInfo(this.getApplicationContext());
+        BucketInfo bucketInfo = new BucketInfo();
         bucketInfo.setFetching(this.getApplicationContext(), true);
 
         // grab username and initialize number of missions
         String username = intent.getStringExtra("username");
-        number_of_missions = 1;
+        int numberOfMissions = 1;
 
         // Initialize the Amazon credentials provider and AmazonS3 Client
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -51,36 +42,58 @@ public class AmazonS3IntentService extends IntentService {
         // get number of missions
         Boolean keepGoing = true;
         while (keepGoing){
-            String key = "Flight " + Integer.toString(number_of_missions) + "/Aerial/aerial1.jpg";
+            String key = "Flight " + Integer.toString(numberOfMissions) + "/Aerial/aerial1.jpg";
             if (exists(s3Client, username, key)){
-                ++number_of_missions;
+                ++numberOfMissions;
             }
             else{
-                --number_of_missions;    // most recent flight did not exist
+                --numberOfMissions;    // most recent flight did not exist
                 keepGoing = false;
             }
         }
 
         // create array of missions
-        missions = new ArrayList<>(number_of_missions);
+        ArrayList<Mission> missions = new ArrayList<>(numberOfMissions);
 
-        // get number of aerials for all missions
-        for (int i=1; i <= number_of_missions; i++ ){
-            number_of_aerials = 0;
-            String prefix = "Flight " + Integer.toString(i) + "/Aerial/";
-            ObjectListing list = s3Client.listObjects(username, prefix);
+        // get number of images for all missions
+        for (int i=1; i <= numberOfMissions; i++ ){
+            int numberOfAerials, numberOfThermals, numberOfIceDams, numberOfSalts;
+            numberOfAerials = numberOfThermals = numberOfIceDams = numberOfSalts = 0;
+            String prefixAerial = "Flight " + Integer.toString(i) + "/Aerial/";
+            String prefixThermal = "Flight " + Integer.toString(i) + "/Thermal/";
+            String prefixIceDam = "Flight " + Integer.toString(i) + "/IceDam/";
+            String prefixSalt = "Flight " + Integer.toString(i) + "/Salt/";
+            ObjectListing listAerial = s3Client.listObjects(username, prefixAerial);
+            ObjectListing listThermal = s3Client.listObjects(username, prefixThermal);
+            ObjectListing listIceDam = s3Client.listObjects(username, prefixIceDam);
+            ObjectListing listSalt = s3Client.listObjects(username, prefixSalt);
             // get number of aerials in flight i
-            for (S3ObjectSummary objectSummary : list.getObjectSummaries()){
-                ++number_of_aerials;
+            for (S3ObjectSummary objectSummary : listAerial.getObjectSummaries()){
+                ++numberOfAerials;
             }
-            // create Mission object and store in missions array
+            // get number of thermals in flight i
+            for (S3ObjectSummary objectSummary : listThermal.getObjectSummaries()){
+                ++numberOfThermals;
+            }
+            // get number of ice dams in flight i
+            for (S3ObjectSummary objectSummary : listIceDam.getObjectSummaries()){
+                ++numberOfIceDams;
+            }
+            // get number of salts in flight i
+            for (S3ObjectSummary objectSummary : listSalt.getObjectSummaries()){
+                ++numberOfSalts;
+            }
+            // create new mission object and store in missions array
             Mission mission = new Mission();
-            mission.num_of_aerials = number_of_aerials;
+            mission.numberOfAerials = numberOfAerials;
+            mission.numberOfThermals = numberOfThermals;
+            mission.numberOfIceDams = numberOfIceDams;
+            mission.numberOfSalts = numberOfSalts;
             missions.add(mission);
         }
 
         // save the number of missions
-        bucketInfo.setNumOfMissions(this.getApplicationContext(), number_of_missions);
+        bucketInfo.setNumOfMissions(this.getApplicationContext(), numberOfMissions);
 
         // save the missions array
         Gson gson = new Gson();

@@ -6,7 +6,7 @@
     tools:context="com.example.tberroa.girodicerapp.PreviousMissionsActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/previous_missions_toolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="4dp"
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/previous_missions_recycler_view"
-        android:layout_below="@+id/previous_missions_toolbar"
+        android:layout_below="@+id/toolbar"
         />
 
 </RelativeLayout>

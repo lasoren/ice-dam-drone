@@ -1,6 +1,5 @@
 package com.example.tberroa.girodicerapp;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,8 +10,8 @@ import android.view.ViewGroup;
 
 public class TabAerialFragment extends Fragment {
 
-    int num_of_aerials;
-    int mission_num;
+    int numberOfAerials;
+    int missionNumber;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -20,17 +19,16 @@ public class TabAerialFragment extends Fragment {
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            num_of_aerials = bundle.getInt("num_of_aerials", 0);
-            mission_num = bundle.getInt("mission_num", 0);
+            numberOfAerials = bundle.getInt("numberOfAerials", 0);
+            missionNumber = bundle.getInt("missionNumber", 0);
         }
 
         if (isAdded()){
             // initialize recycler view
             RecyclerView missionsRecyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
             // get screen dimensions
-            Context context = getActivity();
-            int screenWidth = new Utilities().getScreenWidth(context);
-            int screenHeight = new Utilities().getScreenWidth(context);
+            int screenWidth = Utilities.getScreenWidth(this.getContext());
+            int screenHeight = Utilities.getScreenHeight(this.getContext());
             // if screen is landscape, 4 columns, 2 otherwise
             int span;
             if (screenWidth > screenHeight){
@@ -42,7 +40,7 @@ public class TabAerialFragment extends Fragment {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
             missionsRecyclerView.setLayoutManager(gridLayoutManager);
             // populate recyclerView
-            FragmentRecyclerAdapter recyclerAdapter = new FragmentRecyclerAdapter(getActivity(), mission_num, num_of_aerials);
+            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfAerials, "aerial");
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
 

@@ -12,20 +12,20 @@ public class ServiceStatus extends Application {
         SERVICE_RUNNING = prefs.getBoolean("is_service_running", false);
     }
 
-    public void setServiceStatus_true(Context context) {
+    public void setServiceStatusTrue(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("service_status", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("is_service_running", true);
         editor.apply();
     }
 
-    public void setServiceStatus_false(Context context) {
+    public void setServiceStatusFalse(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("service_status", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("is_service_running", false);
         editor.apply();
     }
-    public Boolean getServiceStatus() {
+    public Boolean isServiceRunning() {
         return SERVICE_RUNNING;
     }
 }

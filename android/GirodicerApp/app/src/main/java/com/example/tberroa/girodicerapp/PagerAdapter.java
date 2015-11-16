@@ -8,37 +8,48 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
-    int missionNum;
-    int numOfAerials;
 
-    public PagerAdapter(FragmentManager fm, int NumOfTabs, int missionNum, int numOfAerials) {
+    int numberOfTabs;
+    int missionNumber;
+    int numberOfAerials;
+    int numberOfThermals;
+    int numberOfIceDams;
+    int numberOfSalts;
+
+    public PagerAdapter(FragmentManager fm, int numberOfTabs, int missionNumber, Mission mission) {
         super(fm);
-        this.mNumOfTabs = NumOfTabs;
-        this.missionNum = missionNum;
-        this.numOfAerials = numOfAerials;
+        this.numberOfTabs = numberOfTabs;
+        this.missionNumber = missionNumber;
+        this.numberOfAerials = mission.numberOfAerials;
+        this.numberOfThermals = mission.numberOfThermals;
+        this.numberOfIceDams = mission.numberOfIceDams;
+        this.numberOfSalts = mission.numberOfSalts;
     }
 
     @Override
     public Fragment getItem(int position) {
-
+        Bundle bundle = new Bundle();
+        bundle.putInt("missionNumber", missionNumber);
+        bundle.putInt("numberOfAerials", numberOfAerials);
+        bundle.putInt("numberOfThermals", numberOfThermals);
+        bundle.putInt("numberOfIceDams", numberOfIceDams);
+        bundle.putInt("numberOfSalts", numberOfSalts);
         switch (position) {
             case 0:
                 TabAerialFragment tabAerial = new TabAerialFragment();
-                // store mission data in bundle for the fragments to access
-                Bundle bundle = new Bundle();
-                bundle.putInt("num_of_aerials", numOfAerials);
-                bundle.putInt("mission_num", missionNum);
                 tabAerial.setArguments(bundle);
                 return tabAerial;
             case 1:
                 TabThermalFragment tabThermal = new TabThermalFragment();
+                tabThermal.setArguments(bundle);
                 return tabThermal;
             case 2:
                 TabIceDamsFragment tabIceDams = new TabIceDamsFragment();
+                tabIceDams.setArguments(bundle);
                 return tabIceDams;
             case 3:
                 TabSaltFragment tabSalt = new TabSaltFragment();
+                tabSalt.setArguments(bundle);
                 return tabSalt;
             default:
                 return null;
@@ -47,6 +58,6 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return mNumOfTabs;
+        return numberOfTabs;
     }
 }

@@ -6,7 +6,7 @@
     tools:context=".MainActivity">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/mission_toolbar"
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:elevation="4dp"
@@ -18,7 +18,7 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/mission_toolbar"
+        android:layout_below="@+id/toolbar"
         android:background="@color/colorPrimaryLight"
         android:elevation="6dp"
         android:minHeight="?attr/actionBarSize"

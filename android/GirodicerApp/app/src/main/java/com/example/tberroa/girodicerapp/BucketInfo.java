@@ -8,26 +8,22 @@ import android.content.SharedPreferences;
 public class BucketInfo extends Application {
 
     // constructor
-    public BucketInfo(Context context){
-        SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
+    public BucketInfo(){
     }
 
-    public Boolean getFetching(Context context){
+    public Boolean isFetching(Context context){
         SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
-        Boolean fetching = prefs.getBoolean("fetching", false);
-        return fetching;
+        return prefs.getBoolean("fetching", false);
     }
 
     public String getMissions(Context context){
         SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
-        String missions = prefs.getString("missions", "");
-        return missions;
+        return prefs.getString("missions", "");
     }
 
     public int getNumOfMissions(Context context){
         SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
-        int num = prefs.getInt("num_of_missions", 0);
-        return num;
+        return prefs.getInt("num_of_missions", 0);
     }
 
     public void setFetching(Context context, Boolean bool){
