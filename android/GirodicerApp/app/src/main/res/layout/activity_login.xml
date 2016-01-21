@@ -27,7 +27,7 @@
         android:ems="10"
         android:hint="password"
         android:inputType="textPassword"
-        android:imeOptions="actionSend"
+        android:imeOptions="actionGo"
         />
 
     <Button

@@ -29,6 +29,7 @@ public class MainActivity extends BaseActivity {
             if (!serviceStatus.isServiceRunning()) {
                 startService(new Intent(MainActivity.this, AdvertiseService.class));
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
+                finish();
             }
             else{
                 missionInProgressDialog(v.getContext()).show();
@@ -39,6 +40,7 @@ public class MainActivity extends BaseActivity {
     private OnClickListener previousMissionsButtonListener = new OnClickListener() {
         public void onClick(View v) {
             startActivity(new Intent(MainActivity.this,PreviousMissionsActivity.class));
+            finish();
         }
     };
 

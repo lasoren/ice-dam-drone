@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -18,6 +19,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.File;
 
 public class ActiveMissionActivity extends BaseActivity {
+
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,10 @@ public class ActiveMissionActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
+
+        MenuItem item = menu.findItem(R.id.title);
+        item.setTitle("Logged in as: " + username);
+
         return true;
     }
 }

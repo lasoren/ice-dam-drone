@@ -28,7 +28,7 @@ public class RegisterActivity extends BaseActivity{
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                if (actionId == EditorInfo.IME_ACTION_GO) {
                     new AttemptRegistration().execute();
                     handled = true;
                 }

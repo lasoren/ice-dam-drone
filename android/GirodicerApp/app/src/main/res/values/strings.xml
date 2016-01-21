@@ -15,6 +15,8 @@
     <string name="no_active_mission">Invalid request, there is active mission to end.</string>
     <string name="image">image</string>
     <string name="fetching_data">Fetching data from the cloud</string>
+    <string name="logout">Logout</string>
+    <string name="placeholder">placeholder</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

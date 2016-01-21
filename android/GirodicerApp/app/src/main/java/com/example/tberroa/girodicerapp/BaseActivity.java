@@ -8,19 +8,28 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.internal.view.menu.MenuView;
 import android.view.MenuItem;
 
 public class BaseActivity extends AppCompatActivity {
+
+    private String username;
+    private Boolean userLoggedOn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
+
+        // get username
+        UserInfo userInfo = new UserInfo();
+        username = userInfo.getUsername(this.getApplicationContext());
     }
 
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.end_mission:
                 ServiceStatus serviceStatus = new ServiceStatus(this.getApplicationContext());
@@ -41,6 +50,15 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(previousMissions);
                 finish();
                 return true;
+            case R.id.logout:
+                // update user info
+                UserInfo userInfo = new UserInfo();
+                userInfo.setUsername(getApplicationContext(), "");
+                userInfo.setUserStatus(getApplicationContext(), false);
+                // go back to login page
+                Intent logout = new Intent(this,LoginActivity.class);
+                startActivity(logout);
+                finish();
             default:
                 // the users action was not recognized, invoke the superclass to handle it
                 return super.onOptionsItemSelected(item);

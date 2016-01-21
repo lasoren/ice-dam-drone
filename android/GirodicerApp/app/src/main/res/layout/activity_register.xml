@@ -52,7 +52,7 @@
         android:ems="10"
         android:hint="email"
         android:inputType="textEmailAddress"
-        android:imeOptions="actionSend"
+        android:imeOptions="actionGo"
         />
 
     <Button

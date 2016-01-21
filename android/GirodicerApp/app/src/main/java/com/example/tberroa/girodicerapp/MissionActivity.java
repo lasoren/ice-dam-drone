@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -14,10 +15,16 @@ import java.lang.reflect.Type;
 
 public class MissionActivity extends BaseActivity {
 
+    private String username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mission);
+
+        // grab username
+        UserInfo userInfo = new UserInfo();
+        username = userInfo.getUsername(this.getApplicationContext());
 
         // set tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
@@ -66,6 +73,10 @@ public class MissionActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
+
+        MenuItem item = menu.findItem(R.id.title);
+        item.setTitle("Logged in as: " + username);
+
         return true;
     }
 }

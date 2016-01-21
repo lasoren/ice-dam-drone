@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ public class PreviousMissionsActivity extends BaseActivity {
 
     private BroadcastReceiver receiver;
     private ProgressDialog progressDialog;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +33,9 @@ public class PreviousMissionsActivity extends BaseActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         previousMissionsRecyclerView.setLayoutManager(linearLayoutManager);
 
-        String username = "missionphotos"; // hard code this for now
+        // grab username
+        UserInfo userInfo = new UserInfo();
+        username = userInfo.getUsername(this.getApplicationContext());
 
         // setup and register receiver
         IntentFilter filter = new IntentFilter();
@@ -73,6 +77,10 @@ public class PreviousMissionsActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
+
+        MenuItem item = menu.findItem(R.id.title);
+        item.setTitle("Logged in as: "+username);
+
         return true;
     }
 
