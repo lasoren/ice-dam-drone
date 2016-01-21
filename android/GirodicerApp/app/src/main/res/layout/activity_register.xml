@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:orientation="vertical" >
+
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:focusable="true"
+        android:hint="username"
+        android:inputType="text"
+        android:imeOptions="actionNext"
+        />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/username"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="password"
+        android:inputType="textPassword"
+        android:imeOptions="actionNext"
+        />
+
+    <EditText
+        android:id="@+id/confirm_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:focusable="true"
+        android:hint="confirm password"
+        android:inputType="textPassword"
+        android:imeOptions="actionNext"
+        />
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/confirm_password"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="email"
+        android:inputType="textEmailAddress"
+        android:imeOptions="actionSend"
+        />
+
+    <Button
+        android:id="@+id/create_account"
+        android:layout_width="118dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/email"
+        android:layout_alignLeft="@+id/password"
+        android:layout_alignRight="@+id/password"
+        android:layout_centerHorizontal="true"
+        android:text="create account" />
+
+    <Button
+        android:id="@+id/go_to_login"
+        android:layout_width="118dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/create_account"
+        android:layout_alignLeft="@+id/password"
+        android:layout_alignRight="@+id/password"
+        android:layout_centerHorizontal="true"
+        android:text="go to login" />
+
+</RelativeLayout>

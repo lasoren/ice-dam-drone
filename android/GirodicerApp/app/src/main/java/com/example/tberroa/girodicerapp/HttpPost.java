@@ -11,7 +11,8 @@ import okhttp3.Response;
 public class HttpPost {
 
     OkHttpClient httpClient = new OkHttpClient();
-    private final MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
+    private final MediaType mediaType =
+            MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
 
     public String doPostRequest(String url, String keyValuePairs) throws IOException {
         RequestBody body = RequestBody.create(mediaType, keyValuePairs);
