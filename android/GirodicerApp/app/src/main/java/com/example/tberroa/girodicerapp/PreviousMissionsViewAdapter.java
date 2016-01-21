@@ -35,6 +35,7 @@ public class PreviousMissionsViewAdapter extends RecyclerView.Adapter<PreviousMi
             missionPhoto = (ImageView) itemView.findViewById(R.id.mission_photo);
             missionNum = (TextView) itemView.findViewById(R.id.mission_num);
             missionPhoto.setOnClickListener(this);
+            missionNum.setOnClickListener(this);
         }
 
         @Override

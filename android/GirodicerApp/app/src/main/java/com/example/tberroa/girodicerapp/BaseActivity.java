@@ -34,6 +34,12 @@ public class BaseActivity extends AppCompatActivity {
             case R.id.current_mission:
                 Intent activeMission = new Intent(this,ActiveMissionActivity.class);
                 startActivity(activeMission);
+                finish();
+                return true;
+            case R.id.previous_missions:
+                Intent previousMissions = new Intent(this,PreviousMissionsActivity.class);
+                startActivity(previousMissions);
+                finish();
                 return true;
             default:
                 // the users action was not recognized, invoke the superclass to handle it

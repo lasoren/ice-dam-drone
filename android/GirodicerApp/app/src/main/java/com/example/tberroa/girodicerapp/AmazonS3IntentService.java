@@ -31,7 +31,7 @@ public class AmazonS3IntentService extends IntentService {
         String username = intent.getStringExtra("username");
         int numberOfMissions = 1;
 
-        // Initialize the Amazon credentials provider and AmazonS3 Client
+        // initialize the Amazon credentials provider and AmazonS3 Client
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),
                 "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c", // Identity Pool ID
