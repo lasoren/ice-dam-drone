@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 public class LoginActivity extends AppCompatActivity {
 
     protected EditText username, password;
@@ -46,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         if (userLoggedOn){
             // go to app
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
         }
 
     }

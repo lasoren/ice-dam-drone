@@ -17,6 +17,9 @@ public class MainActivity extends BaseActivity {
         Button startMissionButton = (Button)findViewById(R.id.start_mission_button);
         startMissionButton.setOnClickListener(startMissionButtonListener);
 
+        Button currentMissionButton = (Button)findViewById(R.id.current_mission_button);
+        currentMissionButton.setOnClickListener(currentMissionButtonListener);
+
         Button previousMissionsButton = (Button)findViewById(R.id.previous_missions_button);
         previousMissionsButton.setOnClickListener(previousMissionsButtonListener);
 
@@ -27,7 +30,7 @@ public class MainActivity extends BaseActivity {
         public void onClick(View v) {
             ServiceStatus serviceStatus = new ServiceStatus(v.getContext().getApplicationContext());
             if (!serviceStatus.isServiceRunning()) {
-                startService(new Intent(MainActivity.this, AdvertiseService.class));
+                startService(new Intent(MainActivity.this, ActiveMissionService.class));
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
                 finish();
             }
@@ -37,9 +40,16 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private OnClickListener currentMissionButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
+            finish();
+        }
+    };
+
     private OnClickListener previousMissionsButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(MainActivity.this,PreviousMissionsActivity.class));
+            startActivity(new Intent(MainActivity.this, PreviousMissionsActivity.class));
             finish();
         }
     };
@@ -47,6 +57,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        stopService(new Intent(MainActivity.this, AdvertiseService.class));
+        stopService(new Intent(MainActivity.this, ActiveMissionService.class));
     }
 }

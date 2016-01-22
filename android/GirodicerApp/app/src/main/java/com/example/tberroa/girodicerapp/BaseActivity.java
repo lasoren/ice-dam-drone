@@ -8,36 +8,55 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.internal.view.menu.MenuView;
 import android.view.MenuItem;
 
 public class BaseActivity extends AppCompatActivity {
-
-    private String username;
-    private Boolean userLoggedOn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
 
-        // get username
+        // get user login status
         UserInfo userInfo = new UserInfo();
-        username = userInfo.getUsername(this.getApplicationContext());
+        Boolean userLoggedOn = userInfo.getUserStatus(this.getApplicationContext());
+
+        if (!userLoggedOn){ // if user has not logged in, boot them
+            // make sure username is reset
+            userInfo.setUsername(this.getApplicationContext(), "");
+            // go back to login page
+            Intent logout = new Intent(this,LoginActivity.class);
+            startActivity(logout);
+            finish();
+        }
+
     }
 
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        ServiceStatus serviceStatus = new ServiceStatus(this.getApplicationContext());
         switch (item.getItemId()) {
             case R.id.end_mission:
-                ServiceStatus serviceStatus = new ServiceStatus(this.getApplicationContext());
                 if (!serviceStatus.isServiceRunning()) { // if there is no mission in progress
                     noActiveMissionDialog(this).show();
                 }
                 else{ // otherwise, there is a mission in progress
                     confirmEndMissionDialog(this).show();
+                }
+                return true;
+            case R.id.start_mission:
+                if (!serviceStatus.isServiceRunning()) { // if there is no mission in progress
+                    // start the active mission service
+                    startService(new Intent(this, ActiveMissionService.class));
+                    // go to active mission activity
+                    Intent activeMission = new Intent(this,ActiveMissionActivity.class);
+                    startActivity(activeMission);
+                    finish();
+                }
+                else{ // otherwise, there is a mission in progress
+                    // tell user a mission is already in progress
+                    missionInProgressDialog(this).show();
                 }
                 return true;
             case R.id.current_mission:
@@ -49,6 +68,9 @@ public class BaseActivity extends AppCompatActivity {
                 Intent previousMissions = new Intent(this,PreviousMissionsActivity.class);
                 startActivity(previousMissions);
                 finish();
+                return true;
+            case R.id.delete_previous_missions:
+                // run delete metadata service
                 return true;
             case R.id.logout:
                 // update user info
@@ -91,7 +113,7 @@ public class BaseActivity extends AppCompatActivity {
                 })
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        stopService(new Intent(context, AdvertiseService.class));
+                        stopService(new Intent(context, ActiveMissionService.class));
                     }
                 });
         return alertDialogBuilder.create();
@@ -106,6 +128,7 @@ public class BaseActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         Intent activeMission = new Intent(context, ActiveMissionActivity.class);
                         startActivity(activeMission);
+                        finish();
                     }
                 });
         return alertDialogBuilder.create();

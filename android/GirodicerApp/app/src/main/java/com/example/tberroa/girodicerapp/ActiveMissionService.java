@@ -13,9 +13,16 @@ import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+
+import java.io.File;
 import java.util.UUID;
 
-public class AdvertiseService extends Service {
+public class ActiveMissionService extends Service {
 
     private Context applicationContext;
     private BluetoothAdapter bluetoothAdapter;
@@ -43,11 +50,34 @@ public class AdvertiseService extends Service {
             // stop advertising
             bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
         }
+
+        // mission over, time to upload images
+        // initialize the Amazon credentials provider and AmazonS3 Client
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(),
+                "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+
+        AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
+        TransferUtility transferUtility = new TransferUtility(s3Client, getApplicationContext());
+
+        // upload the images
+        UserInfo userInfo = new UserInfo();
+        String username = userInfo.getUsername(applicationContext);
+        int missionNumber = new BucketInfo().getNumOfMissions(applicationContext)+1;
+        String keyName = username+"/Mission "+missionNumber+"/Aerial/aerial1.jpg";
+        File fileName = new File("/storage/emulated/0/Pictures/Screenshots/screenshot1.png");
+        transferUtility.upload("girodicer", keyName, fileName);
+        // update bucket info, metadata is no longer up to date
+        BucketInfo bucketInfo = new BucketInfo();
+        bucketInfo.setUpToDate(this.getApplicationContext(), false);
+
         // update global variable, service has ended
         ServiceStatus service_status = new ServiceStatus(applicationContext);
         service_status.setServiceStatusFalse(this);
         // print message to user, service ended
-        Toast.makeText(this, "service ended", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "mission service has ended", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -56,11 +86,11 @@ public class AdvertiseService extends Service {
         if (bluetoothAdapter.isMultipleAdvertisementSupported()){  // if advertising is supported
             startAdvertise();
             Toast.makeText(this,
-                    "service started, BLE advertising supported", Toast.LENGTH_SHORT).show();
+                    "mission service started, BLE advertising supported", Toast.LENGTH_SHORT).show();
         }
         else{   // if advertising is not supported
             Toast.makeText(this,
-                    "service started, BLE advertising not supported", Toast.LENGTH_SHORT).show();
+                    "mission service started, BLE advertising not supported", Toast.LENGTH_SHORT).show();
         }
         return START_NOT_STICKY;
     }

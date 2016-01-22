@@ -15,8 +15,9 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     int numberOfThermals;
     int numberOfIceDams;
     int numberOfSalts;
+    String username;
 
-    public PagerAdapter(FragmentManager fm, int numberOfTabs, int missionNumber, Mission mission) {
+    public PagerAdapter(FragmentManager fm, int numberOfTabs, int missionNumber, Mission mission, String username) {
         super(fm);
         this.numberOfTabs = numberOfTabs;
         this.missionNumber = missionNumber;
@@ -24,6 +25,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
         this.numberOfThermals = mission.numberOfThermals;
         this.numberOfIceDams = mission.numberOfIceDams;
         this.numberOfSalts = mission.numberOfSalts;
+        this.username = username;
     }
 
     @Override
@@ -34,6 +36,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
         bundle.putInt("numberOfThermals", numberOfThermals);
         bundle.putInt("numberOfIceDams", numberOfIceDams);
         bundle.putInt("numberOfSalts", numberOfSalts);
+        bundle.putString("username", username);
         switch (position) {
             case 0:
                 TabAerialFragment tabAerial = new TabAerialFragment();

@@ -16,6 +16,11 @@ public class BucketInfo extends Application {
         return prefs.getBoolean("fetching", false);
     }
 
+    public Boolean isUpToDate(Context context){
+        SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
+        return prefs.getBoolean("upToDate", false);
+    }
+
     public String getMissions(Context context){
         SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
         return prefs.getString("missions", "");
@@ -30,6 +35,13 @@ public class BucketInfo extends Application {
         SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("fetching", bool);
+        editor.apply();
+    }
+
+    public void setUpToDate(Context context, Boolean bool){
+        SharedPreferences prefs = context.getSharedPreferences("bucket_info", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("upToDate", bool);
         editor.apply();
     }
 

@@ -15,14 +15,15 @@ public class TabViewAdapter extends RecyclerView.Adapter<TabViewAdapter.ImageVie
     Context activityContext;
     int numberOfImages;
     int missionNumber;
-    String type;
+    String username, type;
 
     // constructor
-    TabViewAdapter(Context activityContext, int missionNumber, int numberOfImages, String type){
+    TabViewAdapter(Context activityContext, int missionNumber, int numberOfImages, String type, String username){
         this.activityContext = activityContext;
         this.missionNumber = missionNumber;
         this.numberOfImages = numberOfImages;
         this.type = type;
+        this.username = username;
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
@@ -48,7 +49,7 @@ public class TabViewAdapter extends RecyclerView.Adapter<TabViewAdapter.ImageVie
     @Override
     public void onBindViewHolder(ImageViewHolder imageViewHolder, int i) {
         // construct image url
-        String urlBase = "http://s3.amazonaws.com/missionphotos/Flight+";
+        String urlBase = "http://s3.amazonaws.com/girodicer/"+username+"/Mission+";
         String url;
         switch (type){
             case "aerial":

@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,7 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-public class RegisterActivity extends BaseActivity{
+
+public class RegisterActivity extends AppCompatActivity {
 
     private EditText username, password, confirmPassword, email;
 
@@ -85,10 +87,25 @@ public class RegisterActivity extends BaseActivity{
         }
 
         protected void onPostExecute(String message) {
-            Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
             if (message != null){
                 Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
             }
+            else{
+                if (postResponse.equals("account successfully created")){
+                    // save user info
+                    UserInfo userInfo = new UserInfo();
+                    userInfo.setUsername(getApplicationContext(), username);
+                    userInfo.setUserStatus(getApplicationContext(), true);
+                    // go to app
+                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+
+                    finish();
+                }
+                else{
+                    Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
+                }
+            }
+
         }
     }
 }

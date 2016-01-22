@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class TabSaltFragment extends Fragment {
+
     int numberOfSalts;
     int missionNumber;
+    String username;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -20,6 +22,7 @@ public class TabSaltFragment extends Fragment {
         if (bundle != null) {
             numberOfSalts = bundle.getInt("numberOfSalts", 0);
             missionNumber = bundle.getInt("missionNumber", 0);
+            username = bundle.getString("username", username);
         }
 
         if (isAdded()){
@@ -39,7 +42,7 @@ public class TabSaltFragment extends Fragment {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
             missionsRecyclerView.setLayoutManager(gridLayoutManager);
             // populate recyclerView
-            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfSalts, "salt");
+            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfSalts, "salt", username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
 

@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class TabIceDamsFragment extends Fragment {
+
     int numberOfIceDams;
     int missionNumber;
+    String username;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -20,6 +22,7 @@ public class TabIceDamsFragment extends Fragment {
         if (bundle != null) {
             numberOfIceDams = bundle.getInt("numberOfIceDams", 0);
             missionNumber = bundle.getInt("missionNumber", 0);
+            username = bundle.getString("username", username);
         }
 
         if (isAdded()){
@@ -39,7 +42,7 @@ public class TabIceDamsFragment extends Fragment {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
             missionsRecyclerView.setLayoutManager(gridLayoutManager);
             // populate recyclerView
-            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfIceDams, "iceDam");
+            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfIceDams, "iceDam", username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
 

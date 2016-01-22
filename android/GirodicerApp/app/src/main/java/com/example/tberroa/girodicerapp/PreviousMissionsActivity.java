@@ -45,22 +45,22 @@ public class PreviousMissionsActivity extends BaseActivity {
             public void onReceive(Context context, Intent intent) {
                 // done fetching data, dismiss dialog and reload activity
                 progressDialog.dismiss();
-                finish();
                 startActivity(getIntent());
+                finish();
             }
         };
         registerReceiver(receiver, filter);
 
         // check if bucket metadata has been fetched already
         BucketInfo bucketInfo = new BucketInfo();
-        int numberOfMissions = bucketInfo.getNumOfMissions(this.getApplicationContext());
-        if (numberOfMissions > 0){ //  if metadata has been fetched
+        Boolean upToDate = bucketInfo.isUpToDate(this.getApplicationContext());
+        if (upToDate){ //  if metadata is up to date
             ArrayList<Mission> missions = Utilities.getMissions(this.getApplicationContext());
             // populate recycler view
-            PreviousMissionsViewAdapter adapter = new PreviousMissionsViewAdapter(this, missions);
+            PreviousMissionsViewAdapter adapter = new PreviousMissionsViewAdapter(this, username, missions);
             previousMissionsRecyclerView.setAdapter(adapter);
         }
-        else{ // if metadata has not been fetched
+        else{ // if metadata is not up to date
             if (bucketInfo.isFetching(this.getApplicationContext())){ // currently fetching, show loading dialog
                 progressDialog =  Utilities.progressDialog(this, getString(R.string.fetching_data));
                 progressDialog.show();

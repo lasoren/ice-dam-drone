@@ -17,13 +17,15 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class PreviousMissionsViewAdapter extends RecyclerView.Adapter<PreviousMissionsViewAdapter.MissionViewHolder> {
-    Context context;
+    Context activityContext;
     ArrayList<Mission> missions;
+    String username;
 
     // constructor
-    PreviousMissionsViewAdapter(Context act_context, ArrayList<Mission> missions) {
-        context = act_context;
+    PreviousMissionsViewAdapter(Context activityContext, String username, ArrayList<Mission> missions) {
+        this.activityContext = activityContext;
         this.missions = missions;
+        this.username = username;
     }
 
     public class MissionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -73,8 +75,8 @@ public class PreviousMissionsViewAdapter extends RecyclerView.Adapter<PreviousMi
         allMissionsVH.missionNum.setText("Mission " + Integer.toString(i + 1));
 
         // set image with Picasso
-        String url = "http://s3.amazonaws.com/missionphotos/Flight+" + Integer.toString(i + 1) + "/Aerial/aerial1.jpg";
-        Picasso.with(context)
+        String url = "http://s3.amazonaws.com/girodicer/"+username+"/Mission+" + Integer.toString(i + 1) + "/Aerial/aerial1.jpg";
+        Picasso.with(activityContext)
                 .load(url)
                 .resize(200, 200)
                 .into(allMissionsVH.missionPhoto);

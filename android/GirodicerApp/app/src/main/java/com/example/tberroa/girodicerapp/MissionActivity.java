@@ -50,7 +50,7 @@ public class MissionActivity extends BaseActivity {
 
         final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         final PagerAdapter adapter = new PagerAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount(), missionNumber, mission);
+                (getSupportFragmentManager(), tabLayout.getTabCount(), missionNumber, mission, username);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

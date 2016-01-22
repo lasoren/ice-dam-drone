@@ -62,7 +62,7 @@
             android:enabled="true" />
 
         <service
-            android:name=".AdvertiseService"
+            android:name=".ActiveMissionService"
             android:exported="false" />
 
         <service

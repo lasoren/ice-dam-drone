@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class TabThermalFragment extends Fragment {
+
     int numberOfThermals;
     int missionNumber;
+    String username;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -39,7 +41,7 @@ public class TabThermalFragment extends Fragment {
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
             missionsRecyclerView.setLayoutManager(gridLayoutManager);
             // populate recyclerView
-            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfThermals, "thermal");
+            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfThermals, "thermal", username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
 
