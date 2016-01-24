@@ -31,7 +31,9 @@ public class RegisterActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    new AttemptRegistration().execute();
+                    if (validate()){
+                        new AttemptRegistration().execute();
+                    }
                     handled = true;
                 }
                 return handled;
@@ -39,13 +41,15 @@ public class RegisterActivity extends AppCompatActivity {
         });
         Button createAccountButton = (Button)findViewById(R.id.create_account);
         createAccountButton.setOnClickListener(createAccountButtonListener);
-        Button goToLoginButton = (Button)findViewById(R.id.go_to_login);
+        TextView goToLoginButton = (TextView)findViewById(R.id.go_to_login);
         goToLoginButton.setOnClickListener(goToLoginButtonListener);
     }
 
     private OnClickListener createAccountButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            new AttemptRegistration().execute();
+            if (validate()){
+                new AttemptRegistration().execute();
+            }
         }
     };
 
@@ -108,6 +112,51 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
     }
+
+    public boolean validate() {
+        boolean valid = true;
+
+        String enteredUsername = RegisterActivity.this.username.getText().toString();
+        String enteredPassword = RegisterActivity.this.password.getText().toString();
+        String enteredConfirmPassword = RegisterActivity.this.confirmPassword.getText().toString();
+        String enteredEmail = RegisterActivity.this.email.getText().toString();
+
+        // make sure username is alphanumeric and 3 to 15 characters
+        if (!enteredUsername.matches("[a-zA-Z0-9]+") || enteredUsername.length() < 3
+                || enteredUsername.length() > 15 ) {
+            username.setError("3 to 15 alphanumeric characters");
+            valid = false;
+        } else {
+            username.setError(null);
+        }
+
+        // make sure password is 6 to 20 characters
+        if (enteredPassword.length() < 6 || enteredPassword.length() > 20) {
+            password.setError("6 to 20 characters");
+            valid = false;
+        } else {
+            password.setError(null);
+        }
+
+        // make sure passwords match
+        if (!enteredConfirmPassword.equals(enteredPassword)) {
+            confirmPassword.setError("password mismatch");
+            valid = false;
+        } else {
+            confirmPassword.setError(null);
+        }
+
+        // make sure email is valid
+        if (enteredEmail.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
+            email.setError("enter a valid email address");
+            valid = false;
+        } else {
+            email.setError(null);
+        }
+
+        return valid;
+    }
+
 }
 
 

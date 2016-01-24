@@ -2,21 +2,32 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/home_page" >
 
-    android:orientation="vertical" >
+    <ImageView
+        android:id="@+id/logo"
+        android:src="@drawable/app_name"
+        android:contentDescription="@string/app_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="75dp"
+        android:layout_marginBottom="45dp"/>
 
     <EditText
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/logo"
         android:layout_centerHorizontal="true"
-        android:ems="10"
+        android:layout_marginBottom="15dp"
+        android:ems="12"
         android:focusable="true"
-        android:hint="username"
+        android:hint="@string/username"
         android:inputType="text"
-        android:imeOptions="actionNext"
-        />
+        android:imeOptions="actionNext" />
 
     <EditText
         android:id="@+id/password"
@@ -24,11 +35,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/username"
         android:layout_centerHorizontal="true"
-        android:ems="10"
-        android:hint="password"
+        android:layout_marginBottom="15dp"
+        android:ems="12"
+        android:hint="@string/password"
         android:inputType="textPassword"
-        android:imeOptions="actionNext"
-        />
+        android:imeOptions="actionNext" />
 
     <EditText
         android:id="@+id/confirm_password"
@@ -36,12 +47,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/password"
         android:layout_centerHorizontal="true"
-        android:ems="10"
+        android:layout_marginBottom="15dp"
+        android:ems="12"
         android:focusable="true"
-        android:hint="confirm password"
+        android:hint="@string/confirm_password"
         android:inputType="textPassword"
-        android:imeOptions="actionNext"
-        />
+        android:imeOptions="actionNext" />
 
     <EditText
         android:id="@+id/email"
@@ -49,30 +60,29 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/confirm_password"
         android:layout_centerHorizontal="true"
-        android:ems="10"
-        android:hint="email"
+        android:layout_marginBottom="15dp"
+        android:ems="12"
+        android:hint="@string/email"
         android:inputType="textEmailAddress"
-        android:imeOptions="actionGo"
-        />
+        android:imeOptions="actionGo" />
 
     <Button
         android:id="@+id/create_account"
         android:layout_width="118dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/email"
-        android:layout_alignLeft="@+id/password"
-        android:layout_alignRight="@+id/password"
+        android:layout_alignStart="@+id/password"
+        android:layout_alignEnd="@+id/password"
         android:layout_centerHorizontal="true"
-        android:text="create account" />
+        android:layout_marginBottom="15dp"
+        android:text="@string/create_account" />
 
-    <Button
-        android:id="@+id/go_to_login"
-        android:layout_width="118dp"
+    <TextView android:id="@+id/go_to_login"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/create_account"
-        android:layout_alignLeft="@+id/password"
-        android:layout_alignRight="@+id/password"
         android:layout_centerHorizontal="true"
-        android:text="go to login" />
+        android:text="@string/go_to_login"
+        android:textSize="16sp"/>
 
 </RelativeLayout>

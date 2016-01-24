@@ -29,7 +29,9 @@ public class LoginActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    new AttemptLogin().execute();
+                    if(validate()){
+                        new AttemptLogin().execute();
+                    }
                     handled = true;
                 }
                 return handled;
@@ -37,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         });
         Button loginButton = (Button)findViewById(R.id.login);
         loginButton.setOnClickListener(loginButtonListener);
-        Button registerButton = (Button)findViewById(R.id.register);
+        TextView registerButton = (TextView)findViewById(R.id.register);
         registerButton.setOnClickListener(registerButtonListener);
 
         // check if user is already logged on
@@ -55,7 +57,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private OnClickListener loginButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            new AttemptLogin().execute();
+
+            if(validate()){
+                new AttemptLogin().execute();
+            }
         }
     };
 
@@ -82,6 +87,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... args) {
 
+
+
             try{
                 String url = "http://girodicer.altervista.org/login.php";
                 HttpPost httpPost = new HttpPost();
@@ -105,15 +112,40 @@ public class LoginActivity extends AppCompatActivity {
                 UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(getApplicationContext(), username);
                 userInfo.setUserStatus(getApplicationContext(), true);
+
                 // go to app
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
-
                 finish();
             }
             else{
                 Toast.makeText(LoginActivity.this, postResponse, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public boolean validate() {
+        boolean valid = true;
+
+        String enteredUsername = LoginActivity.this.username.getText().toString();
+        String enteredPassword = LoginActivity.this.password.getText().toString();
+
+        // make sure username is alphanumeric and 3 to 15 characters
+        if (!enteredUsername.matches("[a-zA-Z0-9]+") || enteredUsername.length() < 3
+                || enteredUsername.length() > 15 ) {
+            username.setError("3 to 15 alphanumeric characters");
+            valid = false;
+        } else {
+            username.setError(null);
+        }
+
+        // make sure password is 6 to 20 characters
+        if (enteredPassword.length() < 6 || enteredPassword.length() > 20) {
+            password.setError("between 6 and 20 characters");
+            valid = false;
+        } else {
+            password.setError(null);
+        }
+        return valid;
     }
 }
 
