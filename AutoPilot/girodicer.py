@@ -23,6 +23,11 @@ class Girodicer():
         Sets the velocity of the drone in the NED coordinate system
         Message needs to be sent at 1Hz
         """
+
+        if not(self.vehicle.armed):
+            # don't do anything since the motors aren't armed
+            return
+
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
         0,       # time_boot_ms (not used)
         0, 0,    # target system, target component
