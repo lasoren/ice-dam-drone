@@ -11,7 +11,6 @@ print "Connecting to vehicle on: %s" % args.connect
 iceCutter = Girodicer(args.connect, args.baud)
 
 lidar = Lidar()
-
-if lidar.isOkay() and lidar.isReady():
-    thread = threading.Thread(target=lidar.getDistance())
-    thread.start()
+lidar.start()
+lidar.stop()
+lidar.join()

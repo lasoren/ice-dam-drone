@@ -1,8 +1,7 @@
 from smbus import SMBus
-from datetime import datetime
-import time
+import time, threading
 
-class Lidar:
+class Lidar(threading.Thread):
     __DEF_ADDR = 0x62
 
     # register addresses
@@ -23,10 +22,16 @@ class Lidar:
     __INVALID_SIGNAL = 0x08
     __DEVICE_READY = 0x01
 
+    distance = -1
+
     def __init__(self):
+        super(Lidar, self).__init__()
+        self.lock = threading.RLock()
         self.bus = SMBus(1)
         self.bus.write_byte_data(self.__DEF_ADDR, self.__CONTROL_REG, self.__RESET_FPGA)
         time.sleep(0.02)
+        self.scan = False
+        self._stop = threading.Event()
 
     def getDeviceStatus(self):
         return self.bus.read_byte_data(self.__DEF_ADDR, self.__STATUS_REG)
@@ -49,7 +54,25 @@ class Lidar:
         else:
             return False
 
-    def getDistance(self):
+    def run(self):
+        self.scan = True
+        while self.scan:
+            self.lock.acquire()
+            self.distance = self.__getDistance()
+            self.lock.release()
+            time.sleep(0.02)
+
+    def stop(self):
+        self.scan = False
+        self._stop.set()
+
+    def acquireLock(self):
+        self.lock.acquire()
+
+    def releaseLock(self):
+        self.lock.release()
+
+    def __getDistance(self):
         self.__spin_while_not_ready()
         self.bus.write_byte_data(self.__DEF_ADDR, self.__CONTROL_REG, self.__AQUISIT_DC)
         self.__spin_while_not_ready()
@@ -58,16 +81,3 @@ class Lidar:
     def __spin_while_not_ready(self):
         while (not self.isReady()):
             continue
-
-if __name__ == "__main__":
-    sensor = Lidar()
-
-    print "Sensor is a-go"
-    for i in range(0, 99):
-        distance = sensor.getDistance()
-        if distance > 200:
-            print "Incorrect distance measured %d\n" % distance
-            if sensor.checkMeasureError():
-                print "There was a measurement error\n"
-        else:
-            print "Measured distance %d\n" % distance
