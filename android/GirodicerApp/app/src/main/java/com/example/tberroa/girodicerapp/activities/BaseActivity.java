@@ -11,9 +11,10 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.ServiceStatus;
+import com.example.tberroa.girodicerapp.data.MissionStatus;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 
 public class BaseActivity extends AppCompatActivity {
@@ -38,10 +39,10 @@ public class BaseActivity extends AppCompatActivity {
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ServiceStatus serviceStatus = new ServiceStatus();
+        MissionStatus missionStatus = new MissionStatus();
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
-                if (!serviceStatus.isServiceRunning(this)) { // if there is no mission in progress
+                if (!missionStatus.isMissionInProgress(this)) { // if there is no mission in progress
                     noActiveMissionDialog(this).show();  // notify user
                 }
                 else{ // otherwise
@@ -49,15 +50,8 @@ public class BaseActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.start_mission: // user wants to start a new mission
-                if (!serviceStatus.isServiceRunning(this)) { // if there is no mission in progress
-                    // grab username and calculate the mission number for the new mission
-                    String username = new UserInfo().getUsername(this);
-                    int missionNumber = (new PreviousMissionsInfo().getNumOfMissions(this))+1;
-                    // start the active mission service, pass it the username and mission number
-                    startService(new Intent(this, ActiveMissionService.class)
-                            .putExtra("username", username)
-                            .putExtra("mission_number", missionNumber));
-                    // go to active mission activity
+                if (!missionStatus.isMissionInProgress(this)) { // if there is no mission in progress
+                    Utilities.startActiveMission(this);
                     startActivity(new Intent(this,ActiveMissionActivity.class));
                     finish();
                 }

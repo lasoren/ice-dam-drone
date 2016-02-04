@@ -4,13 +4,15 @@ import android.app.DownloadManager;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
+import android.widget.Toast;
 
-// class to store images received from drone. for now this class will simply download images from
-// the internet instead.
+import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
+
+// class to store images received from drone
+// for now this class will simply download images from the internet
 public class ImageTransferIntentService extends IntentService {
-
-
 
     public ImageTransferIntentService() {
         super("ImageTransferIntentService");
@@ -18,7 +20,6 @@ public class ImageTransferIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
         // grab username and mission number
         String username = intent.getExtras().getString("username");
         int missionNumber = intent.getExtras().getInt("mission_number");
@@ -26,9 +27,11 @@ public class ImageTransferIntentService extends IntentService {
         // initialize number of images to zero
         int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
 
+        // beginning of download uri
         String uriStart = "https://s3.amazonaws.com/missionphotos/Flight+1/";
         for (int i = 1; i <= 4; i++) {
             String uriNext, directoryEnd, fileStart;
+            // next portion of path based on image type
             switch (i) {
                 case 1:
                     uriNext = "Aerial/aerial";
@@ -61,8 +64,8 @@ public class ImageTransferIntentService extends IntentService {
                 String fileName = fileStart + Integer.toString(j) + ".jpg";
 
                 DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                Uri Download_Uri = Uri.parse(uriStart + uriNext + uriEnd);
-                DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
+                Uri downloadUri = Uri.parse(uriStart + uriNext + uriEnd);
+                DownloadManager.Request request = new DownloadManager.Request(downloadUri);
 
                 //Restrict the types of networks over which this download may proceed.
                 request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
@@ -98,11 +101,19 @@ public class ImageTransferIntentService extends IntentService {
                 }
             }
 
-            // broadcast that the service is complete
+            // create bundle
+            Bundle bundle = new Bundle();
+            bundle.putString("username", username);
+            bundle.putInt("mission_number", missionNumber);
+            bundle.putInt("number_of_aerials", numberOfAerials);
+            bundle.putInt("number_of_thermals", numberOfThermals);
+            bundle.putInt("number_of_icedams", numberOfIceDams);
+            bundle.putInt("number_of_salts", numberOfSalts);
+
+            // broadcast that the service is complete and pass bundle
             Intent broadcastIntent = new Intent("TRANSFER_COMPLETE");
+            broadcastIntent.putExtras(bundle);
             sendBroadcast(broadcastIntent);
         }
-
-
     }
 }

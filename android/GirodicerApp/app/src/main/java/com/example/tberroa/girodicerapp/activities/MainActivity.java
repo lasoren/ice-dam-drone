@@ -8,9 +8,10 @@ import android.content.Intent;
 
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.ServiceStatus;
+import com.example.tberroa.girodicerapp.data.MissionStatus;
 
 public class MainActivity extends BaseActivity {
 
@@ -26,23 +27,12 @@ public class MainActivity extends BaseActivity {
         currentMissionButton.setOnClickListener(currentMissionButtonListener);
         Button previousMissionsButton = (Button)findViewById(R.id.previous_missions_button);
         previousMissionsButton.setOnClickListener(previousMissionsButtonListener);
-
-        // make sure bluetooth is enabled
-        enableBluetooth();
     }
 
     private OnClickListener startMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if (!new ServiceStatus().isServiceRunning(MainActivity.this)) {
-                // grab username and calculate the mission number for the new mission
-                String username = new UserInfo().getUsername(MainActivity.this);
-                int missionNumber =
-                        (new PreviousMissionsInfo().getNumOfMissions(MainActivity.this))+1;
-                // start the active mission service, pass it the username and mission number
-                startService(new Intent(MainActivity.this, ActiveMissionService.class)
-                        .putExtra("username", username)
-                        .putExtra("mission_number", missionNumber));
-                // go to active mission activity
+            if (!new MissionStatus().isMissionInProgress(MainActivity.this)) {
+                Utilities.startActiveMission(MainActivity.this);
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
                 finish();
             }

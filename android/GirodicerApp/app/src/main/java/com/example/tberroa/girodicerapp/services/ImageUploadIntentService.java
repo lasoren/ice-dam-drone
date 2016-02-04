@@ -3,27 +3,25 @@ package com.example.tberroa.girodicerapp.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Environment;
-import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
-import com.example.tberroa.girodicerapp.data.ServiceStatus;
 
 import java.io.File;
 
-public class UploadCurrentMissionDataIntentService extends IntentService {
+public class ImageUploadIntentService extends IntentService {
 
-    public UploadCurrentMissionDataIntentService() {
-        super("UploadCurrentMissionDataIntentService");
+    public ImageUploadIntentService() {
+        super("ImageUploadIntentService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
+        // grab data from bundle passed to service
         String username = intent.getExtras().getString("username");
         int missionNumber = intent.getExtras().getInt("mission_number");
         int numberOfAerials = intent.getExtras().getInt("number_of_aerials");
@@ -38,8 +36,7 @@ public class UploadCurrentMissionDataIntentService extends IntentService {
         AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
         TransferUtility transferUtility = new TransferUtility(s3Client, getApplicationContext());
 
-        // upload the images
-
+        // generate string required to upload image, then upload image
         String keyNext, directoryEnd, fileStart;
         for(int i=1; i<=4; i++) {
             int maxImages;
@@ -82,19 +79,8 @@ public class UploadCurrentMissionDataIntentService extends IntentService {
                 String fileLocation = Environment.DIRECTORY_PICTURES+directory;
                 File fileName = new File(fileLocation);
                 transferUtility.upload("girodicer", keyName, fileName);
-
             }
-
         }
-
-        // update previous missions info, data is no longer up to date
-        new PreviousMissionsInfo().setUpToDate(getApplicationContext(), false);
-
-        // update service status, service is no longer running
-        new ServiceStatus().setServiceStatus(getApplicationContext(), false);
-
-        // print message to user, service ended
-        Toast.makeText(this, "mission service has ended", Toast.LENGTH_SHORT).show();
 
         // broadcast that the service is complete
         Intent broadcastIntent = new Intent("UPLOAD_COMPLETE");

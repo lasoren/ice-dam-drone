@@ -18,10 +18,10 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class FetchPreviousMissionsDataIntentService extends IntentService {
+public class FetchPreviousMissionsIntentService extends IntentService {
 
-    public FetchPreviousMissionsDataIntentService() {
-        super("FetchPreviousMissionsDataIntentService");
+    public FetchPreviousMissionsIntentService() {
+        super("FetchPreviousMissionsIntentService");
     }
 
     @Override
