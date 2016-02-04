@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.activities;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -11,6 +11,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.adapters.PreviousMissionsViewAdapter;
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 import java.util.ArrayList;
 
@@ -25,21 +32,26 @@ public class PreviousMissionsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_previous_missions);
 
+        // grab username
+        username = new UserInfo().getUsername(this);
+
+        // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Previous Missions");
         setSupportActionBar(toolbar);
 
-        RecyclerView previousMissionsRecyclerView = (RecyclerView)findViewById(R.id.previous_missions_recycler_view);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        previousMissionsRecyclerView.setLayoutManager(linearLayoutManager);
+        // set recycler view
+        RecyclerView previousMissionsRecyclerView =
+                (RecyclerView)findViewById(R.id.previous_missions_recycler_view);
+        previousMissionsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // grab username
-        UserInfo userInfo = new UserInfo();
-        username = userInfo.getUsername(this.getApplicationContext());
+        // set progress dialog
+        progressDialog =  new ProgressDialog(this);
+        progressDialog.setTitle(R.string.fetching_data);
 
         // setup and register receiver
         IntentFilter filter = new IntentFilter();
-        filter.addAction("SOME_ACTION");
+        filter.addAction("FETCHING_COMPLETE");
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -51,23 +63,22 @@ public class PreviousMissionsActivity extends BaseActivity {
         };
         registerReceiver(receiver, filter);
 
-        // check if bucket metadata has been fetched already
-        BucketInfo bucketInfo = new BucketInfo();
-        Boolean upToDate = bucketInfo.isUpToDate(this.getApplicationContext());
-        if (upToDate){ //  if metadata is up to date
-            ArrayList<Mission> missions = Utilities.getMissions(this.getApplicationContext());
-            // populate recycler view
-            PreviousMissionsViewAdapter adapter = new PreviousMissionsViewAdapter(this, username, missions);
-            previousMissionsRecyclerView.setAdapter(adapter);
+        // check if previous missions data is up to date
+        Boolean isUpToDate = new PreviousMissionsInfo().isUpToDate(this);
+        if (isUpToDate){
+            // grab data of all previous missions
+            ArrayList<Mission> missions = Utilities.getMissions(this);
+            // use that data to populate the recycler view
+            PreviousMissionsViewAdapter previousMissionsViewAdapter =
+                    new PreviousMissionsViewAdapter(this, username, missions);
+            previousMissionsRecyclerView.setAdapter(previousMissionsViewAdapter);
         }
-        else{ // if metadata is not up to date
-            if (bucketInfo.isFetching(this.getApplicationContext())){ // currently fetching, show loading dialog
-                progressDialog =  Utilities.progressDialog(this, getString(R.string.fetching_data));
+        else{ // if previous missions data is not up to date
+            if (new PreviousMissionsInfo().isFetching(this)){ // only show dialog
                 progressDialog.show();
             }
-            else { // begin fetching metadata
-                Utilities.fetchMetaData(this, username);
-                progressDialog =  Utilities.progressDialog(this, getString(R.string.fetching_data));
+            else { // begin fetching previous missions data and then show dialog
+                Utilities.fetchPreviousMissionsData(this, username);
                 progressDialog.show();
             }
         }

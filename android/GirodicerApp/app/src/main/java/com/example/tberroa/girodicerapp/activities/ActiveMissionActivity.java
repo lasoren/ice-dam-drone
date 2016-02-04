@@ -1,9 +1,12 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.activities;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 
 public class ActiveMissionActivity extends BaseActivity {
 
@@ -20,8 +23,7 @@ public class ActiveMissionActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         // grab username
-        UserInfo userInfo = new UserInfo();
-        username = userInfo.getUsername(this.getApplicationContext());
+        username = new UserInfo().getUsername(this.getApplicationContext());
     }
 
     // populate the navigation

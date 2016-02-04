@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -13,6 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.HttpPost;
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.UserInfo;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText username, password, confirmPassword, email;
@@ -22,10 +26,19 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // check if user is already logged in
+        if (new UserInfo().isLoggedIn(this)){
+            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+            finish();
+        }
+
+        // initialize text boxes for user to enter their information
         username = (EditText)findViewById(R.id.username);
         password = (EditText)findViewById(R.id.password);
         confirmPassword = (EditText)findViewById(R.id.confirm_password);
         email = (EditText)findViewById(R.id.email);
+
+        // allow user to submit form via keyboard
         email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -39,6 +52,8 @@ public class RegisterActivity extends AppCompatActivity {
                 return handled;
             }
         });
+
+        // declare and initialize buttons
         Button createAccountButton = (Button)findViewById(R.id.create_account);
         createAccountButton.setOnClickListener(createAccountButtonListener);
         TextView goToLoginButton = (TextView)findViewById(R.id.go_to_login);
@@ -47,7 +62,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private OnClickListener createAccountButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if (validate()){
+            if(validate()){
                 new AttemptRegistration().execute();
             }
         }
@@ -60,14 +75,13 @@ public class RegisterActivity extends AppCompatActivity {
         }
     };
 
-    class AttemptRegistration extends AsyncTask<String, String, String> {
+    class AttemptRegistration extends AsyncTask<Void, Void, Void> {
 
         private String username, password, confirmPassword, email, keyValuePairs, postResponse;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
             username = RegisterActivity.this.username.getText().toString();
             password = RegisterActivity.this.password.getText().toString();
             confirmPassword = RegisterActivity.this.confirmPassword.getText().toString();
@@ -79,37 +93,30 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(String... args) {
+        protected Void doInBackground(Void... params) {
             try{
                 String url = "http://girodicer.altervista.org/register.php";
-                HttpPost httpPost = new HttpPost();
-                postResponse = httpPost.doPostRequest(url, keyValuePairs);
+                postResponse = new HttpPost().doPostRequest(url, keyValuePairs);
             } catch(java.io.IOException e){
                 e.printStackTrace();
             }
             return null;
         }
 
-        protected void onPostExecute(String message) {
-            if (message != null){
-                Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
-            }
-            else{
-                if (postResponse.equals("account successfully created")){
-                    // save user info
-                    UserInfo userInfo = new UserInfo();
-                    userInfo.setUsername(getApplicationContext(), username);
-                    userInfo.setUserStatus(getApplicationContext(), true);
-                    // go to app
-                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+        protected void onPostExecute(Void param) {
+            if (postResponse.equals("account successfully created")){
+                // save user info
+                UserInfo userInfo = new UserInfo();
+                userInfo.setUsername(getApplicationContext(), username);
+                userInfo.setUserStatus(getApplicationContext(), true);
 
-                    finish();
-                }
-                else{
-                    Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
-                }
+                // go to app
+                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                finish();
             }
-
+            else{ // display error
+                Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -156,7 +163,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         return valid;
     }
-
 }
 
 

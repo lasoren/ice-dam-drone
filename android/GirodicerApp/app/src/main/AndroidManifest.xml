@@ -24,11 +24,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
 
-        <activity android:name=".BaseActivity" >
+        <activity android:name=".activities.BaseActivity" >
         </activity>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,23 +36,23 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RegisterActivity" >
+        <activity android:name=".activities.RegisterActivity" >
         </activity>
 
-        <activity android:name=".MainActivity" >
+        <activity android:name=".activities.MainActivity" >
         </activity>
 
-        <activity android:name=".ActiveMissionActivity" >
+        <activity android:name=".activities.ActiveMissionActivity" >
         </activity>
 
         <activity
-            android:name=".PreviousMissionsActivity"
+            android:name=".activities.PreviousMissionsActivity"
             android:label="@string/title_activity_previous_missions"
             android:theme="@style/AppTheme" >
         </activity>
 
         <activity
-            android:name=".MissionActivity"
+            android:name=".activities.MissionActivity"
             android:label="@string/title_activity_mission"
             android:theme="@style/AppTheme" >
         </activity>
@@ -62,11 +62,11 @@
             android:enabled="true" />
 
         <service
-            android:name=".ActiveMissionService"
+            android:name=".services.ActiveMissionService"
             android:exported="false" />
 
         <service
-            android:name=".AmazonS3IntentService"
+            android:name=".services.AmazonS3IntentService"
             android:exported="false" >
         </service>
     </application>

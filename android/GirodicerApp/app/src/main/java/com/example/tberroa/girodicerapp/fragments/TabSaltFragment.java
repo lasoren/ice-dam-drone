@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,29 +8,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class TabIceDamsFragment extends Fragment {
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
 
-    int numberOfIceDams;
+public class TabSaltFragment extends Fragment {
+
+    int numberOfSalts;
     int missionNumber;
     String username;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_ice_dams, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_tab_salt, container, false);
 
+        // grab data passed to fragment
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-            numberOfIceDams = bundle.getInt("numberOfIceDams", 0);
+            numberOfSalts = bundle.getInt("numberOfSalts", 0);
             missionNumber = bundle.getInt("missionNumber", 0);
             username = bundle.getString("username", username);
         }
 
         if (isAdded()){
             // initialize recycler view
-            RecyclerView missionsRecyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+            RecyclerView missionsRecyclerView =
+                    (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+
             // get screen dimensions
             int screenWidth = Utilities.getScreenWidth(this.getContext());
             int screenHeight = Utilities.getScreenHeight(this.getContext());
+
             // if screen is landscape, 4 columns, 2 otherwise
             int span;
             if (screenWidth > screenHeight){
@@ -41,11 +50,12 @@ public class TabIceDamsFragment extends Fragment {
             }
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
             missionsRecyclerView.setLayoutManager(gridLayoutManager);
+
             // populate recyclerView
-            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfIceDams, "iceDam", username);
+            MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
+                    getActivity(), missionNumber, numberOfSalts, "salt", username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
-
         return v;
     }
 }

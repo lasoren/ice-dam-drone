@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -13,6 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.HttpPost;
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.UserInfo;
+
 public class LoginActivity extends AppCompatActivity {
 
     protected EditText username, password;
@@ -22,8 +26,17 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // check if user is already logged in
+        if (new UserInfo().isLoggedIn(this)){
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
+
+        // initialize text boxes for user to enter their information
         username = (EditText)findViewById(R.id.username);
         password = (EditText)findViewById(R.id.password);
+
+        // allow user to submit form via keyboard
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -37,27 +50,16 @@ public class LoginActivity extends AppCompatActivity {
                 return handled;
             }
         });
+
+        // declare and initialize buttons
         Button loginButton = (Button)findViewById(R.id.login);
         loginButton.setOnClickListener(loginButtonListener);
         TextView registerButton = (TextView)findViewById(R.id.register);
         registerButton.setOnClickListener(registerButtonListener);
-
-        // check if user is already logged on
-        UserInfo userInfo = new UserInfo();
-        Boolean userLoggedOn = userInfo.getUserStatus(this.getApplicationContext());
-
-        if (userLoggedOn){
-            // go to app
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
-        }
-
     }
-
 
     private OnClickListener loginButtonListener = new OnClickListener() {
         public void onClick(View v) {
-
             if(validate()){
                 new AttemptLogin().execute();
             }
@@ -71,53 +73,41 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    class AttemptLogin extends AsyncTask<String, String, String> {
+    class AttemptLogin extends AsyncTask<Void, Void, Void> {
 
         private String username, password, keyValuePairs, postResponse;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
             username = LoginActivity.this.username.getText().toString();
             password = LoginActivity.this.password.getText().toString();
             keyValuePairs = "username="+username+"&password="+password;
         }
 
         @Override
-        protected String doInBackground(String... args) {
-
-
-
+        protected Void doInBackground(Void... params) {
             try{
                 String url = "http://girodicer.altervista.org/login.php";
-                HttpPost httpPost = new HttpPost();
-                postResponse = httpPost.doPostRequest(url, keyValuePairs);
-                } catch(java.io.IOException e){
+                postResponse = new HttpPost().doPostRequest(url, keyValuePairs);
+            } catch(java.io.IOException e){
                 e.printStackTrace();
             }
             return null;
         }
 
-        protected void onPostExecute(String message) {
-
-
-            if (message != null){
-                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
-
-            }
-
+        protected void onPostExecute(Void param) {
             if (postResponse.equals("success")) {
                 // save user info
                 UserInfo userInfo = new UserInfo();
-                userInfo.setUsername(getApplicationContext(), username);
-                userInfo.setUserStatus(getApplicationContext(), true);
+                userInfo.setUsername(LoginActivity.this, username);
+                userInfo.setUserStatus(LoginActivity.this, true);
 
                 // go to app
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
             }
-            else{
+            else{ // display error
                 Toast.makeText(LoginActivity.this, postResponse, Toast.LENGTH_SHORT).show();
             }
         }

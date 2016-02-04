@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.services;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -18,30 +18,52 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.ServiceStatus;
 
 import java.io.File;
 import java.util.UUID;
 
 public class ActiveMissionService extends Service {
 
-    private Context applicationContext;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeAdvertiser bluetoothLeAdvertiser;
     private AdvertiseCallback advertiseCallback;
+    private String username;
+    private int missionNumber;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // update service status, service is running
+        new ServiceStatus().setServiceStatus(getApplicationContext(), true);
+
+        // grab username and mission number
+        username = intent.getExtras().getString("username");
+        missionNumber = intent.getExtras().getInt("mission_number");
+
+        // start service and print message to user
+        if (bluetoothAdapter.isMultipleAdvertisementSupported()){  // if advertising is supported
+            startAdvertise(); // also start BLE advertising
+            Toast.makeText(this,
+                    "mission service started, BLE advertising supported",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else{
+            Toast.makeText(this, "mission service started, BLE advertising not supported",
+                    Toast.LENGTH_SHORT).show();
+        }
+        return START_NOT_STICKY;
+    }
 
     @Override
     public void onCreate() {
         // initialize Bluetooth Manager
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         // initialize Bluetooth Adapter
         bluetoothAdapter = bluetoothManager.getAdapter();
         // initialize Bluetooth LE Advertiser
         bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-        // get activityContext
-        applicationContext = this.getApplicationContext();
-        // update global variable, service is running
-        ServiceStatus service_status = new ServiceStatus(applicationContext);
-        service_status.setServiceStatusTrue(this);
     }
 
     @Override
@@ -52,47 +74,26 @@ public class ActiveMissionService extends Service {
         }
 
         // mission over, time to upload images
-        // initialize the Amazon credentials provider and AmazonS3 Client
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),
-                "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c", // Identity Pool ID
-                Regions.US_EAST_1 // Region
-        );
-
+        // initialize the Amazon credentials provider, AmazonS3 client, and transfer utility
+        CognitoCachingCredentialsProvider credentialsProvider =
+                new CognitoCachingCredentialsProvider(getApplicationContext(),
+                        "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c", Regions.US_EAST_1);
         AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
         TransferUtility transferUtility = new TransferUtility(s3Client, getApplicationContext());
 
         // upload the images
-        UserInfo userInfo = new UserInfo();
-        String username = userInfo.getUsername(applicationContext);
-        int missionNumber = new BucketInfo().getNumOfMissions(applicationContext)+1;
         String keyName = username+"/Mission "+missionNumber+"/Aerial/aerial1.jpg";
         File fileName = new File("/storage/emulated/0/Pictures/Screenshots/screenshot1.png");
         transferUtility.upload("girodicer", keyName, fileName);
-        // update bucket info, metadata is no longer up to date
-        BucketInfo bucketInfo = new BucketInfo();
-        bucketInfo.setUpToDate(this.getApplicationContext(), false);
 
-        // update global variable, service has ended
-        ServiceStatus service_status = new ServiceStatus(applicationContext);
-        service_status.setServiceStatusFalse(this);
+        // update previous missions info, data is no longer up to date
+        new PreviousMissionsInfo().setUpToDate(getApplicationContext(), false);
+
+        // update service status, service is no longer running
+        new ServiceStatus().setServiceStatus(getApplicationContext(), false);
+
         // print message to user, service ended
         Toast.makeText(this, "mission service has ended", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // start service and print message to user
-        if (bluetoothAdapter.isMultipleAdvertisementSupported()){  // if advertising is supported
-            startAdvertise();
-            Toast.makeText(this,
-                    "mission service started, BLE advertising supported", Toast.LENGTH_SHORT).show();
-        }
-        else{   // if advertising is not supported
-            Toast.makeText(this,
-                    "mission service started, BLE advertising not supported", Toast.LENGTH_SHORT).show();
-        }
-        return START_NOT_STICKY;
     }
 
     public void startAdvertise() {
@@ -105,9 +106,9 @@ public class ActiveMissionService extends Service {
 
         // build data
         AdvertiseData.Builder dataBuilder = new AdvertiseData.Builder();
-        bluetoothAdapter.setName("GiroApp");   // 8 bytes, up to 8 characters (1 byte per character)
+        bluetoothAdapter.setName("GiroApp"); // 8 bytes, up to 8 characters (1 byte per character)
         dataBuilder.setIncludeDeviceName(true);
-        dataBuilder.setIncludeTxPowerLevel(true);   // 3 bytes
+        dataBuilder.setIncludeTxPowerLevel(true); // 3 bytes
         ParcelUuid uuid = new ParcelUuid(UUID.fromString("2949c320-870e-11e5-a837-0800200c9a66"));
         dataBuilder.addServiceUuid(uuid);
 
@@ -124,7 +125,9 @@ public class ActiveMissionService extends Service {
             }
         };
 
-        bluetoothLeAdvertiser.startAdvertising(settingsBuilder.build(), dataBuilder.build(), advertiseCallback);
+        // start advertising
+        bluetoothLeAdvertiser
+                .startAdvertising(settingsBuilder.build(), dataBuilder.build(), advertiseCallback);
     }
 
     @Override

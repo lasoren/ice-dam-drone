@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.services;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.Mission;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -25,8 +27,8 @@ public class AmazonS3IntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // currently fetching
-        BucketInfo bucketInfo = new BucketInfo();
-        bucketInfo.setFetching(this.getApplicationContext(), true);
+        PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+        previousMissionsInfo.setFetching(this, true);
         String bucketName = "girodicer";
 
         // grab username and initialize number of missions
@@ -87,28 +89,28 @@ public class AmazonS3IntentService extends IntentService {
             }
                 // create new mission object and store in missions array
             Mission mission = new Mission();
-            mission.numberOfAerials = numberOfAerials;
-            mission.numberOfThermals = numberOfThermals;
-            mission.numberOfIceDams = numberOfIceDams;
-            mission.numberOfSalts = numberOfSalts;
+            mission.setNumberOfAerials(numberOfAerials);
+            mission.setNumberOfThermals(numberOfThermals);
+            mission.setNumberOfIceDams(numberOfIceDams);
+            mission.setNumberOfSalts(numberOfSalts);
             missions.add(mission);
         }
 
         // save the number of missions
-        bucketInfo.setNumOfMissions(this.getApplicationContext(), numberOfMissions);
+        previousMissionsInfo.setNumOfMissions(this.getApplicationContext(), numberOfMissions);
 
         // save the missions array
         Gson gson = new Gson();
         Type listOfMissions = new TypeToken<ArrayList<Mission>>(){}.getType();
         String json = gson.toJson(missions, listOfMissions);
-        bucketInfo.setMissions(this.getApplicationContext(), json);
+        previousMissionsInfo.setMissions(this.getApplicationContext(), json);
 
         // done fetching and bucket info is up to date
-        bucketInfo.setFetching(this.getApplicationContext(), false);
-        bucketInfo.setUpToDate(this.getApplicationContext(), true);
+        previousMissionsInfo.setFetching(this.getApplicationContext(), false);
+        previousMissionsInfo.setUpToDate(this.getApplicationContext(), true);
 
         // broadcast that the service is complete
-        Intent broadcastIntent = new Intent("SOME_ACTION");
+        Intent broadcastIntent = new Intent("FETCHING_COMPLETE");
         sendBroadcast(broadcastIntent);
     }
 

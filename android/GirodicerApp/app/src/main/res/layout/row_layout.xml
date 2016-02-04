@@ -5,7 +5,7 @@
     android:padding="6dip" >
 
     <ImageView
-        android:id="@+id/mission_photo"
+        android:id="@+id/mission_thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
@@ -15,12 +15,12 @@
         android:src="@mipmap/ic_launcher" />
 
     <TextView
-        android:id="@+id/mission_num"
+        android:id="@+id/mission_number"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:gravity="center_vertical"
-        android:layout_toRightOf="@id/mission_photo"
+        android:layout_toRightOf="@id/mission_thumbnail"
         android:text="Example application"
         android:textSize="24sp"
         android:layout_centerVertical="true"

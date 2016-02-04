@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.activities;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -10,6 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.services.ActiveMissionService;
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.ServiceStatus;
+import com.example.tberroa.girodicerapp.data.UserInfo;
+
 public class BaseActivity extends AppCompatActivity {
 
     @Override
@@ -18,68 +24,65 @@ public class BaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_base);
 
         // get user login status
-        UserInfo userInfo = new UserInfo();
-        Boolean userLoggedOn = userInfo.getUserStatus(this.getApplicationContext());
+        Boolean isLoggedIn = new UserInfo().isLoggedIn(this);
 
-        if (!userLoggedOn){ // if user has not logged in, boot them
-            // make sure username is reset
-            userInfo.setUsername(this.getApplicationContext(), "");
+        if (!isLoggedIn){ // if user is not logged in, boot them
+            // clear username
+            new UserInfo().setUsername(this, "");
             // go back to login page
-            Intent logout = new Intent(this,LoginActivity.class);
-            startActivity(logout);
+            startActivity(new Intent(BaseActivity.this, LoginActivity.class));
             finish();
         }
-
     }
 
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ServiceStatus serviceStatus = new ServiceStatus(this.getApplicationContext());
+        ServiceStatus serviceStatus = new ServiceStatus();
         switch (item.getItemId()) {
-            case R.id.end_mission:
-                if (!serviceStatus.isServiceRunning()) { // if there is no mission in progress
-                    noActiveMissionDialog(this).show();
+            case R.id.end_mission: // user wants to end current mission
+                if (!serviceStatus.isServiceRunning(this)) { // if there is no mission in progress
+                    noActiveMissionDialog(this).show();  // notify user
                 }
-                else{ // otherwise, there is a mission in progress
-                    confirmEndMissionDialog(this).show();
+                else{ // otherwise
+                    confirmEndMissionDialog(this).show(); // request confirmation for termination
                 }
                 return true;
-            case R.id.start_mission:
-                if (!serviceStatus.isServiceRunning()) { // if there is no mission in progress
-                    // start the active mission service
-                    startService(new Intent(this, ActiveMissionService.class));
+            case R.id.start_mission: // user wants to start a new mission
+                if (!serviceStatus.isServiceRunning(this)) { // if there is no mission in progress
+                    // grab username and calculate the mission number for the new mission
+                    String username = new UserInfo().getUsername(this);
+                    int missionNumber = (new PreviousMissionsInfo().getNumOfMissions(this))+1;
+                    // start the active mission service, pass it the username and mission number
+                    startService(new Intent(this, ActiveMissionService.class)
+                            .putExtra("username",username)
+                            .putExtra("mission_number", missionNumber));
                     // go to active mission activity
-                    Intent activeMission = new Intent(this,ActiveMissionActivity.class);
-                    startActivity(activeMission);
+                    startActivity(new Intent(this,ActiveMissionActivity.class));
                     finish();
                 }
                 else{ // otherwise, there is a mission in progress
-                    // tell user a mission is already in progress
+                    // notify user that a mission is already in progress
                     missionInProgressDialog(this).show();
                 }
                 return true;
-            case R.id.current_mission:
-                Intent activeMission = new Intent(this,ActiveMissionActivity.class);
-                startActivity(activeMission);
+            case R.id.current_mission: // user wants to see the current mission
+                startActivity(new Intent(this,ActiveMissionActivity.class));
                 finish();
                 return true;
-            case R.id.previous_missions:
-                Intent previousMissions = new Intent(this,PreviousMissionsActivity.class);
-                startActivity(previousMissions);
+            case R.id.previous_missions: // user wants to see previous missions
+                startActivity(new Intent(this,PreviousMissionsActivity.class));
                 finish();
                 return true;
-            case R.id.delete_previous_missions:
+            case R.id.delete_previous_missions: // user wants to delete previous missions
                 // run delete metadata service
                 return true;
-            case R.id.logout:
-                // update user info
+            case R.id.logout: // user wants to logout
                 UserInfo userInfo = new UserInfo();
-                userInfo.setUsername(getApplicationContext(), "");
-                userInfo.setUserStatus(getApplicationContext(), false);
+                userInfo.setUsername(getApplicationContext(), ""); // clear username
+                userInfo.setUserStatus(getApplicationContext(), false); // update status
                 // go back to login page
-                Intent logout = new Intent(this,LoginActivity.class);
-                startActivity(logout);
+                startActivity(new Intent(this,LoginActivity.class));
                 finish();
             default:
                 // the users action was not recognized, invoke the superclass to handle it
@@ -136,10 +139,11 @@ public class BaseActivity extends AppCompatActivity {
     // ---------------------------------------------------------------------------------------------
 
     protected void enableBluetooth(){
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        // ensure Bluetooth is enabled. if not, request user permission to enable Bluetooth.
-        if (!bluetoothAdapter.isEnabled()) {
+        // ensure Bluetooth is enabled. if not, request user permission to enable Bluetooth
+        if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             int REQUEST_ENABLE_BT = 1;
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);

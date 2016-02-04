@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,31 +7,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.squareup.picasso.Picasso;
 
-// RecyclerView adapter
-public class TabViewAdapter extends RecyclerView.Adapter<TabViewAdapter.ImageViewHolder> {
+public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.ImageViewHolder> {
 
-    Context activityContext;
-    int numberOfImages;
-    int missionNumber;
-    String username, type;
+    private Context context;
+    private int numberOfImages, missionNumber;
+    private String username, tab;
 
-    // constructor
-    TabViewAdapter(Context activityContext, int missionNumber, int numberOfImages, String type, String username){
-        this.activityContext = activityContext;
+    public MissionViewAdapter(Context context, int missionNumber, int numberOfImages,
+                              String tab, String username){
+        this.context = context;
         this.missionNumber = missionNumber;
         this.numberOfImages = numberOfImages;
-        this.type = type;
+        this.tab = tab;
         this.username = username;
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
-        ImageView Photo;
-
+        ImageView image;
         ImageViewHolder(View itemView) {
             super(itemView);
-            Photo = (ImageView) itemView.findViewById(R.id.photo);
+            image = (ImageView) itemView.findViewById(R.id.photo);
         }
     }
 
@@ -42,34 +41,40 @@ public class TabViewAdapter extends RecyclerView.Adapter<TabViewAdapter.ImageVie
 
     @Override
     public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View mission = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.grid_layout, viewGroup, false);
+        View mission = LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.grid_layout, viewGroup, false);
         return new ImageViewHolder(mission);
     }
 
     @Override
     public void onBindViewHolder(ImageViewHolder imageViewHolder, int i) {
+
         // construct image url
-        String urlBase = "http://s3.amazonaws.com/girodicer/"+username+"/Mission+";
+        String urlStart = "http://s3.amazonaws.com/girodicer/"+username+"/Mission+"
+                +Integer.toString(missionNumber);
+        String urlEnd = Integer.toString(i+1)+".jpg";
         String url;
-        switch (type){
+        switch (tab){
             case "aerial":
-                url = urlBase+Integer.toString(missionNumber)+"/Aerial/aerial"+Integer.toString(i+1)+".jpg";
+                url = urlStart+"/Aerial/aerial"+urlEnd;
                 break;
             case "thermal":
-                url = urlBase+Integer.toString(missionNumber)+"/Thermal/thermal"+Integer.toString(i+1)+".jpg";
+                url = urlStart+"/Thermal/thermal"+urlEnd;
                 break;
             case "iceDam":
-                url = urlBase+Integer.toString(missionNumber)+"/IceDam/icedam"+Integer.toString(i+1)+".jpg";
+                url = urlStart+"/IceDam/iceDam"+urlEnd;
                 break;
             case "salt":
-                url = urlBase+Integer.toString(missionNumber)+"/Salt/salt"+Integer.toString(i+1)+".jpg";
+                url = urlStart+"/Salt/salt"+urlEnd;
                 break;
             default:
-                url = urlBase;
+                url = urlStart+"/Aerial/aerial"+urlEnd;
         }
+
         // get screen dimensions
-        int screenWidth = Utilities.getScreenWidth(activityContext);
-        int screenHeight = Utilities.getScreenHeight(activityContext);
+        int screenWidth = Utilities.getScreenWidth(context);
+        int screenHeight = Utilities.getScreenHeight(context);
+
         // set image width and height
         int imageWidth;
         int imageHeight;
@@ -81,11 +86,12 @@ public class TabViewAdapter extends RecyclerView.Adapter<TabViewAdapter.ImageVie
             imageWidth = screenWidth / 2;
             imageHeight = screenHeight / 4;
         }
-        // set image with Picasso
-        Picasso.with(activityContext)
+
+        // render image with Picasso
+        Picasso.with(context)
                 .load(url)
                 .resize(imageWidth, imageHeight)
-                .into(imageViewHolder.Photo);
+                .into(imageViewHolder.image);
     }
 
     @Override

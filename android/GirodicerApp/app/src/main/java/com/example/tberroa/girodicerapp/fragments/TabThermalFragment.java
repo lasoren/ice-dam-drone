@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp;
+package com.example.tberroa.girodicerapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
+
 public class TabThermalFragment extends Fragment {
 
     int numberOfThermals;
@@ -15,9 +19,11 @@ public class TabThermalFragment extends Fragment {
     String username;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_tab_thermal, container, false);
 
+        // grab data passed to fragment
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             numberOfThermals = bundle.getInt("numberOfThermals", 0);
@@ -26,10 +32,13 @@ public class TabThermalFragment extends Fragment {
 
         if (isAdded()){
             // initialize recycler view
-            RecyclerView missionsRecyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+            RecyclerView missionsRecyclerView =
+                    (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+
             // get screen dimensions
             int screenWidth = Utilities.getScreenWidth(this.getContext());
             int screenHeight = Utilities.getScreenHeight(this.getContext());
+
             // if screen is landscape, 4 columns, 2 otherwise
             int span;
             if (screenWidth > screenHeight){
@@ -40,11 +49,12 @@ public class TabThermalFragment extends Fragment {
             }
             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
             missionsRecyclerView.setLayoutManager(gridLayoutManager);
+
             // populate recyclerView
-            TabViewAdapter recyclerAdapter = new TabViewAdapter(getActivity(), missionNumber, numberOfThermals, "thermal", username);
+            MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
+                    getActivity(), missionNumber, numberOfThermals, "thermal", username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
-
         return v;
     }
 }
