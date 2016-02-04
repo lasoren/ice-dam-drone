@@ -8,7 +8,8 @@ import android.view.WindowManager;
 
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.services.AmazonS3IntentService;
+import com.example.tberroa.girodicerapp.services.FetchPreviousMissionsDataIntentService;
+import com.example.tberroa.girodicerapp.services.UploadCurrentMissionDataIntentService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -76,8 +77,22 @@ final public class Utilities {
     }
 
     public static void fetchPreviousMissionsData(Context context, String username){
-        Intent intent = new Intent(context, AmazonS3IntentService.class);
+        Intent intent = new Intent(context, FetchPreviousMissionsDataIntentService.class);
         intent.putExtra("username", username);
+        context.startService(intent);
+    }
+
+    public static void
+           uploadCurrentMissionData(Context context, String username, int missionNumber,
+                                    int numberOfAerials, int numberOfThermals,
+                                    int numberOfIceDams, int numberOfSalts){
+        Intent intent = new Intent(context, UploadCurrentMissionDataIntentService.class);
+        intent.putExtra("username", username)
+                .putExtra("mission_number", missionNumber)
+                .putExtra("number_of_aerials", numberOfAerials)
+                .putExtra("number_of_thermals", numberOfThermals)
+                .putExtra("number_of_icedams",numberOfIceDams)
+                .putExtra("number_of_salts", numberOfSalts);
         context.startService(intent);
     }
 

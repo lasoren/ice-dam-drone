@@ -18,10 +18,10 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class AmazonS3IntentService extends IntentService {
+public class FetchPreviousMissionsDataIntentService extends IntentService {
 
-    public AmazonS3IntentService() {
-        super("AmazonS3IntentService");
+    public FetchPreviousMissionsDataIntentService() {
+        super("FetchPreviousMissionsDataIntentService");
     }
 
     @Override

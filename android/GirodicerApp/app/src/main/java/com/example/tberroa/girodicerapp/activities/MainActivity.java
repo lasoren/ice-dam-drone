@@ -6,6 +6,8 @@ import android.widget.Button;
 import android.view.View.OnClickListener;
 import android.content.Intent;
 
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ServiceStatus;
@@ -32,7 +34,15 @@ public class MainActivity extends BaseActivity {
     private OnClickListener startMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
             if (!new ServiceStatus().isServiceRunning(MainActivity.this)) {
-                startService(new Intent(MainActivity.this, ActiveMissionService.class));
+                // grab username and calculate the mission number for the new mission
+                String username = new UserInfo().getUsername(MainActivity.this);
+                int missionNumber =
+                        (new PreviousMissionsInfo().getNumOfMissions(MainActivity.this))+1;
+                // start the active mission service, pass it the username and mission number
+                startService(new Intent(MainActivity.this, ActiveMissionService.class)
+                        .putExtra("username", username)
+                        .putExtra("mission_number", missionNumber));
+                // go to active mission activity
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
                 finish();
             }

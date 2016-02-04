@@ -23,7 +23,7 @@ public class ActiveMissionActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         // grab username
-        username = new UserInfo().getUsername(this.getApplicationContext());
+        username = new UserInfo().getUsername(this);
     }
 
     // populate the navigation

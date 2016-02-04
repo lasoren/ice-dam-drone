@@ -55,7 +55,7 @@ public class BaseActivity extends AppCompatActivity {
                     int missionNumber = (new PreviousMissionsInfo().getNumOfMissions(this))+1;
                     // start the active mission service, pass it the username and mission number
                     startService(new Intent(this, ActiveMissionService.class)
-                            .putExtra("username",username)
+                            .putExtra("username", username)
                             .putExtra("mission_number", missionNumber));
                     // go to active mission activity
                     startActivity(new Intent(this,ActiveMissionActivity.class));

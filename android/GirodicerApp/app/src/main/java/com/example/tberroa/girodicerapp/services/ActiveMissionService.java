@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.services;
 
+import android.app.DownloadManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -9,6 +10,8 @@ import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.ParcelUuid;
 import android.widget.Toast;
@@ -20,17 +23,23 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.ServiceStatus;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 import java.io.File;
 import java.util.UUID;
 
 public class ActiveMissionService extends Service {
 
+    private DownloadManager downloadManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeAdvertiser bluetoothLeAdvertiser;
     private AdvertiseCallback advertiseCallback;
     private String username;
     private int missionNumber;
+    private int numberOfAerials;
+    private int numberOfThermals;
+    private int numberOfIceDams;
+    private int numberOfSalts;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -41,9 +50,15 @@ public class ActiveMissionService extends Service {
         username = intent.getExtras().getString("username");
         missionNumber = intent.getExtras().getInt("mission_number");
 
-        // start service and print message to user
+        // initialize number of images to zero
+        numberOfAerials = 0;
+        numberOfThermals = 0;
+        numberOfIceDams = 0;
+        numberOfSalts = 0;
+
+        // check if BLE advertising is supported
         if (bluetoothAdapter.isMultipleAdvertisementSupported()){  // if advertising is supported
-            startAdvertise(); // also start BLE advertising
+            startAdvertise(); // start BLE advertising
             Toast.makeText(this,
                     "mission service started, BLE advertising supported",
                     Toast.LENGTH_SHORT).show();
@@ -52,6 +67,85 @@ public class ActiveMissionService extends Service {
             Toast.makeText(this, "mission service started, BLE advertising not supported",
                     Toast.LENGTH_SHORT).show();
         }
+
+        // Begin downloading
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String uriStart = "https://s3.amazonaws.com/missionphotos/Flight+1/";
+                for(int i=1; i<=4; i++){
+                    String uriNext, directoryEnd, fileStart;
+                    switch(i){
+                        case 1:
+                            uriNext = "Aerial/aerial";
+                            directoryEnd = "Aerial/";
+                            fileStart = "aerial";
+                            break;
+                        case 2:
+                            uriNext = "Thermal/thermal";
+                            directoryEnd = "Thermal/";
+                            fileStart = "thermal";
+                            break;
+                        case 3:
+                            uriNext = "IceDam/icedam";
+                            directoryEnd = "IceDam/";
+                            fileStart = "icedam";
+                            break;
+                        case 4:
+                            uriNext = "Salt/salt";
+                            directoryEnd = "Salt/";
+                            fileStart = "salt";
+                            break;
+                        default:
+                            uriNext = "Aerial/aerial";
+                            directoryEnd = "Aerial/";
+                            fileStart = "aerial";
+                            break;
+                    }
+                    for (int j=1; j<=5; j++){
+                        String uriEnd = Integer.toString(j)+".jpg";
+                        String fileName = fileStart+Integer.toString(j)+".jpg";
+
+                        downloadManager = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+                        Uri Download_Uri = Uri.parse(uriStart+uriNext+uriEnd);
+                        DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
+
+                        //Restrict the types of networks over which this download may proceed.
+                        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+                        //Set whether this download may proceed over a roaming connection.
+                        request.setAllowedOverRoaming(false);
+                        //Set the title of this download, to be displayed in notifications (if enabled).
+                        request.setTitle("Girodicer Image Transfer");
+                        //Set a description of this download, to be displayed in notifications (if enabled)
+                        request.setDescription("In process of receiving images from drone");
+                        //Set the local destination for the downloaded file to a path within the application's external files directory
+                        String directory = "/Girodicer/"+username+"/Mission"+missionNumber+"/"+directoryEnd;
+                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES+directory,fileName);
+
+                        //Enqueue a new download
+                        downloadManager.enqueue(request);
+
+                        // log the image count
+                        switch(i){
+                            case 1:
+                                numberOfAerials++;
+                                break;
+                            case 2:
+                                numberOfThermals++;
+                                break;
+                            case 3:
+                                numberOfIceDams++;
+                                break;
+                            case 4:
+                                numberOfSalts++;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }).start();
         return START_NOT_STICKY;
     }
 
@@ -73,19 +167,6 @@ public class ActiveMissionService extends Service {
             bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
         }
 
-        // mission over, time to upload images
-        // initialize the Amazon credentials provider, AmazonS3 client, and transfer utility
-        CognitoCachingCredentialsProvider credentialsProvider =
-                new CognitoCachingCredentialsProvider(getApplicationContext(),
-                        "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c", Regions.US_EAST_1);
-        AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
-        TransferUtility transferUtility = new TransferUtility(s3Client, getApplicationContext());
-
-        // upload the images
-        String keyName = username+"/Mission "+missionNumber+"/Aerial/aerial1.jpg";
-        File fileName = new File("/storage/emulated/0/Pictures/Screenshots/screenshot1.png");
-        transferUtility.upload("girodicer", keyName, fileName);
-
         // update previous missions info, data is no longer up to date
         new PreviousMissionsInfo().setUpToDate(getApplicationContext(), false);
 
@@ -94,6 +175,10 @@ public class ActiveMissionService extends Service {
 
         // print message to user, service ended
         Toast.makeText(this, "mission service has ended", Toast.LENGTH_SHORT).show();
+
+        // upload the images that were transferred
+        Utilities.uploadCurrentMissionData(this, username, missionNumber, numberOfAerials,
+                numberOfThermals, numberOfIceDams, numberOfSalts);
     }
 
     public void startAdvertise() {
