@@ -42,7 +42,7 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
     @Override
     public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View mission = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.grid_layout, viewGroup, false);
+                .inflate(R.layout.tab_images, viewGroup, false);
         return new ImageViewHolder(mission);
     }
 
@@ -71,26 +71,10 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
                 url = urlStart+"/Aerial/aerial"+urlEnd;
         }
 
-        // get screen dimensions
-        int screenWidth = Utilities.getScreenWidth(context);
-        int screenHeight = Utilities.getScreenHeight(context);
-
-        // set image width and height
-        int imageWidth;
-        int imageHeight;
-        if (screenWidth > screenHeight){ // landscape
-            imageWidth = screenWidth / 4;
-            imageHeight = screenHeight / 2;
-        }
-        else{ // vertical
-            imageWidth = screenWidth / 2;
-            imageHeight = screenHeight / 4;
-        }
-
         // render image with Picasso
         Picasso.with(context)
                 .load(url)
-                .resize(imageWidth, imageHeight)
+                .resize(Utilities.getImageWidthGrid(context), Utilities.getImageHeightGrid(context))
                 .into(imageViewHolder.image);
     }
 

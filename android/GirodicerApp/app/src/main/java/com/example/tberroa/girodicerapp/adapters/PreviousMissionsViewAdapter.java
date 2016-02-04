@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.MissionActivity;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
@@ -73,7 +74,7 @@ public class PreviousMissionsViewAdapter extends
     @Override
     public MissionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View allMissions = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.row_layout, viewGroup, false);
+                .inflate(R.layout.mission_thumbnails, viewGroup, false);
         return new MissionViewHolder(allMissions);
     }
 
@@ -90,7 +91,7 @@ public class PreviousMissionsViewAdapter extends
         // render thumbnail with Picasso
         Picasso.with(context)
                 .load(url)
-                .resize(200, 200)
+                .resize(Utilities.getImageWidthGrid(context), Utilities.getImageHeightGrid(context))
                 .into(allMissionsVH.missionThumbnail);
     }
 

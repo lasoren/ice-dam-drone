@@ -1,17 +1,20 @@
 package com.example.tberroa.girodicerapp.activities;
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.example.tberroa.girodicerapp.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.PreviousMissionsViewAdapter;
@@ -24,7 +27,6 @@ import java.util.ArrayList;
 public class PreviousMissionsActivity extends BaseActivity {
 
     private BroadcastReceiver receiver;
-    private ProgressDialog progressDialog;
     private String username;
 
     @Override
@@ -40,14 +42,17 @@ public class PreviousMissionsActivity extends BaseActivity {
         toolbar.setTitle("Previous Missions");
         setSupportActionBar(toolbar);
 
-        // set recycler view
+        // initialize recycler view
         RecyclerView previousMissionsRecyclerView =
                 (RecyclerView)findViewById(R.id.previous_missions_recycler_view);
-        previousMissionsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        int span = Utilities.getSpanGrid(this);
+        previousMissionsRecyclerView.setLayoutManager(new GridLayoutManager(this, span));
+        previousMissionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
+                span, Utilities.getSpacingGrid(this), true));
 
-        // set progress dialog
-        progressDialog =  new ProgressDialog(this);
-        progressDialog.setTitle(R.string.fetching_data);
+        // initialize loading spinner and text
+        final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
+        final TextView loadingText = (TextView) findViewById(R.id.loading_text);
 
         // setup and register receiver
         IntentFilter filter = new IntentFilter();
@@ -55,8 +60,10 @@ public class PreviousMissionsActivity extends BaseActivity {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // done fetching data, dismiss dialog and reload activity
-                progressDialog.dismiss();
+                // done fetching data, dismiss loading spinner and text
+                loadingSpinner.setVisibility(View.GONE);
+                loadingText.setVisibility(View.GONE);
+                // reload activity
                 startActivity(getIntent());
                 finish();
             }
@@ -75,11 +82,13 @@ public class PreviousMissionsActivity extends BaseActivity {
         }
         else{ // if previous missions data is not up to date
             if (new PreviousMissionsInfo().isFetching(this)){ // only show dialog
-                progressDialog.show();
+                loadingSpinner.setVisibility(View.VISIBLE);
+                loadingText.setVisibility(View.VISIBLE);
             }
             else { // begin fetching previous missions data and then show dialog
                 Utilities.fetchPreviousMissionsData(this, username);
-                progressDialog.show();
+                loadingSpinner.setVisibility(View.VISIBLE);
+                loadingText.setVisibility(View.VISIBLE);
             }
         }
     }

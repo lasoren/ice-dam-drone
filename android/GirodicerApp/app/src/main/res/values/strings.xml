@@ -26,6 +26,7 @@
     <string name="register">No account yet? Create one</string>
     <string name="create_account">Create Account</string>
     <string name="go_to_login">Already have an account? Login</string>
+    <string name="mission_x">Mission X</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

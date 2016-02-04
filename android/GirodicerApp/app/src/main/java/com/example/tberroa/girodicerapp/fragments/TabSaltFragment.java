@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.tberroa.girodicerapp.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
@@ -35,21 +36,11 @@ public class TabSaltFragment extends Fragment {
             // initialize recycler view
             RecyclerView missionsRecyclerView =
                     (RecyclerView) v.findViewById(R.id.mission_recycler_view);
-
-            // get screen dimensions
-            int screenWidth = Utilities.getScreenWidth(this.getContext());
-            int screenHeight = Utilities.getScreenHeight(this.getContext());
-
-            // if screen is landscape, 4 columns, 2 otherwise
-            int span;
-            if (screenWidth > screenHeight){
-                span = 4;
-            }
-            else{
-                span = 2;
-            }
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), span);
-            missionsRecyclerView.setLayoutManager(gridLayoutManager);
+            int span = Utilities.getSpanGrid(getActivity());
+            missionsRecyclerView.setLayoutManager(
+                    new GridLayoutManager(getActivity(), span));
+            missionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
+                    span, Utilities.getSpacingGrid(getActivity()), true));
 
             // populate recyclerView
             MissionViewAdapter recyclerAdapter = new MissionViewAdapter(

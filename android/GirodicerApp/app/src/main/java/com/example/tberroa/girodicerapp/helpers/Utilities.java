@@ -27,12 +27,52 @@ final public class Utilities {
         return screenDimensions;
     }
 
+    private static boolean isLandscape(Context context){
+        boolean bool = false;
+        if (getScreenWidth(context) > getScreenHeight(context)){
+            bool = true;
+        }
+        return bool;
+    }
+
     public static int getScreenWidth(Context context){
         return getScreenDimensions(context).x;
     }
 
     public static int getScreenHeight(Context context){
         return getScreenDimensions(context).y;
+    }
+
+    public static int getImageWidthGrid(Context context){
+        return getScreenWidth(context)/ getSpanGrid(context);
+    }
+
+    public static int getImageHeightGrid(Context context){
+        int imageHeight;
+        int screenHeight = getScreenHeight(context);
+        int span = getSpanGrid(context);
+        if (isLandscape(context)){
+            imageHeight = screenHeight/(span/2);
+        }
+        else{
+            imageHeight = screenHeight/(span*2);
+        }
+        return imageHeight;
+    }
+
+    public static int getSpanGrid(Context context){
+        int span;
+        if (isLandscape(context)){
+            span = 4;
+        }
+        else{
+            span = 2;
+        }
+        return span;
+    }
+
+    public static int getSpacingGrid(Context context){
+        return getScreenWidth(context)/(getSpanGrid(context)*12);
     }
 
     public static void fetchPreviousMissionsData(Context context, String username){
