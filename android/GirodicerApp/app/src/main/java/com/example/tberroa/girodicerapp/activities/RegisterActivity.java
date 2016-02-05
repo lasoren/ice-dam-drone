@@ -60,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
         goToLoginButton.setOnClickListener(goToLoginButtonListener);
     }
 
-    private OnClickListener createAccountButtonListener = new OnClickListener() {
+    private final OnClickListener createAccountButtonListener = new OnClickListener() {
         public void onClick(View v) {
             if(validate()){
                 new AttemptRegistration().execute();
@@ -68,7 +68,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     };
 
-    private OnClickListener goToLoginButtonListener = new OnClickListener() {
+    private final OnClickListener goToLoginButtonListener = new OnClickListener() {
         public void onClick(View v) {
             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             finish();

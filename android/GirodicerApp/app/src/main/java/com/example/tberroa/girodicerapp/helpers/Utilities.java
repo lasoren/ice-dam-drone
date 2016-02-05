@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.example.tberroa.girodicerapp.data.MissionStatus;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.data.UserInfo;
@@ -41,11 +40,11 @@ final public class Utilities {
         return bool;
     }
 
-    public static int getScreenWidth(Context context){
+    private static int getScreenWidth(Context context){
         return getScreenDimensions(context).x;
     }
 
-    public static int getScreenHeight(Context context){
+    private static int getScreenHeight(Context context){
         return getScreenDimensions(context).y;
     }
 
@@ -82,13 +81,7 @@ final public class Utilities {
     }
 
     public static void startActiveMission(Context context){
-        String username = new UserInfo().getUsername(context);
-        int missionNumber = (new PreviousMissionsInfo().getNumOfMissions(context))+1;
-        context.startService(new Intent(context, ActiveMissionService.class)
-                .putExtra("username", username)
-                .putExtra("mission_number", missionNumber));
-        // mission is now in progress
-        new MissionStatus().setMissionStatus(context, true);
+        context.startService(new Intent(context, ActiveMissionService.class));
     }
 
     public static void startImageTransfer(Context context){
@@ -99,10 +92,8 @@ final public class Utilities {
                 .putExtra("mission_number", missionNumber));
     }
 
-    public static void startImageUpload(Context context, Bundle bundle){
-        Intent intent = new Intent(context, ImageUploadIntentService.class);
-        intent.putExtras(bundle);
-        context.startService(intent);
+    public static void startImageUpload(Context context){
+        context.startService(new Intent(context, ImageUploadIntentService.class));
     }
 
     public static void fetchPreviousMissionsData(Context context, String username){

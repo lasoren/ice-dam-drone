@@ -1,6 +1,5 @@
 package com.example.tberroa.girodicerapp.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -44,10 +43,10 @@ public class MissionActivity extends BaseActivity {
 
         // set tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Aerial"));
-        tabLayout.addTab(tabLayout.newTab().setText("Thermal"));
-        tabLayout.addTab(tabLayout.newTab().setText("IceDams"));
-        tabLayout.addTab(tabLayout.newTab().setText("Salt"));
+        tabLayout.addTab(tabLayout.newTab().setText("AERIAL"));
+        tabLayout.addTab(tabLayout.newTab().setText("THERMAL"));
+        tabLayout.addTab(tabLayout.newTab().setText("ICEDAM"));
+        tabLayout.addTab(tabLayout.newTab().setText("SALT"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // populate the activity

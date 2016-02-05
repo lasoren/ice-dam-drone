@@ -15,9 +15,9 @@ import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
 
 public class TabSaltFragment extends Fragment {
 
-    int numberOfSalts;
-    int missionNumber;
-    String username;
+    private int numberOfSalts;
+    private int missionNumber;
+    private String username;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,7 +40,7 @@ public class TabSaltFragment extends Fragment {
             missionsRecyclerView.setLayoutManager(
                     new GridLayoutManager(getActivity(), span));
             missionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                    span, Utilities.getSpacingGrid(getActivity()), true));
+                    span, Utilities.getSpacingGrid(getActivity())));
 
             // populate recyclerView
             MissionViewAdapter recyclerAdapter = new MissionViewAdapter(

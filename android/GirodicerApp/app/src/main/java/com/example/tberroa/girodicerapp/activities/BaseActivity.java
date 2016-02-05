@@ -1,8 +1,6 @@
 package com.example.tberroa.girodicerapp.activities;
 
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
@@ -42,7 +39,7 @@ public class BaseActivity extends AppCompatActivity {
         MissionStatus missionStatus = new MissionStatus();
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
-                if (!missionStatus.isMissionInProgress(this)) { // if there is no mission in progress
+                if (missionStatus.missionNotInProgress(this)) { // if there is no mission in progress
                     noActiveMissionDialog(this).show();  // notify user
                 }
                 else{ // otherwise
@@ -50,7 +47,7 @@ public class BaseActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.start_mission: // user wants to start a new mission
-                if (!missionStatus.isMissionInProgress(this)) { // if there is no mission in progress
+                if (missionStatus.missionNotInProgress(this)) { // if there is no mission in progress
                     Utilities.startActiveMission(this);
                     startActivity(new Intent(this,ActiveMissionActivity.class));
                     finish();
@@ -85,7 +82,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     // alert dialogs -------------------------------------------------------------------------------
-    protected AlertDialog noActiveMissionDialog(Context context) {
+    private AlertDialog noActiveMissionDialog(Context context) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder
                 .setMessage(R.string.no_active_mission)
@@ -98,7 +95,7 @@ public class BaseActivity extends AppCompatActivity {
         return alertDialogBuilder.create();
     }
 
-    protected AlertDialog confirmEndMissionDialog(final Context context) {
+    private AlertDialog confirmEndMissionDialog(final Context context) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder
                 .setMessage(R.string.confirm_end_mission)
@@ -129,18 +126,5 @@ public class BaseActivity extends AppCompatActivity {
                     }
                 });
         return alertDialogBuilder.create();
-    }
-    // ---------------------------------------------------------------------------------------------
-
-    protected void enableBluetooth(){
-        BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-        // ensure Bluetooth is enabled. if not, request user permission to enable Bluetooth
-        if (!bluetoothAdapter.isEnabled()) { // if bluetooth is not enabled
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            int REQUEST_ENABLE_BT = 1;
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
     }
 }

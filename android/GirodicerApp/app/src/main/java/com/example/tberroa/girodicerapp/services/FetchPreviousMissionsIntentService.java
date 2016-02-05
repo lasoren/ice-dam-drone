@@ -29,29 +29,29 @@ public class FetchPreviousMissionsIntentService extends IntentService {
         // currently fetching
         PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
         previousMissionsInfo.setFetching(this, true);
-        String bucketName = "girodicer";
+        final String bucketName = "girodicer";
 
-        // grab username and initialize number of missions
+        // grab username and initialize number of missions to 1
         String username = intent.getStringExtra("username");
         int numberOfMissions = 1;
 
         // initialize the Amazon credentials provider and AmazonS3 Client
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                getApplicationContext(),
-                "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c", // Identity Pool ID
-                Regions.US_EAST_1 // Region
-        );
+        CognitoCachingCredentialsProvider credentialsProvider =
+                new CognitoCachingCredentialsProvider(this,
+                        "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c",
+                        Regions.US_EAST_1);
         AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
 
         // get number of missions
         Boolean keepGoing = true;
         while (keepGoing){
-            String key = username+"/Mission " + Integer.toString(numberOfMissions) + "/Aerial/aerial1.jpg";
+            String number = Integer.toString(numberOfMissions);
+            String key = username+"/mission"+number+"/aerial/aerial1.jpg";
             if (exists(s3Client, bucketName, key)){
                 ++numberOfMissions;
             }
             else{
-                --numberOfMissions;    // most recent mission did not exist
+                --numberOfMissions;
                 keepGoing = false;
             }
         }
@@ -61,12 +61,12 @@ public class FetchPreviousMissionsIntentService extends IntentService {
 
         // get number of images for all missions
         for (int i=1; i <= numberOfMissions; i++ ){
-            int numberOfAerials, numberOfThermals, numberOfIceDams, numberOfSalts;
-            numberOfAerials = numberOfThermals = numberOfIceDams = numberOfSalts = 0;
-            String prefixAerial = username+"/Mission " + Integer.toString(i) + "/Aerial/";
-            String prefixThermal = username+"/Mission " + Integer.toString(i) + "/Thermal/";
-            String prefixIceDam = username+"/Mission " + Integer.toString(i) + "/IceDam/";
-            String prefixSalt = username+"/Mission " + Integer.toString(i) + "/Salt/";
+            int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
+            String x = Integer.toString(i);
+            String prefixAerial = username+"/mission"+x+"/aerial/";
+            String prefixThermal = username+"/mission"+x+"/thermal/";
+            String prefixIceDam = username+"/mission"+x+"/icedam/";
+            String prefixSalt = username+"/mission"+x+"/salt/";
             ObjectListing listAerial = s3Client.listObjects(bucketName, prefixAerial);
             ObjectListing listThermal = s3Client.listObjects(bucketName, prefixThermal);
             ObjectListing listIceDam = s3Client.listObjects(bucketName, prefixIceDam);
@@ -97,24 +97,24 @@ public class FetchPreviousMissionsIntentService extends IntentService {
         }
 
         // save the number of missions
-        previousMissionsInfo.setNumOfMissions(this.getApplicationContext(), numberOfMissions);
+        previousMissionsInfo.setNumOfMissions(this, numberOfMissions);
 
         // save the missions array
         Gson gson = new Gson();
         Type listOfMissions = new TypeToken<ArrayList<Mission>>(){}.getType();
         String json = gson.toJson(missions, listOfMissions);
-        previousMissionsInfo.setMissions(this.getApplicationContext(), json);
+        previousMissionsInfo.setMissions(this, json);
 
-        // done fetching and bucket info is up to date
-        previousMissionsInfo.setFetching(this.getApplicationContext(), false);
-        previousMissionsInfo.setUpToDate(this.getApplicationContext(), true);
+        // done fetching and previous missions info is up to date
+        previousMissionsInfo.setFetching(this, false);
+        previousMissionsInfo.setUpToDate(this, true);
 
         // broadcast that the service is complete
         Intent broadcastIntent = new Intent("FETCHING_COMPLETE");
         sendBroadcast(broadcastIntent);
     }
 
-    public boolean exists(AmazonS3 s3Client, String bucketName, String key) {
+    private boolean exists(AmazonS3 s3Client, String bucketName, String key) {
         try {
             s3Client.getObject(bucketName, key);
         } catch(AmazonServiceException e) {

@@ -13,9 +13,11 @@ import com.squareup.picasso.Picasso;
 
 public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.ImageViewHolder> {
 
-    private Context context;
-    private int numberOfImages, missionNumber;
-    private String username, tab;
+    private final Context context;
+    private final int numberOfImages;
+    private final int missionNumber;
+    private final String username;
+    private final String tab;
 
     public MissionViewAdapter(Context context, int missionNumber, int numberOfImages,
                               String tab, String username){
@@ -27,7 +29,7 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
-        ImageView image;
+        final ImageView image;
         ImageViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.photo);
@@ -50,25 +52,25 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
     public void onBindViewHolder(ImageViewHolder imageViewHolder, int i) {
 
         // construct image url
-        String urlStart = "http://s3.amazonaws.com/girodicer/"+username+"/Mission+"
-                +Integer.toString(missionNumber);
+        String x = Integer.toString(missionNumber);
+        String urlStart = "http://s3.amazonaws.com/girodicer/"+username+"/mission"+x+"/";
         String urlEnd = Integer.toString(i+1)+".jpg";
         String url;
         switch (tab){
             case "aerial":
-                url = urlStart+"/Aerial/aerial"+urlEnd;
+                url = urlStart+"aerial/aerial"+urlEnd;
                 break;
             case "thermal":
-                url = urlStart+"/Thermal/thermal"+urlEnd;
+                url = urlStart+"thermal/thermal"+urlEnd;
                 break;
             case "iceDam":
-                url = urlStart+"/IceDam/iceDam"+urlEnd;
+                url = urlStart+"icedam/icedam"+urlEnd;
                 break;
             case "salt":
-                url = urlStart+"/Salt/salt"+urlEnd;
+                url = urlStart+"salt/salt"+urlEnd;
                 break;
             default:
-                url = urlStart+"/Aerial/aerial"+urlEnd;
+                url = urlStart+"aerial/aerial"+urlEnd;
         }
 
         // render image with Picasso
@@ -76,10 +78,5 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
                 .load(url)
                 .resize(Utilities.getImageWidthGrid(context), Utilities.getImageHeightGrid(context))
                 .into(imageViewHolder.image);
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
     }
 }

@@ -2,6 +2,7 @@ package com.example.tberroa.girodicerapp.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -9,8 +10,13 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.example.tberroa.girodicerapp.data.MissionStatus;
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.lang.reflect.Type;
 
 public class ImageUploadIntentService extends IntentService {
 
@@ -20,14 +26,17 @@ public class ImageUploadIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        // mission in upload phase, phase=3
+        MissionStatus missionStatus = new MissionStatus();
+        missionStatus.setMissionPhase(this, 3);
 
-        // grab data from bundle passed to service
-        String username = intent.getExtras().getString("username");
-        int missionNumber = intent.getExtras().getInt("mission_number");
-        int numberOfAerials = intent.getExtras().getInt("number_of_aerials");
-        int numberOfThermals = intent.getExtras().getInt("number_of_thermals");
-        int numberOfIceDams = intent.getExtras().getInt("number_of_icedams");
-        int numberOfSalts = intent.getExtras().getInt("number_of_salts");
+        // grab data
+        String username = missionStatus.getUsername(this);
+        int missionNumber = missionStatus.getMissionNumber(this);
+        int numberOfAerials = missionStatus.getNumberOfAerials(this);
+        int numberOfThermals = missionStatus.getNumberOfThermals(this);
+        int numberOfIceDams = missionStatus.getNumberOfIceDams(this);
+        int numberOfSalts = missionStatus.getNumberOfSalts(this);
 
         // initialize the Amazon credentials provider, AmazonS3 client, and transfer utility
         CognitoCachingCredentialsProvider credentialsProvider =
@@ -37,50 +46,49 @@ public class ImageUploadIntentService extends IntentService {
         TransferUtility transferUtility = new TransferUtility(s3Client, getApplicationContext());
 
         // generate string required to upload image, then upload image
-        String keyNext, directoryEnd, fileStart;
+        String type;
         for(int i=1; i<=4; i++) {
             int maxImages;
             switch (i) {
                 case 1:
                     maxImages = numberOfAerials;
-                    keyNext = "Aerial/aerial";
-                    directoryEnd = "Aerial/";
-                    fileStart = "aerial";
+                    type = "aerial";
                     break;
                 case 2:
                     maxImages = numberOfThermals;
-                    keyNext = "Thermal/thermal";
-                    directoryEnd = "Thermal/";
-                    fileStart = "thermal";
+                    type = "thermal";
                     break;
                 case 3:
                     maxImages = numberOfIceDams;
-                    keyNext = "IceDam/icedam";
-                    directoryEnd = "IceDam/";
-                    fileStart = "icedam";
+                    type = "icedam";
                     break;
                 case 4:
                     maxImages = numberOfSalts;
-                    keyNext = "Salt/salt";
-                    directoryEnd = "Salt/";
-                    fileStart = "salt";
+                    type = "salt";
                     break;
                 default:
                     maxImages = numberOfAerials;
-                    keyNext = "Aerial/aerial";
-                    directoryEnd = "Aerial/";
-                    fileStart = "aerial";
+                    type = "aerial";
                     break;
             }
             for (int j = 1; j <= maxImages; j++) {
-                String fileEnd = Integer.toString(j) + ".jpg";
-                String keyName = username+"/Mission "+missionNumber+"/"+keyNext+fileEnd;
-                String directory = "/Girodicer/"+username+"/Mission"+missionNumber+"/"+directoryEnd+fileStart+fileEnd;
-                String fileLocation = Environment.DIRECTORY_PICTURES+directory;
-                File fileName = new File(fileLocation);
-                transferUtility.upload("girodicer", keyName, fileName);
+                String x = Integer.toString(j);
+                String keyName = username+"/mission"+missionNumber+"/"+type+"/"+type+x+".jpg";
+                String path = "/Girodicer/"+keyName;
+                File file = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_PICTURES+path);
+                if (file.exists()){
+                    transferUtility.upload("girodicer", keyName, file);
+                }
             }
         }
+
+        // mission program is now completely over
+        missionStatus.setMissionNotInProgress(this, true);
+        // mission was just completed, phase=0, inactive
+        missionStatus.setMissionPhase(this, 0);
+        // previous missions info is out of date
+        new PreviousMissionsInfo().setUpToDate(this, false);
 
         // broadcast that the service is complete
         Intent broadcastIntent = new Intent("UPLOAD_COMPLETE");

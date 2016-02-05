@@ -6,9 +6,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.widget.Toast;
 
 import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
+import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.data.MissionStatus;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 // class to store images received from drone
 // for now this class will simply download images from the internet
@@ -20,6 +26,11 @@ public class ImageTransferIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        // mission in transfer phase, phase=2
+        MissionStatus missionStatus = new MissionStatus();
+        missionStatus.setMissionPhase(this, 2);
+        ActiveMissionActivity.numberOfDownloads = 0;
+
         // grab username and mission number
         String username = intent.getExtras().getString("username");
         int missionNumber = intent.getExtras().getInt("mission_number");
@@ -27,57 +38,52 @@ public class ImageTransferIntentService extends IntentService {
         // initialize number of images to zero
         int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
 
-        // beginning of download uri
-        String uriStart = "https://s3.amazonaws.com/missionphotos/Flight+1/";
+        // begin downloading and storing
+        String uriBase = "https://s3.amazonaws.com/girodicer/";
         for (int i = 1; i <= 4; i++) {
-            String uriNext, directoryEnd, fileStart;
-            // next portion of path based on image type
+            String type;
             switch (i) {
                 case 1:
-                    uriNext = "Aerial/aerial";
-                    directoryEnd = "Aerial/";
-                    fileStart = "aerial";
+                    type = "aerial";
                     break;
                 case 2:
-                    uriNext = "Thermal/thermal";
-                    directoryEnd = "Thermal/";
-                    fileStart = "thermal";
+                    type = "thermal";
                     break;
                 case 3:
-                    uriNext = "IceDam/icedam";
-                    directoryEnd = "IceDam/";
-                    fileStart = "icedam";
+                    type = "icedam";
                     break;
                 case 4:
-                    uriNext = "Salt/salt";
-                    directoryEnd = "Salt/";
-                    fileStart = "salt";
+                    type = "salt";
                     break;
                 default:
-                    uriNext = "Aerial/aerial";
-                    directoryEnd = "Aerial/";
-                    fileStart = "aerial";
+                    type = "aerial";
                     break;
             }
             for (int j = 1; j <= 5; j++) {
-                String uriEnd = Integer.toString(j) + ".jpg";
-                String fileName = fileStart + Integer.toString(j) + ".jpg";
+                // construct key name
+                String xDown = Integer.toString(1); // repeatedly re-download mission #1 for now
+                String xUp = Integer.toString(missionNumber); // upload as if it were new mission
+                String y = Integer.toString(j); // image number
+                String keyNameDown = username+"/mission"+xDown+"/"+type+"/"+type+y+".jpg";
+                String keyNameUp = username+"/mission"+xUp+"/"+type+"/"+type+y+".jpg";
 
-                DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                Uri downloadUri = Uri.parse(uriStart + uriNext + uriEnd);
+                DownloadManager downloadManager =
+                        (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                Uri downloadUri = Uri.parse(uriBase+keyNameDown);
                 DownloadManager.Request request = new DownloadManager.Request(downloadUri);
 
-                //Restrict the types of networks over which this download may proceed.
-                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-                //Set whether this download may proceed over a roaming connection.
+                // restrict the types of networks over which this download may proceed
+                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                        DownloadManager.Request.NETWORK_MOBILE);
+                // set whether this download may proceed over a roaming connection
                 request.setAllowedOverRoaming(false);
-                //Set the title of this download, to be displayed in notifications (if enabled).
+                // set the title of this download, to be displayed in notifications (if enabled)
                 request.setTitle("Girodicer Image Transfer");
-                //Set a description of this download, to be displayed in notifications (if enabled)
-                request.setDescription("In process of receiving images from drone");
-                //Set the local destination for the downloaded file to a path within the application's external files directory
-                String directory = "/Girodicer/" + username + "/Mission" + missionNumber + "/" + directoryEnd;
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES + directory, fileName);
+                // set a description of this download, to be displayed in notifications (if enabled)
+                request.setDescription("in process of receiving images from drone");
+                // set the local destination for the downloaded file
+                String path = "/Girodicer/"+keyNameUp;
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, path);
 
                 //Enqueue a new download
                 downloadManager.enqueue(request);
@@ -101,18 +107,16 @@ public class ImageTransferIntentService extends IntentService {
                 }
             }
 
-            // create bundle
-            Bundle bundle = new Bundle();
-            bundle.putString("username", username);
-            bundle.putInt("mission_number", missionNumber);
-            bundle.putInt("number_of_aerials", numberOfAerials);
-            bundle.putInt("number_of_thermals", numberOfThermals);
-            bundle.putInt("number_of_icedams", numberOfIceDams);
-            bundle.putInt("number_of_salts", numberOfSalts);
+            // save data
+            missionStatus.setUsername(this, username);
+            missionStatus.setMissionNumber(this, missionNumber);
+            missionStatus.setNumberOfAerials(this, numberOfAerials);
+            missionStatus.setNumberOfThermals(this, numberOfThermals);
+            missionStatus.setNumberOfIceDams(this, numberOfIceDams);
+            missionStatus.setNumberOfSalts(this, numberOfSalts);
 
-            // broadcast that the service is complete and pass bundle
+            // broadcast that the service is complete
             Intent broadcastIntent = new Intent("TRANSFER_COMPLETE");
-            broadcastIntent.putExtras(bundle);
             sendBroadcast(broadcastIntent);
         }
     }

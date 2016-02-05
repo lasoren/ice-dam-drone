@@ -1,12 +1,10 @@
 <resources>
     <string name="app_name">Girodicer</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="app_logo">the app logo</string>
     <string name="start_mission">Start New Mission</string>
     <string name="end_mission">End Mission</string>
     <string name="current_mission">Current Mission</string>
     <string name="previous_missions">Previous Missions</string>
-    <string name="title_activity_previous_missions">PreviousMissionsActivity</string>
     <string name="mission_in_progress">A mission is already in progress.</string>
     <string name="got_it">Got it!</string>
     <string name="no">No</string>
@@ -27,8 +25,12 @@
     <string name="create_account">Create Account</string>
     <string name="go_to_login">Already have an account? Login</string>
     <string name="mission_x">Mission X</string>
+    <string name="no_active_mission_text">There is currently no active mission.</string>
+    <string name="active_mission_text">
+        Please keep your eyes on the drone as it is currently performing a mission.</string>
+    <string name="transfer_phase_text">
+        Please wait while the mission data is gathered from the drone.</string>
+    <string name="upload_phase_text">
+        Please wait as the mission data is uploaded to the cloud.</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_mission">MissionActivity</string>
 </resources>

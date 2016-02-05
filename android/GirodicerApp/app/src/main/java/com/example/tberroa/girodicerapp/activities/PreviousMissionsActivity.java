@@ -48,7 +48,7 @@ public class PreviousMissionsActivity extends BaseActivity {
         int span = Utilities.getSpanGrid(this);
         previousMissionsRecyclerView.setLayoutManager(new GridLayoutManager(this, span));
         previousMissionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                span, Utilities.getSpacingGrid(this), true));
+                span, Utilities.getSpacingGrid(this)));
 
         // initialize loading spinner and text
         final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);

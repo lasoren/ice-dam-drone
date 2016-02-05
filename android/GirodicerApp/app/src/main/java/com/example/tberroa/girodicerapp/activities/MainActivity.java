@@ -6,8 +6,6 @@ import android.widget.Button;
 import android.view.View.OnClickListener;
 import android.content.Intent;
 
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
-import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
@@ -29,9 +27,9 @@ public class MainActivity extends BaseActivity {
         previousMissionsButton.setOnClickListener(previousMissionsButtonListener);
     }
 
-    private OnClickListener startMissionButtonListener = new OnClickListener() {
+    private final OnClickListener startMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if (!new MissionStatus().isMissionInProgress(MainActivity.this)) {
+            if (new MissionStatus().missionNotInProgress(MainActivity.this)) {
                 Utilities.startActiveMission(MainActivity.this);
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
                 finish();
@@ -42,14 +40,14 @@ public class MainActivity extends BaseActivity {
         }
     };
 
-    private OnClickListener currentMissionButtonListener = new OnClickListener() {
+    private final OnClickListener currentMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
             startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
             finish();
         }
     };
 
-    private OnClickListener previousMissionsButtonListener = new OnClickListener() {
+    private final OnClickListener previousMissionsButtonListener = new OnClickListener() {
         public void onClick(View v) {
             startActivity(new Intent(MainActivity.this, PreviousMissionsActivity.class));
             finish();

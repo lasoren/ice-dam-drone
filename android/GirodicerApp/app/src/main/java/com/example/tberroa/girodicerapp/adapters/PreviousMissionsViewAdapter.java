@@ -23,9 +23,9 @@ import java.util.ArrayList;
 public class PreviousMissionsViewAdapter extends
         RecyclerView.Adapter<PreviousMissionsViewAdapter.MissionViewHolder> {
 
-    Context context;
-    ArrayList<Mission> missions;
-    String username;
+    private final Context context;
+    private final ArrayList<Mission> missions;
+    private final String username;
 
     public PreviousMissionsViewAdapter(Context context, String username,
                                        ArrayList<Mission> missions) {
@@ -36,8 +36,8 @@ public class PreviousMissionsViewAdapter extends
 
     public class MissionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        ImageView missionThumbnail;
-        TextView missionNumber;
+        final ImageView missionThumbnail;
+        final TextView missionNumber;
 
         MissionViewHolder(View itemView) {
             super(itemView);
@@ -85,18 +85,14 @@ public class PreviousMissionsViewAdapter extends
         allMissionsVH.missionNumber.setText("Mission " + Integer.toString(i + 1));
 
         // build thumbnail url
-        String url = "http://s3.amazonaws.com/girodicer/"+username+
-                "/Mission+" + Integer.toString(i + 1) + "/Aerial/aerial1.jpg";
+        String x = Integer.toString(i+1);
+        final String urlBase = "http://s3.amazonaws.com/girodicer/";
+        String url = urlBase+username+"/mission"+x+"/aerial/aerial1.jpg";
 
         // render thumbnail with Picasso
         Picasso.with(context)
                 .load(url)
                 .resize(Utilities.getImageWidthGrid(context), Utilities.getImageHeightGrid(context))
                 .into(allMissionsVH.missionThumbnail);
-    }
-
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
     }
 }

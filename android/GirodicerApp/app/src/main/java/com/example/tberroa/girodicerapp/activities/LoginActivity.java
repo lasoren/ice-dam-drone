@@ -19,7 +19,7 @@ import com.example.tberroa.girodicerapp.data.UserInfo;
 
 public class LoginActivity extends AppCompatActivity {
 
-    protected EditText username, password;
+    private EditText username, password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         registerButton.setOnClickListener(registerButtonListener);
     }
 
-    private OnClickListener loginButtonListener = new OnClickListener() {
+    private final OnClickListener loginButtonListener = new OnClickListener() {
         public void onClick(View v) {
             if(validate()){
                 new AttemptLogin().execute();
@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private OnClickListener registerButtonListener = new OnClickListener() {
+    private final OnClickListener registerButtonListener = new OnClickListener() {
         public void onClick(View v) {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             finish();

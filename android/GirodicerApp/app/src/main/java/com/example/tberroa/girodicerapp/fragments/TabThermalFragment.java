@@ -15,9 +15,9 @@ import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
 
 public class TabThermalFragment extends Fragment {
 
-    int numberOfThermals;
-    int missionNumber;
-    String username;
+    private int numberOfThermals;
+    private int missionNumber;
+    private String username;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,6 +29,7 @@ public class TabThermalFragment extends Fragment {
         if (bundle != null) {
             numberOfThermals = bundle.getInt("numberOfThermals", 0);
             missionNumber = bundle.getInt("missionNumber", 0);
+            username = bundle.getString("username", username);
         }
 
         if (isAdded()){
@@ -39,7 +40,7 @@ public class TabThermalFragment extends Fragment {
             missionsRecyclerView.setLayoutManager(
                     new GridLayoutManager(getActivity(), span));
             missionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                    span, Utilities.getSpacingGrid(getActivity()), true));
+                    span, Utilities.getSpacingGrid(getActivity())));
 
             // populate recyclerView
             MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
