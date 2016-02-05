@@ -12,7 +12,8 @@
         android:elevation="4dp"
         android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        />
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tab_layout"
@@ -22,12 +23,14 @@
         android:background="@color/colorPrimaryLight"
         android:elevation="6dp"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/tab_layout"/>
+        android:layout_below="@id/tab_layout"
+        />
 
 </RelativeLayout>

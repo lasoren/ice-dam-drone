@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/home_page"
-    tools:context="com.example.tberroa.girodicerapp.MainActivity">
+    tools:context="com.example.tberroa.girodicerapp.activities.MainActivity">
 
     <ImageView
         android:id="@+id/logo"
@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="75dp" />
+        android:layout_marginTop="75dp"
+        />
 
     <Button
         android:id="@+id/start_mission_button"
@@ -25,7 +26,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
-        android:layout_above="@+id/current_mission_button" />
+        android:layout_above="@+id/current_mission_button"
+        />
 
     <Button
         android:id="@+id/current_mission_button"
@@ -35,7 +37,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
-        android:layout_above="@+id/previous_missions_button" />
+        android:layout_above="@+id/previous_missions_button"
+        />
 
     <Button
         android:id="@+id/previous_missions_button"
@@ -45,5 +48,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="35dp"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true"
+        />
+
 </RelativeLayout>

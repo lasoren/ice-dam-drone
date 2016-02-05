@@ -4,37 +4,44 @@
     <item
         android:id="@+id/title"
         android:title="@string/placeholder"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/end_mission"
         android:icon="@drawable/end_mission"
         android:title="@string/end_mission"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"
+        />
 
     <item
         android:id="@+id/start_mission"
         android:title="@string/start_mission"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/current_mission"
         android:title="@string/current_mission"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/previous_missions"
         android:title="@string/previous_missions"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/delete_previous_missions"
         android:title="@string/delete_previous_missions"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/logout"
         android:title="@string/logout"
-        app:showAsAction="never" />
+        app:showAsAction="never"
+        />
 
 </menu>
