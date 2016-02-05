@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.tberroa.girodicerapp.activities.ActiveMissionActivity">
 
     <android.support.v7.widget.Toolbar
@@ -25,7 +24,7 @@
         android:gravity="center"
         android:text="@string/no_active_mission_text"
         android:textSize="24sp"
-        android:visibility="visible"
+        android:visibility="gone"
         />
 
     <TextView
@@ -43,6 +42,15 @@
         android:visibility="visible"
         />
 
+    <ProgressBar android:id="@+id/loading_spinner"
+        style="@android:style/Widget.ProgressBar.Large.Inverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        />
+
     <TextView
         android:id="@+id/transfer_phase_text"
         android:layout_width="wrap_content"
@@ -52,6 +60,15 @@
         android:gravity="center"
         android:text="@string/transfer_phase_text"
         android:textSize="24sp"
+        android:visibility="gone"
+        />
+
+    <ProgressBar android:id="@+id/progress_bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:visibility="visible"
         />
 
@@ -59,20 +76,12 @@
         android:id="@+id/upload_phase_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/loading_spinner"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/progress_bar"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="@string/upload_phase_text"
         android:textSize="24sp"
-        android:visibility="gone"
-        />
-
-    <ProgressBar android:id="@+id/loading_spinner"
-        style="@android:style/Widget.ProgressBar.Large.Inverse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:visibility="visible"
         />
 

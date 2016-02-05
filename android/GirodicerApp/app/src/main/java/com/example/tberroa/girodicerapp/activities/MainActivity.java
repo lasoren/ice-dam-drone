@@ -6,10 +6,11 @@ import android.widget.Button;
 import android.view.View.OnClickListener;
 import android.content.Intent;
 
+import com.example.tberroa.girodicerapp.dialogs.MissionInProgressDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.MissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
 
 public class MainActivity extends BaseActivity {
 
@@ -29,13 +30,13 @@ public class MainActivity extends BaseActivity {
 
     private final OnClickListener startMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if (new MissionStatus().missionNotInProgress(MainActivity.this)) {
+            if (new ActiveMissionStatus().missionNotInProgress(MainActivity.this)) {
                 Utilities.startActiveMission(MainActivity.this);
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
                 finish();
             }
             else{
-                missionInProgressDialog(v.getContext()).show();
+                new MissionInProgressDialog(v.getContext()).getDialog().show();
             }
         }
     };

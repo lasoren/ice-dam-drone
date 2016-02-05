@@ -32,5 +32,7 @@
         Please wait while the mission data is gathered from the drone.</string>
     <string name="upload_phase_text">
         Please wait as the mission data is uploaded to the cloud.</string>
+    <string name="cannot_logout">
+        Mission in progress! Cannot logout until mission is terminated.</string>
 
 </resources>

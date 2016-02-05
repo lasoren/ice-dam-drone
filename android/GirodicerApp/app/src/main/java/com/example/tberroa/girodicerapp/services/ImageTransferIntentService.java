@@ -4,17 +4,14 @@ import android.app.DownloadManager;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 
-import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.MissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 // class to store images received from drone
 // for now this class will simply download images from the internet
@@ -27,9 +24,11 @@ public class ImageTransferIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // mission in transfer phase, phase=2
-        MissionStatus missionStatus = new MissionStatus();
-        missionStatus.setMissionPhase(this, 2);
-        ActiveMissionActivity.numberOfDownloads = 0;
+        ActiveMissionStatus activeMissionStatus = new ActiveMissionStatus();
+        activeMissionStatus.setMissionPhase(this, 2);
+
+        // reset completed downloads count
+        activeMissionStatus.setCompletedDownloads(this, 0);
 
         // grab username and mission number
         String username = intent.getExtras().getString("username");
@@ -107,13 +106,18 @@ public class ImageTransferIntentService extends IntentService {
                 }
             }
 
+            // enter special phase 5, waiting for downloads to finish
+            activeMissionStatus.setMissionPhase(this, 5);
+
             // save data
-            missionStatus.setUsername(this, username);
-            missionStatus.setMissionNumber(this, missionNumber);
-            missionStatus.setNumberOfAerials(this, numberOfAerials);
-            missionStatus.setNumberOfThermals(this, numberOfThermals);
-            missionStatus.setNumberOfIceDams(this, numberOfIceDams);
-            missionStatus.setNumberOfSalts(this, numberOfSalts);
+            Mission missionData =
+                    new Mission(numberOfAerials, numberOfThermals, numberOfIceDams, numberOfSalts);
+            activeMissionStatus.setMissionNumber(this, missionNumber);
+
+            // save the mission as json
+            Type singleMission = new TypeToken<Mission>(){}.getType();
+            String json = new Gson().toJson(missionData, singleMission);
+            activeMissionStatus.setMissionData(this, json);
 
             // broadcast that the service is complete
             Intent broadcastIntent = new Intent("TRANSFER_COMPLETE");

@@ -14,9 +14,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.MissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
+import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class ActiveMissionActivity extends BaseActivity {
 
@@ -25,7 +28,7 @@ public class ActiveMissionActivity extends BaseActivity {
     private BroadcastReceiver receiverImageTransferComplete;
     private BroadcastReceiver receiverDownloadComplete;
     private BroadcastReceiver receiverImageUploadComplete;
-    public static int numberOfDownloads;
+    public static ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,23 +40,25 @@ public class ActiveMissionActivity extends BaseActivity {
         toolbar.setTitle("Current Mission");
         setSupportActionBar(toolbar);
 
-        // initialize loading text views and spinner
+        // initialize views and progress bars
         final TextView noActiveMissionText = (TextView) findViewById(R.id.no_active_mission_text);
         final TextView activeMissionText = (TextView) findViewById(R.id.active_mission_text);
         final TextView transferPhaseText = (TextView) findViewById(R.id.transfer_phase_text);
         final TextView uploadPhaseText = (TextView) findViewById(R.id.upload_phase_text);
         final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         noActiveMissionText.setVisibility(View.GONE);
         activeMissionText.setVisibility(View.GONE);
         transferPhaseText.setVisibility(View.GONE);
         uploadPhaseText.setVisibility(View.GONE);
         loadingSpinner.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         // grab username
         username = new UserInfo().getUsername(this);
 
         // populate view according to mission phase
-        int missionPhase = new MissionStatus().getMissionPhase(this);
+        int missionPhase = new ActiveMissionStatus().getMissionPhase(this);
         switch (missionPhase) {
             case 0:
                 noActiveMissionText.setVisibility(View.VISIBLE);
@@ -65,9 +70,13 @@ public class ActiveMissionActivity extends BaseActivity {
                 transferPhaseText.setVisibility(View.VISIBLE);
                 loadingSpinner.setVisibility(View.VISIBLE);
                 break;
+            case 5:
+                transferPhaseText.setVisibility(View.VISIBLE);
+                loadingSpinner.setVisibility(View.VISIBLE);
+                break;
             case 3:
                 uploadPhaseText.setVisibility(View.VISIBLE);
-                loadingSpinner.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
                 break;
             default:
                 break;
@@ -106,9 +115,24 @@ public class ActiveMissionActivity extends BaseActivity {
         receiverDownloadComplete = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                numberOfDownloads++;
-                if (numberOfDownloads == 20){
-                    Utilities.startImageUpload(ActiveMissionActivity.this);
+                ActiveMissionStatus activeMissionStatus = new ActiveMissionStatus();
+                // get current count of completed downloads
+                int count = activeMissionStatus.getCompletedDownloads(context);
+                // increment count
+                count++;
+                // store the new value of count
+                activeMissionStatus.setCompletedDownloads(context, count);
+                // get the mission phase
+                int missionPhase = activeMissionStatus.getMissionPhase(context);
+                // get the mission data
+                String json = activeMissionStatus.getMissionData(context);
+                Gson gson = new Gson();
+                Mission mission = gson.fromJson(json, new TypeToken<Mission>(){}.getType());
+                int numberOfImages = mission.getNumberOfImages();
+
+                // if phase is waiting for downloads to complete, and count is number of images
+                if ((missionPhase==5) && (count == numberOfImages )){
+                    Utilities.startImageUpload(ActiveMissionActivity.this); // start uploading
                 }
             }
         };

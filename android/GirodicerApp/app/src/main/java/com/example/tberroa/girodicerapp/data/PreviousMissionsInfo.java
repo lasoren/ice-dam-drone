@@ -58,4 +58,11 @@ public class PreviousMissionsInfo extends Application {
         editor.putInt(numberOfMissions, num);
         editor.apply();
     }
+
+    public void clearAll(Context context){
+        setFetching(context, false);
+        setUpToDate(context, false);
+        setMissions(context, "");
+        setNumOfMissions(context, 0);
+    }
 }

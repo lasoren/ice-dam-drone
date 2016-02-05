@@ -1,17 +1,20 @@
 package com.example.tberroa.girodicerapp.activities;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.dialogs.CannotLogOutDialog;
+import com.example.tberroa.girodicerapp.dialogs.ConfirmEndMissionDialog;
+import com.example.tberroa.girodicerapp.dialogs.CurrentlyTransferringDialog;
+import com.example.tberroa.girodicerapp.dialogs.CurrentlyUploadingDialog;
+import com.example.tberroa.girodicerapp.dialogs.MissionInProgressDialog;
+import com.example.tberroa.girodicerapp.dialogs.NoActiveMissionDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.services.ActiveMissionService;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.MissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 
 public class BaseActivity extends AppCompatActivity {
@@ -36,25 +39,36 @@ public class BaseActivity extends AppCompatActivity {
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        MissionStatus missionStatus = new MissionStatus();
+        ActiveMissionStatus activeMissionStatus = new ActiveMissionStatus();
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
-                if (missionStatus.missionNotInProgress(this)) { // if there is no mission in progress
-                    noActiveMissionDialog(this).show();  // notify user
+                if (activeMissionStatus.missionNotInProgress(this)){
+                    new NoActiveMissionDialog(this).getDialog().show();  // notify user
                 }
-                else{ // otherwise
-                    confirmEndMissionDialog(this).show(); // request confirmation for termination
+                else { // otherwise
+                    int missionPhase = new ActiveMissionStatus().getMissionPhase(this);
+                    switch(missionPhase){
+                        case 1:
+                            new ConfirmEndMissionDialog(this).getDialog().show();
+                            break;
+                        case 2:
+                            new CurrentlyTransferringDialog(this).getDialog().show();
+                            break;
+                        case 3:
+                            new CurrentlyUploadingDialog(this).getDialog().show();
+                            break;
+                    }
                 }
                 return true;
             case R.id.start_mission: // user wants to start a new mission
-                if (missionStatus.missionNotInProgress(this)) { // if there is no mission in progress
+                if (activeMissionStatus.missionNotInProgress(this)){
                     Utilities.startActiveMission(this);
                     startActivity(new Intent(this,ActiveMissionActivity.class));
                     finish();
                 }
                 else{ // otherwise, there is a mission in progress
                     // notify user that a mission is already in progress
-                    missionInProgressDialog(this).show();
+                    new MissionInProgressDialog(this).getDialog().show();
                 }
                 return true;
             case R.id.current_mission: // user wants to see the current mission
@@ -69,62 +83,22 @@ public class BaseActivity extends AppCompatActivity {
                 // run delete metadata service
                 return true;
             case R.id.logout: // user wants to logout
-                UserInfo userInfo = new UserInfo();
-                userInfo.setUsername(getApplicationContext(), ""); // clear username
-                userInfo.setUserStatus(getApplicationContext(), false); // update status
-                // go back to login page
-                startActivity(new Intent(this,LoginActivity.class));
-                finish();
+                // check if there is an active mission
+                if (!new ActiveMissionStatus().missionNotInProgress(this)){ // mission in progress
+                    new CannotLogOutDialog(this).getDialog().show();
+                }
+                else{
+                    // clear user info
+                    new UserInfo().clearUserInfo(this);
+                    // clear previous missions info
+                    new PreviousMissionsInfo().clearAll(this);
+                    // go back to login page
+                    startActivity(new Intent(this, LoginActivity.class));
+                    finish();
+                }
             default:
                 // the users action was not recognized, invoke the superclass to handle it
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    // alert dialogs -------------------------------------------------------------------------------
-    private AlertDialog noActiveMissionDialog(Context context) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder
-                .setMessage(R.string.no_active_mission)
-                .setCancelable(true)
-                .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-        return alertDialogBuilder.create();
-    }
-
-    private AlertDialog confirmEndMissionDialog(final Context context) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder
-                .setMessage(R.string.confirm_end_mission)
-                .setCancelable(true)
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                })
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        stopService(new Intent(context, ActiveMissionService.class));
-                    }
-                });
-        return alertDialogBuilder.create();
-    }
-
-    protected AlertDialog missionInProgressDialog(final Context context) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder
-                .setMessage(R.string.mission_in_progress)
-                .setCancelable(false)
-                .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Intent activeMission = new Intent(context, ActiveMissionActivity.class);
-                        startActivity(activeMission);
-                        finish();
-                    }
-                });
-        return alertDialogBuilder.create();
     }
 }

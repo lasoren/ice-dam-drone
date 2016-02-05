@@ -22,7 +22,7 @@
         android:layout_below="@+id/toolbar"
         />
 
-    <ProgressBar android:id="@+id/loading_spinner"
+    <ProgressBar android:id="@+id/progress_bar"
         style="@android:style/Widget.ProgressBar.Large.Inverse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:id="@+id/loading_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/loading_spinner"
+        android:layout_below="@+id/progress_bar"
         android:layout_centerHorizontal="true"
         android:text="@string/fetching_data"
         android:textSize="24sp"

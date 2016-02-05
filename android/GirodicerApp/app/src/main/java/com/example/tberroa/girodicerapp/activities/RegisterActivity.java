@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tberroa.girodicerapp.HttpPost;
+import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 

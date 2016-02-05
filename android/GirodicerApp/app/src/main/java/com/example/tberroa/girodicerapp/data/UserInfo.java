@@ -35,4 +35,10 @@ public class UserInfo extends Application {
         editor.putString(this.username, username);
         editor.apply();
     }
+
+    public void clearUserInfo(Context context){
+        setUsername(context, "");
+        setUserStatus(context, false);
+    }
+
 }

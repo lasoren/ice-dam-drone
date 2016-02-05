@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.tberroa.girodicerapp.GridSpacingItemDecoration;
+import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.PreviousMissionsViewAdapter;
@@ -51,7 +51,7 @@ public class PreviousMissionsActivity extends BaseActivity {
                 span, Utilities.getSpacingGrid(this)));
 
         // initialize loading spinner and text
-        final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
+        final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.progress_bar);
         final TextView loadingText = (TextView) findViewById(R.id.loading_text);
 
         // setup and register receiver

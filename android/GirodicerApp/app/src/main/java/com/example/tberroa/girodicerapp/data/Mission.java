@@ -9,6 +9,13 @@ public class Mission {
     public Mission(){
     }
 
+    public Mission(int numOfAerials, int numOfThermals, int numOfIceDams, int numOfSalts){
+        this.numberOfAerials = numOfAerials;
+        this.numberOfThermals = numOfThermals;
+        this.numberOfIceDams = numOfIceDams;
+        this.numberOfSalts = numOfSalts;
+    }
+
     public void setNumberOfAerials(int num){
         numberOfAerials = num;
     }
@@ -39,6 +46,10 @@ public class Mission {
 
     public int getNumberOfSalts(){
         return numberOfSalts;
+    }
+
+    public int getNumberOfImages(){
+        return numberOfAerials+numberOfThermals+numberOfIceDams+numberOfSalts;
     }
 
 }
