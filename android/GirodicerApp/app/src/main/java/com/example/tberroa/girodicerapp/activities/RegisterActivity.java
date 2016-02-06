@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -48,9 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    if (validate()){
-                        new AttemptRegistration().execute();
-                    }
+                    Register();
                     handled = true;
                 }
                 return handled;
@@ -66,9 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private final OnClickListener createAccountButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if(validate()){
-                new AttemptRegistration().execute();
-            }
+            Register();
         }
     };
 
@@ -78,6 +73,50 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
         }
     };
+
+    private void Register(){
+        String enteredUsername = username.getText().toString();
+        String enteredPassword = password.getText().toString();
+        String enteredConfirmPassword = confirmPassword.getText().toString();
+        String enteredEmail = email.getText().toString();
+
+        Bundle enteredInfo = new Bundle();
+        enteredInfo.putString("username", enteredUsername);
+        enteredInfo.putString("password", enteredPassword);
+        enteredInfo.putString("confirm_password", enteredConfirmPassword);
+        enteredInfo.putString("email", enteredEmail);
+
+        String string = Utilities.validate(enteredInfo);
+        if (string.matches("")){
+            new AttemptRegistration().execute();
+        }
+        else{
+            if (string.contains("username")){
+                username.setError(getResources().getString(R.string.username_format));
+            }
+            else{
+                username.setError(null);
+            }
+            if (string.contains("password")){
+                password.setError(getResources().getString(R.string.password_format));
+            }
+            else{
+                password.setError(null);
+            }
+            if (string.contains("confirm_password")){
+                confirmPassword.setError(getResources().getString(R.string.password_mismatch));
+            }
+            else{
+                confirmPassword.setError(null);
+            }
+            if (string.contains("email")){
+                email.setError(getResources().getString(R.string.enter_valid_email));
+            }
+            else{
+                email.setError(null);
+            }
+        }
+    }
 
     class AttemptRegistration extends AsyncTask<Void, Void, Void> {
 
@@ -109,19 +148,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.equals(Params.REGISTER_SUCCESS)){
-                UserInfo userInfo = new UserInfo();
-                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
-
-                // clear any old user info
-                userInfo.clearUserInfo(RegisterActivity.this);
-
-                // clear active mission info
-                new ActiveMissionInfo().clearAll(RegisterActivity.this);
-
-                // clear any old previous missions info
-                previousMissionsInfo.clearAll(RegisterActivity.this);
+                Utilities.ClearAllLocalData(RegisterActivity.this);
 
                 // save the new user info
+                UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(RegisterActivity.this, username);
                 userInfo.setUserStatus(RegisterActivity.this, true);
 
@@ -129,6 +159,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if (!new PreviousMissionsInfo().isFetching(RegisterActivity.this)){
                     Utilities.fetchPreviousMissionsData(RegisterActivity.this, username);
                 }
+
                 // go to app
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                 finish();
@@ -137,49 +168,5 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    private boolean validate() {
-        boolean valid = true;
-
-        String enteredUsername = RegisterActivity.this.username.getText().toString();
-        String enteredPassword = RegisterActivity.this.password.getText().toString();
-        String enteredConfirmPassword = RegisterActivity.this.confirmPassword.getText().toString();
-        String enteredEmail = RegisterActivity.this.email.getText().toString();
-
-        // make sure username is of proper format
-        if (!enteredUsername.matches("[a-zA-Z0-9]+") || enteredUsername.length() < 3
-                || enteredUsername.length() > 15 ) {
-            username.setError(getResources().getString(R.string.username_format));
-            valid = false;
-        } else {
-            username.setError(null);
-        }
-
-        // make sure password is of proper format
-        if (enteredPassword.length() < 6 || enteredPassword.length() > 20) {
-            password.setError(getResources().getString(R.string.password_format));
-            valid = false;
-        } else {
-            password.setError(null);
-        }
-
-        // make sure passwords match
-        if (!enteredConfirmPassword.equals(enteredPassword)) {
-            confirmPassword.setError(getResources().getString(R.string.password_mismatch));
-            valid = false;
-        } else {
-            confirmPassword.setError(null);
-        }
-
-        // make sure email is valid
-        if (enteredEmail.isEmpty() ||
-                !android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
-            email.setError(getResources().getString(R.string.enter_valid_email));
-            valid = false;
-        } else {
-            email.setError(null);
-        }
-        return valid;
     }
 }

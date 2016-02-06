@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.dialogs.CannotLogOutDialog;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndMissionDialog;
 import com.example.tberroa.girodicerapp.dialogs.CurrentlyTransferringDialog;
@@ -91,12 +90,7 @@ public class BaseActivity extends AppCompatActivity {
                     new CannotLogOutDialog(this).getDialog().show();
                 }
                 else{
-                    // clear user info
-                    new UserInfo().clearUserInfo(this);
-                    // clear active mission info
-                    new ActiveMissionInfo().clearAll(this);
-                    // clear previous missions info
-                    new PreviousMissionsInfo().clearAll(this);
+                    Utilities.ClearAllLocalData(this);
                     // go back to login page
                     startActivity(new Intent(this, LoginActivity.class));
                     finish();

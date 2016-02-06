@@ -37,7 +37,7 @@ public class UserInfo extends Application {
         editor.apply();
     }
 
-    public void clearUserInfo(Context context){
+    public void clearAll(Context context){
         setUsername(context, "");
         setUserStatus(context, false);
     }

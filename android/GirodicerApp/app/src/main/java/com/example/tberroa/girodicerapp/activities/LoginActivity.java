@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -46,9 +45,7 @@ public class LoginActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    if(validate()){
-                        new AttemptLogin().execute();
-                    }
+                    Login();
                     handled = true;
                 }
                 return handled;
@@ -64,9 +61,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private final OnClickListener loginButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if(validate()){
-                new AttemptLogin().execute();
-            }
+            Login();
         }
     };
 
@@ -76,6 +71,34 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
     };
+
+    private void Login(){
+        String enteredUsername = username.getText().toString();
+        String enteredPassword = password.getText().toString();
+
+        Bundle enteredInfo = new Bundle();
+        enteredInfo.putString("username", enteredUsername);
+        enteredInfo.putString("password", enteredPassword);
+
+        String string = Utilities.validate(enteredInfo);
+        if (string.matches("")){
+            new AttemptLogin().execute();
+        }
+        else{
+            if (string.contains("username")){
+                username.setError(getResources().getString(R.string.username_format));
+            }
+            else{
+                username.setError(null);
+            }
+            if (string.contains("password")){
+                password.setError(getResources().getString(R.string.password_format));
+            }
+            else{
+                password.setError(null);
+            }
+        }
+    }
 
     class AttemptLogin extends AsyncTask<Void, Void, Void> {
 
@@ -102,22 +125,10 @@ public class LoginActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.equals(Params.LOGIN_SUCCESS)) {
-                UserInfo userInfo = new UserInfo();
-                ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
-                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
-
-                // clear any old user info
-                userInfo.clearUserInfo(LoginActivity.this);
-
-                // clear any left over active mission info
-                activeMissionInfo.clearAll(LoginActivity.this);
-
-                // clear any old previous missions info
-                previousMissionsInfo.clearAll(LoginActivity.this);
-
-
+                Utilities.ClearAllLocalData(LoginActivity.this);
 
                 // save the new user info
+                UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(LoginActivity.this, username);
                 userInfo.setUserStatus(LoginActivity.this, true);
 
@@ -135,31 +146,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-
-    private boolean validate() {
-        boolean valid = true;
-
-        String enteredUsername = LoginActivity.this.username.getText().toString();
-        String enteredPassword = LoginActivity.this.password.getText().toString();
-
-        // make sure username is of proper format
-        if (!enteredUsername.matches("[a-zA-Z0-9]+") || enteredUsername.length() < 3
-                || enteredUsername.length() > 15 ) {
-            username.setError(getResources().getString(R.string.username_format));
-            valid = false;
-        } else {
-            username.setError(null);
-        }
-
-        // make sure password is of proper format
-        if (enteredPassword.length() < 6 || enteredPassword.length() > 20) {
-            password.setError(getResources().getString(R.string.password_format));
-            valid = false;
-        } else {
-            password.setError(null);
-        }
-        return valid;
-    }
 }
-
-

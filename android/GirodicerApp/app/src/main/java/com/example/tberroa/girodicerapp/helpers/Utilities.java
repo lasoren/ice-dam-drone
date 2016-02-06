@@ -3,12 +3,15 @@ package com.example.tberroa.girodicerapp.helpers;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.services.DroneService;
 import com.example.tberroa.girodicerapp.services.FetchPreviousMissionsIntentService;
 import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
@@ -108,5 +111,48 @@ final public class Utilities {
 
     public static String ConstructImageKey(String username, int missionNumber, String imageName){
         return username+"/mission"+missionNumber+"/images/"+imageName;
+    }
+
+    public static void ClearAllLocalData(Context context){
+        new UserInfo().clearAll(context);
+        new ActiveMissionInfo().clearAll(context);
+        new PreviousMissionsInfo().clearAll(context);
+    }
+
+    public static String validate(Bundle enteredInfo){
+        String validation = "";
+
+        // grab entered information
+        String username = enteredInfo.getString("username", null);
+        String password = enteredInfo.getString("password", null);
+        String confirmPassword = enteredInfo.getString("confirm_password", null);
+        String email = enteredInfo.getString("email", null);
+
+        if (username != null){
+            if (!username.matches("[a-zA-Z0-9]+") || username.length() < 3 ||
+                    username.length() > 15 ) {
+                validation = validation.concat("username");
+            }
+        }
+
+        if (password != null){
+            if (password.length() < 6 || password.length() > 20) {
+                validation = validation.concat("password");
+            }
+        }
+
+        if (confirmPassword != null){
+            if (!confirmPassword.equals(password)) {
+                validation = validation.concat("confirm_password");
+            }
+        }
+
+        if (email != null){
+            if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                validation = validation.concat("email");
+            }
+        }
+
+        return validation;
     }
 }
