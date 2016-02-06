@@ -49,9 +49,4 @@ public class Mission {
     public int getNumberOfSalts(){
         return numberOfSalts;
     }
-
-    public int getNumberOfImages(){
-        return numberOfAerials+numberOfThermals+numberOfIceDams+numberOfSalts;
-    }
-
 }

@@ -13,7 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
@@ -99,10 +102,29 @@ public class LoginActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.equals(Params.LOGIN_SUCCESS)) {
-                // save user info
                 UserInfo userInfo = new UserInfo();
+                ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
+                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+
+                // clear any old user info
+                userInfo.clearUserInfo(LoginActivity.this);
+
+                // clear any left over active mission info
+                activeMissionInfo.clearAll(LoginActivity.this);
+
+                // clear any old previous missions info
+                previousMissionsInfo.clearAll(LoginActivity.this);
+
+
+
+                // save the new user info
                 userInfo.setUsername(LoginActivity.this, username);
                 userInfo.setUserStatus(LoginActivity.this, true);
+
+                // grab the new users previous missions
+                if (!new PreviousMissionsInfo().isFetching(LoginActivity.this)){
+                    Utilities.fetchPreviousMissionsData(LoginActivity.this, username);
+                }
 
                 // go to app
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));

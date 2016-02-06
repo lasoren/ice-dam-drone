@@ -33,9 +33,6 @@ public class ImageTransferIntentService extends IntentService {
         ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
         activeMissionInfo.setMissionPhase(this, 2);
 
-        // reset completed downloads count
-        activeMissionInfo.setCompletedDownloads(this, 0);
-
         // grab username and mission number
         String username = new UserInfo().getUsername(this);
         int missionNumber = activeMissionInfo.getMissionNumber(this);
@@ -51,6 +48,7 @@ public class ImageTransferIntentService extends IntentService {
         String imageNumber[] = {"1", "2", "3", "4", "5"};
 
         // download and save one image at a time
+        long lastDownload = 0;
         for (String type: imageType) {
             for (String num: imageNumber) {
                 // name of image file
@@ -86,7 +84,7 @@ public class ImageTransferIntentService extends IntentService {
                     request.setDescription(getResources().getString(R.string.download_description));
 
                     // enqueue a new download
-                    downloadManager.enqueue(request);
+                    lastDownload = downloadManager.enqueue(request);
                 }
 
                 // log the image count (always 5 in this test set up)
@@ -107,6 +105,9 @@ public class ImageTransferIntentService extends IntentService {
                         break;
                 }
             }
+
+            // save id of last download
+            activeMissionInfo.setLastDownload(this, lastDownload);
 
             // enter special phase 5, waiting for downloads to finish
             activeMissionInfo.setMissionPhase(this, 5);

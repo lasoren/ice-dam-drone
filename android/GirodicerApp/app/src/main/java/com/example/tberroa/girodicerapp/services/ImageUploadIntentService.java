@@ -69,8 +69,14 @@ public class ImageUploadIntentService extends IntentService {
         activeMissionInfo.setMissionNotInProgress(this, true);
         // mission was just completed, phase=0, inactive
         activeMissionInfo.setMissionPhase(this, 0);
+
         // previous missions info is out of date
         new PreviousMissionsInfo().setUpToDate(this, false);
+
+        // update previous missions info
+        if (!new PreviousMissionsInfo().isFetching(this)){
+            Utilities.fetchPreviousMissionsData(this, username);
+        }
 
         // broadcast that the upload is complete
         sendBroadcast(new Intent().setAction(Params.UPLOAD_COMPLETE));

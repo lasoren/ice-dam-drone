@@ -13,7 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
@@ -106,11 +109,26 @@ public class RegisterActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.equals(Params.REGISTER_SUCCESS)){
-                // save user info
                 UserInfo userInfo = new UserInfo();
-                userInfo.setUsername(getApplicationContext(), username);
-                userInfo.setUserStatus(getApplicationContext(), true);
+                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
 
+                // clear any old user info
+                userInfo.clearUserInfo(RegisterActivity.this);
+
+                // clear active mission info
+                new ActiveMissionInfo().clearAll(RegisterActivity.this);
+
+                // clear any old previous missions info
+                previousMissionsInfo.clearAll(RegisterActivity.this);
+
+                // save the new user info
+                userInfo.setUsername(RegisterActivity.this, username);
+                userInfo.setUserStatus(RegisterActivity.this, true);
+
+                // grab the new users previous missions
+                if (!new PreviousMissionsInfo().isFetching(RegisterActivity.this)){
+                    Utilities.fetchPreviousMissionsData(RegisterActivity.this, username);
+                }
                 // go to app
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                 finish();

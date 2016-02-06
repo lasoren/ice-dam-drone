@@ -7,10 +7,7 @@ import android.content.Intent;
 
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
-import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 public class ActiveMissionReceiver extends BroadcastReceiver {
     public ActiveMissionReceiver() {
@@ -35,28 +32,16 @@ public class ActiveMissionReceiver extends BroadcastReceiver {
             case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
                 ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
 
-                // get current count of completed downloads
-                int count = activeMissionInfo.getCompletedDownloads(context);
+                // get the id of the last download
+                long lastDownload = activeMissionInfo.getLastDownload(context);
 
-                // increment count
-                count++;
+                // get the id of the recently completed downloaded
+                long recentDownload = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
 
-                // store the new value of count
-                activeMissionInfo.setCompletedDownloads(context, count);
+                if (lastDownload == recentDownload) {
+                    // start uploading
+                    Utilities.startImageUploadService(context);
 
-                // get the mission phase
-                int missionPhase = activeMissionInfo.getMissionPhase(context);
-
-                if (missionPhase == 5) { // all downloads queued, waiting for them to complete
-                    // get the total number of images
-                    String json = activeMissionInfo.getMissionData(context);
-                    Gson gson = new Gson();
-                    Mission mission = gson.fromJson(json, new TypeToken<Mission>(){}.getType());
-                    int numberOfImages = mission.getNumberOfImages();
-
-                    if (count == numberOfImages) {
-                        Utilities.startImageUploadService(context); // start uploading
-                    }
                     // reload active mission activity
                     context.sendBroadcast(new Intent().setAction(reload));
                 }

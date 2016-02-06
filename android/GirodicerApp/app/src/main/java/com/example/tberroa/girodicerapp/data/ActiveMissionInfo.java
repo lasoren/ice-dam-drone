@@ -7,11 +7,11 @@ import android.content.SharedPreferences;
 public class ActiveMissionInfo extends Application {
 
     // keys
-    private final String IS_MISSION_IN_PROGRESS = "is_mission_in_progress";
+    private final String IS_MISSION_NOT_IN_PROGRESS = "is_mission_not_in_progress";
     private final String MISSION_PHASE = "mission_phase";
     private final String MISSION_NUMBER = "mission_number";
     private final String MISSION_DATA = "mission_data";
-    private final String COMPLETED_DOWNLOADS = "completed_downloads";
+    private final String LAST_DOWNLOAD = "last_download";
 
     public ActiveMissionInfo() {
     }
@@ -21,7 +21,7 @@ public class ActiveMissionInfo extends Application {
     }
 
     public boolean missionNotInProgress(Context context){
-        return getSharedPreferences(context).getBoolean(IS_MISSION_IN_PROGRESS, true);
+        return getSharedPreferences(context).getBoolean(IS_MISSION_NOT_IN_PROGRESS, true);
     }
 
     public int getMissionPhase(Context context){
@@ -36,13 +36,13 @@ public class ActiveMissionInfo extends Application {
         return getSharedPreferences(context).getString(MISSION_DATA, "");
     }
 
-    public int getCompletedDownloads(Context context){
-        return getSharedPreferences(context).getInt(COMPLETED_DOWNLOADS, 0);
+    public long getLastDownload(Context context){
+        return getSharedPreferences(context).getLong(LAST_DOWNLOAD, 0);
     }
 
     public void setMissionNotInProgress(Context context, boolean bool) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putBoolean(IS_MISSION_IN_PROGRESS, bool);
+        editor.putBoolean(IS_MISSION_NOT_IN_PROGRESS, bool);
         editor.apply();
     }
 
@@ -64,9 +64,17 @@ public class ActiveMissionInfo extends Application {
         editor.apply();
     }
 
-    public void setCompletedDownloads(Context context, int count){
+    public void setLastDownload(Context context, long lastDownload){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(COMPLETED_DOWNLOADS, count);
+        editor.putLong(LAST_DOWNLOAD, lastDownload);
         editor.apply();
+    }
+
+    public void clearAll(Context context){
+        setMissionNotInProgress(context, true);
+        setMissionPhase(context, 0);
+        setMissionNumber(context, 0);
+        setMissionData(context, "");
+        setLastDownload(context, 0);
     }
 }

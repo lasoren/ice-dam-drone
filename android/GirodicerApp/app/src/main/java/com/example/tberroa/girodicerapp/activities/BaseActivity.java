@@ -54,6 +54,9 @@ public class BaseActivity extends AppCompatActivity {
                         case 2:
                             new CurrentlyTransferringDialog(this).getDialog().show();
                             break;
+                        case 5:
+                            new CurrentlyTransferringDialog(this).getDialog().show();
+                            break;
                         case 3:
                             new CurrentlyUploadingDialog(this).getDialog().show();
                             break;
@@ -90,6 +93,8 @@ public class BaseActivity extends AppCompatActivity {
                 else{
                     // clear user info
                     new UserInfo().clearUserInfo(this);
+                    // clear active mission info
+                    new ActiveMissionInfo().clearAll(this);
                     // clear previous missions info
                     new PreviousMissionsInfo().clearAll(this);
                     // go back to login page
