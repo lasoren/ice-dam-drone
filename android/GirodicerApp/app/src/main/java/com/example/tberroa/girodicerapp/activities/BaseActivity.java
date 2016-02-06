@@ -14,7 +14,7 @@ import com.example.tberroa.girodicerapp.dialogs.MissionInProgressDialog;
 import com.example.tberroa.girodicerapp.dialogs.NoActiveMissionDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 
 public class BaseActivity extends AppCompatActivity {
@@ -39,14 +39,14 @@ public class BaseActivity extends AppCompatActivity {
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ActiveMissionStatus activeMissionStatus = new ActiveMissionStatus();
+        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
-                if (activeMissionStatus.missionNotInProgress(this)){
+                if (activeMissionInfo.missionNotInProgress(this)){
                     new NoActiveMissionDialog(this).getDialog().show();  // notify user
                 }
                 else { // otherwise
-                    int missionPhase = new ActiveMissionStatus().getMissionPhase(this);
+                    int missionPhase = new ActiveMissionInfo().getMissionPhase(this);
                     switch(missionPhase){
                         case 1:
                             new ConfirmEndMissionDialog(this).getDialog().show();
@@ -61,8 +61,8 @@ public class BaseActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.start_mission: // user wants to start a new mission
-                if (activeMissionStatus.missionNotInProgress(this)){
-                    Utilities.startActiveMission(this);
+                if (activeMissionInfo.missionNotInProgress(this)){
+                    Utilities.startDroneService(this);
                     startActivity(new Intent(this,ActiveMissionActivity.class));
                     finish();
                 }
@@ -84,7 +84,7 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
             case R.id.logout: // user wants to logout
                 // check if there is an active mission
-                if (!new ActiveMissionStatus().missionNotInProgress(this)){ // mission in progress
+                if (!new ActiveMissionInfo().missionNotInProgress(this)){ // mission in progress
                     new CannotLogOutDialog(this).getDialog().show();
                 }
                 else{

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -44,7 +45,7 @@ public class TabIceDamsFragment extends Fragment {
 
             // populate recyclerView
             MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
-                    getActivity(), missionNumber, numberOfIceDams, "iceDam", username);
+                    getActivity(), missionNumber, numberOfIceDams, Params.ICEDAM_TAB, username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
         return v;

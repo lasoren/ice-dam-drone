@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
@@ -88,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try{
-                String url = "http://girodicer.altervista.org/login.php";
+                String url = Params.LOGIN_URL;
                 postResponse = new HttpPost().doPostRequest(url, keyValuePairs);
             } catch(java.io.IOException e){
                 e.printStackTrace();
@@ -97,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.equals("success")) {
+            if (postResponse.equals(Params.LOGIN_SUCCESS)) {
                 // save user info
                 UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(LoginActivity.this, username);
@@ -113,24 +114,24 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public boolean validate() {
+    private boolean validate() {
         boolean valid = true;
 
         String enteredUsername = LoginActivity.this.username.getText().toString();
         String enteredPassword = LoginActivity.this.password.getText().toString();
 
-        // make sure username is alphanumeric and 3 to 15 characters
+        // make sure username is of proper format
         if (!enteredUsername.matches("[a-zA-Z0-9]+") || enteredUsername.length() < 3
                 || enteredUsername.length() > 15 ) {
-            username.setError("3 to 15 alphanumeric characters");
+            username.setError(getResources().getString(R.string.username_format));
             valid = false;
         } else {
             username.setError(null);
         }
 
-        // make sure password is 6 to 20 characters
+        // make sure password is of proper format
         if (enteredPassword.length() < 6 || enteredPassword.length() > 20) {
-            password.setError("between 6 and 20 characters");
+            password.setError(getResources().getString(R.string.password_format));
             valid = false;
         } else {
             password.setError(null);

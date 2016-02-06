@@ -6,10 +6,10 @@ import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.services.ActiveMissionService;
+import com.example.tberroa.girodicerapp.services.DroneService;
 import com.example.tberroa.girodicerapp.services.FetchPreviousMissionsIntentService;
 import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
 import com.example.tberroa.girodicerapp.services.ImageUploadIntentService;
@@ -79,19 +79,15 @@ final public class Utilities {
         return getScreenWidth(context)/(getSpanGrid(context)*12);
     }
 
-    public static void startActiveMission(Context context){
-        context.startService(new Intent(context, ActiveMissionService.class));
+    public static void startDroneService(Context context){
+        context.startService(new Intent(context, DroneService.class));
     }
 
-    public static void startImageTransfer(Context context){
-        String username = new UserInfo().getUsername(context);
-        int missionNumber = (new PreviousMissionsInfo().getNumOfMissions(context))+1;
-        context.startService(new Intent(context, ImageTransferIntentService.class)
-                .putExtra("username", username)
-                .putExtra("mission_number", missionNumber));
+    public static void startImageTransferService(Context context){
+        context.startService(new Intent(context, ImageTransferIntentService.class));
     }
 
-    public static void startImageUpload(Context context){
+    public static void startImageUploadService(Context context){
         context.startService(new Intent(context, ImageUploadIntentService.class));
     }
 
@@ -104,5 +100,13 @@ final public class Utilities {
     public static ArrayList<Mission> getMissions(Context context){
         return new Gson().fromJson(new PreviousMissionsInfo().getMissions(context),
                 new TypeToken<ArrayList<Mission>>(){}.getType());
+    }
+
+    public static String ConstructImageURL(String username, int missionNumber, String imageName){
+        return Params.CLOUD_URL +username+"/mission"+missionNumber+"/images/"+imageName;
+    }
+
+    public static String ConstructImageKey(String username, int missionNumber, String imageName){
+        return username+"/mission"+missionNumber+"/images/"+imageName;
     }
 }

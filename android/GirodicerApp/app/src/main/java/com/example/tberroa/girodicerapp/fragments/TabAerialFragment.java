@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -44,7 +45,7 @@ public class TabAerialFragment extends Fragment {
 
             // populate recyclerView
             MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
-                    getActivity(), missionNumber, numberOfAerials, "aerial", username);
+                    getActivity(), missionNumber, numberOfAerials, Params.AERIAL_TAB, username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
         return v;

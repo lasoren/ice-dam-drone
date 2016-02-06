@@ -6,8 +6,9 @@ import android.content.SharedPreferences;
 
 public class UserInfo extends Application {
 
-    private final String isLoggedIn = "is_logged_in";
-    private final String username = "username";
+    // keys
+    private final String IS_LOGGED_IN = "is_logged_in";
+    private final String USERNAME = "USERNAME";
 
     public UserInfo() {
     }
@@ -17,22 +18,22 @@ public class UserInfo extends Application {
     }
 
     public Boolean isLoggedIn(Context context){
-        return getSharedPreferences(context).getBoolean(isLoggedIn, false);
+        return getSharedPreferences(context).getBoolean(IS_LOGGED_IN, false);
     }
 
     public String getUsername(Context context){
-        return getSharedPreferences(context).getString(username, "");
+        return getSharedPreferences(context).getString(USERNAME, "");
     }
 
     public void setUserStatus(Context context, Boolean bool) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putBoolean(isLoggedIn, bool);
+        editor.putBoolean(IS_LOGGED_IN, bool);
         editor.apply();
     }
 
     public void setUsername(Context context, String username) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putString(this.username, username);
+        editor.putString(this.USERNAME, username);
         editor.apply();
     }
 

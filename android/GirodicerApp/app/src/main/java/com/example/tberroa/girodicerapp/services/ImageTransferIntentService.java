@@ -4,16 +4,22 @@ import android.app.DownloadManager;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
+import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
 import java.lang.reflect.Type;
 
-// class to store images received from drone
+// class to receive and store images received from drone
 // for now this class will simply download images from the internet
 public class ImageTransferIntentService extends IntentService {
 
@@ -24,81 +30,77 @@ public class ImageTransferIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // mission in transfer phase, phase=2
-        ActiveMissionStatus activeMissionStatus = new ActiveMissionStatus();
-        activeMissionStatus.setMissionPhase(this, 2);
+        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
+        activeMissionInfo.setMissionPhase(this, 2);
 
         // reset completed downloads count
-        activeMissionStatus.setCompletedDownloads(this, 0);
+        activeMissionInfo.setCompletedDownloads(this, 0);
 
         // grab username and mission number
-        String username = intent.getExtras().getString("username");
-        int missionNumber = intent.getExtras().getInt("mission_number");
+        String username = new UserInfo().getUsername(this);
+        int missionNumber = activeMissionInfo.getMissionNumber(this);
 
         // initialize number of images to zero
         int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
 
-        // begin downloading and storing
-        String uriBase = "https://s3.amazonaws.com/girodicer/";
-        for (int i = 1; i <= 4; i++) {
-            String type;
-            switch (i) {
-                case 1:
-                    type = "aerial";
-                    break;
-                case 2:
-                    type = "thermal";
-                    break;
-                case 3:
-                    type = "icedam";
-                    break;
-                case 4:
-                    type = "salt";
-                    break;
-                default:
-                    type = "aerial";
-                    break;
-            }
-            for (int j = 1; j <= 5; j++) {
-                // construct key name
-                String xDown = Integer.toString(1); // repeatedly re-download mission #1 for now
-                String xUp = Integer.toString(missionNumber); // upload as if it were new mission
-                String y = Integer.toString(j); // image number
-                String keyNameDown = username+"/mission"+xDown+"/"+type+"/"+type+y+".jpg";
-                String keyNameUp = username+"/mission"+xUp+"/"+type+"/"+type+y+".jpg";
+        // store the different image types in an array
+        String imageType[] = {"aerial", "thermal", "icedam", "salt"};
 
-                DownloadManager downloadManager =
-                        (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                Uri downloadUri = Uri.parse(uriBase+keyNameDown);
-                DownloadManager.Request request = new DownloadManager.Request(downloadUri);
+        // 5 potential images per type in this test, but in the real environment
+        // I wouldn't know the number of images per type until they all came in from the drone
+        String imageNumber[] = {"1", "2", "3", "4", "5"};
 
-                // restrict the types of networks over which this download may proceed
-                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
-                        DownloadManager.Request.NETWORK_MOBILE);
-                // set whether this download may proceed over a roaming connection
-                request.setAllowedOverRoaming(false);
-                // set the title of this download, to be displayed in notifications (if enabled)
-                request.setTitle("Girodicer Image Transfer");
-                // set a description of this download, to be displayed in notifications (if enabled)
-                request.setDescription("in process of receiving images from drone");
-                // set the local destination for the downloaded file
-                String path = "/Girodicer/"+keyNameUp;
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, path);
+        // download and save one image at a time
+        for (String type: imageType) {
+            for (String num: imageNumber) {
+                // name of image file
+                String imageName = type+num+".jpg";
 
-                //Enqueue a new download
-                downloadManager.enqueue(request);
+                // name of image including folder prefixes up to username
+                String key = Utilities.ConstructImageKey(username, missionNumber, imageName);
 
-                // log the image count
-                switch (i) {
-                    case 1:
+                // users local directory for pictures
+                String directory = Environment.DIRECTORY_PICTURES;
+
+                // path to image within users local storage
+                String path = Params.HOME_FOLDER+key;
+
+                // check if a file already exists at that location
+                File file = Environment.getExternalStoragePublicDirectory(directory+path);
+                if (!file.exists()){ // if the file does not already exist
+                    // initialize download manager
+                    DownloadManager downloadManager =
+                            (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
+                    // construct  uri
+                    Uri uri = Uri.parse(Utilities.ConstructImageURL(username, 1, imageName));
+
+                    // initialize the download request
+                    DownloadManager.Request request = new DownloadManager.Request(uri);
+
+                    // set details regarding the download
+                    request.setDestinationInExternalPublicDir(directory, path);
+                    request.setAllowedOverMetered(false);
+                    request.setAllowedOverRoaming(false);
+                    request.setTitle(getResources().getString(R.string.download_title));
+                    request.setDescription(getResources().getString(R.string.download_description));
+
+                    // enqueue a new download
+                    downloadManager.enqueue(request);
+                }
+
+                // log the image count (always 5 in this test set up)
+                switch (type) {
+                    case "aerial":
                         numberOfAerials++;
                         break;
-                    case 2:
+                    case "thermal":
                         numberOfThermals++;
                         break;
-                    case 3:
+                    case "icedam":
                         numberOfIceDams++;
                         break;
-                    case 4:
+                    case "salt":
                         numberOfSalts++;
                         break;
                     default:
@@ -107,21 +109,23 @@ public class ImageTransferIntentService extends IntentService {
             }
 
             // enter special phase 5, waiting for downloads to finish
-            activeMissionStatus.setMissionPhase(this, 5);
+            activeMissionInfo.setMissionPhase(this, 5);
 
-            // save data
-            Mission missionData =
-                    new Mission(numberOfAerials, numberOfThermals, numberOfIceDams, numberOfSalts);
-            activeMissionStatus.setMissionNumber(this, missionNumber);
+            // save the mission data
+            Bundle bundle = new Bundle();
+            bundle.putInt("number_of_aerials", numberOfAerials);
+            bundle.putInt("number_of_thermals", numberOfThermals);
+            bundle.putInt("number_of_icedams", numberOfIceDams);
+            bundle.putInt("number_of_salts", numberOfSalts);
+            Mission missionData = new Mission(bundle);
 
-            // save the mission as json
+            // save the mission as JSON
             Type singleMission = new TypeToken<Mission>(){}.getType();
             String json = new Gson().toJson(missionData, singleMission);
-            activeMissionStatus.setMissionData(this, json);
+            activeMissionInfo.setMissionData(this, json);
 
-            // broadcast that the service is complete
-            Intent broadcastIntent = new Intent("TRANSFER_COMPLETE");
-            sendBroadcast(broadcastIntent);
+            // broadcast that the transfer is complete
+            sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
         }
     }
 }

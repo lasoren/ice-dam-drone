@@ -1,5 +1,7 @@
 package com.example.tberroa.girodicerapp.data;
 
+import android.os.Bundle;
+
 public class Mission {
     private int numberOfAerials;
     private int numberOfThermals;
@@ -9,11 +11,11 @@ public class Mission {
     public Mission(){
     }
 
-    public Mission(int numOfAerials, int numOfThermals, int numOfIceDams, int numOfSalts){
-        this.numberOfAerials = numOfAerials;
-        this.numberOfThermals = numOfThermals;
-        this.numberOfIceDams = numOfIceDams;
-        this.numberOfSalts = numOfSalts;
+    public Mission(Bundle bundle){
+        numberOfAerials = bundle.getInt("number_of_aerials", 0);
+        numberOfThermals = bundle.getInt("number_of_thermals", 0);
+        numberOfIceDams = bundle.getInt("number_of_icedams", 0);
+        numberOfSalts = bundle.getInt("number_of_salts", 0);
     }
 
     public void setNumberOfAerials(int num){

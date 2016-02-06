@@ -1,5 +1,7 @@
 package com.example.tberroa.girodicerapp.network;
 
+import com.example.tberroa.girodicerapp.data.Params;
+
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -11,8 +13,7 @@ import okhttp3.Response;
 public class HttpPost {
 
     private final OkHttpClient httpClient = new OkHttpClient();
-    private final MediaType mediaType =
-            MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
+    private final MediaType mediaType = MediaType.parse(Params.HTTP_POST_MEDIA_TYPE);
 
     public HttpPost(){
     }

@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
@@ -95,7 +96,7 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try{
-                String url = "http://girodicer.altervista.org/register.php";
+                String url = Params.REGISTER_URL;
                 postResponse = new HttpPost().doPostRequest(url, keyValuePairs);
             } catch(java.io.IOException e){
                 e.printStackTrace();
@@ -104,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.equals("account successfully created")){
+            if (postResponse.equals(Params.REGISTER_SUCCESS)){
                 // save user info
                 UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(getApplicationContext(), username);
@@ -120,7 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    public boolean validate() {
+    private boolean validate() {
         boolean valid = true;
 
         String enteredUsername = RegisterActivity.this.username.getText().toString();
@@ -128,18 +129,18 @@ public class RegisterActivity extends AppCompatActivity {
         String enteredConfirmPassword = RegisterActivity.this.confirmPassword.getText().toString();
         String enteredEmail = RegisterActivity.this.email.getText().toString();
 
-        // make sure username is alphanumeric and 3 to 15 characters
+        // make sure username is of proper format
         if (!enteredUsername.matches("[a-zA-Z0-9]+") || enteredUsername.length() < 3
                 || enteredUsername.length() > 15 ) {
-            username.setError("3 to 15 alphanumeric characters");
+            username.setError(getResources().getString(R.string.username_format));
             valid = false;
         } else {
             username.setError(null);
         }
 
-        // make sure password is 6 to 20 characters
+        // make sure password is of proper format
         if (enteredPassword.length() < 6 || enteredPassword.length() > 20) {
-            password.setError("6 to 20 characters");
+            password.setError(getResources().getString(R.string.password_format));
             valid = false;
         } else {
             password.setError(null);
@@ -147,22 +148,20 @@ public class RegisterActivity extends AppCompatActivity {
 
         // make sure passwords match
         if (!enteredConfirmPassword.equals(enteredPassword)) {
-            confirmPassword.setError("password mismatch");
+            confirmPassword.setError(getResources().getString(R.string.password_mismatch));
             valid = false;
         } else {
             confirmPassword.setError(null);
         }
 
         // make sure email is valid
-        if (enteredEmail.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
-            email.setError("enter a valid email address");
+        if (enteredEmail.isEmpty() ||
+                !android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
+            email.setError(getResources().getString(R.string.enter_valid_email));
             valid = false;
         } else {
             email.setError(null);
         }
-
         return valid;
     }
 }
-
-

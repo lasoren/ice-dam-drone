@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tberroa.girodicerapp" >
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -9,10 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-feature
-        android:name="android.hardware.bluetooth_le"
-        android:required="true" />
+    <uses-permission android:name="android.permission.SEND_DOWNLOAD_COMPLETED_INTENTS" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -25,9 +21,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
 
-        <activity android:name=".activities.BaseActivity">
-        </activity>
-
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/app_name" >
@@ -36,41 +29,47 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activities.RegisterActivity" >
-        </activity>
-
-        <activity android:name=".activities.MainActivity" >
-        </activity>
-
-        <activity android:name=".activities.ActiveMissionActivity" >
-        </activity>
-
-        <activity android:name=".activities.PreviousMissionsActivity">
-        </activity>
-
-        <activity android:name=".activities.MissionActivity">
-        </activity>
+        <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".activities.BaseActivity" />
+        <activity android:name=".activities.MainActivity" />
+        <activity android:name=".activities.ActiveMissionActivity" />
+        <activity android:name=".activities.PreviousMissionsActivity" />
+        <activity android:name=".activities.MissionActivity" />
 
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
-
         <service
-            android:name=".services.ActiveMissionService"
+            android:name=".services.DroneService"
             android:exported="false" />
-
         <service
             android:name=".services.ImageTransferIntentService"
             android:exported="false" />
-
         <service
             android:name=".services.ImageUploadIntentService"
             android:exported="false" />
-
         <service
             android:name=".services.FetchPreviousMissionsIntentService"
             android:exported="false" />
 
+        <receiver
+            android:name=".receivers.ActiveMissionReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="DRONE_READY" />
+            </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="TRANSFER_COMPLETE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+            <intent-filter>
+                <action
+                    android:name="UPLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

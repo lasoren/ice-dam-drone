@@ -27,9 +27,8 @@ public class PreviousMissionsViewAdapter extends
     private final ArrayList<Mission> missions;
     private final String username;
 
-    public PreviousMissionsViewAdapter(Context context, String username,
-                                       ArrayList<Mission> missions) {
-        this.context = context;
+    public PreviousMissionsViewAdapter(Context c, String username, ArrayList<Mission> missions) {
+        context = c;
         this.missions = missions;
         this.username = username;
     }
@@ -81,13 +80,12 @@ public class PreviousMissionsViewAdapter extends
     @Override
     public void onBindViewHolder(MissionViewHolder allMissionsVH, int i) {
 
-        // set header/toolbar text
-        allMissionsVH.missionNumber.setText("Mission " + Integer.toString(i + 1));
+        // set toolbar text
+        String title = "Mission " + Integer.toString(i + 1);
+        allMissionsVH.missionNumber.setText(title);
 
         // build thumbnail url
-        String x = Integer.toString(i+1);
-        final String urlBase = "http://s3.amazonaws.com/girodicer/";
-        String url = urlBase+username+"/mission"+x+"/aerial/aerial1.jpg";
+        String url = Utilities.ConstructImageURL(username, i + 1, "aerial1.jpg");
 
         // render thumbnail with Picasso
         Picasso.with(context)

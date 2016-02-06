@@ -5,11 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class PreviousMissionsInfo extends Application {
-    
-    private final String isFetching = "is_fetching";
-    private final String isUpToDate = "is_up_to_date";
-    private final String missions = "missions";
-    private final String numberOfMissions = "number_of_missions";
+
+    // keys
+    private final String IS_FETCHING = "is_fetching";
+    private final String IS_UP_TO_DATE = "is_up_to_date";
+    private final String MISSIONS = "missions";
+    private final String NUMBER_OF_MISSIONS = "number_of_missions";
 
     public PreviousMissionsInfo(){
     }
@@ -19,43 +20,43 @@ public class PreviousMissionsInfo extends Application {
     }
 
     public Boolean isFetching(Context context) {
-        return getSharedPreferences(context).getBoolean(isFetching, false);
+        return getSharedPreferences(context).getBoolean(IS_FETCHING, false);
     }
 
     public Boolean isUpToDate(Context context) {
-        return getSharedPreferences(context).getBoolean(isUpToDate, false);
+        return getSharedPreferences(context).getBoolean(IS_UP_TO_DATE, false);
     }
 
-    // individual missions are saved together an array of missions and packaged as a JSON string
+    // individual MISSIONS are saved together an array of MISSIONS and packaged as a JSON string
     public String getMissions(Context context) {
-        return getSharedPreferences(context).getString(missions, "");
+        return getSharedPreferences(context).getString(MISSIONS, "");
     }
 
     public int getNumOfMissions(Context context) {
-        return getSharedPreferences(context).getInt(numberOfMissions, 0);
+        return getSharedPreferences(context).getInt(NUMBER_OF_MISSIONS, 0);
     }
 
     public void setFetching(Context context, Boolean bool){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putBoolean(isFetching, bool);
+        editor.putBoolean(IS_FETCHING, bool);
         editor.apply();
     }
 
     public void setUpToDate(Context context, Boolean bool){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putBoolean(isUpToDate, bool);
+        editor.putBoolean(IS_UP_TO_DATE, bool);
         editor.apply();
     }
 
     public void setMissions(Context context, String missions){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putString(this.missions, missions);
+        editor.putString(this.MISSIONS, missions);
         editor.apply();
     }
 
     public void setNumOfMissions(Context context, int num){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(numberOfMissions, num);
+        editor.putInt(NUMBER_OF_MISSIONS, num);
         editor.apply();
     }
 

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.MissionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -43,10 +44,10 @@ public class MissionActivity extends BaseActivity {
 
         // set tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("AERIAL"));
-        tabLayout.addTab(tabLayout.newTab().setText("THERMAL"));
-        tabLayout.addTab(tabLayout.newTab().setText("ICEDAM"));
-        tabLayout.addTab(tabLayout.newTab().setText("SALT"));
+        tabLayout.addTab(tabLayout.newTab().setText(Params.AERIAL_TAB));
+        tabLayout.addTab(tabLayout.newTab().setText(Params.THERMAL_TAB));
+        tabLayout.addTab(tabLayout.newTab().setText(Params.ICEDAM_TAB));
+        tabLayout.addTab(tabLayout.newTab().setText(Params.SALT_TAB));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         // populate the activity
@@ -75,10 +76,8 @@ public class MissionActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
-
         MenuItem item = menu.findItem(R.id.title);
         item.setTitle("Logged in as: " + username);
-
         return true;
     }
 }

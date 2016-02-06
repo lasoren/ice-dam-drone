@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
@@ -56,7 +57,7 @@ public class PreviousMissionsActivity extends BaseActivity {
 
         // setup and register receiver
         IntentFilter filter = new IntentFilter();
-        filter.addAction("FETCHING_COMPLETE");
+        filter.addAction(Params.FETCHING_COMPLETE);
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -97,10 +98,8 @@ public class PreviousMissionsActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
-
         MenuItem item = menu.findItem(R.id.title);
         item.setTitle("Logged in as: "+username);
-
         return true;
     }
 

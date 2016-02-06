@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -44,7 +45,7 @@ public class TabThermalFragment extends Fragment {
 
             // populate recyclerView
             MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
-                    getActivity(), missionNumber, numberOfThermals, "thermal", username);
+                    getActivity(), missionNumber, numberOfThermals, Params.THERMAL_TAB, username);
             missionsRecyclerView.setAdapter(recyclerAdapter);
         }
         return v;

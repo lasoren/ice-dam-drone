@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.squareup.picasso.Picasso;
 
@@ -19,13 +20,12 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
     private final String username;
     private final String tab;
 
-    public MissionViewAdapter(Context context, int missionNumber, int numberOfImages,
-                              String tab, String username){
-        this.context = context;
-        this.missionNumber = missionNumber;
-        this.numberOfImages = numberOfImages;
+    public MissionViewAdapter(Context c, int missionNum, int numOfImages, String tab, String user){
+        context = c;
+        missionNumber = missionNum;
+        numberOfImages = numOfImages;
         this.tab = tab;
-        this.username = username;
+        username = user;
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
@@ -50,28 +50,25 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
 
     @Override
     public void onBindViewHolder(ImageViewHolder imageViewHolder, int i) {
-
         // construct image url
-        String x = Integer.toString(missionNumber);
-        String urlStart = "http://s3.amazonaws.com/girodicer/"+username+"/mission"+x+"/";
-        String urlEnd = Integer.toString(i+1)+".jpg";
-        String url;
+        String imageName;
         switch (tab){
-            case "aerial":
-                url = urlStart+"aerial/aerial"+urlEnd;
+            case Params.AERIAL_TAB:
+                imageName = "aerial"+Integer.toString(i+1)+".jpg";
                 break;
-            case "thermal":
-                url = urlStart+"thermal/thermal"+urlEnd;
+            case Params.THERMAL_TAB:
+                imageName = "thermal"+Integer.toString(i+1)+".jpg";
                 break;
-            case "iceDam":
-                url = urlStart+"icedam/icedam"+urlEnd;
+            case Params.ICEDAM_TAB:
+                imageName = "icedam"+Integer.toString(i+1)+".jpg";
                 break;
-            case "salt":
-                url = urlStart+"salt/salt"+urlEnd;
+            case Params.SALT_TAB:
+                imageName = "salt"+Integer.toString(i+1)+".jpg";
                 break;
             default:
-                url = urlStart+"aerial/aerial"+urlEnd;
+                imageName = "aerial"+Integer.toString(i+1)+".jpg";
         }
+        String url = Utilities.ConstructImageURL(username, missionNumber, imageName);
 
         // render image with Picasso
         Picasso.with(context)

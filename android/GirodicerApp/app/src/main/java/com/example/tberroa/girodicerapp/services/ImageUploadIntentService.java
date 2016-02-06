@@ -2,17 +2,17 @@ package com.example.tberroa.girodicerapp.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.ActiveMissionStatus;
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.network.CloudServiceTools;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.network.CloudTools;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -27,13 +27,13 @@ public class ImageUploadIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // mission in upload phase, phase=3
-        ActiveMissionStatus activeMissionStatus = new ActiveMissionStatus();
-        activeMissionStatus.setMissionPhase(this, 3);
+        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
+        activeMissionInfo.setMissionPhase(this, 3);
 
         // grab data
         String username = new UserInfo().getUsername(this);
-        int missionNumber = activeMissionStatus.getMissionNumber(this);
-        String json = activeMissionStatus.getMissionData(this);
+        int missionNumber = activeMissionInfo.getMissionNumber(this);
+        String json = activeMissionInfo.getMissionData(this);
         Mission missionData = new Gson().fromJson(json, new TypeToken<Mission>() {
         }.getType());
         int numberOfAerials = missionData.getNumberOfAerials();
@@ -41,67 +41,38 @@ public class ImageUploadIntentService extends IntentService {
         int numberOfIceDams = missionData.getNumberOfIceDams();
         int numberOfSalts = missionData.getNumberOfSalts();
 
+        // store the different image types in an array
+        String imageType[] = {"aerial", "thermal", "icedam", "salt"};
+        Bundle numberOfImages = new Bundle();
+        numberOfImages.putInt("aerial", numberOfAerials);
+        numberOfImages.putInt("thermal", numberOfThermals);
+        numberOfImages.putInt("icedam", numberOfIceDams);
+        numberOfImages.putInt("salt", numberOfSalts);
+
         // generate strings required to upload images, then upload images
-        String type;
-        for(int i=1; i<=4; i++) {
-            int maxImages;
-            switch (i) {
-                case 1:
-                    maxImages = numberOfAerials;
-                    type = "aerial";
-                    break;
-                case 2:
-                    maxImages = numberOfThermals;
-                    type = "thermal";
-                    break;
-                case 3:
-                    maxImages = numberOfIceDams;
-                    type = "icedam";
-                    break;
-                case 4:
-                    maxImages = numberOfSalts;
-                    type = "salt";
-                    break;
-                default:
-                    maxImages = numberOfAerials;
-                    type = "aerial";
-                    break;
-            }
-            for (int j = 1; j <= maxImages; j++) {
-                String x = Integer.toString(j);
-                String keyName = username+"/mission"+missionNumber+"/"+type+"/"+type+x+".jpg";
-                String path = "/Girodicer/"+keyName;
+        for(String type: imageType) {
+            for (int j = 1; j <= numberOfImages.getInt(type); j++) {
+                String imageName = type+Integer.toString(j)+".jpg";
+                String keyName = Utilities.ConstructImageKey(username, missionNumber, imageName);
+                String path = Params.HOME_FOLDER+keyName;
                 File file = Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES+path);
+
                 if (file.exists()){ // check if file exists before trying to upload
-
-                    TransferObserver transfer = new CloudServiceTools(this).getObserver(keyName, file);
-                    transfer.setTransferListener(new TransferListener() {
-                        public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                            // update progress bar
-                            int progress = (int)(bytesCurrent/bytesTotal);
-                            ActiveMissionActivity.progressBar.setProgress(progress);
-                        }
-
-                        public void onStateChanged(int id, TransferState state) {
-                        }
-
-                        public void onError(int id, Exception ex) {
-                        }
-                    });
+                    TransferUtility transfer = new CloudTools(this).getTransferUtility();
+                    transfer.upload(Params.CLOUD_BUCKET_NAME, keyName, file);
                 }
             }
         }
 
         // mission program is now completely over
-        activeMissionStatus.setMissionNotInProgress(this, true);
+        activeMissionInfo.setMissionNotInProgress(this, true);
         // mission was just completed, phase=0, inactive
-        activeMissionStatus.setMissionPhase(this, 0);
+        activeMissionInfo.setMissionPhase(this, 0);
         // previous missions info is out of date
         new PreviousMissionsInfo().setUpToDate(this, false);
 
-        // broadcast that the service is complete
-        Intent broadcastIntent = new Intent("UPLOAD_COMPLETE");
-        sendBroadcast(broadcastIntent);
+        // broadcast that the upload is complete
+        sendBroadcast(new Intent().setAction(Params.UPLOAD_COMPLETE));
     }
 }

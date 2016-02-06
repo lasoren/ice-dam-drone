@@ -4,14 +4,13 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.network.CloudTools;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,25 +28,19 @@ public class FetchPreviousMissionsIntentService extends IntentService {
         // currently fetching
         PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
         previousMissionsInfo.setFetching(this, true);
-        final String bucketName = "girodicer";
 
         // grab username and initialize number of missions to 1
         String username = intent.getStringExtra("username");
         int numberOfMissions = 1;
 
-        // initialize the Amazon credentials provider and AmazonS3 Client
-        CognitoCachingCredentialsProvider credentialsProvider =
-                new CognitoCachingCredentialsProvider(this,
-                        "us-east-1:d64bdcf1-1d5e-441e-ba35-0a3876e4c82c",
-                        Regions.US_EAST_1);
-        AmazonS3 s3Client = new AmazonS3Client(credentialsProvider);
+        // initialize the client
+        AmazonS3 s3Client = new CloudTools(this).getAmazonS3Client();
 
         // get number of missions
         Boolean keepGoing = true;
         while (keepGoing){
-            String number = Integer.toString(numberOfMissions);
-            String key = username+"/mission"+number+"/aerial/aerial1.jpg";
-            if (exists(s3Client, bucketName, key)){
+            String key = Utilities.ConstructImageKey(username, numberOfMissions, "aerial1.jpg");
+            if (exists(s3Client, key)){
                 ++numberOfMissions;
             }
             else{
@@ -61,33 +54,30 @@ public class FetchPreviousMissionsIntentService extends IntentService {
 
         // get number of images for all missions
         for (int i=1; i <= numberOfMissions; i++ ){
-            int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
+            int numberOfAerials, numberOfThermals, numberOfIceDams, numberOfSalts;
             String x = Integer.toString(i);
-            String prefixAerial = username+"/mission"+x+"/aerial/";
-            String prefixThermal = username+"/mission"+x+"/thermal/";
-            String prefixIceDam = username+"/mission"+x+"/icedam/";
-            String prefixSalt = username+"/mission"+x+"/salt/";
-            ObjectListing listAerial = s3Client.listObjects(bucketName, prefixAerial);
-            ObjectListing listThermal = s3Client.listObjects(bucketName, prefixThermal);
-            ObjectListing listIceDam = s3Client.listObjects(bucketName, prefixIceDam);
-            ObjectListing listSalt = s3Client.listObjects(bucketName, prefixSalt);
+            String prefixAerial = username+"/mission"+x+"/images/aerial";
+            String prefixThermal = username+"/mission"+x+"/images/thermal";
+            String prefixIceDam = username+"/mission"+x+"/images/icedam";
+            String prefixSalt = username+"/mission"+x+"/images/salt";
+
             // get number of aerials in mission i
-            for (S3ObjectSummary objectSummary : listAerial.getObjectSummaries()){
-                ++numberOfAerials;
-            }
-               // get number of thermals in mission i
-            for (S3ObjectSummary objectSummary : listThermal.getObjectSummaries()){
-                ++numberOfThermals;
-            }
+            ObjectListing aerials = s3Client.listObjects(Params.CLOUD_BUCKET_NAME, prefixAerial);
+            numberOfAerials = aerials.getObjectSummaries().size();
+
+            // get number of thermals in mission i
+            ObjectListing thermals = s3Client.listObjects(Params.CLOUD_BUCKET_NAME, prefixThermal);
+            numberOfThermals = thermals.getObjectSummaries().size();
+
             // get number of ice dams in mission i
-            for (S3ObjectSummary objectSummary : listIceDam.getObjectSummaries()){
-                ++numberOfIceDams;
-            }
+            ObjectListing iceDams = s3Client.listObjects(Params.CLOUD_BUCKET_NAME, prefixIceDam);
+            numberOfIceDams = iceDams.getObjectSummaries().size();
+
             // get number of salts in mission i
-            for (S3ObjectSummary objectSummary : listSalt.getObjectSummaries()){
-                ++numberOfSalts;
-            }
-                // create new mission object and store in missions array
+            ObjectListing salts = s3Client.listObjects(Params.CLOUD_BUCKET_NAME, prefixSalt);
+            numberOfSalts = salts.getObjectSummaries().size();
+
+            // create new mission object and store in missions array
             Mission mission = new Mission();
             mission.setNumberOfAerials(numberOfAerials);
             mission.setNumberOfThermals(numberOfThermals);
@@ -110,13 +100,13 @@ public class FetchPreviousMissionsIntentService extends IntentService {
         previousMissionsInfo.setUpToDate(this, true);
 
         // broadcast that the service is complete
-        Intent broadcastIntent = new Intent("FETCHING_COMPLETE");
+        Intent broadcastIntent = new Intent(Params.FETCHING_COMPLETE);
         sendBroadcast(broadcastIntent);
     }
 
-    private boolean exists(AmazonS3 s3Client, String bucketName, String key) {
+    private boolean exists(AmazonS3 s3Client, String key) {
         try {
-            s3Client.getObject(bucketName, key);
+            s3Client.getObject(Params.CLOUD_BUCKET_NAME, key);
         } catch(AmazonServiceException e) {
             return false;
         }
