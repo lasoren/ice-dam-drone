@@ -5,30 +5,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.dialogs.CannotLogOutDialog;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndMissionDialog;
 import com.example.tberroa.girodicerapp.dialogs.CurrentlyTransferringDialog;
 import com.example.tberroa.girodicerapp.dialogs.CurrentlyUploadingDialog;
 import com.example.tberroa.girodicerapp.dialogs.MissionInProgressDialog;
 import com.example.tberroa.girodicerapp.dialogs.NoActiveMissionDialog;
-import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.services.DroneService;
 
 public class BaseActivity extends AppCompatActivity {
+
+    final UserInfo userInfo = new UserInfo();
+    final ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
+    final PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
 
-        // get user login status
-        Boolean isLoggedIn = new UserInfo().isLoggedIn(this);
-
-        if (!isLoggedIn){ // if user is not logged in, boot them
+        if (!userInfo.isLoggedIn(this)){ // if user is not logged in, boot them
             // clear username
-            new UserInfo().setUsername(this, "");
+            userInfo.setUsername(this, "");
             // go back to login page
             startActivity(new Intent(BaseActivity.this, LoginActivity.class));
             finish();
@@ -38,14 +41,13 @@ public class BaseActivity extends AppCompatActivity {
     // implement navigation functions
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
                 if (activeMissionInfo.missionNotInProgress(this)){
                     new NoActiveMissionDialog(this).getDialog().show();  // notify user
                 }
                 else { // otherwise
-                    int missionPhase = new ActiveMissionInfo().getMissionPhase(this);
+                    int missionPhase = activeMissionInfo.getMissionPhase(this);
                     switch(missionPhase){
                         case 1:
                             new ConfirmEndMissionDialog(this).getDialog().show();
@@ -64,7 +66,7 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
             case R.id.start_mission: // user wants to start a new mission
                 if (activeMissionInfo.missionNotInProgress(this)){
-                    Utilities.startDroneService(this);
+                    startService(new Intent(this, DroneService.class));
                     startActivity(new Intent(this,ActiveMissionActivity.class));
                     finish();
                 }
@@ -86,11 +88,15 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
             case R.id.logout: // user wants to logout
                 // check if there is an active mission
-                if (!new ActiveMissionInfo().missionNotInProgress(this)){ // mission in progress
+                if (!activeMissionInfo.missionNotInProgress(this)){ // mission in progress
                     new CannotLogOutDialog(this).getDialog().show();
                 }
                 else{
-                    Utilities.ClearAllLocalData(this);
+                    // clear all local data
+                    userInfo.clearAll(this);
+                    activeMissionInfo.clearAll(this);
+                    previousMissionsInfo.clearAll(this);
+
                     // go back to login page
                     startActivity(new Intent(this, LoginActivity.class));
                     finish();

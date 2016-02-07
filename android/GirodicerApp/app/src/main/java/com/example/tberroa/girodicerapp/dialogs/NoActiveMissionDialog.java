@@ -14,14 +14,13 @@ public class NoActiveMissionDialog extends AlertDialog {
         super(context);
 
         builder = new AlertDialog.Builder(context);
-        builder
-                .setMessage(R.string.no_active_mission)
-                .setCancelable(true)
-                .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
+        builder.setMessage(R.string.no_active_mission);
+        builder.setCancelable(true);
+        builder.setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public AlertDialog getDialog() {

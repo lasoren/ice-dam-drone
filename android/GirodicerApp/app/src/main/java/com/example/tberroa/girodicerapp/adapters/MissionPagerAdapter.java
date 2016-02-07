@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.fragments.TabAerialFragment;
-import com.example.tberroa.girodicerapp.fragments.TabIceDamsFragment;
+import com.example.tberroa.girodicerapp.fragments.TabIceDamFragment;
 import com.example.tberroa.girodicerapp.fragments.TabSaltFragment;
 import com.example.tberroa.girodicerapp.fragments.TabThermalFragment;
 
@@ -21,16 +21,15 @@ public class MissionPagerAdapter extends FragmentStatePagerAdapter {
     private final int numberOfSalts;
     private final String username;
 
-    public MissionPagerAdapter(FragmentManager fm, int numberOfTabs, int missionNumber,
-                               Mission mission, String username) {
+    public MissionPagerAdapter(FragmentManager fm, int numOfT, int mNum, Mission m, String user) {
         super(fm);
-        this.numberOfTabs = numberOfTabs;
-        this.missionNumber = missionNumber;
-        this.numberOfAerials = mission.getNumberOfAerials();
-        this.numberOfThermals = mission.getNumberOfThermals();
-        this.numberOfIceDams = mission.getNumberOfIceDams();
-        this.numberOfSalts = mission.getNumberOfSalts();
-        this.username = username;
+        numberOfTabs = numOfT;
+        missionNumber = mNum;
+        numberOfAerials = m.getNumberOfAerials();
+        numberOfThermals = m.getNumberOfThermals();
+        numberOfIceDams = m.getNumberOfIceDams();
+        numberOfSalts = m.getNumberOfSalts();
+        username = user;
     }
 
     @Override
@@ -38,11 +37,11 @@ public class MissionPagerAdapter extends FragmentStatePagerAdapter {
 
         // create bundle with data required by fragments
         Bundle bundle = new Bundle();
-        bundle.putInt("missionNumber", missionNumber);
-        bundle.putInt("numberOfAerials", numberOfAerials);
-        bundle.putInt("numberOfThermals", numberOfThermals);
-        bundle.putInt("numberOfIceDams", numberOfIceDams);
-        bundle.putInt("numberOfSalts", numberOfSalts);
+        bundle.putInt("mission_number", missionNumber);
+        bundle.putInt("number_of_aerials", numberOfAerials);
+        bundle.putInt("number_of_thermals", numberOfThermals);
+        bundle.putInt("number_of_icedams", numberOfIceDams);
+        bundle.putInt("number_of_salts", numberOfSalts);
         bundle.putString("username", username);
 
         // load up the proper fragment based on tab position and pass it the bundle
@@ -56,7 +55,7 @@ public class MissionPagerAdapter extends FragmentStatePagerAdapter {
                 tabThermal.setArguments(bundle);
                 return tabThermal;
             case 2:
-                TabIceDamsFragment tabIceDams = new TabIceDamsFragment();
+                TabIceDamFragment tabIceDams = new TabIceDamFragment();
                 tabIceDams.setArguments(bundle);
                 return tabIceDams;
             case 3:

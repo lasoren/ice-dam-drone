@@ -7,14 +7,9 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.services.DroneService;
-import com.example.tberroa.girodicerapp.services.FetchPreviousMissionsIntentService;
-import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
 import com.example.tberroa.girodicerapp.services.ImageUploadIntentService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -82,27 +77,13 @@ final public class Utilities {
         return getScreenWidth(context)/(getSpanGrid(context)*12);
     }
 
-    public static void startDroneService(Context context){
-        context.startService(new Intent(context, DroneService.class));
-    }
-
-    public static void startImageTransferService(Context context){
-        context.startService(new Intent(context, ImageTransferIntentService.class));
-    }
-
     public static void startImageUploadService(Context context){
         context.startService(new Intent(context, ImageUploadIntentService.class));
     }
 
-    public static void fetchPreviousMissionsData(Context context, String username){
-        Intent intent = new Intent(context, FetchPreviousMissionsIntentService.class);
-        intent.putExtra("username", username);
-        context.startService(intent);
-    }
-
     public static ArrayList<Mission> getMissions(Context context){
-        return new Gson().fromJson(new PreviousMissionsInfo().getMissions(context),
-                new TypeToken<ArrayList<Mission>>(){}.getType());
+        String jsonMissions = new PreviousMissionsInfo().getMissions(context);
+        return new Gson().fromJson(jsonMissions, new TypeToken<ArrayList<Mission>>(){}.getType());
     }
 
     public static String ConstructImageURL(String username, int missionNumber, String imageName){
@@ -111,12 +92,6 @@ final public class Utilities {
 
     public static String ConstructImageKey(String username, int missionNumber, String imageName){
         return username+"/mission"+missionNumber+"/images/"+imageName;
-    }
-
-    public static void ClearAllLocalData(Context context){
-        new UserInfo().clearAll(context);
-        new ActiveMissionInfo().clearAll(context);
-        new PreviousMissionsInfo().clearAll(context);
     }
 
     public static String validate(Bundle enteredInfo){
@@ -129,8 +104,9 @@ final public class Utilities {
         String email = enteredInfo.getString("email", null);
 
         if (username != null){
-            if (!username.matches("[a-zA-Z0-9]+") || username.length() < 3 ||
-                    username.length() > 15 ) {
+            boolean tooShort = username.length() < 3;
+            boolean tooLong = username.length() > 15;
+            if (!username.matches("[a-zA-Z0-9]+") || tooShort || tooLong ) {
                 validation = validation.concat("username");
             }
         }
@@ -152,7 +128,6 @@ final public class Utilities {
                 validation = validation.concat("email");
             }
         }
-
         return validation;
     }
 }

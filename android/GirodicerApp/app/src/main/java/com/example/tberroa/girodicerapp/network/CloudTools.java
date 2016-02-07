@@ -14,9 +14,10 @@ public class CloudTools {
     private final TransferUtility transferUtility;
 
     public CloudTools(Context context){
-        CognitoCachingCredentialsProvider credentials = new CognitoCachingCredentialsProvider(
-                context, Params.CLOUD_CREDENTIALS, Regions.US_EAST_1);
-        amazonS3Client = new AmazonS3Client(credentials);
+        CognitoCachingCredentialsProvider cred;
+        Regions region = Regions.US_EAST_1;
+        cred = new CognitoCachingCredentialsProvider(context, Params.CLOUD_CREDENTIALS, region);
+        amazonS3Client = new AmazonS3Client(cred);
         transferUtility = new TransferUtility(amazonS3Client, context);
     }
 

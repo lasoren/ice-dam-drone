@@ -2,14 +2,14 @@ package com.example.tberroa.girodicerapp.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.CloudTools;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -17,10 +17,10 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class FetchPreviousMissionsIntentService extends IntentService {
+public class FetchPMIntentService extends IntentService {
 
-    public FetchPreviousMissionsIntentService() {
-        super("FetchPreviousMissionsIntentService");
+    public FetchPMIntentService() {
+        super("FetchPMIntentService");
     }
 
     @Override
@@ -31,23 +31,19 @@ public class FetchPreviousMissionsIntentService extends IntentService {
 
         // grab username and initialize number of missions to 1
         String username = intent.getStringExtra("username");
-        int numberOfMissions = 1;
+        int numberOfMissions;
 
         // initialize the client
         AmazonS3 s3Client = new CloudTools(this).getAmazonS3Client();
 
         // get number of missions
-        Boolean keepGoing = true;
-        while (keepGoing){
-            String key = Utilities.ConstructImageKey(username, numberOfMissions, "aerial1.jpg");
-            if (exists(s3Client, key)){
-                ++numberOfMissions;
-            }
-            else{
-                --numberOfMissions;
-                keepGoing = false;
-            }
-        }
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+        listObjectsRequest.withBucketName(Params.CLOUD_BUCKET_NAME);
+        listObjectsRequest.withPrefix(username+"/");
+        listObjectsRequest.withDelimiter("/");
+        numberOfMissions= s3Client.listObjects(listObjectsRequest).getCommonPrefixes().size();
+        String sNumberOfMissions = Integer.toString(numberOfMissions);
+        Log.d("number_of_missions", sNumberOfMissions); // for debugging purposes
 
         // create array of missions
         ArrayList<Mission> missions = new ArrayList<>(numberOfMissions);
@@ -102,14 +98,5 @@ public class FetchPreviousMissionsIntentService extends IntentService {
         // broadcast that the service is complete
         Intent broadcastIntent = new Intent(Params.FETCHING_COMPLETE);
         sendBroadcast(broadcastIntent);
-    }
-
-    private boolean exists(AmazonS3 s3Client, String key) {
-        try {
-            s3Client.getObject(Params.CLOUD_BUCKET_NAME, key);
-        } catch(AmazonServiceException e) {
-            return false;
-        }
-        return true;
     }
 }

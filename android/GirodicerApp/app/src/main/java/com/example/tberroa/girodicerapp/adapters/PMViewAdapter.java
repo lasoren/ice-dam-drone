@@ -20,14 +20,13 @@ import com.squareup.picasso.Picasso;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class PreviousMissionsViewAdapter extends
-        RecyclerView.Adapter<PreviousMissionsViewAdapter.MissionViewHolder> {
+public class PMViewAdapter extends RecyclerView.Adapter<PMViewAdapter.MissionViewHolder> {
 
     private final Context context;
     private final ArrayList<Mission> missions;
     private final String username;
 
-    public PreviousMissionsViewAdapter(Context c, String username, ArrayList<Mission> missions) {
+    public PMViewAdapter(Context c, String username, ArrayList<Mission> missions) {
         context = c;
         this.missions = missions;
         this.username = username;
@@ -60,7 +59,7 @@ public class PreviousMissionsViewAdapter extends
             // start mission activity, send mission JSON and mission number
             Intent missionIntent = new Intent(v.getContext(), MissionActivity.class);
             missionIntent.putExtra("mission", jsonMission);
-            missionIntent.putExtra("missionNumber", i + 1);
+            missionIntent.putExtra("mission_number", i + 1);
             v.getContext().startActivity(missionIntent);
         }
     }
@@ -72,9 +71,9 @@ public class PreviousMissionsViewAdapter extends
 
     @Override
     public MissionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View allMissions = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.mission_thumbnails, viewGroup, false);
-        return new MissionViewHolder(allMissions);
+        Context c = viewGroup.getContext();
+        View v = LayoutInflater.from(c).inflate(R.layout.mission_thumbnails, viewGroup, false);
+        return new MissionViewHolder(v);
     }
 
     @Override
@@ -88,9 +87,8 @@ public class PreviousMissionsViewAdapter extends
         String url = Utilities.ConstructImageURL(username, i + 1, "aerial1.jpg");
 
         // render thumbnail with Picasso
-        Picasso.with(context)
-                .load(url)
-                .resize(Utilities.getImageWidthGrid(context), Utilities.getImageHeightGrid(context))
-                .into(allMissionsVH.missionThumbnail);
+        int width = Utilities.getImageWidthGrid(context);
+        int height = Utilities.getImageHeightGrid(context);
+        Picasso.with(context).load(url).resize(width, height).into(allMissionsVH.missionThumbnail);
     }
 }

@@ -7,10 +7,8 @@ import android.view.View.OnClickListener;
 import android.content.Intent;
 
 import com.example.tberroa.girodicerapp.dialogs.MissionInProgressDialog;
-import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.DroneService;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 
 public class MainActivity extends BaseActivity {
 
@@ -30,8 +28,8 @@ public class MainActivity extends BaseActivity {
 
     private final OnClickListener startMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            if (new ActiveMissionInfo().missionNotInProgress(MainActivity.this)) {
-                Utilities.startDroneService(MainActivity.this);
+            if (activeMissionInfo.missionNotInProgress(MainActivity.this)) {
+                startService(new Intent(MainActivity.this, DroneService.class));
                 startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
                 finish();
             }

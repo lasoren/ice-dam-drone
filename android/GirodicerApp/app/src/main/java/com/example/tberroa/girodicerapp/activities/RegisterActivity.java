@@ -13,16 +13,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.services.FetchPMIntentService;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText username, password, confirmPassword, email;
+    private final UserInfo userInfo = new UserInfo();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         // check if user is already logged in
-        if (new UserInfo().isLoggedIn(this)){
+        if (userInfo.isLoggedIn(this)){
             startActivity(new Intent(RegisterActivity.this, MainActivity.class));
             finish();
         }
@@ -120,7 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     class AttemptRegistration extends AsyncTask<Void, Void, Void> {
 
-        private String username, password, confirmPassword, email, keyValuePairs, postResponse;
+        private String username, password, confirmPassword, email, keyVPairs, postResponse;
 
         @Override
         protected void onPreExecute() {
@@ -129,17 +132,15 @@ public class RegisterActivity extends AppCompatActivity {
             password = RegisterActivity.this.password.getText().toString();
             confirmPassword = RegisterActivity.this.confirmPassword.getText().toString();
             email = RegisterActivity.this.email.getText().toString();
-            keyValuePairs = "username="+username+
-                            "&password="+password+
-                            "&confirmPassword="+confirmPassword+
-                            "&email="+email;
+            keyVPairs = "username="+username+"&password="+password;
+            keyVPairs = keyVPairs.concat("&confirmPassword="+confirmPassword+"&email="+email);
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try{
                 String url = Params.REGISTER_URL;
-                postResponse = new HttpPost().doPostRequest(url, keyValuePairs);
+                postResponse = new HttpPost().doPostRequest(url, keyVPairs);
             } catch(java.io.IOException e){
                 e.printStackTrace();
             }
@@ -148,16 +149,21 @@ public class RegisterActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.equals(Params.REGISTER_SUCCESS)){
-                Utilities.ClearAllLocalData(RegisterActivity.this);
+                // clear all local data
+                userInfo.clearAll(RegisterActivity.this);
+                new ActiveMissionInfo().clearAll(RegisterActivity.this);
+                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+                previousMissionsInfo.clearAll(RegisterActivity.this);
 
                 // save the new user info
-                UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(RegisterActivity.this, username);
                 userInfo.setUserStatus(RegisterActivity.this, true);
 
                 // grab the new users previous missions
-                if (!new PreviousMissionsInfo().isFetching(RegisterActivity.this)){
-                    Utilities.fetchPreviousMissionsData(RegisterActivity.this, username);
+                if (!previousMissionsInfo.isFetching(RegisterActivity.this)){
+                    Intent fetch = new Intent(RegisterActivity.this, FetchPMIntentService.class);
+                    fetch.putExtra("username", username);
+                    startService(fetch);
                 }
 
                 // go to app

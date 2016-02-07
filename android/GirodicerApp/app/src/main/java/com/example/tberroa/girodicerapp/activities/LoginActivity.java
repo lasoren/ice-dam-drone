@@ -13,16 +13,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.services.FetchPMIntentService;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText username, password;
+    private final UserInfo userInfo = new UserInfo();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // check if user is already logged in
-        if (new UserInfo().isLoggedIn(this)){
+        if (userInfo.isLoggedIn(this)){ // if so, send them to the main screen
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
@@ -80,18 +83,18 @@ public class LoginActivity extends AppCompatActivity {
         enteredInfo.putString("username", enteredUsername);
         enteredInfo.putString("password", enteredPassword);
 
-        String string = Utilities.validate(enteredInfo);
-        if (string.matches("")){
+        String response = Utilities.validate(enteredInfo);
+        if (response.matches("")){
             new AttemptLogin().execute();
         }
         else{
-            if (string.contains("username")){
+            if (response.contains("username")){
                 username.setError(getResources().getString(R.string.username_format));
             }
             else{
                 username.setError(null);
             }
-            if (string.contains("password")){
+            if (response.contains("password")){
                 password.setError(getResources().getString(R.string.password_format));
             }
             else{
@@ -125,16 +128,21 @@ public class LoginActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.equals(Params.LOGIN_SUCCESS)) {
-                Utilities.ClearAllLocalData(LoginActivity.this);
+                // clear all local data
+                userInfo.clearAll(LoginActivity.this);
+                new ActiveMissionInfo().clearAll(LoginActivity.this);
+                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+                previousMissionsInfo.clearAll(LoginActivity.this);
 
                 // save the new user info
-                UserInfo userInfo = new UserInfo();
                 userInfo.setUsername(LoginActivity.this, username);
                 userInfo.setUserStatus(LoginActivity.this, true);
 
                 // grab the new users previous missions
-                if (!new PreviousMissionsInfo().isFetching(LoginActivity.this)){
-                    Utilities.fetchPreviousMissionsData(LoginActivity.this, username);
+                if (!previousMissionsInfo.isFetching(LoginActivity.this)){
+                    Intent fetch = new Intent(LoginActivity.this, FetchPMIntentService.class);
+                    fetch.putExtra("username", username);
+                    startService(fetch);
                 }
 
                 // go to app

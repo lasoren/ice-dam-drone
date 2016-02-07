@@ -13,13 +13,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.UserInfo;
 
 public class ActiveMissionActivity extends BaseActivity {
 
-    private String username;
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -28,14 +25,14 @@ public class ActiveMissionActivity extends BaseActivity {
         setContentView(R.layout.activity_active_mission);
 
         // grab username
-        username = new UserInfo().getUsername(this);
+        username = userInfo.getUsername(this);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Current Mission");
         setSupportActionBar(toolbar);
 
-        // initialize views and progress bars
+        // initialize views and loading spinner
         final TextView noActiveMissionText = (TextView) findViewById(R.id.no_active_mission_text);
         final TextView activeMissionText = (TextView) findViewById(R.id.active_mission_text);
         final TextView transferPhaseText = (TextView) findViewById(R.id.transfer_phase_text);
@@ -60,7 +57,7 @@ public class ActiveMissionActivity extends BaseActivity {
         registerReceiver(broadcastReceiver, filter);
 
         // populate view according to mission phase
-        int missionPhase = new ActiveMissionInfo().getMissionPhase(this);
+        int missionPhase = activeMissionInfo.getMissionPhase(this);
         switch (missionPhase) {
             case 0:
                 noActiveMissionText.setVisibility(View.VISIBLE);

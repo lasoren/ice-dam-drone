@@ -16,19 +16,17 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.adapters.PreviousMissionsViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.PMViewAdapter;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.services.FetchPMIntentService;
 
 import java.util.ArrayList;
 
 public class PreviousMissionsActivity extends BaseActivity {
 
     private BroadcastReceiver receiver;
-    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +34,7 @@ public class PreviousMissionsActivity extends BaseActivity {
         setContentView(R.layout.activity_previous_missions);
 
         // grab username
-        username = new UserInfo().getUsername(this);
+        username = userInfo.getUsername(this);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -44,12 +42,11 @@ public class PreviousMissionsActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         // initialize recycler view
-        RecyclerView previousMissionsRecyclerView =
-                (RecyclerView)findViewById(R.id.previous_missions_recycler_view);
         int span = Utilities.getSpanGrid(this);
-        previousMissionsRecyclerView.setLayoutManager(new GridLayoutManager(this, span));
-        previousMissionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                span, Utilities.getSpacingGrid(this)));
+        int spacing = Utilities.getSpacingGrid(this);
+        RecyclerView pMRView = (RecyclerView)findViewById(R.id.previous_missions_recycler_view);
+        pMRView.setLayoutManager(new GridLayoutManager(this, span));
+        pMRView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
         // initialize loading spinner and text
         final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.progress_bar);
@@ -72,25 +69,22 @@ public class PreviousMissionsActivity extends BaseActivity {
         registerReceiver(receiver, filter);
 
         // check if previous missions data is up to date
-        Boolean isUpToDate = new PreviousMissionsInfo().isUpToDate(this);
-        if (isUpToDate){
+        if (previousMissionsInfo.isUpToDate(this)){
             // grab data of all previous missions
             ArrayList<Mission> missions = Utilities.getMissions(this);
             // use that data to populate the recycler view
-            PreviousMissionsViewAdapter previousMissionsViewAdapter =
-                    new PreviousMissionsViewAdapter(this, username, missions);
-            previousMissionsRecyclerView.setAdapter(previousMissionsViewAdapter);
+            PMViewAdapter pMVAdapter;
+            pMVAdapter = new PMViewAdapter(this, username, missions);
+            pMRView.setAdapter(pMVAdapter);
         }
-        else{ // if previous missions data is not up to date
-            if (new PreviousMissionsInfo().isFetching(this)){ // only show dialog
-                loadingSpinner.setVisibility(View.VISIBLE);
-                loadingText.setVisibility(View.VISIBLE);
+        else{ // if previous missions data is not up to date, start fetching it
+            if (!previousMissionsInfo.isFetching(this)){
+                Intent fetch = new Intent(this, FetchPMIntentService.class);
+                fetch.putExtra("username", username);
+                startService(fetch);
             }
-            else { // begin fetching previous missions data and then show dialog
-                Utilities.fetchPreviousMissionsData(this, username);
-                loadingSpinner.setVisibility(View.VISIBLE);
-                loadingText.setVisibility(View.VISIBLE);
-            }
+            loadingSpinner.setVisibility(View.VISIBLE);
+            loadingText.setVisibility(View.VISIBLE);
         }
     }
 

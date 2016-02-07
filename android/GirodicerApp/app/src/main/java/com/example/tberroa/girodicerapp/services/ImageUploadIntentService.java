@@ -34,8 +34,7 @@ public class ImageUploadIntentService extends IntentService {
         String username = new UserInfo().getUsername(this);
         int missionNumber = activeMissionInfo.getMissionNumber(this);
         String json = activeMissionInfo.getMissionData(this);
-        Mission missionData = new Gson().fromJson(json, new TypeToken<Mission>() {
-        }.getType());
+        Mission missionData = new Gson().fromJson(json, new TypeToken<Mission>() {}.getType());
         int numberOfAerials = missionData.getNumberOfAerials();
         int numberOfThermals = missionData.getNumberOfThermals();
         int numberOfIceDams = missionData.getNumberOfIceDams();
@@ -54,9 +53,8 @@ public class ImageUploadIntentService extends IntentService {
             for (int j = 1; j <= numberOfImages.getInt(type); j++) {
                 String imageName = type+Integer.toString(j)+".jpg";
                 String keyName = Utilities.ConstructImageKey(username, missionNumber, imageName);
-                String path = Params.HOME_FOLDER+keyName;
-                File file = Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_PICTURES+path);
+                String location = Environment.DIRECTORY_PICTURES+Params.HOME_FOLDER+keyName;
+                File file = Environment.getExternalStoragePublicDirectory(location);
 
                 if (file.exists()){ // check if file exists before trying to upload
                     TransferUtility transfer = new CloudTools(this).getTransferUtility();
@@ -75,7 +73,9 @@ public class ImageUploadIntentService extends IntentService {
 
         // update previous missions info
         if (!new PreviousMissionsInfo().isFetching(this)){
-            Utilities.fetchPreviousMissionsData(this, username);
+            Intent fetch = new Intent(this, FetchPMIntentService.class);
+            intent.putExtra("username", username);
+            startService(fetch);
         }
 
         // broadcast that the upload is complete

@@ -1,7 +1,9 @@
 package com.example.tberroa.girodicerapp.activities;
 
+
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -11,7 +13,6 @@ import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.MissionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -19,19 +20,18 @@ import java.lang.reflect.Type;
 
 public class MissionActivity extends BaseActivity {
 
-    private String username;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // grab username
+        username = userInfo.getUsername(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mission);
 
-        // grab username
-        username = new UserInfo().getUsername(this);
-
         // grab mission JSON and mission number, these values were passed to the activity
         String jsonMission = getIntent().getExtras().getString("mission");
-        int missionNumber = getIntent().getExtras().getInt("missionNumber");
+        int missionNumber = getIntent().getExtras().getInt("mission_number");
 
         // unpack mission JSON into Mission object
         Type typeMission = new TypeToken<Mission>(){}.getType();
@@ -52,8 +52,10 @@ public class MissionActivity extends BaseActivity {
 
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        MissionPagerAdapter adapter = new MissionPagerAdapter(getSupportFragmentManager(),
-                tabLayout.getTabCount(), missionNumber, mission, username);
+        MissionPagerAdapter adapter;
+        FragmentManager fM = getSupportFragmentManager();
+        int numOfT = tabLayout.getTabCount();
+        adapter = new MissionPagerAdapter(fM, numOfT, missionNumber, mission, username);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

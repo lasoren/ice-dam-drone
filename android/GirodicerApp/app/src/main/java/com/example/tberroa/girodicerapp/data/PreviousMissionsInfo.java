@@ -50,7 +50,7 @@ public class PreviousMissionsInfo extends Application {
 
     public void setMissions(Context context, String missions){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putString(this.MISSIONS, missions);
+        editor.putString(MISSIONS, missions);
         editor.apply();
     }
 

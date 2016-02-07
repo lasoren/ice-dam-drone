@@ -8,6 +8,7 @@ import android.content.Intent;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
 
 public class ActiveMissionReceiver extends BroadcastReceiver {
     public ActiveMissionReceiver() {
@@ -19,7 +20,7 @@ public class ActiveMissionReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         switch(action){
             case Params.DRONE_READY:
-                Utilities.startImageTransferService(context);
+                context.startService(new Intent(context, ImageTransferIntentService.class));
                 // reload active mission activity
                 context.sendBroadcast(new Intent().setAction(reload));
                 break;

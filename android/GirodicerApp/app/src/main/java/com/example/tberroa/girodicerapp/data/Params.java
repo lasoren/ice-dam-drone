@@ -7,8 +7,7 @@ public class Params {
     final public static String HOME_FOLDER = "/Girodicer/";
 
     // network parameters
-    final public static String HTTP_POST_MEDIA_TYPE =
-            "application/x-www-form-urlencoded; charset=utf-8";
+    final public static String POST_MEDIA_TYPE = "application/x-www-form-urlencoded; charset=utf-8";
 
     // broadcast parameters
     final public static String DRONE_READY = "DRONE_READY";

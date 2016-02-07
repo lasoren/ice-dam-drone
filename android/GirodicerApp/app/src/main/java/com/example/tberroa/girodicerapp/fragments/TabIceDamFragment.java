@@ -15,21 +15,21 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
 
-public class TabAerialFragment extends Fragment {
+public class TabIceDamFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_aerial, group, false);
+        View v = inflater.inflate(R.layout.fragment_tab_ice_dam, group, false);
 
         if (isAdded()){
             int missionNum = 0;
-            int numberOfAerials = 0;
+            int numberOfIceDams = 0;
             String user = "";
 
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
-                numberOfAerials = bundle.getInt("number_of_aerials", 0);
+                numberOfIceDams = bundle.getInt("number_of_icedams", 0);
                 missionNum = bundle.getInt("mission_number", 0);
                 user = bundle.getString("username", user);
             }
@@ -46,7 +46,7 @@ public class TabAerialFragment extends Fragment {
 
             // populate recycler view
             MissionViewAdapter a;
-            a = new MissionViewAdapter(c, missionNum, numberOfAerials, Params.AERIAL_TAB, user);
+            a = new MissionViewAdapter(c, missionNum, numberOfIceDams, Params.ICEDAM_TAB, user);
             recyclerView.setAdapter(a);
         }
         return v;

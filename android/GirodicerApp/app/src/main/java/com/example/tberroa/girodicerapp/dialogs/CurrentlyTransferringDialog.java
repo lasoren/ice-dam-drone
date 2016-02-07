@@ -14,14 +14,13 @@ public class CurrentlyTransferringDialog extends AlertDialog {
         super(context);
 
         builder = new AlertDialog.Builder(context);
-        builder
-                .setMessage(R.string.transfer_phase_text)
-                .setCancelable(false)
-                .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
+        builder.setMessage(R.string.transfer_phase_text);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public AlertDialog getDialog() {

@@ -43,8 +43,8 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
 
     @Override
     public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View mission = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.tab_images, viewGroup, false);
+        Context c = viewGroup.getContext();
+        View mission = LayoutInflater.from(c).inflate(R.layout.tab_images, viewGroup, false);
         return new ImageViewHolder(mission);
     }
 
@@ -71,9 +71,8 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
         String url = Utilities.ConstructImageURL(username, missionNumber, imageName);
 
         // render image with Picasso
-        Picasso.with(context)
-                .load(url)
-                .resize(Utilities.getImageWidthGrid(context), Utilities.getImageHeightGrid(context))
-                .into(imageViewHolder.image);
+        int width = Utilities.getImageWidthGrid(context);
+        int height = Utilities.getImageHeightGrid(context);
+        Picasso.with(context).load(url).resize(width, height).into(imageViewHolder.image);
     }
 }

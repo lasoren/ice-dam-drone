@@ -41,5 +41,4 @@ public class UserInfo extends Application {
         setUsername(context, "");
         setUserStatus(context, false);
     }
-
 }

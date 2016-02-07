@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,37 +17,37 @@ import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
 
 public class TabSaltFragment extends Fragment {
 
-    private int numberOfSalts;
-    private int missionNumber;
-    private String username;
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_salt, container, false);
-
-        // grab data passed to fragment
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-            numberOfSalts = bundle.getInt("numberOfSalts", 0);
-            missionNumber = bundle.getInt("missionNumber", 0);
-            username = bundle.getString("username", username);
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_tab_salt, group, false);
 
         if (isAdded()){
-            // initialize recycler view
-            RecyclerView missionsRecyclerView =
-                    (RecyclerView) v.findViewById(R.id.mission_recycler_view);
-            int span = Utilities.getSpanGrid(getActivity());
-            missionsRecyclerView.setLayoutManager(
-                    new GridLayoutManager(getActivity(), span));
-            missionsRecyclerView.addItemDecoration(new GridSpacingItemDecoration(
-                    span, Utilities.getSpacingGrid(getActivity())));
+            int missionNum = 0;
+            int numberOfSalts = 0;
+            String user = "";
 
-            // populate recyclerView
-            MissionViewAdapter recyclerAdapter = new MissionViewAdapter(
-                    getActivity(), missionNumber, numberOfSalts, Params.SALT_TAB, username);
-            missionsRecyclerView.setAdapter(recyclerAdapter);
+            // grab data passed to fragment
+            Bundle bundle = this.getArguments();
+            if (bundle != null) {
+                numberOfSalts = bundle.getInt("number_of_salts", 0);
+                missionNum = bundle.getInt("mission_number", 0);
+                user = bundle.getString("username", user);
+            }
+
+            // grab context
+            Context c = getActivity();
+
+            // initialize recycler view
+            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+            int span = Utilities.getSpanGrid(c);
+            int spacing = Utilities.getSpacingGrid(c);
+            recyclerView.setLayoutManager(new GridLayoutManager(c, span));
+            recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
+
+            // populate recycler view
+            MissionViewAdapter a;
+            a = new MissionViewAdapter(c, missionNum, numberOfSalts, Params.SALT_TAB, user);
+            recyclerView.setAdapter(a);
         }
         return v;
     }

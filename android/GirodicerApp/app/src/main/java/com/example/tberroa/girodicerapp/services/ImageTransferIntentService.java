@@ -67,8 +67,7 @@ public class ImageTransferIntentService extends IntentService {
                 File file = Environment.getExternalStoragePublicDirectory(directory+path);
                 if (!file.exists()){ // if the file does not already exist
                     // initialize download manager
-                    DownloadManager downloadManager =
-                            (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                    DownloadManager dM = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
                     // construct  uri
                     Uri uri = Uri.parse(Utilities.ConstructImageURL(username, 1, imageName));
@@ -84,7 +83,7 @@ public class ImageTransferIntentService extends IntentService {
                     request.setDescription(getResources().getString(R.string.download_description));
 
                     // enqueue a new download
-                    lastDownload = downloadManager.enqueue(request);
+                    lastDownload = dM.enqueue(request);
                 }
 
                 // log the image count (always 5 in this test set up)

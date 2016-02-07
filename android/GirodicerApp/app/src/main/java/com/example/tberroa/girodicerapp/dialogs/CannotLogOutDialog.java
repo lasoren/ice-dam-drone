@@ -14,18 +14,16 @@ public class CannotLogOutDialog extends AlertDialog {
         super(context);
 
         builder = new AlertDialog.Builder(context);
-        builder
-                .setMessage(R.string.cannot_logout)
-                .setCancelable(false)
-                .setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
+        builder.setMessage(R.string.cannot_logout);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public AlertDialog getDialog(){
         return builder.create();
     }
-
 }

@@ -16,19 +16,18 @@ public class ConfirmEndMissionDialog extends AlertDialog {
         super(context);
 
         builder = new AlertDialog.Builder(context);
-        builder
-                .setMessage(R.string.confirm_end_mission)
-                .setCancelable(true)
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                })
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        context.stopService(new Intent(context, DroneService.class));
-                    }
-                });
+        builder.setMessage(R.string.confirm_end_mission);
+        builder.setCancelable(true);
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id) {
+                context.stopService(new Intent(context, DroneService.class));
+            }
+        });
     }
 
     public AlertDialog getDialog() {
