@@ -142,7 +142,7 @@ final public class Utilities {
         String message;
         if (!pMInfo.isUpToDate(context) || pMInfo.isFetching(context)){
             message = context.getResources().getString(R.string.previous_missions_not_up_to_date);
-            new MessageDialog(context, message);
+            new MessageDialog(context, message).getDialog().show();
         }
         else if (!new ActiveMissionInfo().missionNotInProgress(context)) {
             message = context.getResources().getString(R.string.mission_in_progress);
