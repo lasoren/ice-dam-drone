@@ -140,9 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 // grab the new users previous missions
                 if (!previousMissionsInfo.isFetching(LoginActivity.this)){
-                    Intent fetch = new Intent(LoginActivity.this, FetchPMIntentService.class);
-                    fetch.putExtra("username", username);
-                    startService(fetch);
+                    startService(new Intent(LoginActivity.this, FetchPMIntentService.class));
                 }
 
                 // go to app

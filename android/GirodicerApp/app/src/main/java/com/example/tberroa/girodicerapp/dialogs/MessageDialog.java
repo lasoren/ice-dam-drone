@@ -6,16 +6,16 @@ import android.content.DialogInterface;
 
 import com.example.tberroa.girodicerapp.R;
 
-public class MissionInProgressDialog extends AlertDialog {
+public class MessageDialog extends AlertDialog {
 
     private final AlertDialog.Builder builder;
 
-    public MissionInProgressDialog(final Context context){
+    public MessageDialog(final Context context, String message){
         super(context);
 
         builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.mission_in_progress);
-        builder.setCancelable(false);
+        builder.setMessage(message);
+        builder.setCancelable(true);
         builder.setPositiveButton(R.string.got_it, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
@@ -23,7 +23,7 @@ public class MissionInProgressDialog extends AlertDialog {
         });
     }
 
-    public AlertDialog getDialog(){
+    public AlertDialog getDialog() {
         return builder.create();
     }
 }

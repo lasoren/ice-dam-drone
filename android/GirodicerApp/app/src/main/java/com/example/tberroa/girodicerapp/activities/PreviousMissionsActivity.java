@@ -79,9 +79,7 @@ public class PreviousMissionsActivity extends BaseActivity {
         }
         else{ // if previous missions data is not up to date, start fetching it
             if (!previousMissionsInfo.isFetching(this)){
-                Intent fetch = new Intent(this, FetchPMIntentService.class);
-                fetch.putExtra("username", username);
-                startService(fetch);
+                startService(new Intent(this, FetchPMIntentService.class));
             }
             loadingSpinner.setVisibility(View.VISIBLE);
             loadingText.setVisibility(View.VISIBLE);

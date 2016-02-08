@@ -73,9 +73,7 @@ public class ImageUploadIntentService extends IntentService {
 
         // update previous missions info
         if (!new PreviousMissionsInfo().isFetching(this)){
-            Intent fetch = new Intent(this, FetchPMIntentService.class);
-            intent.putExtra("username", username);
-            startService(fetch);
+            startService(new Intent(this, FetchPMIntentService.class));
         }
 
         // broadcast that the upload is complete

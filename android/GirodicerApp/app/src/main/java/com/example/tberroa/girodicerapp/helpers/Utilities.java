@@ -7,9 +7,14 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
+import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
+import com.example.tberroa.girodicerapp.services.DroneService;
 import com.example.tberroa.girodicerapp.services.ImageUploadIntentService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -130,4 +135,23 @@ final public class Utilities {
         }
         return validation;
     }
+
+    public static void AttemptMissionStart(Context context){
+
+        PreviousMissionsInfo pMInfo = new PreviousMissionsInfo();
+        String message;
+        if (!pMInfo.isUpToDate(context) || pMInfo.isFetching(context)){
+            message = context.getResources().getString(R.string.previous_missions_not_up_to_date);
+            new MessageDialog(context, message);
+        }
+        else if (!new ActiveMissionInfo().missionNotInProgress(context)) {
+            message = context.getResources().getString(R.string.mission_in_progress);
+            new MessageDialog(context, message).getDialog().show();
+        }
+        else{
+            context.startService(new Intent(context, DroneService.class));
+            context.startActivity(new Intent(context, ActiveMissionActivity.class));
+        }
+    }
+
 }

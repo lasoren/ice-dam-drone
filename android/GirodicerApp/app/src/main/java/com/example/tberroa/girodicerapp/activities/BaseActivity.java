@@ -6,16 +6,12 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
-import com.example.tberroa.girodicerapp.dialogs.CannotLogOutDialog;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndMissionDialog;
-import com.example.tberroa.girodicerapp.dialogs.CurrentlyTransferringDialog;
-import com.example.tberroa.girodicerapp.dialogs.CurrentlyUploadingDialog;
-import com.example.tberroa.girodicerapp.dialogs.MissionInProgressDialog;
-import com.example.tberroa.girodicerapp.dialogs.NoActiveMissionDialog;
+import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.services.DroneService;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -44,36 +40,33 @@ public class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
                 if (activeMissionInfo.missionNotInProgress(this)){
-                    new NoActiveMissionDialog(this).getDialog().show();  // notify user
+                    String message = getResources().getString(R.string.no_active_mission);
+                    new MessageDialog(this, message).getDialog().show();
                 }
                 else { // otherwise
                     int missionPhase = activeMissionInfo.getMissionPhase(this);
+                    String message;
                     switch(missionPhase){
                         case 1:
                             new ConfirmEndMissionDialog(this).getDialog().show();
                             break;
                         case 2:
-                            new CurrentlyTransferringDialog(this).getDialog().show();
+                            message = getResources().getString(R.string.transfer_phase_text);
+                            new MessageDialog(this, message).getDialog().show();
                             break;
                         case 5:
-                            new CurrentlyTransferringDialog(this).getDialog().show();
+                            message = getResources().getString(R.string.transfer_phase_text);
+                            new MessageDialog(this, message).getDialog().show();
                             break;
                         case 3:
-                            new CurrentlyUploadingDialog(this).getDialog().show();
+                            message = getResources().getString(R.string.upload_phase_text);
+                            new MessageDialog(this, message).getDialog().show();
                             break;
                     }
                 }
                 return true;
             case R.id.start_mission: // user wants to start a new mission
-                if (activeMissionInfo.missionNotInProgress(this)){
-                    startService(new Intent(this, DroneService.class));
-                    startActivity(new Intent(this,ActiveMissionActivity.class));
-                    finish();
-                }
-                else{ // otherwise, there is a mission in progress
-                    // notify user that a mission is already in progress
-                    new MissionInProgressDialog(this).getDialog().show();
-                }
+                Utilities.AttemptMissionStart(this);
                 return true;
             case R.id.current_mission: // user wants to see the current mission
                 startActivity(new Intent(this,ActiveMissionActivity.class));
@@ -89,7 +82,8 @@ public class BaseActivity extends AppCompatActivity {
             case R.id.logout: // user wants to logout
                 // check if there is an active mission
                 if (!activeMissionInfo.missionNotInProgress(this)){ // mission in progress
-                    new CannotLogOutDialog(this).getDialog().show();
+                    String message = getResources().getString(R.string.cannot_logout);
+                    new MessageDialog(this, message).getDialog().show();
                 }
                 else{
                     // clear all local data

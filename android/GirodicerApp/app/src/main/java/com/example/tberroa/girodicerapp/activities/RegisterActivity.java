@@ -161,9 +161,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 // grab the new users previous missions
                 if (!previousMissionsInfo.isFetching(RegisterActivity.this)){
-                    Intent fetch = new Intent(RegisterActivity.this, FetchPMIntentService.class);
-                    fetch.putExtra("username", username);
-                    startService(fetch);
+                    startService(new Intent(RegisterActivity.this, FetchPMIntentService.class));
                 }
 
                 // go to app

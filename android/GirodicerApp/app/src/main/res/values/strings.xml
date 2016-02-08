@@ -1,41 +1,61 @@
 <resources>
     <string name="app_name">Girodicer</string>
     <string name="app_logo">the app logo</string>
+
+    <!-- main app -->
+    <!-- main menu navigation and buttons -->
     <string name="start_mission">Start New Mission</string>
     <string name="end_mission">End Mission</string>
     <string name="current_mission">Current Mission</string>
     <string name="previous_missions">Previous Missions</string>
-    <string name="mission_in_progress">A mission is already in progress.</string>
-    <string name="got_it">Got it!</string>
-    <string name="no">No</string>
-    <string name="yes">Yes</string>
-    <string name="confirm_end_mission">Are you sure you want to end the current mission?</string>
-    <string name="no_active_mission">Invalid request, there is active mission to end.</string>
-    <string name="image">image</string>
-    <string name="fetching_data">Fetching data from the cloud</string>
-    <string name="login">Login</string>
     <string name="logout">Logout</string>
-    <string name="placeholder">placeholder</string>
-    <string name="delete_previous_missions">Delete Previous Missions</string>
-    <string name="username">username</string>
-    <string name="password">password</string>
-    <string name="confirm_password">confirm password</string>
-    <string name="email">email</string>
-    <string name="register">No account yet? Create one</string>
-    <string name="create_account">Create Account</string>
-    <string name="go_to_login">Already have an account? Login</string>
-    <string name="mission_x">Mission X</string>
+    <!-- active mission activity -->
     <string name="no_active_mission_text">There is currently no active mission.</string>
     <string name="active_mission_text">
         Please keep your eyes on the drone as it is currently performing a mission.</string>
     <string name="transfer_phase_text">data is being transferred to the phone&#8230;</string>
     <string name="upload_phase_text">data is being uploaded to the cloud&#8230;</string>
-    <string name="cannot_logout">
-        Mission in progress! Cannot logout until mission is terminated.</string>
+    <!-- previous missions activity -->
+    <string name="fetching_data">Fetching data from the cloud</string>
+    <string name="delete_previous_missions">Delete Previous Missions</string>
+    <!-- mission activity -->
+    <string name="mission_x">Mission X</string>
+
+    <!-- user authentication -->
+    <!-- field hints -->
+    <string name="username">username</string>
+    <string name="password">password</string>
+    <string name="confirm_password">confirm password</string>
+    <string name="email">email</string>
+    <!-- input validation -->
     <string name="username_format">3 to 15 alphanumeric characters</string>
     <string name="password_format">between 6 and 20 characters</string>
     <string name="password_mismatch">password mismatch</string>
     <string name="enter_valid_email">enter a valid email address</string>
+    <!-- submit buttons -->
+    <string name="login">Login</string>
+    <string name="create_account">Create Account</string>
+    <!-- text links -->
+    <string name="register">No account yet? Create one</string>
+    <string name="go_to_login">Already have an account? Login</string>
+
+    <!-- download manager-->
     <string name="download_title">Girodicer Image Transfer</string>
     <string name="download_description">in process of receiving images from drone</string>
+
+    <!-- dialogs -->
+    <string name="cannot_logout">Cannot logout until active mission is terminated.</string>
+    <string name="confirm_end_mission">Are you sure you want to end the current mission?</string>
+    <string name="no_active_mission">There is no active mission to end.</string>
+    <string name="mission_in_progress">A mission is already in progress.</string>
+    <string name="previous_missions_not_up_to_date">
+        Previous missions data needs to finish updating before a new mission can be started.
+    </string>
+    <string name="got_it">Got it!</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+
+    <!-- other -->
+    <string name="image">image</string>
+    <string name="placeholder">placeholder</string>
 </resources>

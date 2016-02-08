@@ -2,7 +2,6 @@ package com.example.tberroa.girodicerapp.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -10,6 +9,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.network.CloudTools;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,7 +30,7 @@ public class FetchPMIntentService extends IntentService {
         previousMissionsInfo.setFetching(this, true);
 
         // grab username and initialize number of missions to 1
-        String username = intent.getStringExtra("username");
+        String username = new UserInfo().getUsername(this);
         int numberOfMissions;
 
         // initialize the client
@@ -39,11 +39,9 @@ public class FetchPMIntentService extends IntentService {
         // get number of missions
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
         listObjectsRequest.withBucketName(Params.CLOUD_BUCKET_NAME);
-        listObjectsRequest.withPrefix(username+"/");
+        listObjectsRequest.withPrefix(username + "/");
         listObjectsRequest.withDelimiter("/");
         numberOfMissions= s3Client.listObjects(listObjectsRequest).getCommonPrefixes().size();
-        String sNumberOfMissions = Integer.toString(numberOfMissions);
-        Log.d("number_of_missions", sNumberOfMissions); // for debugging purposes
 
         // create array of missions
         ArrayList<Mission> missions = new ArrayList<>(numberOfMissions);
