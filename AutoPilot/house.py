@@ -1,4 +1,4 @@
-import math, sys
+import math, sys, utm
 
 def printLatLong(list):
     for item in list:
@@ -12,6 +12,44 @@ class geoPoint:
         self.lon = lon
         self.lat = lat
 
+class UTMPoint:
+
+    def __init__(self, UTM):
+        self.e = UTM[0]
+        self.n = UTM[1]
+        self.zone = UTM[2]
+        self.zoneLetter = UTM[3]
+
+    def getVector(self, point):
+        e = self.e - point.e
+        n = self.n - point.n
+
+        diff = self.diff(point)
+        mag = math.sqrt( math.pow(diff.e, 2) + math.pow(diff.n,2) )
+
+        return UTMPoint((e/mag, n/mag, self.zone, self.zoneLetter))
+
+    def diff(self, point):
+        return UTMPoint((self.e - point.e, self.n - point.n, self.zone, self.zoneLetter))
+
+    def dot(self, point):
+        dot = self.e * point.e + self.n * point.n
+        if dot < -1:
+            return -1.0
+        elif dot > 1:
+            return 1.0
+        return dot
+
+    def dist(self, point):
+        e = self.e - point.e
+        n = self.n - point.n
+        return math.sqrt(math.pow(e, 2) + math.pow(n, 2))
+
+    def toLatLon(self):
+        conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
+        return geoPoint(conv[0], conv[1])
+
+
 class box:
 
     def __init__(self, index):
@@ -20,90 +58,92 @@ class box:
         self.axisY = None
 
 class house:
-    __scale = 1 # used to scale the floating point values so they don't get truncated during calculation
+    utmOutline = []
+    zone = 0
+    zoneLetter = ""
 
     def __init__(self, outline):
         self.outline = outline
+        self.__convertToUTM()
         self.convexHull = [0, 0, 0, 0]
         self.sbb = []
+        self.area = sys.maxint
         self.__findConvexHull()
         self.__findMinimumBox()
+
+    def __convertToUTM(self):
+        for point in self.outline:
+            self.utmOutline.append(UTMPoint(utm.from_latlon(point.lat, point.lon)))
+        self.zone = self.utmOutline[0].zone
+        self.zoneLetter = self.utmOutline[0].zoneLetter
 
     def __findMinimumBox(self): # rotating calipers as described here: https://geidav.wordpress.com/2014/01/23/computing-oriented-minimum-bounding-boxes-in-2d/
         edgeDirections = []
 
         for i in range(0, len(self.convexHull)):
-            diff = self.__vectorDiff(self.convexHull[(i+1)%len(self.convexHull)], self.convexHull[i])
-            mag = math.sqrt( math.pow(diff.lon, 2) + math.pow(diff.lat,2) )
-            edgeDirections.append(geoPoint(diff.lat / mag, diff.lon / mag))
+            edgeDirections.append(self.convexHull[i].getVector(self.convexHull[(i+1)%len(self.convexHull)]))
 
         leftId = None
         rightId = None
         topId = None
         bottomId = None
-        minPt = geoPoint(sys.maxint, sys.maxint)
-        maxPt = geoPoint(-sys.maxint - 1, -sys.maxint - 1)
+        minPt = UTMPoint((sys.maxint, sys.maxint, self.zone, self.zoneLetter))
+        maxPt = UTMPoint((-sys.maxint-1, -sys.maxint-1, self.zone, self.zoneLetter))
 
         for i in range(0, len(self.convexHull)):
             point = self.convexHull[i]
-            if point.lon < minPt.lon:
-                minPt.lon = point.lon
+            if point.e < minPt.e:
+                minPt.e = point.e
                 leftId = i
 
-            if point.lat < minPt.lat:
-                minPt.lat = point.lat
+            if point.n < minPt.n:
+                minPt.n = point.n
                 bottomId = i
 
-            if point.lon > maxPt.lon:
-                maxPt.lon = point.lon
+            if point.e > maxPt.e:
+                maxPt.e = point.e
                 rightId = i
 
-            if point.lat > maxPt.lat:
-                maxPt.lat = point.lat
+            if point.n > maxPt.n:
+                maxPt.n = point.n
                 topId = i
 
-        leftDir = geoPoint(-1.0, 0.0);
-        rightDir = geoPoint(1.0, 0.0);
-        topDir = geoPoint(0.0, -1.0);
-        bottomDir = geoPoint(0.0, 1.0);
-
-        bestArea = sys.maxint
+        leftDir = UTMPoint((0.0, -1.0, self.zone, self.zoneLetter))
+        rightDir = UTMPoint((0.0, 1.0, self.zone, self.zoneLetter))
+        topDir = UTMPoint((-1.0, 0.0, self.zone, self.zoneLetter))
+        bottomDir = UTMPoint((1.0, 0.0, self.zone, self.zoneLetter))
 
         for i in range(0, len(self.convexHull)):
-            print "Lat %f Lon %f" % (leftDir.lat, leftDir.lon)
-            print "edgeDir: lat %f lon %d" % (edgeDirections[leftId].lat, edgeDirections[leftId].lon)
-            print "LeftDot %f" % self.__dot(leftDir, edgeDirections[leftId])
-            angles = [math.acos(self.__dot(leftDir, edgeDirections[leftId])),
-                      math.acos(self.__dot(rightDir, edgeDirections[rightId])),
-                      math.acos(self.__dot(topDir, edgeDirections[topId])),
-                      math.acos(self.__dot(bottomDir, edgeDirections[bottomId]))]
+            angles = [math.acos(edgeDirections[leftId].dot(leftDir)),
+                      math.acos(edgeDirections[rightId].dot(rightDir)),
+                      math.acos(edgeDirections[topId].dot(topDir)),
+                      math.acos(edgeDirections[bottomId].dot(bottomDir))]
 
             smallestAngleIndex = angles.index(min(angles))
-            print "Smallest Angle Index %d" % smallestAngleIndex
 
             if smallestAngleIndex == 0:
                 leftDir = edgeDirections[leftId]
-                rightDir = geoPoint(-leftDir.lat, -leftDir.lon)
-                topDir = geoPoint(-leftDir.lon, leftDir.lat)
-                bottomDir = geoPoint(-topDir.lat, -topDir.lon)
+                rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
+                topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
+                bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftId = (leftId+1)%len(self.convexHull)
             elif smallestAngleIndex == 1:
                 rightDir = edgeDirections[leftId]
-                leftDir = geoPoint(-rightDir.lat, -rightDir.lon)
-                topDir = geoPoint(-leftDir.lon, leftDir.lat)
-                bottomDir = geoPoint(-topDir.lat, -topDir.lon)
+                leftDir = UTMPoint((-rightDir.e, -rightDir.n, self.zone, self.zoneLetter))
+                topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
+                bottomDir = UTMPoint((-topDir.e, -topDir.e, self.zone, self.zoneLetter))
                 rightId = (rightId+1)%len(self.convexHull)
             elif smallestAngleIndex == 2:
                 topDir = edgeDirections[topId]
-                bottomDir = geoPoint(-topDir.lat, -topDir.lon)
-                leftDir = geoPoint(-topDir.lon, topDir.lat)
-                rightDir = geoPoint(-leftDir.lat, -leftDir.lon)
+                bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
+                leftDir = UTMPoint((topDir.n, -topDir.e, self.zone, self.zoneLetter))
+                rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topId = (topId+1)%len(self.convexHull)
             elif smallestAngleIndex == 3:
                 bottomDir = edgeDirections[bottomId]
-                topDir = geoPoint(-bottomDir.lat, -bottomDir.lon)
-                leftDir = geoPoint(-bottomDir.lon, bottomDir.lat)
-                rightDir = geoPoint(-leftDir.lat, -leftDir.lon)
+                topDir = UTMPoint((-bottomDir.e, -bottomDir.n, self.zone, self.zoneLetter))
+                leftDir = UTMPoint((bottomDir.n, -bottomDir.e, self.zone, self.zoneLetter))
+                rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 bottomId = (bottomId+1)%len(self.convexHull)
 
             upperLeft = self.__calcLineIntersect(self.convexHull[leftId], leftDir, self.convexHull[topId], topDir)
@@ -111,46 +151,20 @@ class house:
             bottomLeft = self.__calcLineIntersect(self.convexHull[bottomId], bottomDir, self.convexHull[leftId], leftDir)
             bottomRight = self.__calcLineIntersect(self.convexHull[bottomId], bottomDir, self.convexHull[rightId], rightDir)
 
-            width = self.__vectorDistance(upperRight, upperLeft)
-            height = self.__vectorDistance(bottomLeft, upperLeft)
+            width = upperLeft.dist(upperRight)
+            height = upperLeft.dist(bottomLeft)
 
             area = width*height
 
-            if area < bestArea:
-                self.sbb = [geoPoint(upperLeft.lat/self.__scale, upperLeft.lon/self.__scale),
-                            geoPoint(upperRight.lat/self.__scale, upperRight.lon/self.__scale),
-                            geoPoint(bottomLeft.lat/self.__scale, bottomLeft.lon/self.__scale),
-                            geoPoint(bottomRight.lat/self.__scale, bottomRight.lon/self.__scale)]
-                #printLatLong(self.sbb)
-                bestArea = area
-
-    def __findVector(self, geoPoint1, geoPoint2):
-        lon = geoPoint2.lon - geoPoint1.lon
-        lat = geoPoint2.lat - geoPoint1.lat
-
-        diff = self.__vectorDiff(geoPoint1, geoPoint2)
-        mag = math.sqrt( math.pow(diff.lon, 2) + math.pow(diff.lat,2) )
-
-        return geoPoint(lat/mag, lon/mag)
-
-    def __vectorDiff(self, vec1, vec2):
-        return geoPoint(vec2.lat - vec1.lat, vec2.lon - vec1.lon)
-
-    def __dot(self, vec1, vec2):
-        dot = (vec1.lon * vec2.lon) + (vec1.lat * vec2.lat)
-        if dot < -1:
-            return -1.0
-        elif dot > 1:
-            return 1.0
-        return dot
-
-    def __vectorDistance(self, vec1, vec2):
-        lon = vec2.lon - vec1.lon
-        lat = vec2.lat - vec1.lat
-        return math.sqrt(math.pow(lon, 2) + math.pow(lat, 2))
+            if area < self.area and area > 1:
+                self.sbb = [UTMPoint((upperLeft.e, upperLeft.n, self.zone, self.zoneLetter)),
+                            UTMPoint((upperRight.e, upperRight.n, self.zone, self.zoneLetter)),
+                            UTMPoint((bottomLeft.e, bottomLeft.n, self.zone, self.zoneLetter)),
+                            UTMPoint((bottomRight.e, bottomRight.n, self.zone, self.zoneLetter))]
+                self.area = area
 
     def __findConvexHull(self): # uses monotone-chain algorithm
-        sortedOutline = sorted(self.outline, key=lambda x: x.lon)
+        sortedOutline = sorted(self.utmOutline, key=lambda x: x.e)
 
         lower = []
         for p in sortedOutline:
@@ -165,28 +179,33 @@ class house:
             upper.append(p)
 
         self.convexHull = lower[:-1] + upper[:-1]
-        self.convexHull.reverse()
-        for i in range(0, len(self.convexHull)):
-            self.convexHull[i] = geoPoint(self.convexHull[i].lat * self.__scale, self.convexHull[i].lon * self.__scale)
 
     def __isPointCCW(self, p1, p2, p3):
-        val = ((p2.lon - p1.lon) * (p3.lat - p2.lat)) - ((p2.lat - p1.lat) * (p3.lon - p2.lon))
+        val = ((p2.n - p1.n) * (p3.e - p1.e)) - ((p2.e - p1.e) * (p3.n - p1.n))
         return True if (val < 0) else False
 
     def __calcLineIntersect(self, line1, dir1, line2, dir2):
-        dd = (dir1.lon*dir2.lat) - (dir1.lat*dir2.lon)
-        dx = line2.lon - line1.lon
-        dy = line2.lat - line1.lat
-        t = ((dx * dir2.lat) - (dy * dir2.lon))/dd
+        dd = (dir1.e*dir2.n) - (dir1.n*dir2.e)
+        dx = line2.e - line1.e
+        dy = line2.n - line1.n
+        t = ((dx * dir2.n) - (dy * dir2.e))/dd
 
-        return geoPoint((line1.lat+ (t*dir1.lat)), (line1.lon + (t*dir1.lon)))
+        return UTMPoint(((line1.e+ (t*dir1.e)), (line1.n + (t*dir1.n)), self.zone, self.zoneLetter))
 
 if __name__ == "__main__":
     points = [geoPoint(38.84711546747433, -94.6733683347702), geoPoint(38.84703399781023, -94.67331871390343), geoPoint(38.847007885718675, -94.67337772250175),
               geoPoint(38.84698804052266, -94.67336967587471), geoPoint(38.84696192841424, -94.67344209551811), geoPoint(38.84706742127346, -94.67350110411644)]
 
-    #points = [geoPoint(1,1), geoPoint(5,3), geoPoint(3.5, 2)]
-
     myHouse = house(points)
-    #printLatLong(myHouse.sbb)
-    printLatLong(myHouse.convexHull)
+    convexHull = []
+    sbb = []
+
+    for c in myHouse.convexHull:
+        convexHull.append(c.toLatLon())
+
+    for b in myHouse.sbb:
+        sbb.append(b.toLatLon())
+
+    printLatLong(sbb)
+
+    print myHouse.area
