@@ -49,14 +49,6 @@ class UTMPoint:
         conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
         return geoPoint(conv[0], conv[1])
 
-
-class box:
-
-    def __init__(self, index):
-        self.corners = [index, index, index, index]
-        self.axisX = None
-        self.axisY = None
-
 class house:
     utmOutline = []
     zone = 0
@@ -77,12 +69,18 @@ class house:
         self.zone = self.utmOutline[0].zone
         self.zoneLetter = self.utmOutline[0].zoneLetter
 
-    def __findMinimumBox(self): # rotating calipers as described here: https://geidav.wordpress.com/2014/01/23/computing-oriented-minimum-bounding-boxes-in-2d/
+    def __findMinimumBox(self):
+        """
+        Function to find the minimum bounding box of the outline of the house provided by the user
+         Uses the rotating calipers algorithm as described here: https://geidav.wordpress.com/2014/01/23/computing-oriented-minimum-bounding-boxes-in-2d/
+         And based off of the code here: https://github.com/geidav/ombb-rotating-calipers/blob/master/ombb.js
+        """
         edgeDirections = []
 
-        for i in range(0, len(self.convexHull)):
+        for i in range(0, len(self.convexHull)): # finds vector directions between each point on the convex hull
             edgeDirections.append(self.convexHull[i].getVector(self.convexHull[(i+1)%len(self.convexHull)]))
 
+        # find the extreme points in our system
         leftId = None
         rightId = None
         topId = None
@@ -108,38 +106,42 @@ class house:
                 maxPt.n = point.n
                 topId = i
 
+        # setting up our "calipers" which all point in ccw direction
         leftDir = UTMPoint((0.0, -1.0, self.zone, self.zoneLetter))
         rightDir = UTMPoint((0.0, 1.0, self.zone, self.zoneLetter))
         topDir = UTMPoint((-1.0, 0.0, self.zone, self.zoneLetter))
         bottomDir = UTMPoint((1.0, 0.0, self.zone, self.zoneLetter))
 
         for i in range(0, len(self.convexHull)):
+            # calculate the angles required to turn our "calipers" in each direction
             angles = [math.acos(edgeDirections[leftId].dot(leftDir)),
                       math.acos(edgeDirections[rightId].dot(rightDir)),
                       math.acos(edgeDirections[topId].dot(topDir)),
                       math.acos(edgeDirections[bottomId].dot(bottomDir))]
 
+            # pick the smallest angle required to turn the caliper
             smallestAngleIndex = angles.index(min(angles))
 
-            if smallestAngleIndex == 0:
+            # rotate the "caliper" to the edge with the smallest angle
+            if smallestAngleIndex == 0: # left edge
                 leftDir = edgeDirections[leftId]
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftId = (leftId+1)%len(self.convexHull)
-            elif smallestAngleIndex == 1:
+            elif smallestAngleIndex == 1: # right edge
                 rightDir = edgeDirections[leftId]
                 leftDir = UTMPoint((-rightDir.e, -rightDir.n, self.zone, self.zoneLetter))
                 topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
-                bottomDir = UTMPoint((-topDir.e, -topDir.e, self.zone, self.zoneLetter))
+                bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 rightId = (rightId+1)%len(self.convexHull)
-            elif smallestAngleIndex == 2:
+            elif smallestAngleIndex == 2: # top edge
                 topDir = edgeDirections[topId]
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftDir = UTMPoint((topDir.n, -topDir.e, self.zone, self.zoneLetter))
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topId = (topId+1)%len(self.convexHull)
-            elif smallestAngleIndex == 3:
+            elif smallestAngleIndex == 3: # bottom edge
                 bottomDir = edgeDirections[bottomId]
                 topDir = UTMPoint((-bottomDir.e, -bottomDir.n, self.zone, self.zoneLetter))
                 leftDir = UTMPoint((bottomDir.n, -bottomDir.e, self.zone, self.zoneLetter))
@@ -157,10 +159,7 @@ class house:
             area = width*height
 
             if area < self.area and area > 1:
-                self.sbb = [UTMPoint((upperLeft.e, upperLeft.n, self.zone, self.zoneLetter)),
-                            UTMPoint((upperRight.e, upperRight.n, self.zone, self.zoneLetter)),
-                            UTMPoint((bottomLeft.e, bottomLeft.n, self.zone, self.zoneLetter)),
-                            UTMPoint((bottomRight.e, bottomRight.n, self.zone, self.zoneLetter))]
+                self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
                 self.area = area
 
     def __findConvexHull(self): # uses monotone-chain algorithm
