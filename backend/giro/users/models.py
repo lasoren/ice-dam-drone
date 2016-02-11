@@ -7,6 +7,8 @@ class User(models.Model):
     Generic user object storing data for operators, clients,
     or other future models.
     """
+    # Automatically added with new row.
+    created = models.DateTimeField(auto_now_add=True)
     # First name and last name split for convenience on
     # mobile side.
     first_name = models.TextField()
@@ -14,8 +16,6 @@ class User(models.Model):
     # Email field automatically validates that an email is of
     # the correct format.
     email = models.EmailField(unique=True)
-    # Automatically added with new row.
-    created = models.DateTimeField(auto_now_add=True)
 
 
 class DroneOperator(models.Model):
@@ -26,12 +26,12 @@ class DroneOperator(models.Model):
     ice dam removal using the drone. Each inspection would be very
     low cost.
     """
+    # Automatically added with new row.
+    created = models.DateTimeField(auto_now_add=True)
     # The associated generic user in user table.
     user = models.ForeignKey(User, unique=True)
     # Salted and SHA256 hashed before storage.
     password = models.CharField(max_length=256)
-    # Automatically added with new row.
-    created = models.DateTimeField(auto_now_add=True)
 
 
 class Client(models.Model):
@@ -43,10 +43,13 @@ class Client(models.Model):
     a password. They can access they're individual inspection
     using a unique, non-guessable link.
     """
+    # Automatically added with new row.
+    created = models.DateTimeField(auto_now_add=True)
     # The associated generic user in user table.
     user = models.ForeignKey(User, unique=True)
     # The full text address of the client's home where the
     # inspection was performed.
     address = models.TextField()
-    # Automatically added with new row.
-    created = models.DateTimeField(auto_now_add=True)
+    # When set to something other than null, this row has been
+    # deleted and no longer returned to operator.
+    deleted = models.DateTimeField(blank=True, null=True)
