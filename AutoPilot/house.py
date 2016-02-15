@@ -29,6 +29,9 @@ class UTMPoint:
 
         return UTMPoint((e/mag, n/mag, self.zone, self.zoneLetter))
 
+    def add(self, point):
+        return UTMPoint((self.e + point.e, self.n + point.n, self.zone, self.zoneLetter))
+
     def diff(self, point):
         return UTMPoint((self.e - point.e, self.n - point.n, self.zone, self.zoneLetter))
 
@@ -49,19 +52,27 @@ class UTMPoint:
         conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
         return geoPoint(conv[0], conv[1])
 
+    def scalarMult(self, scalar):
+        return UTMPoint((self.e * scalar, self.n*scalar, self.zone, self.zoneLetter))
+
 class house:
     utmOutline = []
     zone = 0
     zoneLetter = ""
+    width = 0
+    height = 0
+
+    cameraWidth = 8
+    cameraHeight = 6
+
+    path = []
+    convexHull = []
+    sbb = []
+    area = sys.maxint
 
     def __init__(self, outline):
         self.outline = outline
-        self.__convertToUTM()
-        self.convexHull = [0, 0, 0, 0]
-        self.sbb = []
-        self.area = sys.maxint
-        self.__findConvexHull()
-        self.__findMinimumBox()
+        self.__findFlyOverPath()
 
     def __convertToUTM(self):
         for point in self.outline:
@@ -148,10 +159,10 @@ class house:
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 bottomId = (bottomId+1)%len(self.convexHull)
 
-            upperLeft = self.__calcLineIntersect(self.convexHull[leftId], leftDir, self.convexHull[topId], topDir)
-            upperRight = self.__calcLineIntersect(self.convexHull[rightId], rightDir, self.convexHull[topId], topDir)
-            bottomLeft = self.__calcLineIntersect(self.convexHull[bottomId], bottomDir, self.convexHull[leftId], leftDir)
-            bottomRight = self.__calcLineIntersect(self.convexHull[bottomId], bottomDir, self.convexHull[rightId], rightDir)
+            upperRight = self.__calcLineIntersect(self.convexHull[leftId], leftDir, self.convexHull[topId], topDir)
+            bottomRight = self.__calcLineIntersect(self.convexHull[rightId], rightDir, self.convexHull[topId], topDir)
+            upperLeft = self.__calcLineIntersect(self.convexHull[bottomId], bottomDir, self.convexHull[leftId], leftDir)
+            bottomLeft = self.__calcLineIntersect(self.convexHull[bottomId], bottomDir, self.convexHull[rightId], rightDir)
 
             width = upperLeft.dist(upperRight)
             height = upperLeft.dist(bottomLeft)
@@ -161,6 +172,8 @@ class house:
             if area < self.area and area > 1:
                 self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
                 self.area = area
+                self.width = width
+                self.height = height
 
     def __findConvexHull(self): # uses monotone-chain algorithm
         sortedOutline = sorted(self.utmOutline, key=lambda x: x.e)
@@ -191,6 +204,48 @@ class house:
 
         return UTMPoint(((line1.e+ (t*dir1.e)), (line1.n + (t*dir1.n)), self.zone, self.zoneLetter))
 
+    def __findFlyOverPath(self):
+        """
+        After finding the prerequisites:
+         1) Finds # of columns and rows and mid point of the camera box
+         2) Calculates the vector angling of the box in east and north
+         3) Find a row of points
+         4) Iterate through each item in each column and add a unit east
+            a) Every last "rows" number of points in the path array is the previous column
+        """
+        self.__convertToUTM()
+        self.__findConvexHull()
+        self.__findMinimumBox()
+
+        columns = int(math.ceil(self.width/self.cameraWidth)) + 1
+        rows = int(math.ceil(self.height/self.cameraHeight)) + 1
+
+        e = self.cameraWidth/2.0
+        n = self.cameraHeight/2.0
+
+        eVec = self.sbb[0].getVector(self.sbb[1])
+        nVec = self.sbb[0].getVector(self.sbb[2])
+
+        for i in range(1, rows + 1):
+            addN = nVec.scalarMult(i*n)
+            self.path.append(self.sbb[0].diff(addN))
+
+        index = 0
+        tempPath = []
+        for q in range(0, (columns * rows)):
+            print "index %d" % index
+            addE = eVec.scalarMult(e)
+            rowItem = self.path[len(self.path) - index - 1]
+            tempPath.append(rowItem.diff(addE))
+            index = index + 1
+            if index >= rows:
+                self.path = self.path + tempPath
+                tempPath = []
+                index = 0
+
+        self.path = self.path + tempPath
+
+
 if __name__ == "__main__":
     points = [geoPoint(38.84711546747433, -94.6733683347702), geoPoint(38.84703399781023, -94.67331871390343), geoPoint(38.847007885718675, -94.67337772250175),
               geoPoint(38.84698804052266, -94.67336967587471), geoPoint(38.84696192841424, -94.67344209551811), geoPoint(38.84706742127346, -94.67350110411644)]
@@ -198,6 +253,7 @@ if __name__ == "__main__":
     myHouse = house(points)
     convexHull = []
     sbb = []
+    path = []
 
     for c in myHouse.convexHull:
         convexHull.append(c.toLatLon())
@@ -205,6 +261,19 @@ if __name__ == "__main__":
     for b in myHouse.sbb:
         sbb.append(b.toLatLon())
 
+    for q in myHouse.path:
+        path.append(q.toLatLon())
+
+    print "original"
+    printLatLong(points)
+
+    print "convex"
+    printLatLong(convexHull)
+
+    print "sbb"
     printLatLong(sbb)
+
+    print "path"
+    printLatLong(path)
 
     print myHouse.area
