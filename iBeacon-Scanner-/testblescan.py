@@ -11,7 +11,7 @@ dev_id = 0
 
 #defining ranges for the distance
 close = 0.4
-near = 3
+near = 2
 
 #defining UUID for beacon
 estimote = '8de22a544b224e7c9caa96a391f1266a' 
@@ -29,7 +29,7 @@ blescan.hci_enable_le_scan(sock)
 
 while True:
 	returnedList = blescan.parse_events(sock, 1)
-	print "----------"
+	#print "----------"
 	for beacon in returnedList:
 		beacon_array = beacon.split(',')
 		UUID = beacon_array[1]
