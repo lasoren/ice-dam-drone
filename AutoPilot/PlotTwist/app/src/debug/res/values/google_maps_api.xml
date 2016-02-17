@@ -1,0 +1,19 @@
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=2E:3A:23:6E:B7:DF:C4:5D:E3:35:6A:A7:DB:9D:09:27:FB:AB:05:31%3Borg.girodicer.plottwist
+
+    You can also add your credentials to an existing key, using this line:
+    2E:3A:23:6E:B7:DF:C4:5D:E3:35:6A:A7:DB:9D:09:27:FB:AB:05:31;org.girodicer.plottwist
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAoNcoHq4f7MQLJZN4IdYdi6jxdpOJfFbw</string>
+</resources>
