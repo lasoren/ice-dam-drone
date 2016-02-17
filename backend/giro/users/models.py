@@ -32,6 +32,8 @@ class DroneOperator(models.Model):
     user = models.ForeignKey(User, unique=True)
     # Salted and SHA256 hashed before storage.
     password = models.CharField(max_length=256)
+    # Session token for authentication.
+    session_id = models.CharField(max_length=128)
 
 
 class Client(models.Model):
