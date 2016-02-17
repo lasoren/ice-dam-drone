@@ -3,11 +3,13 @@ package org.girodicer.plottwist;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.Message;
 import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -96,6 +98,7 @@ public class Welcome extends Activity implements View.OnClickListener {
                 pairDevices();
                 break;
             case R.id.nextButton:
+                skip(null);
                 break;
         }
     }
@@ -118,9 +121,8 @@ public class Welcome extends Activity implements View.OnClickListener {
     private void pairFinished(){
         pair.setVisibility(View.GONE);
         pairNote.setText("Paired to: " + getResources().getString(R.string.server_name));
-        ConnectThread btConnect = new ConnectThread(App.bDevice);
+        ConnectThread btConnect = new ConnectThread(App.bDevice, new BTConnectHandler());
         btConnect.start();
-        next.setVisibility(View.VISIBLE);
     }
 
     public void skip(View view){
@@ -158,6 +160,24 @@ public class Welcome extends Activity implements View.OnClickListener {
                 startActivity(skip);
             }
 
+        }
+    }
+
+    public class BTConnectHandler extends Handler{
+        @Override
+        public void handleMessage(Message incoming){
+            switch(incoming.what){
+                case ConnectThread.CONNECT_SUCCESS:
+                    BluetoothSocket btSocket = (BluetoothSocket) incoming.obj;
+                    if(App.startBluetoothConnection(btSocket)){
+                        next.setVisibility(View.VISIBLE);
+                    } else {
+                        Toast.makeText(Welcome.this, "System failure", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case ConnectThread.CONNECT_FAILURE:
+                    Toast.makeText(Welcome.this, "Failure to connect", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
