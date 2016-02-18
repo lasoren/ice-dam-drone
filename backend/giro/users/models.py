@@ -46,7 +46,7 @@ class DroneOperator(models.Model):
     # Session token for authentication.
     session_id = models.CharField(max_length=128)
     # Keeps track of the status of this account.
-    deleted = models.IntegerField(choices=ACCOUNT_STATUS_TYPES,
+    status = models.IntegerField(choices=ACCOUNT_STATUS_TYPES,
         default=NOT_SPECIFIED)
 
 

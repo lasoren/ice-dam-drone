@@ -1,6 +1,7 @@
 from giro import exceptions
 from users.serializers import DroneOperatorSerializer
 from users.models import DroneOperator
+from users.models import ACCOUNT_STATUS_TYPES
 import users.utils as users_utils
 
 from django.contrib.auth import hashers
@@ -39,6 +40,7 @@ class RegisterDroneOperator(APIView):
         except DroneOperator.DoesNotExist:
             pass
 
+        # TODO(luke): Send out email to complete registration.
         serializer = DroneOperatorSerializer(data=request_data)
         if serializer.is_valid():
             serializer.save()
@@ -55,9 +57,22 @@ class SigninDroneOperator(APIView):
     """
     Endpoint for signing in as a drone operator and getting a session id.
     """
-    
+    def post(self, request, format=None):
+        request_data = request.data
+        email = request_data["user"]["email"]
 
+        try:
+            drone_operator = DroneOperator.objects.get(
+                user__email=email,
+                status=ACCOUNT_STATUS_TYPES.EMAIL_CONFIRMED)
+        except DroneOperator.DoesNotExist:
+            raise exceptions.OperatorAccountInvalid(
+                'No account for this email or ' +
+                'email not confirmed for this account.')
 
-
+        if hashers.check_password(request_data["password"], drone_operator.password):
+            return Response(DroneOperatorSerializer(drone_operator).data)
+        raise exceptions.PasswordInvalid(
+            'Password is incorrect for this account.')
 
 

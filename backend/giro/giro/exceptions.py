@@ -13,6 +13,8 @@ class ErrorCodes(object):
     METHOD_NOT_ALLOWED = -5
     PARSE_ERROR = -6
     OPERATOR_EXISTS = -7
+    OPERATOR_ACCOUNT_INVALID = -8
+    PASSWORD_INVALID = -9
 
 
 # Map of Rest Framework exceptions to DWS error codes.
@@ -37,6 +39,17 @@ class InternalServerError(rest_exceptions.APIException):
 class OperatorExists(rest_exceptions.APIException):
     status_code = 400
     err_code = ErrorCodes.OPERATOR_EXISTS
+
+
+# If operator account hasn't been confirmed or email doesn't exist in db.
+class OperatorAccountInvalid(rest_exceptions.APIException):
+    status_code = 400
+    err_code = ErrorCodes.OPERATOR_ACCOUNT_INVALID
+
+
+class PasswordInvalid(rest_exceptions.APIException):
+    status_code = 400
+    err_code = ErrorCodes.PASSWORD_INVALID
 
 
 def giro_exception_handler(exc, context):
