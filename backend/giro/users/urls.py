@@ -1,10 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 from users import views
 
-urlpatterns = patterns(
-    'users.views',
-    url(r'^register/$', views.RegisterDroneOperator.as_view()),
-)
+urlpatterns = [
+    url(r'^register/$', views.RegisterDroneOperator.as_view(), name='register'),
+]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

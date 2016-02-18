@@ -29,7 +29,7 @@ class DroneOperator(models.Model):
     # Automatically added with new row.
     created = models.DateTimeField(auto_now_add=True)
     # The associated generic user in user table.
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     # Salted and SHA256 hashed before storage.
     password = models.CharField(max_length=256)
     # Session token for authentication.
@@ -48,7 +48,7 @@ class Client(models.Model):
     # Automatically added with new row.
     created = models.DateTimeField(auto_now_add=True)
     # The associated generic user in user table.
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     # The full text address of the client's home where the
     # inspection was performed.
     address = models.TextField()
