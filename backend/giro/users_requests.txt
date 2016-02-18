@@ -1,0 +1,37 @@
+// ------------------------------------------------------
+// REGISTER OPERATOR
+
+url POST: /users/register/
+
+Request:
+{
+    "user": {
+        "first_name": "Luke",
+        "last_name": "Sorenson",
+        "email": "lukeasorenson@gmail.com"
+    },
+    "password": "password"
+}
+
+Response:
+{
+    "created": "2016-02-18T02:25:18.097956Z",
+    "user": {
+        "id": 7,
+        "created": "2016-02-18T02:25:18.094594Z",
+        "first_name": "Luke",
+        "last_name": "Sorenson",
+        "email": "lukeasorenson@gmail.com"
+    },
+    "session_id": "0f2c3f0b938bd13fbf6690f7485cedb56bd12c4de339d98d15215eca008f0e546ce108b62992fff3afc67417b0558d6ed1c688bff6a91eb1426a63a94e5eb121"
+}
+
+Sample Error Response:
+{
+    "code": -7,
+    "detail": "An operator with this email already exists."
+}
+
+// ------------------------------------------------------
+// SIGN IN
+

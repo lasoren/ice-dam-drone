@@ -12,6 +12,7 @@ class ErrorCodes(object):
     INTERNAL_SERVER_ERROR = -4
     METHOD_NOT_ALLOWED = -5
     PARSE_ERROR = -6
+    OPERATOR_EXISTS = -7
 
 
 # Map of Rest Framework exceptions to DWS error codes.
@@ -33,11 +34,16 @@ class InternalServerError(rest_exceptions.APIException):
     err_code = ErrorCodes.INTERNAL_SERVER_ERROR
 
 
-def giro_exception_handler(exc):
+class OperatorExists(rest_exceptions.APIException):
+    status_code = 400
+    err_code = ErrorCodes.OPERATOR_EXISTS
+
+
+def giro_exception_handler(exc, context):
     """
     Returns the response that should be used for any given exception.
     """
-    exception_response = default_exception_handler(exc)
+    exception_response = default_exception_handler(exc, context)
 
     if not hasattr(exception_response, 'data'):
         return exception_response

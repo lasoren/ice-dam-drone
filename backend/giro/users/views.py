@@ -1,3 +1,4 @@
+from giro import exceptions
 from users.serializers import DroneOperatorSerializer
 from users.models import DroneOperator
 import users.utils as users_utils
@@ -7,6 +8,8 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework import status
+
+import logging
 
 
 class RegisterDroneOperator(APIView):
@@ -18,7 +21,7 @@ class RegisterDroneOperator(APIView):
     Endpoint for registering a new drone operator.
     """
     def post(self, request, format=None):
-        request_data = request.DATA
+        request_data = request.data
         # Hash the provided password.
         request_data["password"] = hashers.make_password(
             request_data["password"])
@@ -31,11 +34,12 @@ class RegisterDroneOperator(APIView):
             drone_operator = DroneOperator.objects.get(user__email=email)
             # Operator account already exists. Throw exception. Operator
             # should use reset password if password is forgotten.
-            # TODO(luke): throw exception.
-        except:
+            raise exceptions.OperatorExists(
+                'An operator with this email already exists.')
+        except DroneOperator.DoesNotExist:
             pass
 
-        serializer = DroneOperatorSerializer(request_data)
+        serializer = DroneOperatorSerializer(data=request_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,

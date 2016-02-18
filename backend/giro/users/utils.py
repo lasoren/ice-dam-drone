@@ -1,7 +1,7 @@
 import hashlib
 import random
 import string
-
+import time
 
 def generate_session_id(email):
     """
