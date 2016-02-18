@@ -35,3 +35,35 @@ Sample Error Response:
 // ------------------------------------------------------
 // SIGN IN
 
+url POST: /users/signin/
+
+Request:
+{
+    "email": "lukeasorenson@gmail.com",
+    "password": "password"
+}
+
+Response:
+{
+    "created": "2016-02-18T02:33:41.093284Z",
+    "user": {
+        "id": 8,
+        "created": "2016-02-18T02:33:41.090139Z",
+        "first_name": "Luke",
+        "last_name": "Sorenson",
+        "email": "lukeasorenson@gmail.com"
+    },
+    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546"
+}
+
+Sample Error Response:
+{
+    "code": -8,
+    "detail": "No account for this email or email not confirmed for this account."
+}
+
+{
+    "code": -9,
+    "detail": "Password is incorrect for this account."
+}
+

@@ -1,7 +1,7 @@
 from giro import exceptions
 from users.serializers import DroneOperatorSerializer
 from users.models import DroneOperator
-from users.models import ACCOUNT_STATUS_TYPES
+from users.models import EMAIL_CONFIRMED
 import users.utils as users_utils
 
 from django.contrib.auth import hashers
@@ -59,12 +59,12 @@ class SigninDroneOperator(APIView):
     """
     def post(self, request, format=None):
         request_data = request.data
-        email = request_data["user"]["email"]
+        email = request_data["email"]
 
         try:
             drone_operator = DroneOperator.objects.get(
                 user__email=email,
-                status=ACCOUNT_STATUS_TYPES.EMAIL_CONFIRMED)
+                status=EMAIL_CONFIRMED)
         except DroneOperator.DoesNotExist:
             raise exceptions.OperatorAccountInvalid(
                 'No account for this email or ' +
