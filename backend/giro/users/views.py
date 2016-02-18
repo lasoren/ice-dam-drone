@@ -45,3 +45,19 @@ class RegisterDroneOperator(APIView):
             return Response(serializer.data,
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
+
+
+class SigninDroneOperator(APIView):
+    # Do NOT require authorization for this call since user does not
+    # have user_id/session_id pair yet.
+    permission_classes = ()
+
+    """
+    Endpoint for signing in as a drone operator and getting a session id.
+    """
+    
+
+
+
+
+

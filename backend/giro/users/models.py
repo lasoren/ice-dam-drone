@@ -2,6 +2,17 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+# Account status for drone operators.
+NOT_SPECIFIED = 1
+EMAIL_CONFIRMED = 2
+DELETED = 3
+
+ACCOUNT_STATUS_TYPES = (
+    (NOT_SPECIFIED, 'Not specified'),
+    (EMAIL_CONFIRMED, 'Email Confirmed'),
+    (DELETED, 'Deleted')
+)
+
 class User(models.Model):
     """
     Generic user object storing data for operators, clients,
@@ -34,6 +45,9 @@ class DroneOperator(models.Model):
     password = models.CharField(max_length=256)
     # Session token for authentication.
     session_id = models.CharField(max_length=128)
+    # Keeps track of the status of this account.
+    deleted = models.IntegerField(choices=ACCOUNT_STATUS_TYPES,
+        default=NOT_SPECIFIED)
 
 
 class Client(models.Model):
