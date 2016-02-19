@@ -14,7 +14,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,12 +29,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.girodicer.plottwist.Bluetooth.ConnectionThread;
 import org.girodicer.plottwist.services.BluetoothService;
 import org.girodicer.plottwist.services.GetAddress;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener{
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener{
 
     private GoogleMap mMap;
     private Button next;
@@ -80,6 +84,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         setContentView(R.layout.activity_maps);
 
+        next = (Button) findViewById(R.id.maps_next);
+        next.setOnClickListener(this);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().show();
@@ -113,16 +120,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapClick(LatLng latLng) {
+        mMap.addMarker(new MarkerOptions().position(latLng).title(Integer.toString(houseBoundary.size())).draggable(true));
         houseBoundary.add(latLng);
-        mMap.addMarker(new MarkerOptions().position(latLng).title(Integer.toString(houseBoundary.size())));
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        LatLng removePoint = marker.getPosition();
+        houseBoundary.remove(marker.getPosition());
         marker.remove();
-
-        houseBoundary.remove(removePoint);
         return true;
     }
 
@@ -160,10 +165,51 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onSaveInstanceState(outstate);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.maps_next:
+                goToStatus();
+                break;
+        }
+    }
+
+    private void goToStatus(){
+        if(houseBoundary.size() < 4){
+            Toast.makeText(MapsActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ByteBuffer dataBuffer = ByteBuffer.allocate(houseBoundary.size() * 16);
+        for (LatLng point : houseBoundary){
+            dataBuffer.putDouble(point.latitude);
+            dataBuffer.putDouble(point.longitude);
+            Log.d("dbg", point.toString());
+        }
+        Log.d("dbg", dataBuffer.array().toString());
+        String hi = "transfer";
+        App.BTConnection.write(hi.getBytes());
+    }
+
     private class BTMessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg){
-
+            switch(msg.what){
+                case BluetoothService.MESSAGE_READ:
+                    Bundle bundle = msg.getData();
+                    byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
+                    Toast.makeText(MapsActivity.this, new String(data), Toast.LENGTH_SHORT).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_CONNECTION_LOST:
+                    Toast.makeText(MapsActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapsActivity.this, "Reconnecting....", Toast.LENGTH_LONG).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_FAILED_RECONNECT:
+                    Toast.makeText(MapsActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
+                    Toast.makeText(MapsActivity.this, "Sucessfully reconnected", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

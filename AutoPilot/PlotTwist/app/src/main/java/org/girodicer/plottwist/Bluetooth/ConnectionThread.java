@@ -1,9 +1,13 @@
 package org.girodicer.plottwist.Bluetooth;
 
 import android.bluetooth.BluetoothSocket;
+import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.RemoteException;
+import android.util.Log;
 
 import org.girodicer.plottwist.services.BluetoothService;
 
@@ -15,6 +19,8 @@ import java.io.OutputStream;
  * Created by Carlos on 2/16/2016.
  */
 public class ConnectionThread extends Thread {
+    public static final String BT_DATA = "BTDATA";
+
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
@@ -47,8 +53,10 @@ public class ConnectionThread extends Thread {
                 // Read from the InputStream
                 bytes = mmInStream.read(buffer);
                 // Send the obtained bytes to the UI activity
-
-                Message msg = Message.obtain(null, BluetoothService.MESSAGE_READ, bytes, -1, buffer);
+                Message msg = Message.obtain(null, BluetoothService.MESSAGE_READ, bytes, -1);
+                Bundle bundle = new Bundle();
+                bundle.putByteArray(BT_DATA, buffer);
+                msg.setData(bundle);
                 btService.send(msg);
             } catch (IOException e) {
                 break;

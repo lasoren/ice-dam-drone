@@ -11,8 +11,8 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ResultReceiver;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,12 +44,14 @@ public class Welcome extends Activity implements View.OnClickListener {
 
             if(BluetoothDevice.ACTION_FOUND.equals(action)){
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                if(device.getName() == getResources().getString(R.string.server_name)){
-                    App.bDevice = device;
-                    App.bAdapter.cancelDiscovery();
-                    Toast.makeText(Welcome.this, "Found the device", Toast.LENGTH_SHORT).show();
-                    pairFinished();
+                if(device.getName() != null){
+                    Log.d("dbg",device.getName());
+                    if(device.getName().equals(getResources().getString(R.string.server_name))){
+                        App.bDevice = device;
+                        App.bAdapter.cancelDiscovery();
+                        Toast.makeText(Welcome.this, "Found the device", Toast.LENGTH_SHORT).show();
+                        pairFinished();
+                    }
                 }
             }
         }
@@ -74,9 +76,6 @@ public class Welcome extends Activity implements View.OnClickListener {
             Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBt, REQUEST_ENABLE_BT);
         }
-
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(bScan, filter);
 
         resultReceiver = new AddressResultReceiver(new Handler());
     }
@@ -103,11 +102,24 @@ public class Welcome extends Activity implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(bScan, filter);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        unregisterReceiver(bScan);
+    }
+
     private void pairDevices(){
         Set<BluetoothDevice> pairedDevices = App.bAdapter.getBondedDevices();
         if(pairedDevices.size() > 0){
             for(BluetoothDevice device : pairedDevices){
-                if(device.getName() == getResources().getString(R.string.server_name)){
+                if(device.getName().equals(getResources().getString(R.string.server_name))){
                     App.bDevice = device;
                     pairFinished();
                     return;
@@ -120,6 +132,7 @@ public class Welcome extends Activity implements View.OnClickListener {
 
     private void pairFinished(){
         pair.setVisibility(View.GONE);
+        pairNote.setVisibility(View.VISIBLE);
         pairNote.setText("Paired to: " + getResources().getString(R.string.server_name));
         ConnectThread btConnect = new ConnectThread(App.bDevice, new BTConnectHandler());
         btConnect.start();
@@ -177,6 +190,9 @@ public class Welcome extends Activity implements View.OnClickListener {
                     break;
                 case ConnectThread.CONNECT_FAILURE:
                     Toast.makeText(Welcome.this, "Failure to connect", Toast.LENGTH_SHORT).show();
+                    next.setVisibility(View.GONE);
+                    pair.setVisibility(View.VISIBLE);
+                    pairNote.setVisibility(View.GONE);
             }
         }
     }
