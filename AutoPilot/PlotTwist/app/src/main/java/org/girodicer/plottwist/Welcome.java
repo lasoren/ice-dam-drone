@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ResultReceiver;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -78,9 +77,6 @@ public class Welcome extends Activity implements View.OnClickListener {
             startActivityForResult(enableBt, REQUEST_ENABLE_BT);
         }
 
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(bScan, filter);
-
         resultReceiver = new AddressResultReceiver(new Handler());
     }
 
@@ -104,6 +100,19 @@ public class Welcome extends Activity implements View.OnClickListener {
                 skip(null);
                 break;
         }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(bScan, filter);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        unregisterReceiver(bScan);
     }
 
     private void pairDevices(){
@@ -181,6 +190,9 @@ public class Welcome extends Activity implements View.OnClickListener {
                     break;
                 case ConnectThread.CONNECT_FAILURE:
                     Toast.makeText(Welcome.this, "Failure to connect", Toast.LENGTH_SHORT).show();
+                    next.setVisibility(View.GONE);
+                    pair.setVisibility(View.VISIBLE);
+                    pairNote.setVisibility(View.GONE);
             }
         }
     }

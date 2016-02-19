@@ -15,6 +15,9 @@ import android.util.Log;
 public class BluetoothService extends Service {
     public static final int MESSAGE_READ = 1;
     public static final int MESSAGE_NEW_CLIENT = 2;
+    public static final int MESSAGE_BT_CONNECTION_LOST = -1;
+    public static final int MESSAGE_BT_FAILED_RECONNECT = -2;
+    public static final int MESSAGE_BT_SUCCESS_RECONNECT = 3;
 
     private Messenger currentClient;
 
@@ -35,7 +38,7 @@ public class BluetoothService extends Service {
             Log.d("dbg", "incoming message" + Integer.toString(count));
             switch(msg.what){
                 case MESSAGE_READ:
-                    Log.d("dbg", "Forwarding message");
+                case MESSAGE_BT_CONNECTION_LOST:
                     try { // just forwards the message
                         currentClient.send(msg);
                     } catch (RemoteException e) {
@@ -43,7 +46,6 @@ public class BluetoothService extends Service {
                     }
                     break;
                 case MESSAGE_NEW_CLIENT:
-                    Log.d("dbg", "New Client");
                     currentClient = msg.replyTo;
                     break;
             }

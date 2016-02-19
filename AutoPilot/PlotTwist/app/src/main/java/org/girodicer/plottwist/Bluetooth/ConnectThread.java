@@ -2,6 +2,7 @@ package org.girodicer.plottwist.Bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 
 import org.girodicer.plottwist.App;
 import org.girodicer.plottwist.Welcome;
@@ -14,12 +15,12 @@ import java.io.IOException;
 public class ConnectThread extends Thread {
     private BluetoothSocket bSocket;
     private BluetoothDevice bDevice;
-    private Welcome.BTConnectHandler handler;
+    private Handler handler;
 
     public static final int CONNECT_SUCCESS = 11;
     public static final int CONNECT_FAILURE = -11;
 
-    public ConnectThread(BluetoothDevice bDevice, Welcome.BTConnectHandler handler){
+    public ConnectThread(BluetoothDevice bDevice, Handler handler){
         this.bDevice = bDevice;
         this.handler = handler;
 
