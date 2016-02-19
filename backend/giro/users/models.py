@@ -2,6 +2,17 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+# Account status for drone operators.
+NOT_SPECIFIED = 1
+EMAIL_CONFIRMED = 2
+DELETED = 3
+
+ACCOUNT_STATUS_TYPES = (
+    (NOT_SPECIFIED, 'Not specified'),
+    (EMAIL_CONFIRMED, 'Email Confirmed'),
+    (DELETED, 'Deleted')
+)
+
 class User(models.Model):
     """
     Generic user object storing data for operators, clients,
@@ -29,9 +40,14 @@ class DroneOperator(models.Model):
     # Automatically added with new row.
     created = models.DateTimeField(auto_now_add=True)
     # The associated generic user in user table.
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     # Salted and SHA256 hashed before storage.
     password = models.CharField(max_length=256)
+    # Session token for authentication.
+    session_id = models.CharField(max_length=128)
+    # Keeps track of the status of this account.
+    status = models.IntegerField(choices=ACCOUNT_STATUS_TYPES,
+        default=NOT_SPECIFIED)
 
 
 class Client(models.Model):
@@ -46,7 +62,7 @@ class Client(models.Model):
     # Automatically added with new row.
     created = models.DateTimeField(auto_now_add=True)
     # The associated generic user in user table.
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     # The full text address of the client's home where the
     # inspection was performed.
     address = models.TextField()
