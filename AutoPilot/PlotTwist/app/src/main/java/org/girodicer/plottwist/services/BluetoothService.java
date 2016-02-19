@@ -39,6 +39,8 @@ public class BluetoothService extends Service {
             switch(msg.what){
                 case MESSAGE_READ:
                 case MESSAGE_BT_CONNECTION_LOST:
+                case MESSAGE_BT_FAILED_RECONNECT:
+                case MESSAGE_BT_SUCCESS_RECONNECT:
                     try { // just forwards the message
                         currentClient.send(msg);
                     } catch (RemoteException e) {

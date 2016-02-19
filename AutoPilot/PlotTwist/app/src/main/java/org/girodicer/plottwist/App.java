@@ -118,6 +118,8 @@ public class App extends android.app.Application {
                 case ConnectThread.CONNECT_FAILURE:
                     try {
                         bluetoothMessenger.send(Message.obtain(null, BluetoothService.MESSAGE_BT_FAILED_RECONNECT));
+                        //ConnectThread btConnect = new ConnectThread(bDevice, new BTReconnectHandler());
+                        //btConnect.start();
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }

@@ -187,7 +187,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.d("dbg", point.toString());
         }
         Log.d("dbg", dataBuffer.array().toString());
-        App.BTConnection.write(dataBuffer.array());
+        String hi = "transfer";
+        App.BTConnection.write(hi.getBytes());
     }
 
     private class BTMessageHandler extends Handler {
@@ -203,6 +204,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Toast.makeText(MapsActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
                     Toast.makeText(MapsActivity.this, "Reconnecting....", Toast.LENGTH_LONG).show();
                     break;
+                case BluetoothService.MESSAGE_BT_FAILED_RECONNECT:
+                    Toast.makeText(MapsActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
+                    Toast.makeText(MapsActivity.this, "Sucessfully reconnected", Toast.LENGTH_SHORT).show();
             }
         }
     }
