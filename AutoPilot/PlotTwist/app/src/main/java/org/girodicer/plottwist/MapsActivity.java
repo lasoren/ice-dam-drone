@@ -37,7 +37,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private Button next;
 
-    private ArrayList<LatLng> houseBoundary;
+    private ArrayList<Marker> houseBoundary;
     private LatLng home;
 
     private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
@@ -113,16 +113,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapClick(LatLng latLng) {
-        houseBoundary.add(latLng);
-        mMap.addMarker(new MarkerOptions().position(latLng).title(Integer.toString(houseBoundary.size())));
+        houseBoundary.add(mMap.addMarker(new MarkerOptions().position(latLng).title(Integer.toString(houseBoundary.size())).draggable(true)));
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        LatLng removePoint = marker.getPosition();
-        marker.remove();
-
-        houseBoundary.remove(removePoint);
+        houseBoundary.remove(marker);
+        String hi = "hi";
+        App.BTConnection.write(hi.getBytes());
         return true;
     }
 

@@ -13,6 +13,7 @@ import android.os.Message;
 import android.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,12 +45,14 @@ public class Welcome extends Activity implements View.OnClickListener {
 
             if(BluetoothDevice.ACTION_FOUND.equals(action)){
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                if(device.getName() == getResources().getString(R.string.server_name)){
-                    App.bDevice = device;
-                    App.bAdapter.cancelDiscovery();
-                    Toast.makeText(Welcome.this, "Found the device", Toast.LENGTH_SHORT).show();
-                    pairFinished();
+                //Log.d("dbg",device.getName());
+                if(device.getName() != null){
+                    if(device.getName().equals(getResources().getString(R.string.server_name))){
+                        App.bDevice = device;
+                        App.bAdapter.cancelDiscovery();
+                        Toast.makeText(Welcome.this, "Found the device", Toast.LENGTH_SHORT).show();
+                        pairFinished();
+                    }
                 }
             }
         }
