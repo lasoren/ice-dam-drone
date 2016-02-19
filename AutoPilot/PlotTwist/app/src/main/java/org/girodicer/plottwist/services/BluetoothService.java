@@ -35,6 +35,7 @@ public class BluetoothService extends Service {
             Log.d("dbg", "incoming message" + Integer.toString(count));
             switch(msg.what){
                 case MESSAGE_READ:
+                    Log.d("dbg", "Forwarding message");
                     try { // just forwards the message
                         currentClient.send(msg);
                     } catch (RemoteException e) {
@@ -42,6 +43,7 @@ public class BluetoothService extends Service {
                     }
                     break;
                 case MESSAGE_NEW_CLIENT:
+                    Log.d("dbg", "New Client");
                     currentClient = msg.replyTo;
                     break;
             }

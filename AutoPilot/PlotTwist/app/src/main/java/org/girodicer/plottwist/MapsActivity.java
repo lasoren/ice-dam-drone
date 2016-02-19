@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.girodicer.plottwist.Bluetooth.ConnectionThread;
 import org.girodicer.plottwist.services.BluetoothService;
 import org.girodicer.plottwist.services.GetAddress;
 
@@ -161,7 +163,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private class BTMessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg){
-
+            Bundle bundle = msg.getData();
+            byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
+            Toast.makeText(MapsActivity.this, new String(data), Toast.LENGTH_SHORT).show();
         }
     }
 }

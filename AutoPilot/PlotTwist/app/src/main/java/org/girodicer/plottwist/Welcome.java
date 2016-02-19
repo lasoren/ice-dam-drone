@@ -45,8 +45,8 @@ public class Welcome extends Activity implements View.OnClickListener {
 
             if(BluetoothDevice.ACTION_FOUND.equals(action)){
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                //Log.d("dbg",device.getName());
                 if(device.getName() != null){
+                    Log.d("dbg",device.getName());
                     if(device.getName().equals(getResources().getString(R.string.server_name))){
                         App.bDevice = device;
                         App.bAdapter.cancelDiscovery();
@@ -110,7 +110,7 @@ public class Welcome extends Activity implements View.OnClickListener {
         Set<BluetoothDevice> pairedDevices = App.bAdapter.getBondedDevices();
         if(pairedDevices.size() > 0){
             for(BluetoothDevice device : pairedDevices){
-                if(device.getName() == getResources().getString(R.string.server_name)){
+                if(device.getName().equals(getResources().getString(R.string.server_name))){
                     App.bDevice = device;
                     pairFinished();
                     return;
@@ -123,6 +123,7 @@ public class Welcome extends Activity implements View.OnClickListener {
 
     private void pairFinished(){
         pair.setVisibility(View.GONE);
+        pairNote.setVisibility(View.VISIBLE);
         pairNote.setText("Paired to: " + getResources().getString(R.string.server_name));
         ConnectThread btConnect = new ConnectThread(App.bDevice, new BTConnectHandler());
         btConnect.start();
