@@ -8,12 +8,13 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.example.tberroa.girodicerapp.data.Params;
 
-public class CloudTools {
+final public class CloudTools {
 
-    private final AmazonS3Client amazonS3Client;
-    private final TransferUtility transferUtility;
+    private static CloudTools instance;
+    private static AmazonS3Client amazonS3Client;
+    private static TransferUtility transferUtility;
 
-    public CloudTools(Context context){
+    private CloudTools(Context context){
         CognitoCachingCredentialsProvider cred;
         Regions region = Regions.US_EAST_1;
         cred = new CognitoCachingCredentialsProvider(context, Params.CLOUD_CREDENTIALS, region);
@@ -21,11 +22,20 @@ public class CloudTools {
         transferUtility = new TransferUtility(amazonS3Client, context);
     }
 
-    public AmazonS3Client getAmazonS3Client(){
+    private static void initInstance(Context context) {
+        if (instance == null) {
+            // Create the instance
+            instance = new CloudTools(context);
+        }
+    }
+
+    public static AmazonS3Client getAmazonS3Client(Context context){
+        initInstance(context);
         return amazonS3Client;
     }
 
-    public TransferUtility getTransferUtility(){
+    public static TransferUtility getTransferUtility(Context context){
+        initInstance(context);
         return transferUtility;
     }
 }

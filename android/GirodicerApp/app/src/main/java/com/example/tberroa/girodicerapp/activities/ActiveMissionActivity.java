@@ -18,7 +18,11 @@ import com.example.tberroa.girodicerapp.data.Params;
 public class ActiveMissionActivity extends BaseActivity {
 
     private BroadcastReceiver broadcastReceiver;
-
+    private TextView noActiveMissionText;
+    private TextView activeMissionText;
+    private TextView transferPhaseText;
+    private TextView uploadPhaseText;
+    private ProgressBar loadingSpinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,37 +34,44 @@ public class ActiveMissionActivity extends BaseActivity {
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Current Mission");
+        toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
-        // initialize views and loading spinner
-        final TextView noActiveMissionText = (TextView) findViewById(R.id.no_active_mission_text);
-        final TextView activeMissionText = (TextView) findViewById(R.id.active_mission_text);
-        final TextView transferPhaseText = (TextView) findViewById(R.id.transfer_phase_text);
-        final TextView uploadPhaseText = (TextView) findViewById(R.id.upload_phase_text);
-        final ProgressBar loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
+        // initialize view elements
+        noActiveMissionText = (TextView) findViewById(R.id.no_active_mission_text);
+        activeMissionText = (TextView) findViewById(R.id.active_mission_text);
+        transferPhaseText = (TextView) findViewById(R.id.transfer_phase_text);
+        uploadPhaseText = (TextView) findViewById(R.id.upload_phase_text);
+        loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
+
+        // populate view according to mission phase
+        int missionPhase = activeMissionInfo.getMissionPhase(this);
+        PopulateView(missionPhase);
+
+        // set up receiver to update activity as necessary
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Params.RELOAD_AM_ACTIVITY);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // update view according to mission phase
+                int phase = activeMissionInfo.getMissionPhase(ActiveMissionActivity.this);
+                PopulateView(phase);
+            }
+        };
+        registerReceiver(broadcastReceiver, filter);
+    }
+
+    private void PopulateView(int missionPhase){
         noActiveMissionText.setVisibility(View.GONE);
         activeMissionText.setVisibility(View.GONE);
         transferPhaseText.setVisibility(View.GONE);
         uploadPhaseText.setVisibility(View.GONE);
         loadingSpinner.setVisibility(View.GONE);
-
-        // set up receiver to reload activity as services complete
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Params.RELOAD_ACTIVE_MISSION_ACTIVITY);
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                startActivity(getIntent());
-                finish();
-            }
-        };
-        registerReceiver(broadcastReceiver, filter);
-
-        // populate view according to mission phase
-        int missionPhase = activeMissionInfo.getMissionPhase(this);
         switch (missionPhase) {
             case 0:
                 noActiveMissionText.setVisibility(View.VISIBLE);
+
                 break;
             case 1:
                 activeMissionText.setVisibility(View.VISIBLE);
@@ -80,6 +91,7 @@ public class ActiveMissionActivity extends BaseActivity {
             default:
                 break;
         }
+
     }
 
     // populate the navigation

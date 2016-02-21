@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
 import com.example.tberroa.girodicerapp.services.DroneService;
 
 public class ConfirmEndMissionDialog extends AlertDialog {
@@ -27,7 +26,6 @@ public class ConfirmEndMissionDialog extends AlertDialog {
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener(){
             public void onClick(DialogInterface dialog, int id) {
                 context.stopService(new Intent(context, DroneService.class));
-                context.startActivity(new Intent(context, ActiveMissionActivity.class));
             }
         });
     }

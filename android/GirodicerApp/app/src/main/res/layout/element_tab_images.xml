@@ -11,5 +11,4 @@
         android:src="@mipmap/ic_launcher"
         android:contentDescription="@string/image"
         />
-
 </LinearLayout>

@@ -1,6 +1,5 @@
 package com.example.tberroa.girodicerapp.activities;
 
-
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
@@ -8,6 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.MissionPagerAdapter;
@@ -40,15 +40,17 @@ public class MissionActivity extends BaseActivity {
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Mission " + Integer.toString(missionNumber));
+        toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
         // set tab layout
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
         tabLayout.addTab(tabLayout.newTab().setText(Params.AERIAL_TAB));
         tabLayout.addTab(tabLayout.newTab().setText(Params.THERMAL_TAB));
         tabLayout.addTab(tabLayout.newTab().setText(Params.ICEDAM_TAB));
         tabLayout.addTab(tabLayout.newTab().setText(Params.SALT_TAB));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        tabLayout.setVisibility(View.VISIBLE);
 
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
