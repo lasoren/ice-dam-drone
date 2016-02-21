@@ -149,6 +149,5 @@ class ClientsGet(APIView):
         clients = []
         for client_provision in client_provisions:
             clients.append(client_provision.client)
-
-        return Response(ClientSerializer(clients, many=True).data,
-            status=status.HTTP_200_OK)
+        response["clients"] = ClientSerializer(clients, many=True).data
+        return Response(response, status=status.HTTP_200_OK)
