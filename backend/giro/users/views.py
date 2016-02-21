@@ -1,6 +1,10 @@
 from giro import exceptions
 from users.serializers import DroneOperatorSerializer
+from users.serializers import ClientSerializer
+from users.serializers import UserSerializer
 from users.models import DroneOperator
+from users.models import Client
+from users.models import User
 from users.models import EMAIL_CONFIRMED
 import users.utils as users_utils
 
@@ -75,4 +79,36 @@ class SigninDroneOperator(APIView):
         raise exceptions.PasswordInvalid(
             'Password is incorrect for this account.')
 
+
+class ClientCreate(APIView):
+    """
+    Endpoint for a drone operator to create a client.
+    """
+    def post(self, request, format=None):
+        request_data = request.data
+        client_data = request_data["client"]
+        try:
+            client = Client.objects.get(user__email=client_data["user"]["email"])
+            user_serializer = UserSerializer(client.user, data=client_data["user"])
+        except Client.DoesNotExist:
+            client = None
+            user_serializer = UserSerializer(data=client_data["user"])
+        # Update information for user.
+        if user_serializer.is_valid():
+            user_serializer.save()
+        else: 
+            return Response(user_serializer.errors)
+        del client_data["user"]
+        client_data["user_id"] = user_serializer.instance.id
+        # Update information for client.
+        if client:
+            serializer = ClientSerializer(client, data=client_data)
+        else:
+            serializer = ClientSerializer(data=client_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                status=status.HTTP_201_CREATED)
+        return Response(serializer.errors)
 

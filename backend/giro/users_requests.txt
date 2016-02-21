@@ -67,3 +67,36 @@ Sample Error Response:
     "detail": "Password is incorrect for this account."
 }
 
+// ------------------------------------------------------
+// CREATE A CLIENT
+
+url POST: /users/client/create
+
+Request:
+{
+    "user_id": 8,
+    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
+    "client": {
+        "user": {
+            "first_name": "Michael",
+            "last_name": "Sorenson",
+            "email": "msoren@bu.edu"
+        },
+        "address": "14 Barnesdale Rd. Natick, MA 01760"
+    }
+}
+
+Response:
+{
+    "created": "2016-02-19T22:39:10.953431Z",
+    "user": {
+        "id": 10,
+        "created": "2016-02-19T22:39:10.950055Z",
+        "first_name": "Michael",
+        "last_name": "Sorenson",
+        "email": "msoren@bu.edu"
+    },
+    "address": "14 Barnesdale Rd. Natick, MA 01760",
+    "deleted": null
+}
+

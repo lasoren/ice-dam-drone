@@ -1,6 +1,7 @@
 from users.models import User, DroneOperator, Client
 from rest_framework import serializers
 
+import logging
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -43,12 +44,15 @@ class ClientSerializer(serializers.ModelSerializer):
     """
     Serializes JSON input and output for a client of the drone.
     """
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Client
         fields = (
             'created',
             'user',
+            'user_id',
             'address',
             'deleted',)
+

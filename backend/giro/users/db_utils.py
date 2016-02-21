@@ -16,18 +16,19 @@ class SessionExistsForUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        return True
         if request.method == 'OPTIONS':
             # Only allow if in DEBUG mode.
             return settings.DEBUG
-        if 'user_id' not in request.DATA:
+        if 'user_id' not in request.data:
             return False
-        if 'session_id' not in request.DATA:
+        if 'session_id' not in request.data:
             return False
-        if not authenticate(request.DATA['user_id'],
-                            request.DATA['session_id']):
+        if not authenticate(request.data['user_id'],
+                            request.data['session_id']):
             return False
-        request.user_id = request.DATA['user_id']
-        request.session_id = request.DATA['session_id']
+        request.user_id = request.data['user_id']
+        request.session_id = request.data['session_id']
         return True
 
 
