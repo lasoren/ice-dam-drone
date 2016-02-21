@@ -108,7 +108,8 @@ url POST: /users/clients/get
 Request:
 {
     "user_id": 8,
-    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546"
+    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
+    "provision": 1
 }
 
 Response:

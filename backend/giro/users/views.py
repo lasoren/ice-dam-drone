@@ -5,6 +5,7 @@ from users.serializers import UserSerializer
 from users.models import DroneOperator
 from users.models import Client
 from users.models import User
+from users.models import ClientProvision
 from users.models import EMAIL_CONFIRMED
 import users.utils as users_utils
 import db_utils as users_db_utils
@@ -121,4 +122,29 @@ class ClientsGet(APIView):
     """
     Get my past clients, as a operator, sorted by creation date.
     """
+    if "provision" not in request.data:
+        raise exceptions.RequiredFieldMissing(
+            'provision missing.')
+    try:
+        next_provision = ClientProvision.objects.latest('id').id + 1
+    except MatchProvision.DoesNotExist:
+        next_provision = 0
+    response = {'provision': next_provision}
 
+    ClientProvision.objects.filter(
+        id__gt=request.data["provision"]
+    ).select_related(
+        'client',
+        'client__inspection__drone_operator__user',
+    ).filter(
+        client__operator__drone_operator__user__pk=request.data["user_id"]
+    ).order_by(  # Order by the clients that have been updated recently.
+        '-created'
+    ).distinct()
+
+    clients = []
+    for client_provision in client_provisions:
+        clients.append(client_provision.client)
+
+    return Response(ClientSerializer(clients, many=True).data,
+        status=status.HTTP_200_OK)

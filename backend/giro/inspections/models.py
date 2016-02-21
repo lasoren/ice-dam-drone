@@ -42,7 +42,8 @@ class Inspection(models.Model):
     # Automatically added with new row.
     created = models.DateTimeField(auto_now_add=True)
     # The operator who initiated the inspection.
-    drone_operator = models.ForeignKey(DroneOperator)
+    drone_operator = models.ForeignKey(DroneOperator,
+        related_name="drone_operator")
     # The client who is recieving home inspection.
     client = models.ForeignKey(Client)
     # If set, the inspection was not performed for some reason or
