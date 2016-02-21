@@ -99,8 +99,8 @@
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="aws-android-sdk-s3-2.2.11" level="project" />
     <orderEntry type="library" exported="" name="okio-1.6.0" level="project" />
-    <orderEntry type="library" exported="" name="aws-android-sdk-cognito-2.2.11" level="project" />
     <orderEntry type="library" exported="" name="okhttp-3.0.1" level="project" />
+    <orderEntry type="library" exported="" name="aws-android-sdk-cognito-2.2.11" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.3.3" level="project" />
     <orderEntry type="library" exported="" name="aws-android-sdk-core-2.2.11" level="project" />
     <orderEntry type="library" exported="" name="gson-2.4" level="project" />

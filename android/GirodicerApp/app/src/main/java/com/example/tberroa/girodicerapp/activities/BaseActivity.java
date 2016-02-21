@@ -1,10 +1,17 @@
 package com.example.tberroa.girodicerapp.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.MenuItem;
 
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndMissionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
@@ -17,21 +24,90 @@ public class BaseActivity extends AppCompatActivity {
 
     final UserInfo userInfo = new UserInfo();
     final ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
-    final PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+    private final PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
+    private RelativeLayout fetchingData;
+    private BroadcastReceiver broadcastReceiver;
     String username;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_base);
+    protected void onStart(){
+        super.onStart();
 
-        if (!userInfo.isLoggedIn(this)){ // if user is not logged in, boot them
+        // if user is not logged in, boot them
+        if (!userInfo.isLoggedIn(this)){
             // clear username
             userInfo.setUsername(this, "");
             // go back to login page
             startActivity(new Intent(BaseActivity.this, LoginActivity.class));
             finish();
         }
+
+        // set notifications if necessary
+        TextView missionPhase = (TextView) findViewById(R.id.mission_phase_text);
+        fetchingData = (RelativeLayout) findViewById(R.id.fetching_text);
+        if (activeMissionInfo.getMissionPhase(this) != 0){
+            int phase = activeMissionInfo.getMissionPhase(this);
+            switch(phase){
+                case 1:
+                    missionPhase.setText(R.string.phase_1);
+                    break;
+                case 2:
+                    missionPhase.setText(R.string.phase_2);
+                    break;
+                case 3:
+                    missionPhase.setText(R.string.phase_3);
+                    break;
+            }
+            missionPhase.setVisibility(View.VISIBLE);
+        }
+        if (previousMissionsInfo.isFetching(this)){
+            fetchingData.setVisibility(View.VISIBLE);
+        }
+
+        // set up receiver to handle updating notifications
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Params.TRANSFER_STARTED);
+        filter.addAction(Params.UPLOAD_STARTED);
+        filter.addAction(Params.FETCHING_STARTED);
+        filter.addAction(Params.FETCHING_COMPLETE);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                switch(action) {
+                    case Params.TRANSFER_STARTED:
+                        finish();
+                        startActivity(getIntent());
+                        break;
+                    case Params.UPLOAD_STARTED:
+                        finish();
+                        startActivity(getIntent());
+                        break;
+                    case Params.FETCHING_STARTED:
+                        finish();
+                        startActivity(getIntent());
+                    case Params.FETCHING_COMPLETE:
+                        // check which activity is currently in view
+                        String currentActivity = context.getClass().getSimpleName();
+                        String pMActivity = "PreviousMissionsActivity";
+                        if (currentActivity.equals(pMActivity)){
+                            finish();
+                            startActivity(getIntent());
+                        }
+                        else{
+                            fetchingData.setVisibility(View.GONE);
+                        }
+
+                }
+            }
+        };
+        registerReceiver(broadcastReceiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(broadcastReceiver);
     }
 
     // implement navigation functions
@@ -51,10 +127,6 @@ public class BaseActivity extends AppCompatActivity {
                             new ConfirmEndMissionDialog(this).getDialog().show();
                             break;
                         case 2:
-                            message = getResources().getString(R.string.transfer_phase_text);
-                            new MessageDialog(this, message).getDialog().show();
-                            break;
-                        case 5:
                             message = getResources().getString(R.string.transfer_phase_text);
                             new MessageDialog(this, message).getDialog().show();
                             break;

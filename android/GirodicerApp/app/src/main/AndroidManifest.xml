@@ -20,12 +20,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -46,7 +46,7 @@
             android:name=".services.ImageTransferIntentService"
             android:exported="false" />
         <service
-            android:name=".services.ImageUploadIntentService"
+            android:name=".services.ImageUploadService"
             android:exported="false" />
         <service
             android:name=".services.FetchPMIntentService"
@@ -55,21 +55,20 @@
         <receiver
             android:name=".receivers.ActiveMissionReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
-                <action android:name="DRONE_READY" />
+                <action android:name="DRONE_DONE" />
             </intent-filter>
             <intent-filter>
-                <action
-                    android:name="TRANSFER_COMPLETE" />
+                <action android:name="TRANSFER_COMPLETE" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
             </intent-filter>
             <intent-filter>
-                <action
-                    android:name="UPLOAD_COMPLETE" />
+                <action android:name="UPLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
     </application>
+
 </manifest>

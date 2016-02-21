@@ -10,6 +10,10 @@
     <string name="previous_missions">Previous Missions</string>
     <string name="logout">Logout</string>
     <!-- active mission activity -->
+    <string name="mission_phase_text">Mission Phase: X</string>
+    <string name="phase_1">Mission Phase: 1, drone is active</string>
+    <string name="phase_2">Mission Phase: 2, receiving data from drone</string>
+    <string name="phase_3">Mission Phase: 3, uploading data to cloud</string>
     <string name="no_active_mission_text">There is currently no active mission.</string>
     <string name="active_mission_text">
         Please keep your eyes on the drone as it is currently performing a mission.</string>
@@ -44,7 +48,9 @@
     <string name="download_description">in process of receiving images from drone</string>
 
     <!-- dialogs -->
-    <string name="cannot_logout">Cannot logout until active mission is terminated.</string>
+    <string name="cannot_logout">
+        Cannot logout until active mission is terminated and post mission data processing completes.
+    </string>
     <string name="confirm_end_mission">Are you sure you want to end the current mission?</string>
     <string name="no_active_mission">There is no active mission to end.</string>
     <string name="mission_in_progress">A mission is already in progress.</string>

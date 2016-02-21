@@ -33,6 +33,11 @@ public class ImageTransferIntentService extends IntentService {
         ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
         activeMissionInfo.setMissionPhase(this, 2);
 
+        // broadcast that transfer phase has begun
+        Intent transferStarted = new Intent();
+        transferStarted.setAction(Params.TRANSFER_STARTED);
+        sendBroadcast(transferStarted);
+
         // grab username and mission number
         String username = new UserInfo().getUsername(this);
         int missionNumber = activeMissionInfo.getMissionNumber(this);
@@ -49,8 +54,8 @@ public class ImageTransferIntentService extends IntentService {
 
         // download and save one image at a time
         long lastDownload = 0;
-        for (String type: imageType) {
-            for (String num: imageNumber) {
+        for (String type: imageType) { // loop 4 times, once per image type
+            for (String num: imageNumber) { // loop 5 times (up to 5 images per type for test)
                 // name of image file
                 String imageName = type+num+".jpg";
 
@@ -85,9 +90,9 @@ public class ImageTransferIntentService extends IntentService {
                     // enqueue a new download
                     lastDownload = dM.enqueue(request);
                 }
-
                 // log the image count (always 5 in this test set up)
                 switch (type) {
+
                     case "aerial":
                         numberOfAerials++;
                         break;
@@ -104,28 +109,23 @@ public class ImageTransferIntentService extends IntentService {
                         break;
                 }
             }
-
             // save id of last download
             activeMissionInfo.setLastDownload(this, lastDownload);
-
-            // enter special phase 5, waiting for downloads to finish
-            activeMissionInfo.setMissionPhase(this, 5);
-
-            // save the mission data
-            Bundle bundle = new Bundle();
-            bundle.putInt("number_of_aerials", numberOfAerials);
-            bundle.putInt("number_of_thermals", numberOfThermals);
-            bundle.putInt("number_of_icedams", numberOfIceDams);
-            bundle.putInt("number_of_salts", numberOfSalts);
-            Mission missionData = new Mission(bundle);
-
-            // save the mission as JSON
-            Type singleMission = new TypeToken<Mission>(){}.getType();
-            String json = new Gson().toJson(missionData, singleMission);
-            activeMissionInfo.setMissionData(this, json);
-
-            // broadcast that the transfer is complete
-            sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
         }
+        // save the mission data
+        Bundle bundle = new Bundle();
+        bundle.putInt("number_of_aerials", numberOfAerials);
+        bundle.putInt("number_of_thermals", numberOfThermals);
+        bundle.putInt("number_of_icedams", numberOfIceDams);
+        bundle.putInt("number_of_salts", numberOfSalts);
+        Mission missionData = new Mission(bundle);
+
+        // save the mission as JSON
+        Type singleMission = new TypeToken<Mission>(){}.getType();
+        String json = new Gson().toJson(missionData, singleMission);
+        activeMissionInfo.setMissionData(this, json);
+
+        // broadcast that the transfer is complete
+        sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
     }
 }

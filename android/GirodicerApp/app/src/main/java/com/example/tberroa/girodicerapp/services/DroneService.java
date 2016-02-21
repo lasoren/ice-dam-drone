@@ -22,13 +22,17 @@ public class DroneService extends Service {
         // set mission number
         int missionNumber = new PreviousMissionsInfo().getNumOfMissions(this)+1;
         activeMissionInfo.setMissionNumber(this, missionNumber);
+
+        // broadcast that a new mission has started
+        Intent missionStarted = new Intent();
+        missionStarted.setAction(Params.MISSION_STARTED);
+        sendBroadcast(missionStarted);
     }
 
     @Override
     public void onDestroy() {
-        // drone is done and ready for transfer, phase=2
-        new ActiveMissionInfo().setMissionPhase(this, 2);
-        sendBroadcast(new Intent().setAction(Params.DRONE_READY));
+        // drone is done and ready for transfer
+        sendBroadcast(new Intent().setAction(Params.DRONE_DONE));
     }
 
     @Override
