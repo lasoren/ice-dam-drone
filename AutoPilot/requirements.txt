@@ -1,0 +1,12 @@
+PyBluez==0.22
+argparse==1.2.1
+cffi==1.5.0
+dronekit==2.0.2
+dronekit-sitl==3.0.1
+psutil==3.4.2
+pycparser==2.14
+pymavlink==1.1.69
+requests==2.9.1
+smbus-cffi==0.5.1
+utm==0.4.0
+wsgiref==0.1.2

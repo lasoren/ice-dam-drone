@@ -1,5 +1,5 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import time, math
+import time, math, threading
 
 class Girodicer():
 
@@ -71,6 +71,9 @@ class Girodicer():
             0, 0)    # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
         # send command to vehicle
         self.vehicle.send_mavlink(msg)
+
+    def get_status(self):
+        return (self.vehicle.location.global_frame, self.vehicle.velocity, self.vehicle.system_status, self.vehicle.is_armable)
 
     def __get_location_metres(original_location, dNorth, dEast):
         """
