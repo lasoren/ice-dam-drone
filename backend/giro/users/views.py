@@ -7,6 +7,7 @@ from users.models import Client
 from users.models import User
 from users.models import EMAIL_CONFIRMED
 import users.utils as users_utils
+import db_utils as users_db_utils
 
 from django.contrib.auth import hashers
 from rest_framework.views import APIView
@@ -108,7 +109,16 @@ class ClientCreate(APIView):
 
         if serializer.is_valid():
             serializer.save()
+            # Add this client to the provision table.
+            users_db_utils.add_to_client_provision(
+                serializer.instance.id)
             return Response(serializer.data,
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
+
+
+class ClientsGet(APIView):
+    """
+    Get my past clients, as a operator, sorted by creation date.
+    """
 

@@ -69,3 +69,13 @@ class Client(models.Model):
     # When set to something other than null, this row has been
     # deleted and no longer returned to operator.
     deleted = models.DateTimeField(blank=True, null=True)
+
+
+class ClientProvision(models.Model):
+    """
+    Keeps track of when a client was last updated so that the
+    app doesn't update information it already has.
+    """
+    timestamp = models.DateTimeField(auto_now_add=True)
+    # The client that was updated in some way.
+    client = models.ForeignKey(Client)

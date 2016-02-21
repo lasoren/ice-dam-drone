@@ -1,7 +1,9 @@
 from django.conf import settings
 from rest_framework import permissions
 from users.models import DroneOperator
+from users.models import ClientProvision
 
+from django.db import transaction
 import logging
 
 
@@ -46,3 +48,13 @@ def authenticate(user_id, session_id):
         logging.debug(
             "Session not found for user id: " + str(user_id))
         return False
+
+
+@transaction.atomic()
+def add_to_client_provision(client_id):
+    """
+    Adds a row to the client provision, and deletes old rows
+    """
+    ClientProvision.objects.filter(client_id=client_id).delete()
+    provision = ClientProvision.objects.create(client_id=client_id)
+    provision.save()
