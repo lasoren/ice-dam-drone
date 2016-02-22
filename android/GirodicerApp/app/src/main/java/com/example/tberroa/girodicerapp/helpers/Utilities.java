@@ -15,10 +15,10 @@ import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.services.DroneService;
-import com.example.tberroa.girodicerapp.services.ImageUploadIntentService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
 import java.util.ArrayList;
 
 final public class Utilities {
@@ -82,10 +82,6 @@ final public class Utilities {
         return getScreenWidth(context)/(getSpanGrid(context)*12);
     }
 
-    public static void startImageUploadService(Context context){
-        context.startService(new Intent(context, ImageUploadIntentService.class));
-    }
-
     public static ArrayList<Mission> getMissions(Context context){
         String jsonMissions = new PreviousMissionsInfo().getMissions(context);
         return new Gson().fromJson(jsonMissions, new TypeToken<ArrayList<Mission>>(){}.getType());
@@ -93,6 +89,19 @@ final public class Utilities {
 
     public static String ConstructImageURL(String username, int missionNumber, String imageName){
         return Params.CLOUD_URL +username+"/mission"+missionNumber+"/images/"+imageName;
+    }
+
+
+    public static void DeleteDirectory(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            for (File child : fileOrDirectory.listFiles()) {
+                DeleteDirectory(child);
+            }
+        }
+        boolean success = false;
+        while(!success){
+            success = fileOrDirectory.delete();
+        }
     }
 
     public static String ConstructImageKey(String username, int missionNumber, String imageName){

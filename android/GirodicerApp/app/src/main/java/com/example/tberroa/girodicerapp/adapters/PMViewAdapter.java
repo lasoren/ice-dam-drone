@@ -66,20 +66,25 @@ public class PMViewAdapter extends RecyclerView.Adapter<PMViewAdapter.MissionVie
 
     @Override
     public int getItemCount() {
-        return missions.size();
+        if (missions != null){
+            return missions.size();
+        }
+        else{
+            return 0;
+        }
     }
 
     @Override
     public MissionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         Context c = viewGroup.getContext();
-        View v = LayoutInflater.from(c).inflate(R.layout.mission_thumbnails, viewGroup, false);
+        View v = LayoutInflater.from(c).inflate(R.layout.element_mission_thumbnails, viewGroup, false);
         return new MissionViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(MissionViewHolder allMissionsVH, int i) {
 
-        // set toolbar text
+        // set element_toolbar text
         String title = "Mission " + Integer.toString(i + 1);
         allMissionsVH.missionNumber.setText(title);
 

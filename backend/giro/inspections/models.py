@@ -44,7 +44,7 @@ class Inspection(models.Model):
     # The operator who initiated the inspection.
     drone_operator = models.ForeignKey(DroneOperator)
     # The client who is recieving home inspection.
-    client = models.ForeignKey(Client)
+    client = models.ForeignKey(Client, related_name="inspection_client")
     # If set, the inspection was not performed for some reason or
     # another.
     deleted = models.DateTimeField(blank=True, null=True)
@@ -68,7 +68,7 @@ class InspectionImage(models.Model):
     image_type = models.IntegerField(
         choices=IMAGE_TYPES, default=NOT_SPECIFIED)
     # The location of the image in bucket store on AWS.
-    link = models.UrlField()
+    link = models.URLField()
     # If set, the image was deleted for being poor quality, not
     # relevant, etc.
     deleted = models.DateTimeField(blank=True, null=True)

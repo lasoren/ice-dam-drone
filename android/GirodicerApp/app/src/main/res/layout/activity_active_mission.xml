@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.tberroa.girodicerapp.activities.ActiveMissionActivity" >
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"
-        android:background="@color/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    <include layout="@layout/header"
+        android:id="@+id/header"/>
+
+    <TextView
+        android:id="@+id/active_mission_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_below="@id/header"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="@string/active_mission_text"
+        android:textSize="24sp"
+        android:visibility="visible"
         />
 
     <TextView
@@ -25,21 +34,6 @@
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="@string/no_active_mission_text"
-        android:textSize="24sp"
-        android:visibility="visible"
-        />
-
-    <TextView
-        android:id="@+id/active_mission_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_below="@+id/toolbar"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
-        android:text="@string/active_mission_text"
         android:textSize="24sp"
         android:visibility="visible"
         />
@@ -60,7 +54,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_below="@+id/loading_spinner"
+        android:layout_below="@id/loading_spinner"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="@string/transfer_phase_text"
@@ -75,7 +69,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_below="@+id/loading_spinner"
+        android:layout_below="@id/loading_spinner"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="@string/upload_phase_text"

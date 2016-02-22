@@ -1,8 +1,14 @@
 from giro import exceptions
 from users.serializers import DroneOperatorSerializer
+from users.serializers import ClientSerializer
+from users.serializers import UserSerializer
 from users.models import DroneOperator
+from users.models import Client
+from users.models import User
+from users.models import ClientProvision
 from users.models import EMAIL_CONFIRMED
 import users.utils as users_utils
+import db_utils as users_db_utils
 
 from django.contrib.auth import hashers
 from rest_framework.views import APIView
@@ -76,3 +82,72 @@ class SigninDroneOperator(APIView):
             'Password is incorrect for this account.')
 
 
+class ClientCreate(APIView):
+    """
+    Endpoint for a drone operator to create a client.
+    """
+    def post(self, request, format=None):
+        request_data = request.data
+        client_data = request_data["client"]
+        try:
+            client = Client.objects.get(user__email=client_data["user"]["email"])
+            user_serializer = UserSerializer(client.user, data=client_data["user"])
+        except Client.DoesNotExist:
+            client = None
+            user_serializer = UserSerializer(data=client_data["user"])
+        # Update information for user.
+        if user_serializer.is_valid():
+            user_serializer.save()
+        else: 
+            return Response(user_serializer.errors)
+        del client_data["user"]
+        client_data["user_id"] = user_serializer.instance.id
+        # Update information for client.
+        if client:
+            serializer = ClientSerializer(client, data=client_data)
+        else:
+            serializer = ClientSerializer(data=client_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            # Add this client to the provision table.
+            users_db_utils.add_to_client_provision(
+                serializer.instance.id)
+            return Response(serializer.data,
+                status=status.HTTP_201_CREATED)
+        return Response(serializer.errors)
+
+
+class ClientsGet(APIView):
+    """
+    Get my past clients, as a operator, sorted by creation date.
+    """
+    def post(self, request, format=None):
+        if "provision" not in request.data:
+            raise exceptions.RequiredFieldMissing(
+                'Provision field missing.')
+        try:
+            next_provision = ClientProvision.objects.latest('id').id + 1
+        except MatchProvision.DoesNotExist:
+            next_provision = 0
+        response = {'provision': next_provision}
+
+        client_provisions = ClientProvision.objects.filter(
+            id__gt=request.data["provision"]
+        ).select_related(
+            'client'
+        ).prefetch_related(
+            'client__inspection_client__drone_operator__user'
+        ).select_related(
+            'client__user'
+        ).filter(
+            client__inspection_client__drone_operator__user__pk=request.data["user_id"]
+        ).order_by(  # Order by the clients that have been updated recently.
+            '-timestamp'
+        ).distinct()
+
+        clients = []
+        for client_provision in client_provisions:
+            clients.append(client_provision.client)
+        response["clients"] = ClientSerializer(clients, many=True).data
+        return Response(response, status=status.HTTP_200_OK)

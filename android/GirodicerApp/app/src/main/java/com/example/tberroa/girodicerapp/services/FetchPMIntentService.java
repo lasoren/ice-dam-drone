@@ -29,25 +29,30 @@ public class FetchPMIntentService extends IntentService {
         PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
         previousMissionsInfo.setFetching(this, true);
 
-        // grab username and initialize number of missions to 1
+        // broadcast that fetching has begun
+        Intent fetchingStarted = new Intent();
+        fetchingStarted.setAction(Params.FETCHING_STARTED);
+        sendBroadcast(fetchingStarted);
+
+        // grab username
         String username = new UserInfo().getUsername(this);
-        int numberOfMissions;
 
         // initialize the client
-        AmazonS3 s3Client = new CloudTools(this).getAmazonS3Client();
+        AmazonS3 s3Client = CloudTools.getAmazonS3Client(this);
 
         // get number of missions
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
         listObjectsRequest.withBucketName(Params.CLOUD_BUCKET_NAME);
         listObjectsRequest.withPrefix(username + "/");
         listObjectsRequest.withDelimiter("/");
-        numberOfMissions= s3Client.listObjects(listObjectsRequest).getCommonPrefixes().size();
+        int numberOfMissions= s3Client.listObjects(listObjectsRequest).getCommonPrefixes().size();
 
         // create array of missions
         ArrayList<Mission> missions = new ArrayList<>(numberOfMissions);
 
         // get number of images for all missions
         for (int i=1; i <= numberOfMissions; i++ ){
+
             int numberOfAerials, numberOfThermals, numberOfIceDams, numberOfSalts;
             String x = Integer.toString(i);
             String prefixAerial = username+"/mission"+x+"/images/aerial";

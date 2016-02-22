@@ -3,6 +3,9 @@ package com.example.tberroa.girodicerapp.data;
 
 public class Params {
 
+    private Params(){
+    }
+
     // parameters related to device storage
     final public static String HOME_FOLDER = "/Girodicer/";
 
@@ -10,11 +13,16 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/x-www-form-urlencoded; charset=utf-8";
 
     // broadcast parameters
-    final public static String DRONE_READY = "DRONE_READY";
+    final public static String MISSION_STARTED = "MISSION_STARTED";
+    final public static String DRONE_DONE = "DRONE_DONE";
+    final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
     final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
+    final public static String UPLOAD_STARTED = "UPLOAD_STARTED";
     final public static String UPLOAD_COMPLETE = "UPLOAD_COMPLETE";
-    final public static String RELOAD_ACTIVE_MISSION_ACTIVITY = "RELOAD_ACTIVE_MISSION_ACTIVITY";
+    final public static String RELOAD_AM_ACTIVITY = "RELOAD_AM_ACTIVITY";
+    final public static String FETCHING_STARTED = "FETCHING_STARTED";
     final public static String FETCHING_COMPLETE = "FETCHING_COMPLETE";
+
 
     // UI parameters
     final public static String AERIAL_TAB = "aerial";
@@ -32,9 +40,6 @@ public class Params {
     final public static String REGISTER_URL = "http://girodicer.altervista.org/register.php";
     final public static String LOGIN_SUCCESS = "success";
     final public static String REGISTER_SUCCESS = "account successfully created";
-
-    private Params(){
-    }
 }
 
 

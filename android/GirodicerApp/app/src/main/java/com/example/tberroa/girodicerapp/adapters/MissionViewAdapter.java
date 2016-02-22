@@ -44,7 +44,7 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
     @Override
     public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         Context c = viewGroup.getContext();
-        View mission = LayoutInflater.from(c).inflate(R.layout.tab_images, viewGroup, false);
+        View mission = LayoutInflater.from(c).inflate(R.layout.element_tab_images, viewGroup, false);
         return new ImageViewHolder(mission);
     }
 

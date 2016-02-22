@@ -67,3 +67,81 @@ Sample Error Response:
     "detail": "Password is incorrect for this account."
 }
 
+// ------------------------------------------------------
+// CREATE A CLIENT
+
+url POST: /users/client/create
+
+Request:
+{
+    "user_id": 8,
+    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
+    "client": {
+        "user": {
+            "first_name": "Michael",
+            "last_name": "Sorenson",
+            "email": "msoren@bu.edu"
+        },
+        "address": "14 Barnesdale Rd. Natick, MA 01760"
+    }
+}
+
+Response:
+{
+    "id": 3,
+    "created": "2016-02-21T20:43:05.654558Z",
+    "user": {
+        "id": 19,
+        "created": "2016-02-21T20:43:05.647363Z",
+        "first_name": "Michael",
+        "last_name": "Sorenson",
+        "email": "msoren@bu.edu"
+    },
+    "address": "14 Barnesdale Rd. Natick, MA 01760",
+    "deleted": null
+}
+
+// ------------------------------------------------------
+// GET MY CLIENTS
+
+url POST: /users/clients/get
+
+Request:
+{
+    "user_id": 8,
+    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
+    "provision": 0
+}
+
+Response:  # Sorted with the most recently updated clients first.
+{
+    "clients": [
+        {
+            "id": 3,
+            "created": "2016-02-21T20:43:05.654558Z",
+            "user": {
+                "id": 19,
+                "created": "2016-02-21T20:43:05.647363Z",
+                "first_name": "Michael",
+                "last_name": "Sorenson",
+                "email": "msoren@bu.edu"
+            },
+            "address": "14 Barnesdale Rd. Natick, MA 01760",
+            "deleted": null
+        },
+        {
+            "id": 4,
+            "created": "2016-02-21T22:57:04.512474Z",
+            "user": {
+                "id": 21,
+                "created": "2016-02-21T22:57:04.507423Z",
+                "first_name": "Lisa",
+                "last_name": "Sorenson",
+                "email": "lsoren@bu.edu"
+            },
+            "address": "14 Barnesdale Rd. Natick, MA 01760",
+            "deleted": null
+        }
+    ],
+    "provision": 5
+}
