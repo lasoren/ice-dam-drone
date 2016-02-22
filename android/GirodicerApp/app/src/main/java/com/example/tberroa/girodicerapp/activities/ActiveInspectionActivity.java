@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
 
-public class ActiveMissionActivity extends BaseActivity {
+public class ActiveInspectionActivity extends BaseActivity {
 
     private BroadcastReceiver broadcastReceiver;
     private TextView noActiveMissionText;
@@ -26,10 +26,10 @@ public class ActiveMissionActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_active_mission);
+        setContentView(R.layout.activity_active_inspection);
 
-        // grab username
-        username = userInfo.getUsername(this);
+        // grab operatorName
+        operatorName = operatorInfo.getUsername(this);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -45,7 +45,7 @@ public class ActiveMissionActivity extends BaseActivity {
         loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
 
         // populate view according to mission phase
-        int missionPhase = activeMissionInfo.getMissionPhase(this);
+        int missionPhase = activeInspectionInfo.getMissionPhase(this);
         PopulateView(missionPhase);
 
         // set up receiver to update activity as necessary
@@ -55,7 +55,7 @@ public class ActiveMissionActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 // update view according to mission phase
-                int phase = activeMissionInfo.getMissionPhase(ActiveMissionActivity.this);
+                int phase = activeInspectionInfo.getMissionPhase(ActiveInspectionActivity.this);
                 PopulateView(phase);
             }
         };
@@ -99,7 +99,7 @@ public class ActiveMissionActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
         MenuItem item = menu.findItem(R.id.title);
-        item.setTitle("Logged in as: "+username);
+        item.setTitle("Logged in as: "+ operatorName);
         return true;
     }
 

@@ -6,19 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
 import com.example.tberroa.girodicerapp.services.ImageUploadService;
 
-public class ActiveMissionReceiver extends BroadcastReceiver {
-    public ActiveMissionReceiver() {
+public class ActiveInspectionReceiver extends BroadcastReceiver {
+    public ActiveInspectionReceiver() {
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String reload = Params.RELOAD_AM_ACTIVITY;
         String action = intent.getAction();
-        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
+        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
         switch(action){
             case Params.DRONE_DONE:
                 // begin image transfer
@@ -34,11 +34,11 @@ public class ActiveMissionReceiver extends BroadcastReceiver {
 
             case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
                 // get the id of the last download
-                long lastDownload = activeMissionInfo.getLastDownload(context);
+                long lastDownload = activeInspectionInfo.getLastDownload(context);
 
                 // get the id of the recently completed downloaded
                 long recentDownload = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-                int missionPhase = activeMissionInfo.getMissionPhase(context);
+                int missionPhase = activeInspectionInfo.getMissionPhase(context);
                 if (lastDownload==recentDownload && missionPhase==2) {
                     // start uploading
                     context.startService(new Intent(context, ImageUploadService.class));
@@ -50,7 +50,7 @@ public class ActiveMissionReceiver extends BroadcastReceiver {
 
             case Params.UPLOAD_COMPLETE:
                 // mission was just completed, phase=0, inactive
-                activeMissionInfo.setMissionPhase(context, 0);
+                activeInspectionInfo.setMissionPhase(context, 0);
 
                 // reload active mission activity
                 context.sendBroadcast(new Intent().setAction(reload));

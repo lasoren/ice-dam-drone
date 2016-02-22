@@ -10,7 +10,7 @@ public class Params {
     final public static String HOME_FOLDER = "/Girodicer/";
 
     // network parameters
-    final public static String POST_MEDIA_TYPE = "application/x-www-form-urlencoded; charset=utf-8";
+    final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcast parameters
     final public static String MISSION_STARTED = "MISSION_STARTED";
@@ -36,10 +36,10 @@ public class Params {
     final public static String CLOUD_BUCKET_NAME = "girodicer";
 
     // parameters connected to Altervista server
-    final public static String LOGIN_URL = "http://girodicer.altervista.org/login.php";
-    final public static String REGISTER_URL = "http://girodicer.altervista.org/register.php";
-    final public static String LOGIN_SUCCESS = "success";
-    final public static String REGISTER_SUCCESS = "account successfully created";
+    final public static String BASE_URL = "http://ec2-54-86-133-171.compute-1.amazonaws.com:8000/";
+    final public static String LOGIN_URL = BASE_URL + "users/signin.json";
+    final public static String REGISTER_URL = BASE_URL + "users/register.json";
+    final public static String POST_SUCCESS = "success";
 }
 
 

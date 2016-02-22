@@ -1,6 +1,9 @@
 package com.example.tberroa.girodicerapp.network;
 
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -18,10 +21,25 @@ public class HttpPost {
     public HttpPost(){
     }
 
-    public String doPostRequest(String url, String keyValuePairs) throws IOException {
-        RequestBody body = RequestBody.create(mediaType, keyValuePairs);
+    public String doPostRequest(String url, String jsonString) throws IOException {
+        RequestBody body = RequestBody.create(mediaType, jsonString);
         Request request = new Request.Builder().url(url).post(body).build();
         Response response = httpClient.newCall(request).execute();
-        return response.body().string().trim();
+        String rawResponse = response.body().string().trim();
+        JSONObject jsonObject;
+        try{
+            jsonObject = new JSONObject(rawResponse);
+            int code = jsonObject.optInt("code", 0);
+            if(code == 0){
+                return rawResponse;
+            }
+            else{
+                return jsonObject.optString("detail", "");
+            }
+        }catch (Exception e){
+            new ExceptionHandler().HandleException(e);
+        }
+        return "json error occurred";
     }
+
 }

@@ -5,23 +5,23 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 
 public class DroneService extends Service {
 
     @Override
     public void onCreate(){
         // mission is now in progress
-        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
-        activeMissionInfo.setMissionNotInProgress(this, false);
+        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
+        activeInspectionInfo.setMissionNotInProgress(this, false);
 
         // drone is active, phase=1
-        activeMissionInfo.setMissionPhase(this, 1);
+        activeInspectionInfo.setMissionPhase(this, 1);
 
         // set mission number
-        int missionNumber = new PreviousMissionsInfo().getNumOfMissions(this)+1;
-        activeMissionInfo.setMissionNumber(this, missionNumber);
+        int missionNumber = new PastInspectionsInfo().getNumOfMissions(this)+1;
+        activeInspectionInfo.setMissionNumber(this, missionNumber);
 
         // broadcast that a new mission has started
         Intent missionStarted = new Intent();

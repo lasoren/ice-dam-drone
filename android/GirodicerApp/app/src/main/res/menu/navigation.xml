@@ -10,31 +10,31 @@
     <item
         android:id="@+id/end_mission"
         android:icon="@drawable/end_mission"
-        android:title="@string/end_mission"
+        android:title="@string/end_inspection"
         app:showAsAction="ifRoom"
         />
 
     <item
         android:id="@+id/start_mission"
-        android:title="@string/start_mission"
+        android:title="@string/start_inspection"
         app:showAsAction="never"
         />
 
     <item
         android:id="@+id/current_mission"
-        android:title="@string/current_mission"
+        android:title="@string/current_inspection"
         app:showAsAction="never"
         />
 
     <item
         android:id="@+id/previous_missions"
-        android:title="@string/previous_missions"
+        android:title="@string/previous_inspections"
         app:showAsAction="never"
         />
 
     <item
         android:id="@+id/delete_previous_missions"
-        android:title="@string/delete_previous_missions"
+        android:title="@string/delete_previous_inspections"
         app:showAsAction="never"
         />
 

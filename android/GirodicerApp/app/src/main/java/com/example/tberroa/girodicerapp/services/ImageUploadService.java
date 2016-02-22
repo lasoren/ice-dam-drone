@@ -11,9 +11,9 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
-import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.CloudTools;
@@ -24,7 +24,7 @@ import java.io.File;
 
 public class ImageUploadService extends Service {
 
-    private final ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
+    private final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
     private String username;
     private final String imageType[] = {"aerial", "thermal", "icedam", "salt"};
     private Bundle numberOfImages;
@@ -34,7 +34,7 @@ public class ImageUploadService extends Service {
     @Override
     public void onCreate(){
         // mission in upload phase, phase=3
-        activeMissionInfo.setMissionPhase(this, 3);
+        activeInspectionInfo.setMissionPhase(this, 3);
 
         // broadcast that upload phase has begun
         Intent uploadStarted = new Intent();
@@ -42,9 +42,9 @@ public class ImageUploadService extends Service {
         sendBroadcast(uploadStarted);
 
         // grab data
-        username = new UserInfo().getUsername(ImageUploadService.this);
-        missionNumber = activeMissionInfo.getMissionNumber(ImageUploadService.this);
-        String json = activeMissionInfo.getMissionData(ImageUploadService.this);
+        username = new OperatorInfo().getUsername(ImageUploadService.this);
+        missionNumber = activeInspectionInfo.getMissionNumber(ImageUploadService.this);
+        String json = activeInspectionInfo.getMissionData(ImageUploadService.this);
         Mission missionData = new Gson().fromJson(json, new TypeToken<Mission>() {}.getType());
         int numberOfAerials = missionData.getNumberOfAerials();
         int numberOfThermals = missionData.getNumberOfThermals();
@@ -120,18 +120,18 @@ public class ImageUploadService extends Service {
     @Override
     public void onDestroy() {
         // mission is no longer in progress
-        activeMissionInfo.setMissionNotInProgress(this, true);
+        activeInspectionInfo.setMissionNotInProgress(this, true);
 
         // post mission processing just concluded, phase=0
-        activeMissionInfo.setMissionPhase(this, 0);
+        activeInspectionInfo.setMissionPhase(this, 0);
 
         // previous missions info is out of date
-        PreviousMissionsInfo previousMissionsInfo =  new PreviousMissionsInfo();
-        previousMissionsInfo.setUpToDate(this, false);
+        PastInspectionsInfo pastInspectionsInfo =  new PastInspectionsInfo();
+        pastInspectionsInfo.setUpToDate(this, false);
 
         // update previous missions info
-        if (!previousMissionsInfo.isFetching(this)){
-            startService(new Intent(this, FetchPMIntentService.class));
+        if (!pastInspectionsInfo.isFetching(this)){
+            startService(new Intent(this, FetchPIIntentService.class));
         }
 
         // broadcast that the upload is complete

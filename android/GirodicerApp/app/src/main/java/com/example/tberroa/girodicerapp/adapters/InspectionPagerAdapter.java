@@ -11,7 +11,7 @@ import com.example.tberroa.girodicerapp.fragments.TabIceDamFragment;
 import com.example.tberroa.girodicerapp.fragments.TabSaltFragment;
 import com.example.tberroa.girodicerapp.fragments.TabThermalFragment;
 
-public class MissionPagerAdapter extends FragmentStatePagerAdapter {
+public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 
     private final int numberOfTabs;
     private final int missionNumber;
@@ -21,7 +21,7 @@ public class MissionPagerAdapter extends FragmentStatePagerAdapter {
     private final int numberOfSalts;
     private final String username;
 
-    public MissionPagerAdapter(FragmentManager fm, int numOfT, int mNum, Mission m, String user) {
+    public InspectionPagerAdapter(FragmentManager fm, int numOfT, int mNum, Mission m, String user) {
         super(fm);
         numberOfTabs = numOfT;
         missionNumber = mNum;

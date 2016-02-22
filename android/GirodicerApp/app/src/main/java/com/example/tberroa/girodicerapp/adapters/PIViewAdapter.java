@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.activities.MissionActivity;
+import com.example.tberroa.girodicerapp.activities.InspectionActivity;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -20,13 +21,13 @@ import com.squareup.picasso.Picasso;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class PMViewAdapter extends RecyclerView.Adapter<PMViewAdapter.MissionViewHolder> {
+public class PIViewAdapter extends RecyclerView.Adapter<PIViewAdapter.MissionViewHolder> {
 
     private final Context context;
     private final ArrayList<Mission> missions;
     private final String username;
 
-    public PMViewAdapter(Context c, String username, ArrayList<Mission> missions) {
+    public PIViewAdapter(Context c, String username, ArrayList<Mission> missions) {
         context = c;
         this.missions = missions;
         this.username = username;
@@ -57,10 +58,13 @@ public class PMViewAdapter extends RecyclerView.Adapter<PMViewAdapter.MissionVie
             String jsonMission = new Gson().toJson(mission, singleMission);
 
             // start mission activity, send mission JSON and mission number
-            Intent missionIntent = new Intent(v.getContext(), MissionActivity.class);
+            Intent missionIntent = new Intent(v.getContext(), InspectionActivity.class);
             missionIntent.putExtra("mission", jsonMission);
             missionIntent.putExtra("mission_number", i + 1);
-            v.getContext().startActivity(missionIntent);
+            context.startActivity(missionIntent);
+            if(context instanceof Activity){
+                ((Activity)context).finish();
+            }
         }
     }
 

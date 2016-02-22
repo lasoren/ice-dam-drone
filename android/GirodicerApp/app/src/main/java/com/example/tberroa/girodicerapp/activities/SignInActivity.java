@@ -13,33 +13,41 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
+import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.services.FetchPMIntentService;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
+import com.example.tberroa.girodicerapp.services.FetchPIIntentService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-public class LoginActivity extends AppCompatActivity {
+import org.json.JSONObject;
 
-    private EditText username, password;
-    private final UserInfo userInfo = new UserInfo();
+import java.lang.reflect.Type;
+
+public class SignInActivity extends AppCompatActivity {
+
+    private EditText email, password;
+    private final OperatorInfo operatorInfo = new OperatorInfo();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_sign_in);
 
         // check if user is already logged in
-        if (userInfo.isLoggedIn(this)){ // if so, send them to the main screen
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        if (operatorInfo.isLoggedIn(this)){ // if so, send them to the main screen
+            startActivity(new Intent(SignInActivity.this, HomeActivity.class));
             finish();
         }
 
         // initialize text boxes for user to enter their information
-        username = (EditText)findViewById(R.id.username);
+        email = (EditText)findViewById(R.id.email);
         password = (EditText)findViewById(R.id.password);
 
         // allow user to submit form via keyboard
@@ -70,17 +78,17 @@ public class LoginActivity extends AppCompatActivity {
 
     private final OnClickListener registerButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            startActivity(new Intent(SignInActivity.this, RegisterActivity.class));
             finish();
         }
     };
 
     private void Login(){
-        String enteredUsername = username.getText().toString();
+        String enteredUsername = email.getText().toString();
         String enteredPassword = password.getText().toString();
 
         Bundle enteredInfo = new Bundle();
-        enteredInfo.putString("username", enteredUsername);
+        enteredInfo.putString("email", enteredUsername);
         enteredInfo.putString("password", enteredPassword);
 
         String response = Utilities.validate(enteredInfo);
@@ -88,11 +96,11 @@ public class LoginActivity extends AppCompatActivity {
             new AttemptLogin().execute();
         }
         else{
-            if (response.contains("username")){
-                username.setError(getResources().getString(R.string.username_format));
+            if (response.contains("email")){
+                email.setError(getResources().getString(R.string.enter_valid_email));
             }
             else{
-                username.setError(null);
+                email.setError(null);
             }
             if (response.contains("password")){
                 password.setError(getResources().getString(R.string.password_format));
@@ -105,50 +113,67 @@ public class LoginActivity extends AppCompatActivity {
 
     class AttemptLogin extends AsyncTask<Void, Void, Void> {
 
-        private String username, password, keyValuePairs, postResponse;
+        private String email, password, dataJSON, postResponse;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            username = LoginActivity.this.username.getText().toString();
-            password = LoginActivity.this.password.getText().toString();
-            keyValuePairs = "username="+username+"&password="+password;
+
+            email = SignInActivity.this.email.getText().toString();
+            password = SignInActivity.this.password.getText().toString();
+
+            JSONObject signinJson = new JSONObject();
+            try{
+                signinJson.put("email", email);
+                signinJson.put("password", password);
+            }catch (Exception e){
+                new ExceptionHandler().HandleException(e);
+            }
+
+            dataJSON = signinJson.toString();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try{
                 String url = Params.LOGIN_URL;
-                postResponse = new HttpPost().doPostRequest(url, keyValuePairs);
+                postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
-                e.printStackTrace();
+                new ExceptionHandler().HandleException(e);
+
             }
             return null;
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.equals(Params.LOGIN_SUCCESS)) {
-                // clear all local data
-                userInfo.clearAll(LoginActivity.this);
-                new ActiveMissionInfo().clearAll(LoginActivity.this);
-                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
-                previousMissionsInfo.clearAll(LoginActivity.this);
+            if (postResponse.contains("id")) {
+                // create DroneOperator model from response json
+                Type droneOperator = new TypeToken<DroneOperator>(){}.getType();
+                DroneOperator operator = new Gson().fromJson(postResponse, droneOperator);
 
-                // save the new user info
-                userInfo.setUsername(LoginActivity.this, username);
-                userInfo.setUserStatus(LoginActivity.this, true);
+                // save this operator to local storage
+                operator.save();
+
+                // clear shared preferences of old data
+                operatorInfo.clearAll(SignInActivity.this);
+                new ActiveInspectionInfo().clearAll(SignInActivity.this);
+                PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
+                pastInspectionsInfo.clearAll(SignInActivity.this);
+
+                // save the new operators id to shared preference
+                operatorInfo.setId(SignInActivity.this, operator.user.id);
+                operatorInfo.setUserStatus(SignInActivity.this, true);
 
                 // grab the new users previous missions
-                if (!previousMissionsInfo.isFetching(LoginActivity.this)){
-                    startService(new Intent(LoginActivity.this, FetchPMIntentService.class));
+                if (!pastInspectionsInfo.isFetching(SignInActivity.this)){
+                    startService(new Intent(SignInActivity.this, FetchPIIntentService.class));
                 }
-
                 // go to app
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                startActivity(new Intent(SignInActivity.this, HomeActivity.class));
                 finish();
             }
             else{ // display error
-                Toast.makeText(LoginActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
             }
         }
     }

@@ -19,7 +19,7 @@
         android:layout_below="@id/mission_thumbnail"
         android:layout_alignStart="@id/mission_thumbnail"
         android:layout_alignEnd="@id/mission_thumbnail"
-        android:text="@string/mission_x"
+        android:text="@string/inspection_x"
         android:gravity="center_horizontal"
         android:textSize="18sp"
         />
