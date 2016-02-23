@@ -154,7 +154,7 @@ final public class Utilities {
             message = context.getResources().getString(R.string.previous_inspections_not_up_to_date);
             new MessageDialog(context, message).getDialog().show();
         }
-        else if (!new ActiveInspectionInfo().missionNotInProgress(context)) {
+        else if (!new ActiveInspectionInfo().isNotInProgress(context)) {
             message = context.getResources().getString(R.string.inspection_in_progress);
             new MessageDialog(context, message).getDialog().show();
         }

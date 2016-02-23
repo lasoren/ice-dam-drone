@@ -3,19 +3,8 @@ package com.example.tberroa.girodicerapp.services;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
-import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.OperatorInfo;
-import com.example.tberroa.girodicerapp.network.CloudTools;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
+import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.OperatorId;
 
 public class FetchPIIntentService extends IntentService {
 
@@ -25,6 +14,9 @@ public class FetchPIIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+
+        /* old code
+
         // currently fetching
         PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
         pastInspectionsInfo.setFetching(this, true);
@@ -35,7 +27,7 @@ public class FetchPIIntentService extends IntentService {
         sendBroadcast(fetchingStarted);
 
         // grab username
-        String username = new OperatorInfo().getUsername(this);
+        String username = new OperatorId().getUsername(this);
 
         // initialize the client
         AmazonS3 s3Client = CloudTools.getAmazonS3Client(this);
@@ -101,5 +93,7 @@ public class FetchPIIntentService extends IntentService {
         // broadcast that the service is complete
         Intent broadcastIntent = new Intent(Params.FETCHING_COMPLETE);
         sendBroadcast(broadcastIntent);
+        */
     }
+
 }

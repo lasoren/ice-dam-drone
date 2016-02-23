@@ -17,12 +17,12 @@ import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
-import com.example.tberroa.girodicerapp.data.OperatorInfo;
+import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 public class BaseActivity extends AppCompatActivity {
 
-    final OperatorInfo operatorInfo = new OperatorInfo();
+    final OperatorId operatorId = new OperatorId();
     final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
     private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
     private RelativeLayout fetchingData;
@@ -34,9 +34,9 @@ public class BaseActivity extends AppCompatActivity {
         super.onStart();
 
         // if user is not logged in, boot them
-        if (!operatorInfo.isLoggedIn(this)){
+        if (!operatorId.isLoggedIn(this)){
             // clear operatorName
-            operatorInfo.setUsername(this, "");
+            operatorId.setUsername(this, "");
             // go back to login page
             startActivity(new Intent(BaseActivity.this, SignInActivity.class));
             finish();
@@ -121,7 +121,7 @@ public class BaseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.end_mission: // user wants to end current mission
-                if (activeInspectionInfo.missionNotInProgress(this)){
+                if (activeInspectionInfo.isNotInProgress(this)){
                     String message = getResources().getString(R.string.no_active_inspection);
                     new MessageDialog(this, message).getDialog().show();
                 }
@@ -159,13 +159,13 @@ public class BaseActivity extends AppCompatActivity {
                 return true;
             case R.id.logout: // user wants to logout
                 // check if there is an active mission
-                if (!activeInspectionInfo.missionNotInProgress(this)){ // mission in progress
+                if (!activeInspectionInfo.isNotInProgress(this)){ // mission in progress
                     String message = getResources().getString(R.string.cannot_logout);
                     new MessageDialog(this, message).getDialog().show();
                 }
                 else{
                     // clear all local data
-                    operatorInfo.clearAll(this);
+                    operatorId.clear(this);
                     activeInspectionInfo.clearAll(this);
                     pastInspectionsInfo.clearAll(this);
 

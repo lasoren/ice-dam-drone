@@ -9,11 +9,11 @@ import android.os.IBinder;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
-import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.CloudTools;
@@ -34,7 +34,7 @@ public class ImageUploadService extends Service {
     @Override
     public void onCreate(){
         // mission in upload phase, phase=3
-        activeInspectionInfo.setMissionPhase(this, 3);
+        activeInspectionInfo.setPhase(this, 3);
 
         // broadcast that upload phase has begun
         Intent uploadStarted = new Intent();
@@ -42,7 +42,7 @@ public class ImageUploadService extends Service {
         sendBroadcast(uploadStarted);
 
         // grab data
-        username = new OperatorInfo().getUsername(ImageUploadService.this);
+        username = new OperatorId().getUsername(ImageUploadService.this);
         missionNumber = activeInspectionInfo.getMissionNumber(ImageUploadService.this);
         String json = activeInspectionInfo.getMissionData(ImageUploadService.this);
         Mission missionData = new Gson().fromJson(json, new TypeToken<Mission>() {}.getType());
@@ -120,10 +120,10 @@ public class ImageUploadService extends Service {
     @Override
     public void onDestroy() {
         // mission is no longer in progress
-        activeInspectionInfo.setMissionNotInProgress(this, true);
+        activeInspectionInfo.setNotInProgress(this, true);
 
         // post mission processing just concluded, phase=0
-        activeInspectionInfo.setMissionPhase(this, 0);
+        activeInspectionInfo.setPhase(this, 0);
 
         // previous missions info is out of date
         PastInspectionsInfo pastInspectionsInfo =  new PastInspectionsInfo();

@@ -14,14 +14,14 @@ public class DroneService extends Service {
     public void onCreate(){
         // mission is now in progress
         ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
-        activeInspectionInfo.setMissionNotInProgress(this, false);
+        activeInspectionInfo.setNotInProgress(this, false);
 
         // drone is active, phase=1
-        activeInspectionInfo.setMissionPhase(this, 1);
+        activeInspectionInfo.setPhase(this, 1);
 
         // set mission number
         int missionNumber = new PastInspectionsInfo().getNumOfMissions(this)+1;
-        activeInspectionInfo.setMissionNumber(this, missionNumber);
+        activeInspectionInfo.setInspectionNumber(this, missionNumber);
 
         // broadcast that a new mission has started
         Intent missionStarted = new Intent();

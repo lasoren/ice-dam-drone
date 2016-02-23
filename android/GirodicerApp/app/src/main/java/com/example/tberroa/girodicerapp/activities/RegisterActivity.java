@@ -15,21 +15,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.OperatorInfo;
-import com.example.tberroa.girodicerapp.services.FetchPIIntentService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstName, lastName, password, confirmPassword, email;
-    private final OperatorInfo operatorInfo = new OperatorInfo();
+    final public String REGISTER_URL = Params.BASE_URL + "users/register.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         // check if user is already logged in
-        if (operatorInfo.isLoggedIn(this)){
+        if (new UserInfo().isLoggedIn(this)){
             startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
             finish();
         }
@@ -165,7 +171,7 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try{
-                String url = Params.REGISTER_URL;
+                String url = REGISTER_URL;
                 Log.d("test1", dataJSON);
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
@@ -176,23 +182,26 @@ public class RegisterActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void param) {
             if (postResponse.contains("id")){
-                // clear all local data
-                operatorInfo.clearAll(RegisterActivity.this);
+                // create DroneOperator model from response json
+                Type droneOperator = new TypeToken<DroneOperator>(){}.getType();
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                DroneOperator operator = gson.fromJson(postResponse, droneOperator);
+
+                // save this operator to local storage
+                operator.CascadeSave();
+
+                // clear shared preferences of old data
+                final OperatorId operatorId = new OperatorId();
+                operatorId.clear(RegisterActivity.this);
                 new ActiveInspectionInfo().clearAll(RegisterActivity.this);
                 PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
                 pastInspectionsInfo.clearAll(RegisterActivity.this);
 
-                // save the new user info
-                operatorInfo.setUsername(RegisterActivity.this, "tberroa");
-                operatorInfo.setUserStatus(RegisterActivity.this, true);
+                // save the operators id to shared preference
+                operatorId.set(RegisterActivity.this, operator.id);
 
-                // grab the new users previous missions
-                if (!pastInspectionsInfo.isFetching(RegisterActivity.this)){
-                    startService(new Intent(RegisterActivity.this, FetchPIIntentService.class));
-                }
-
-                // go to app
-                startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+                // go to client manager
+                startActivity(new Intent(RegisterActivity.this, ClientManagerActivity.class));
                 finish();
             }
             else{ // display error
