@@ -1,10 +1,20 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import time, math, threading
+import blue, EventHandler
+import time, math, threading, lidar
 
 class Girodicer():
 
-    def __init__(self, connection, baud):
+    status = None
+
+    def __init__(self, connection, baud, queue):
+        self.eventQueue = queue
+        print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
+        print "Initializing bluetooth"
+        self.blue = blue.Blue(self.eventQueue)
+        print "Initializing Lidar"
+        self.lidar = lidar.Lidar()
+        self.lidar.start()
 
     def arm_vehicle(self):
         """
@@ -73,7 +83,24 @@ class Girodicer():
         self.vehicle.send_mavlink(msg)
 
     def get_status(self):
-        return (self.vehicle.location.global_frame, self.vehicle.velocity, self.vehicle.system_status, self.vehicle.is_armable)
+        print "Starting status thread"
+        self.status = GirodicerStatus(self.vehicle, self.blue)
+
+    def get_lidar(self):
+        read_lidar = threading.Thread(Target = self.__get_lidar_distance)
+        read_lidar.start()
+
+    def stop(self):
+        self.blue.stop()
+        if self.status is not None:
+            self.status.stop()
+            self.status.join()
+
+        self.blue.join()
+
+    def __get_lidar_distance(self):
+        distance = self.lidar.readDistance()
+        self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.LIDAR_DISTANCE, distance)
 
     def __get_location_metres(original_location, dNorth, dEast):
         """

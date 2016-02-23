@@ -30,7 +30,6 @@ class Lidar(threading.Thread):
         self.bus = SMBus(1)
         self.bus.write_byte_data(self.__DEF_ADDR, self.__CONTROL_REG, self.__RESET_FPGA)
         time.sleep(0.02)
-        self.scan = False
         self._stop = threading.Event()
 
     def getDeviceStatus(self):
@@ -61,15 +60,14 @@ class Lidar(threading.Thread):
         return distance
 
     def run(self):
-        self.scan = True
-        while self.scan:
+        self._stop.clear()
+        while self._stop.isSet() is False:
             self.lock.acquire()
             self.distance = self.__getDistance()
             self.lock.release()
             time.sleep(0.02)
 
     def stop(self):
-        self.scan = False
         self._stop.set()
 
     def acquireLock(self):

@@ -24,29 +24,30 @@ class Blue(threading.Thread):
                           profiles=[SERIAL_PORT_PROFILE])
 
         self.queue = queue
-        self.__running = True
+        self.__stop = threading.Event()
         self.start()
 
     def run(self):
-        while self.__running:
+        self.__stop.clear()
+        while self.__stop.isSet() is False:
             self.__client_sock, client_info = self.__server_sock.accept()
-            self.queue.add(EventHandler.BLUETOOTH_CONNECTED)
+            self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_CONNECTED)
             try:
                 while True:
                     data = self.__client_sock.recv()
                     BlueDataProcessor(data, self.queue)
             except IOError:
-                self.queue.add(EventHandler.BLUETOOTH_DISCONNECTED)
+                self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_DISCONNECTED)
 
         self.__client_sock.close()
         self.__server_sock.close()
-        self.queue.add(EventHandler.BLUETOOTH_DISCONNECTED)
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_DISCONNECTED)
 
     def write(self, data):
         self.__client_sock.send(data)
 
     def stop(self):
-        self.__running = False
+        self.__stop.set()
 
 
 class BlueDataProcessor(threading.Thread):
@@ -89,9 +90,23 @@ class BlueDataProcessor(threading.Thread):
 
         points = []
 
-        for i in len(0, numPoints):
+        for i in range(0, numPoints):
             (lat, lng) = struct.unpack('dd', offset)
             points.append((lat,lng))
             offset += windPos
 
-        self.queue.add(EventHandler.BLUETOOTH_GET_POINTS, points)
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, points)
+
+
+class BlueDataPackager(threading.Thread):
+    COMMAND_ARM = 0x1
+    COMMAND_UNARM = 0x2
+    COMMAND_START_INSPECTION = 0x3
+    COMMAND_END_INSPECTION = 0x4
+    COMMAND_STATUS = 0x5
+    COMMAND_SEND_POINTS = 0x6
+    COMMAND_READY_TO_TRANSFER = 0x7
+
+    def __init__(self):
+        super(BlueDataPackager, self).__init__()
+
