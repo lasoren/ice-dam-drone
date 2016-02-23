@@ -137,11 +137,11 @@ class ClientsGet(APIView):
         ).select_related(
             'client'
         ).prefetch_related(
-            'client__inspection_client__drone_operator__user'
+            'client__inspection_client__drone_operator'
         ).select_related(
             'client__user'
         ).filter(
-            client__inspection_client__drone_operator__user__pk=request.data["user_id"]
+            client__inspection_client__drone_operator__pk=request.data["user_id"]
         ).order_by(  # Order by the clients that have been updated recently.
             '-timestamp'
         ).distinct()
@@ -149,6 +149,5 @@ class ClientsGet(APIView):
         clients = []
         for client_provision in client_provisions:
             clients.append(client_provision.client)
-
-        return Response(ClientSerializer(clients, many=True).data,
-            status=status.HTTP_200_OK)
+        response["clients"] = ClientSerializer(clients, many=True).data
+        return Response(response, status=status.HTTP_200_OK)

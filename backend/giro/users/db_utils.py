@@ -39,7 +39,7 @@ def authenticate(user_id, session_id):
     Authenticates a user. Returns True if user_id and session_id are valid
     """
     try:
-        drone_operator = DroneOperator.objects.get(user__pk=user_id)
+        drone_operator = DroneOperator.objects.get(id=user_id)
         logging.debug(
             "Retrieved session for user with id: " + str(user_id))
         # Verifies that the session_id given matches session in our db

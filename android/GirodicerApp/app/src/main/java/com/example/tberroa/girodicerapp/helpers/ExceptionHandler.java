@@ -1,5 +1,7 @@
 package com.example.tberroa.girodicerapp.helpers;
 
+import android.util.Log;
+
 public class ExceptionHandler {
 
     public ExceptionHandler(){
@@ -7,7 +9,7 @@ public class ExceptionHandler {
     }
 
     public void HandleException(Exception e){
-        // do something
+        Log.d("appErrors", "" + e.getMessage());
     }
 
 }

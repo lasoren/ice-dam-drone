@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_page"
+    tools:context="com.example.tberroa.girodicerapp.activities.HomeActivity">
+
+    <include layout="@layout/element_notification_bar"
+        android:id="@+id/notification_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
+
+    <ImageView
+        android:id="@+id/logo"
+        android:src="@drawable/app_logo"
+        android:contentDescription="@string/app_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/notification_bar"
+        android:layout_marginTop="75dp"
+        />
+
+    <Button
+        android:id="@+id/previous_missions_button"
+        android:text="@string/previous_inspections"
+        android:textColor="@color/font_blue"
+        android:background="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:layout_alignParentBottom="true"
+        />
+
+    <Button
+        android:id="@+id/current_mission_button"
+        android:text="@string/current_inspection"
+        android:textColor="@color/font_blue"
+        android:background="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_above="@id/previous_missions_button"
+        />
+
+    <Button
+        android:id="@+id/start_mission_button"
+        android:text="@string/start_inspection"
+        android:textColor="@color/font_blue"
+        android:background="@color/white"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_above="@id/current_mission_button"
+        />
+
+
+</RelativeLayout>

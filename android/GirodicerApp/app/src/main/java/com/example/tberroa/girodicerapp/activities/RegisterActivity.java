@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,19 +14,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
+import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.services.FetchPMIntentService;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
+import com.example.tberroa.girodicerapp.services.FetchPIIntentService;
+
+import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText username, password, confirmPassword, email;
-    private final UserInfo userInfo = new UserInfo();
+    private EditText firstName, lastName, password, confirmPassword, email;
+    private final OperatorInfo operatorInfo = new OperatorInfo();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +37,14 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         // check if user is already logged in
-        if (userInfo.isLoggedIn(this)){
-            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+        if (operatorInfo.isLoggedIn(this)){
+            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
             finish();
         }
 
         // initialize text boxes for user to enter their information
-        username = (EditText)findViewById(R.id.username);
+        firstName = (EditText)findViewById(R.id.first_name);
+        lastName = (EditText)findViewById(R.id.last_name);
         password = (EditText)findViewById(R.id.password);
         confirmPassword = (EditText)findViewById(R.id.confirm_password);
         email = (EditText)findViewById(R.id.email);
@@ -72,19 +77,21 @@ public class RegisterActivity extends AppCompatActivity {
 
     private final OnClickListener goToLoginButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            startActivity(new Intent(RegisterActivity.this, SignInActivity.class));
             finish();
         }
     };
 
     private void Register(){
-        String enteredUsername = username.getText().toString();
+        String enteredFirstName = firstName.getText().toString();
+        String enteredLastName = lastName.getText().toString();
         String enteredPassword = password.getText().toString();
         String enteredConfirmPassword = confirmPassword.getText().toString();
         String enteredEmail = email.getText().toString();
 
         Bundle enteredInfo = new Bundle();
-        enteredInfo.putString("username", enteredUsername);
+        enteredInfo.putString("first_name", enteredFirstName);
+        enteredInfo.putString("last_ame", enteredLastName);
         enteredInfo.putString("password", enteredPassword);
         enteredInfo.putString("confirm_password", enteredConfirmPassword);
         enteredInfo.putString("email", enteredEmail);
@@ -94,11 +101,17 @@ public class RegisterActivity extends AppCompatActivity {
             new AttemptRegistration().execute();
         }
         else{
-            if (string.contains("username")){
-                username.setError(getResources().getString(R.string.username_format));
+            if (string.contains("first_name")){
+                firstName.setError(getResources().getString(R.string.name_format));
             }
             else{
-                username.setError(null);
+                firstName.setError(null);
+            }
+            if (string.contains("last_ame")){
+                lastName.setError(getResources().getString(R.string.name_format));
+            }
+            else{
+                lastName.setError(null);
             }
             if (string.contains("password")){
                 password.setError(getResources().getString(R.string.password_format));
@@ -123,24 +136,38 @@ public class RegisterActivity extends AppCompatActivity {
 
     class AttemptRegistration extends AsyncTask<Void, Void, Void> {
 
-        private String username, password, confirmPassword, email, keyVPairs, postResponse;
+        private String firstName, lastName, password, email, dataJSON, postResponse;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            username = RegisterActivity.this.username.getText().toString();
+            firstName = RegisterActivity.this.firstName.getText().toString();
+            lastName = RegisterActivity.this.lastName.getText().toString();
             password = RegisterActivity.this.password.getText().toString();
-            confirmPassword = RegisterActivity.this.confirmPassword.getText().toString();
             email = RegisterActivity.this.email.getText().toString();
-            keyVPairs = "username="+username+"&password="+password;
-            keyVPairs = keyVPairs.concat("&confirmPassword="+confirmPassword+"&email="+email);
+
+            JSONObject registerJson = new JSONObject();
+            JSONObject userJson = new JSONObject();
+            try{
+                userJson.put("first_name", firstName);
+                userJson.put("last_name", lastName);
+                userJson.put("email", email);
+                registerJson.put("user", userJson);
+                registerJson.put("password", password);
+
+            }catch (Exception e){
+                new ExceptionHandler().HandleException(e);
+            }
+
+            dataJSON = registerJson.toString();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try{
                 String url = Params.REGISTER_URL;
-                postResponse = new HttpPost().doPostRequest(url, keyVPairs);
+                Log.d("test1", dataJSON);
+                postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 e.printStackTrace();
             }
@@ -148,24 +175,24 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.equals(Params.REGISTER_SUCCESS)){
+            if (postResponse.contains("id")){
                 // clear all local data
-                userInfo.clearAll(RegisterActivity.this);
-                new ActiveMissionInfo().clearAll(RegisterActivity.this);
-                PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
-                previousMissionsInfo.clearAll(RegisterActivity.this);
+                operatorInfo.clearAll(RegisterActivity.this);
+                new ActiveInspectionInfo().clearAll(RegisterActivity.this);
+                PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
+                pastInspectionsInfo.clearAll(RegisterActivity.this);
 
                 // save the new user info
-                userInfo.setUsername(RegisterActivity.this, username);
-                userInfo.setUserStatus(RegisterActivity.this, true);
+                operatorInfo.setUsername(RegisterActivity.this, "tberroa");
+                operatorInfo.setUserStatus(RegisterActivity.this, true);
 
                 // grab the new users previous missions
-                if (!previousMissionsInfo.isFetching(RegisterActivity.this)){
-                    startService(new Intent(RegisterActivity.this, FetchPMIntentService.class));
+                if (!pastInspectionsInfo.isFetching(RegisterActivity.this)){
+                    startService(new Intent(RegisterActivity.this, FetchPIIntentService.class));
                 }
 
                 // go to app
-                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
                 finish();
             }
             else{ // display error

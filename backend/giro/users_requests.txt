@@ -88,10 +88,11 @@ Request:
 
 Response:
 {
-    "created": "2016-02-19T22:39:10.953431Z",
+    "id": 3,
+    "created": "2016-02-21T20:43:05.654558Z",
     "user": {
-        "id": 10,
-        "created": "2016-02-19T22:39:10.950055Z",
+        "id": 19,
+        "created": "2016-02-21T20:43:05.647363Z",
         "first_name": "Michael",
         "last_name": "Sorenson",
         "email": "msoren@bu.edu"
@@ -112,4 +113,35 @@ Request:
     "provision": 0
 }
 
-Response:
+Response:  # Sorted with the most recently updated clients first.
+{
+    "clients": [
+        {
+            "id": 3,
+            "created": "2016-02-21T20:43:05.654558Z",
+            "user": {
+                "id": 19,
+                "created": "2016-02-21T20:43:05.647363Z",
+                "first_name": "Michael",
+                "last_name": "Sorenson",
+                "email": "msoren@bu.edu"
+            },
+            "address": "14 Barnesdale Rd. Natick, MA 01760",
+            "deleted": null
+        },
+        {
+            "id": 4,
+            "created": "2016-02-21T22:57:04.512474Z",
+            "user": {
+                "id": 21,
+                "created": "2016-02-21T22:57:04.507423Z",
+                "first_name": "Lisa",
+                "last_name": "Sorenson",
+                "email": "lsoren@bu.edu"
+            },
+            "address": "14 Barnesdale Rd. Natick, MA 01760",
+            "deleted": null
+        }
+    ],
+    "provision": 5
+}

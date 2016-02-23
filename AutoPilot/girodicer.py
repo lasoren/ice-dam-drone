@@ -1,10 +1,20 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import time, math
+import blue, EventHandler
+import time, math, threading, lidar
 
 class Girodicer():
 
-    def __init__(self, connection, baud):
+    status = None
+
+    def __init__(self, connection, baud, queue):
+        self.eventQueue = queue
+        print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
+        print "Initializing bluetooth"
+        self.blue = blue.Blue(self.eventQueue)
+        print "Initializing Lidar"
+        self.lidar = lidar.Lidar()
+        self.lidar.start()
 
     def arm_vehicle(self):
         """
@@ -72,6 +82,26 @@ class Girodicer():
         # send command to vehicle
         self.vehicle.send_mavlink(msg)
 
+    def get_status(self):
+        print "Starting status thread"
+        self.status = GirodicerStatus(self.vehicle, self.blue)
+
+    def get_lidar(self):
+        read_lidar = threading.Thread(Target = self.__get_lidar_distance)
+        read_lidar.start()
+
+    def stop(self):
+        self.blue.stop()
+        if self.status is not None:
+            self.status.stop()
+            self.status.join()
+
+        self.blue.join()
+
+    def __get_lidar_distance(self):
+        distance = self.lidar.readDistance()
+        self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.LIDAR_DISTANCE, distance)
+
     def __get_location_metres(original_location, dNorth, dEast):
         """
         Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the
@@ -130,3 +160,15 @@ class Girodicer():
         if bearing < 0:
             bearing += 360.00
         return bearing
+
+class GirodicerStatus(threading.Thread):
+
+    def __init__(self, vehicle, bluetooth):
+        self(GirodicerStatus, self).__init__()
+        self.vehicle = vehicle
+        self.bluetooth = bluetooth
+        self.__running = True
+        self.start()
+
+    def run(self):
+        self.vehicle.is_armable
