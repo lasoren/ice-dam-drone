@@ -1,6 +1,7 @@
 package org.girodicer.plottwist.Bluetooth;
 
 import org.girodicer.plottwist.Models.Points;
+import org.girodicer.plottwist.Models.Status;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -93,6 +94,8 @@ public class GProtocol {
 
     public Object read(){
         switch(this.command){
+            case COMMAND_STATUS:
+                return Status.Unpack(this.data);
             case COMMAND_SEND_POINTS:
                 return Points.Unpack(this.data);
         }

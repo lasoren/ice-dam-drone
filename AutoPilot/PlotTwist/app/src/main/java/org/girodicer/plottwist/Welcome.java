@@ -5,37 +5,72 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
-import android.os.ResultReceiver;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
+import org.girodicer.plottwist.Bluetooth.BluetoothException;
 import org.girodicer.plottwist.Bluetooth.ConnectThread;
-import org.girodicer.plottwist.services.GetAddress;
+import org.girodicer.plottwist.Bluetooth.ConnectionThread;
+import org.girodicer.plottwist.Bluetooth.GProtocol;
+import org.girodicer.plottwist.Models.Status;
+import org.girodicer.plottwist.services.BluetoothService;
 
 import java.util.Set;
 
 public class Welcome extends Activity implements View.OnClickListener {
     private static final int REQUEST_ENABLE_BT = 1;
-    private static final int okay = 0;
-    private static final int failure = -1;
 
     Button pair, next;
     TextView pairNote;
-    EditText address;
 
-    AddressResultReceiver resultReceiver;
+    private Status currentStatus;
+
+    private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
+
+    private static Messenger bluetoothMessenger; // only for the handler in this class
+    private static boolean bluetoothServiceBound = false;
+
+    private ServiceConnection bluetoothConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            bluetoothMessenger = new Messenger(service);
+            bluetoothServiceBound = true;
+
+            Message msg = Message.obtain(null, BluetoothService.MESSAGE_NEW_CLIENT);
+            msg.replyTo = btMessageHandler;
+            try {
+                bluetoothMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Message msg = Message.obtain(null, BluetoothService.MESSAGE_DETACH_CLIENT);
+            try{
+                bluetoothMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            bluetoothMessenger = null;
+            bluetoothServiceBound = false;
+        }
+    };
 
     private final BroadcastReceiver bScan = new BroadcastReceiver() {
         @Override
@@ -65,7 +100,6 @@ public class Welcome extends Activity implements View.OnClickListener {
         pair = (Button) findViewById(R.id.pairButton);
         next = (Button) findViewById(R.id.nextButton);
         pairNote = (TextView) findViewById(R.id.pair_notification);
-        address = (EditText) findViewById(R.id.user_address);
 
         pair.setOnClickListener(this);
         next.setOnClickListener(this);
@@ -77,7 +111,16 @@ public class Welcome extends Activity implements View.OnClickListener {
             startActivityForResult(enableBt, REQUEST_ENABLE_BT);
         }
 
-        resultReceiver = new AddressResultReceiver(new Handler());
+        if(savedInstanceState != null){
+            boolean btconnected = savedInstanceState.getBoolean(App.BT_CONNECTION_STATE);
+
+            if(btconnected){
+                pair.setVisibility(View.GONE);
+                next.setVisibility(View.VISIBLE);
+                pairNote.setVisibility(View.VISIBLE);
+                pairNote.setText("Paired to: " + getResources().getString(R.string.server_name));
+            }
+        }
     }
 
     @Override
@@ -113,6 +156,13 @@ public class Welcome extends Activity implements View.OnClickListener {
     public void onPause(){
         super.onPause();
         unregisterReceiver(bScan);
+        unbindService(bluetoothConnection);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(App.BT_CONNECTION_STATE, App.BTConnected);
+        super.onSaveInstanceState(outState);
     }
 
     private void pairDevices(){
@@ -139,41 +189,9 @@ public class Welcome extends Activity implements View.OnClickListener {
     }
 
     public void skip(View view){
-        Intent getAddress = new Intent(this, GetAddress.class);
-        String location = address.getText().toString();
-        getAddress.putExtra(GetAddress.RECEIVER, resultReceiver);
-        getAddress.putExtra(GetAddress.LOCATION_DATA, location);
-        startService(getAddress);
-    }
-
-    private class AddressResultReceiver extends ResultReceiver {
-
-        /**
-         * Create a new ResultReceive to receive results.  Your
-         * {@link #onReceiveResult} method will be called from the thread running
-         * <var>handler</var> if given, or from an arbitrary thread if null.
-         *
-         * @param handler
-         */
-        public AddressResultReceiver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData){
-            if(resultCode == failure){
-                String message = resultData.getString(GetAddress.RECEIVER_DATA);
-                Toast.makeText(Welcome.this, message, Toast.LENGTH_SHORT).show();
-            } else if (resultCode == okay){
-                LatLng coordinates = resultData.getParcelable(GetAddress.RECEIVER_DATA);
-                Toast.makeText(Welcome.this, coordinates.toString(), Toast.LENGTH_SHORT).show();
-
-                Intent skip = new Intent(Welcome.this, MapsActivity.class);
-                skip.putExtra(GetAddress.RECEIVER_DATA, coordinates);
-                startActivity(skip);
-            }
-
-        }
+        Intent next = new Intent(this, MapsActivity.class);
+        next.putExtra(App.LOCATION, currentStatus.location);
+        startActivity(next);
     }
 
     public class BTConnectHandler extends Handler{
@@ -183,6 +201,7 @@ public class Welcome extends Activity implements View.OnClickListener {
                 case ConnectThread.CONNECT_SUCCESS:
                     BluetoothSocket btSocket = (BluetoothSocket) incoming.obj;
                     if(App.startBluetoothConnection(btSocket)){
+                        bindService(new Intent(Welcome.this, BluetoothService.class), bluetoothConnection, Context.BIND_AUTO_CREATE);
                         next.setVisibility(View.VISIBLE);
                     } else {
                         Toast.makeText(Welcome.this, "System failure", Toast.LENGTH_SHORT).show();
@@ -193,6 +212,37 @@ public class Welcome extends Activity implements View.OnClickListener {
                     next.setVisibility(View.GONE);
                     pair.setVisibility(View.VISIBLE);
                     pairNote.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private class BTMessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg){
+            switch(msg.what){
+                case BluetoothService.MESSAGE_READ:
+                    Bundle bundle = msg.getData();
+                    byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
+                    try {
+                        GProtocol received = GProtocol.Unpack(data);
+                        switch(received.getCommand()){
+                            case GProtocol.COMMAND_STATUS:
+                                currentStatus = (Status) received.read();
+                                break;
+                        }
+                    } catch (BluetoothException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case BluetoothService.MESSAGE_BT_CONNECTION_LOST:
+                    Toast.makeText(Welcome.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Welcome.this, "Reconnecting....", Toast.LENGTH_LONG).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_FAILED_RECONNECT:
+                    Toast.makeText(Welcome.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
+                    Toast.makeText(Welcome.this, "Successfully reconnected", Toast.LENGTH_SHORT).show();
             }
         }
     }

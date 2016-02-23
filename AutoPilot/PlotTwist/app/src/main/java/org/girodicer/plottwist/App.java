@@ -30,6 +30,8 @@ import java.util.UUID;
  * Created by Carlos on 2/16/2016.
  */
 public class App extends android.app.Application {
+    public static final String LOCATION = "location";
+    public static final String BT_CONNECTION_STATE = "bt connection state";
     public static BluetoothAdapter bAdapter;
     public static BluetoothDevice bDevice;
     public static final UUID uuid = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
@@ -40,6 +42,7 @@ public class App extends android.app.Application {
     private static boolean manualBluetoothDisconnect = true;
 
     public static ConnectionThread BTConnection;
+    public static boolean BTConnected = false;
 
     private ServiceConnection bluetoothConnection = new ServiceConnection() {
         @Override
@@ -63,6 +66,7 @@ public class App extends android.app.Application {
             if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)){
                 if(BTConnection != null)
                     BTConnection.cancel(); // we're no longer connected
+                    BTConnected = false;
                 if(!manualBluetoothDisconnect){ // we weren't the ones disconnecting
                     try {
                         bluetoothMessenger.send(Message.obtain(null, BluetoothService.MESSAGE_BT_CONNECTION_LOST));
@@ -97,6 +101,7 @@ public class App extends android.app.Application {
         BTConnection.start();
 
         manualBluetoothDisconnect = false;
+        BTConnected = true;
         return true;
     }
 

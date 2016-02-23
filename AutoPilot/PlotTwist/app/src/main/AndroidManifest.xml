@@ -40,9 +40,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".services.GetAddress"
-            android:exported="false"/>
+
         <service android:name=".services.BluetoothService"
             android:process=":bluetooth"/>
     </application>

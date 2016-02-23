@@ -11,32 +11,27 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.girodicer.plottwist.Bluetooth.BluetoothException;
 import org.girodicer.plottwist.Bluetooth.ConnectionThread;
 import org.girodicer.plottwist.Bluetooth.GProtocol;
 import org.girodicer.plottwist.Models.Points;
+import org.girodicer.plottwist.Models.Status;
 import org.girodicer.plottwist.services.BluetoothService;
-import org.girodicer.plottwist.services.GetAddress;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener{
@@ -46,6 +41,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private ArrayList<LatLng> houseBoundary;
     private LatLng home;
+
+    private Status currentStatus;
 
     private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
 
@@ -69,6 +66,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Message msg = Message.obtain(null, BluetoothService.MESSAGE_DETACH_CLIENT);
+            try{
+                bluetoothMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             bluetoothMessenger = null;
             bluetoothServiceBound = false;
         }
@@ -80,9 +83,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if(savedInstanceState == null){
             Intent incomingIntent = getIntent();
-            home = incomingIntent.getParcelableExtra(GetAddress.RECEIVER_DATA);
+            home = incomingIntent.getParcelableExtra(App.LOCATION);
         } else {
-            home = savedInstanceState.getParcelable(GetAddress.RECEIVER_DATA);
+            home = savedInstanceState.getParcelable(App.LOCATION);
         }
 
         setContentView(R.layout.activity_maps);
@@ -164,7 +167,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onSaveInstanceState(Bundle outstate){
-        outstate.putParcelable(GetAddress.RECEIVER_DATA, home);
+        outstate.putParcelable(App.LOCATION, home);
         super.onSaveInstanceState(outstate);
     }
 
@@ -187,6 +190,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_SEND_POINTS, points.length, points, false));
     }
 
+    private void plotPoints(ArrayList<LatLng> points){
+        for (LatLng point : points){
+            mMap.addMarker(new MarkerOptions().position(point));
+        }
+    }
+
     private class BTMessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg){
@@ -194,7 +203,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 case BluetoothService.MESSAGE_READ:
                     Bundle bundle = msg.getData();
                     byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
-                    Toast.makeText(MapsActivity.this, new String(data), Toast.LENGTH_SHORT).show();
+                    try {
+                        GProtocol received = GProtocol.Unpack(data);
+                        switch(received.getCommand()){
+                            case GProtocol.COMMAND_STATUS:
+                                currentStatus = (Status) received.read();
+                                break;
+                            case GProtocol.COMMAND_SEND_POINTS:
+                                plotPoints((ArrayList<LatLng>) received.read());
+                                break;
+                        }
+                    } catch (BluetoothException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case BluetoothService.MESSAGE_BT_CONNECTION_LOST:
                     Toast.makeText(MapsActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
@@ -204,7 +225,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Toast.makeText(MapsActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
                     break;
                 case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
-                    Toast.makeText(MapsActivity.this, "Sucessfully reconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapsActivity.this, "Successfully reconnected", Toast.LENGTH_SHORT).show();
             }
         }
     }

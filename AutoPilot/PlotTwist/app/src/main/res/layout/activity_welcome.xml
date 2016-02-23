@@ -35,12 +35,6 @@
             android:layout_height="wrap_content"
             android:text="Pair"
             android:id="@+id/pairButton"/>
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="What's your home address?"
-            android:maxEms="300"
-            android:id="@+id/user_address"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,12 +42,6 @@
             android:text="Next"
             android:visibility="gone"
             android:id="@+id/nextButton"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="skip"
-            android:onClick="skip"/>
     </LinearLayout>
 
 </LinearLayout>
