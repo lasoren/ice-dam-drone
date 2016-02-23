@@ -180,8 +180,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void goToStatus(){
         if(houseBoundary.size() < 4){
             Toast.makeText(MapsActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        return;
+    }
 
         byte[] points = Points.Pack(houseBoundary);
         App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_SEND_POINTS, points.length, points, false));
