@@ -44,7 +44,7 @@ public class GProtocol {
     }
 
     public static GProtocol Unpack(byte[] array) throws BluetoothException{
-        ByteBuffer builder = ByteBuffer.wrap(array);
+        ByteBuffer builder = ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN);
 
         if(!builder.hasRemaining()){ // array passed in has nothing
             throw new BluetoothException("Empty Array", BluetoothException.ERRORS.ARRAY_EMPTY);
