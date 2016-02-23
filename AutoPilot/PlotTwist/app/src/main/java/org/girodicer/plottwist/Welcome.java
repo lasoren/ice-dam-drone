@@ -115,6 +115,7 @@ public class Welcome extends Activity implements View.OnClickListener {
             boolean btconnected = savedInstanceState.getBoolean(App.BT_CONNECTION_STATE);
 
             if(btconnected){
+                bindService(new Intent(Welcome.this, BluetoothService.class), bluetoothConnection, Context.BIND_AUTO_CREATE);
                 pair.setVisibility(View.GONE);
                 next.setVisibility(View.VISIBLE);
                 pairNote.setVisibility(View.VISIBLE);
