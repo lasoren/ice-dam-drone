@@ -15,15 +15,16 @@ Request:
 
 Response:
 {
-    "created": "2016-02-18T02:25:18.097956Z",
+    "id": 1,
+    "created": "2016-02-23T20:06:05.897212Z",
     "user": {
-        "id": 7,
-        "created": "2016-02-18T02:25:18.094594Z",
+        "id": 1,
+        "created": "2016-02-23T20:06:05.888600Z",
         "first_name": "Luke",
         "last_name": "Sorenson",
         "email": "lukeasorenson@gmail.com"
     },
-    "session_id": "0f2c3f0b938bd13fbf6690f7485cedb56bd12c4de339d98d15215eca008f0e546ce108b62992fff3afc67417b0558d6ed1c688bff6a91eb1426a63a94e5eb121"
+    "session_id": "5e4415533d674424bae5337fe053018b304b0f09556478b6ffeaa922bb69b315974a6d8daeb17bb547a612a52ad227e4cdef88b678299d46661528d339ed630b"
 }
 
 Sample Error Response:
@@ -88,11 +89,11 @@ Request:
 
 Response:
 {
-    "id": 3,
-    "created": "2016-02-21T20:43:05.654558Z",
+    "id": 1,
+    "created": "2016-02-23T20:07:47.094522Z",
     "user": {
-        "id": 19,
-        "created": "2016-02-21T20:43:05.647363Z",
+        "id": 2,
+        "created": "2016-02-23T20:07:47.087010Z",
         "first_name": "Michael",
         "last_name": "Sorenson",
         "email": "msoren@bu.edu"
@@ -108,7 +109,7 @@ url POST: /users/clients/get
 
 Request:
 {
-    "user_id": 8,
+    "user_id": 1,
     "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
     "provision": 0
 }
