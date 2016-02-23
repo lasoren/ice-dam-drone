@@ -26,6 +26,7 @@ class DroneOperatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = DroneOperator
         fields = (
+            'id',
             'created',
             'user',
             'password',

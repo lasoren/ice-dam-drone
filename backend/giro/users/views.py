@@ -137,11 +137,11 @@ class ClientsGet(APIView):
         ).select_related(
             'client'
         ).prefetch_related(
-            'client__inspection_client__drone_operator__user'
+            'client__inspection_client__drone_operator'
         ).select_related(
             'client__user'
         ).filter(
-            client__inspection_client__drone_operator__user__pk=request.data["user_id"]
+            client__inspection_client__drone_operator__pk=request.data["user_id"]
         ).order_by(  # Order by the clients that have been updated recently.
             '-timestamp'
         ).distinct()
