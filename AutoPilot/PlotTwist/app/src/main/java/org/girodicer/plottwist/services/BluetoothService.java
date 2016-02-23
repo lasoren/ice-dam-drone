@@ -9,6 +9,9 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 /**
  * Created by Carlos on 2/16/2016.
  */
@@ -23,6 +26,7 @@ public class BluetoothService extends Service {
     private Messenger currentClient = null;
 
     final Messenger mMessenger = new Messenger(new BluetoothHandler());
+    final Queue<Message> backlog = new PriorityQueue<>();
 
     int count = 0;
 
@@ -43,13 +47,23 @@ public class BluetoothService extends Service {
                 case MESSAGE_BT_FAILED_RECONNECT:
                 case MESSAGE_BT_SUCCESS_RECONNECT:
                     try { // just forwards the message
-                        if(currentClient != null)
+                        if(currentClient != null) {
                             currentClient.send(msg);
+                        } else {
+                            backlog.offer(msg);
+                        }
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                     break;
                 case MESSAGE_NEW_CLIENT:
+                    while(!backlog.isEmpty()){
+                        try {
+                            msg.replyTo.send(backlog.poll());
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     currentClient = msg.replyTo;
                     break;
                 case MESSAGE_DETACH_CLIENT:
