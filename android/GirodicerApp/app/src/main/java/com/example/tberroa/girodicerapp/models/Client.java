@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 
 @Table(name = "Client")
 public class Client extends Model {
@@ -14,15 +15,19 @@ public class Client extends Model {
     a password. They can access they're individual inspection
     using a unique, non-guessable link. */
 
+    @Expose
     @Column(name = "created")
     public long created;
 
+    @Expose
     @Column(name = "user")
     public User user;
 
+    @Expose
     @Column(name = "address")
     public String address;
 
+    @Expose
     @Column(name = "deleted")
     public long deleted;
 
@@ -35,5 +40,10 @@ public class Client extends Model {
         this.user = user;
         this.address = address;
         this.deleted = deleted;
+    }
+
+    public void CascadeSave() {
+        this.user.save();
+        this.save();
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,15 +20,18 @@ import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
+import com.example.tberroa.girodicerapp.models.User;
 import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.services.FetchPIIntentService;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 public class SignInActivity extends AppCompatActivity {
@@ -137,22 +141,28 @@ public class SignInActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             try{
                 String url = Params.LOGIN_URL;
+                Log.d("test1", dataJSON);
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 new ExceptionHandler().HandleException(e);
-
             }
             return null;
         }
 
         protected void onPostExecute(Void param) {
+            Log.d("test1", ""+postResponse);
             if (postResponse.contains("id")) {
                 // create DroneOperator model from response json
                 Type droneOperator = new TypeToken<DroneOperator>(){}.getType();
-                DroneOperator operator = new Gson().fromJson(postResponse, droneOperator);
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+                        .create();
+                //DroneOperator testOp = new DroneOperator();
+                //testOp.user.id = 20;
+                //String opTest = gson.toJson(testOp);
+                DroneOperator operator = gson.fromJson(postResponse, droneOperator);
 
                 // save this operator to local storage
-                operator.save();
+                operator.CascadeSave();
 
                 // clear shared preferences of old data
                 operatorInfo.clearAll(SignInActivity.this);

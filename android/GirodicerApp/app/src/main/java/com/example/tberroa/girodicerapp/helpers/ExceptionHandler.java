@@ -9,7 +9,7 @@ public class ExceptionHandler {
     }
 
     public void HandleException(Exception e){
-        Log.d("appErrors", e.getMessage());
+        Log.d("appErrors", "" + e.getMessage());
     }
 
 }

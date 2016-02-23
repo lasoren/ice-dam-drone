@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -165,6 +166,7 @@ public class RegisterActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             try{
                 String url = Params.REGISTER_URL;
+                Log.d("test1", dataJSON);
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 e.printStackTrace();

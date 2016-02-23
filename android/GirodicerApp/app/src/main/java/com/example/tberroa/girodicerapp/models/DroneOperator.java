@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 
 @Table(name = "DroneOperator")
 public class DroneOperator extends Model {
@@ -13,24 +14,31 @@ public class DroneOperator extends Model {
     ice dam removal using the drone. Each inspection would be very
     low cost. */
 
+    @Expose
     @Column(name = "created")
-    public long created;
+    public String created;
 
+    @Expose
     @Column(name = "user")
     public User user;
 
+    @Expose
     @Column(name = "session_id")
     public String session_id;
-
 
     public DroneOperator(){
         super();
     }
 
-    public DroneOperator(long created, User user, String session_id){
+    public DroneOperator(String created, User user, String session_id){
         super();
         this.created = created;
         this.user = user;
         this.session_id = session_id;
+    }
+
+    public void CascadeSave() {
+        this.user.save();
+        this.save();
     }
 }

@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.google.gson.annotations.Expose;
 
 @Table(name = "Hotspot")
 public class Hotspot extends Model {
@@ -11,12 +12,15 @@ public class Hotspot extends Model {
     problems identified by the drone during inspection and
     confirmed by the operator. */
 
+    @Expose
     @Column(name = "created")
     public long created;
 
+    @Expose
     @Column(name = "deleted")
     public long deleted;
 
+    @Expose
     @Column(name = "inspection_image")
     public InspectionImage inspection_image;
 
@@ -29,5 +33,10 @@ public class Hotspot extends Model {
         this.created = created;
         this.deleted = deleted;
         this.inspection_image = inspection_image;
+    }
+
+    public void CascadeSave() {
+        this.inspection_image.save();
+        this.save();
     }
 }

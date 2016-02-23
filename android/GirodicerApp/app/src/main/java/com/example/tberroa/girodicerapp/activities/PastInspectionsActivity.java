@@ -4,10 +4,12 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.tberroa.girodicerapp.helpers.DBManager;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.PIViewAdapter;
@@ -25,7 +27,9 @@ public class PastInspectionsActivity extends BaseActivity {
         setContentView(R.layout.activity_past_inspections);
 
         // grab operatorName
-        operatorName = operatorInfo.getUsername(this);
+        int operatorId = operatorInfo.getId(this);
+        Log.d("test1", "operator id = " + Integer.toString(operatorId));
+        operatorName = DBManager.getOperatorName(operatorId);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
