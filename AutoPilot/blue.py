@@ -2,8 +2,8 @@ from bluetooth import *
 import EventHandler
 import threading
 
-class Blue(threading.Thread):
 
+class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
     __name = "ubuntu-mate-0"
     __client_sock = None
@@ -33,11 +33,8 @@ class Blue(threading.Thread):
             self.queue.add(EventHandler.BLUETOOTH_CONNECTED)
             try:
                 while True:
-                    data = self.__client_sock.recv(1024)
-                    if len(data) == 0: break
-                    print "received [%s]" % data
-                    if data == 'transfer':
-                        self.queue.add(EventHandler.GET_STATUS)
+                    data = self.__client_sock.recv()
+                    BlueDataProcessor(data, self.queue)
             except IOError:
                 self.queue.add(EventHandler.BLUETOOTH_DISCONNECTED)
 
@@ -50,3 +47,51 @@ class Blue(threading.Thread):
 
     def stop(self):
         self.__running = False
+
+
+class BlueDataProcessor(threading.Thread):
+    COMMAND_ARM = 0x1
+    COMMAND_UNARM = 0x2
+    COMMAND_START_INSPECTION = 0x3
+    COMMAND_END_INSPECTION = 0x4
+    COMMAND_STATUS = 0x5
+    COMMAND_SEND_POINTS = 0x6
+    COMMAND_READY_TO_TRANSFER = 0x7
+
+    def __init__(self, data, queue):
+        super(BlueDataProcessor, self).__init__()
+        self.data = data
+        self.queue = queue
+        self.start()
+
+    def run(self):
+        (command, payloadSize) = struct.unpack('Bi', self.data)
+
+        if command == self.COMMAND_ARM:
+            None
+        elif command == self.COMMAND_UNARM:
+            None
+        elif command == self.COMMAND_START_INSPECTION:
+            None
+        elif command == self.COMMAND_END_INSPECTION:
+            None
+        elif command == self.COMMAND_STATUS:
+            None
+        elif command == self.COMMAND_SEND_POINTS:
+            self.__decipherSendPoints(payloadSize)
+        elif command == self.COMMAND_READY_TO_TRANSFER:
+            None
+
+    def __decipherSendPoints(self, payloadSize):
+        offset = struct.calcsize('Bi')
+        windPos = struct.calcsize('dd')
+        numPoints = payloadSize/windPos
+
+        points = []
+
+        for i in len(0, numPoints):
+            (lat, lng) = struct.unpack('dd', offset)
+            points.append((lat,lng))
+            offset += windPos
+
+        self.queue.add(EventHandler.BLUETOOTH_GET_POINTS, points)

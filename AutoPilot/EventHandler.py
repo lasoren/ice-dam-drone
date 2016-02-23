@@ -3,7 +3,7 @@ import Queue, threading
 BLUETOOTH_CONNECTED = 1
 BLUETOOTH_DISCONNECTED = -1
 GET_STATUS = 2
-
+BLUETOOTH_GET_POINTS = 3
 
 class EventQueue:
     def __init__(self):

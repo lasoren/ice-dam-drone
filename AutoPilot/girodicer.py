@@ -133,3 +133,15 @@ class Girodicer():
         if bearing < 0:
             bearing += 360.00
         return bearing
+
+class GirodicerStatus(threading.Thread):
+
+    def __init__(self, vehicle, bluetooth):
+        self(GirodicerStatus, self).__init__()
+        self.vehicle = vehicle
+        self.bluetooth = bluetooth
+        self.__running = True
+        self.start()
+
+    def run(self):
+        self.vehicle.is_armable
