@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class ActiveMissionInfo extends Application {
+public class ActiveInspectionInfo extends Application {
 
     // keys
     private final String IS_MISSION_NOT_IN_PROGRESS = "is_mission_not_in_progress";
@@ -13,7 +13,7 @@ public class ActiveMissionInfo extends Application {
     private final String MISSION_DATA = "mission_data";
     private final String LAST_DOWNLOAD = "last_download";
 
-    public ActiveMissionInfo() {
+    public ActiveInspectionInfo() {
     }
 
     private SharedPreferences getSharedPreferences(Context context){

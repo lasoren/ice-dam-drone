@@ -12,7 +12,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.squareup.picasso.Picasso;
 
-public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.ImageViewHolder> {
+public class InspectionViewAdapter extends RecyclerView.Adapter<InspectionViewAdapter.ImageViewHolder> {
 
     private final Context context;
     private final int numberOfImages;
@@ -20,7 +20,7 @@ public class MissionViewAdapter extends RecyclerView.Adapter<MissionViewAdapter.
     private final String username;
     private final String tab;
 
-    public MissionViewAdapter(Context c, int missionNum, int numOfImages, String tab, String user){
+    public InspectionViewAdapter(Context c, int missionNum, int numOfImages, String tab, String user){
         context = c;
         missionNumber = missionNum;
         numberOfImages = numOfImages;

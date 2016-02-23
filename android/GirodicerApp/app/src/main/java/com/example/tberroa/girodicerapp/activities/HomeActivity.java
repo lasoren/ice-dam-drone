@@ -9,12 +9,12 @@ import android.content.Intent;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.R;
 
-public class MainActivity extends BaseActivity {
+public class HomeActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_home);
 
         // declare and initialize buttons
         Button startMissionButton = (Button)findViewById(R.id.start_mission_button);
@@ -27,20 +27,20 @@ public class MainActivity extends BaseActivity {
 
     private final OnClickListener startMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            Utilities.AttemptMissionStart(MainActivity.this);
+            Utilities.AttemptMissionStart(HomeActivity.this);
         }
     };
 
     private final OnClickListener currentMissionButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(MainActivity.this, ActiveMissionActivity.class));
+            startActivity(new Intent(HomeActivity.this, ActiveInspectionActivity.class));
             finish();
         }
     };
 
     private final OnClickListener previousMissionsButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(MainActivity.this, PreviousMissionsActivity.class));
+            startActivity(new Intent(HomeActivity.this, PastInspectionsActivity.class));
             finish();
         }
     };

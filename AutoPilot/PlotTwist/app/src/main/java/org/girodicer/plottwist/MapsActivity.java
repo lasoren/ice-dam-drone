@@ -30,10 +30,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.girodicer.plottwist.Bluetooth.ConnectionThread;
+import org.girodicer.plottwist.Bluetooth.GProtocol;
+import org.girodicer.plottwist.Models.Points;
 import org.girodicer.plottwist.services.BluetoothService;
 import org.girodicer.plottwist.services.GetAddress;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener{
@@ -180,15 +183,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        ByteBuffer dataBuffer = ByteBuffer.allocate(houseBoundary.size() * 16);
-        for (LatLng point : houseBoundary){
-            dataBuffer.putDouble(point.latitude);
-            dataBuffer.putDouble(point.longitude);
-            Log.d("dbg", point.toString());
-        }
-        Log.d("dbg", dataBuffer.array().toString());
-        String hi = "transfer";
-        App.BTConnection.write(hi.getBytes());
+        byte[] points = Points.Pack(houseBoundary);
+        App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_SEND_POINTS, points.length, points, false));
     }
 
     private class BTMessageHandler extends Handler {

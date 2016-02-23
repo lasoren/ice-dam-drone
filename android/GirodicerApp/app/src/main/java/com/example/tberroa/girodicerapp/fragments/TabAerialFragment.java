@@ -13,7 +13,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.adapters.MissionViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.InspectionViewAdapter;
 
 public class TabAerialFragment extends Fragment {
 
@@ -45,8 +45,8 @@ public class TabAerialFragment extends Fragment {
             recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
             // populate recycler view
-            MissionViewAdapter a;
-            a = new MissionViewAdapter(c, missionNum, numberOfAerials, Params.AERIAL_TAB, user);
+            InspectionViewAdapter a;
+            a = new InspectionViewAdapter(c, missionNum, numberOfAerials, Params.AERIAL_TAB, user);
             recyclerView.setAdapter(a);
         }
         return v;

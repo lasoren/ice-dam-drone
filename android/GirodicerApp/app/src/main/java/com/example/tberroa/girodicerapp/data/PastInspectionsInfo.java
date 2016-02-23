@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class PreviousMissionsInfo extends Application {
+public class PastInspectionsInfo extends Application {
 
     // keys
     private final String IS_FETCHING = "is_fetching";
@@ -12,7 +12,7 @@ public class PreviousMissionsInfo extends Application {
     private final String MISSIONS = "missions";
     private final String NUMBER_OF_MISSIONS = "number_of_missions";
 
-    public PreviousMissionsInfo(){
+    public PastInspectionsInfo(){
     }
 
     private SharedPreferences getSharedPreferences(Context context){

@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
@@ -10,24 +11,25 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.adapters.MissionPagerAdapter;
+import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.helpers.DBManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 
-public class MissionActivity extends BaseActivity {
+public class InspectionActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        // grab username
-        username = userInfo.getUsername(this);
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mission);
+        setContentView(R.layout.activity_inspection);
+
+        // grab operatorName
+        int operatorId = operatorInfo.getId(this);
+        operatorName = DBManager.getOperatorName(operatorId);
 
         // grab mission JSON and mission number, these values were passed to the activity
         String jsonMission = getIntent().getExtras().getString("mission");
@@ -40,8 +42,16 @@ public class MissionActivity extends BaseActivity {
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Mission " + Integer.toString(missionNumber));
-        toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(InspectionActivity.this, PastInspectionsActivity.class));
+                finish();
+            }
+        });
+        toolbar.setVisibility(View.VISIBLE);
 
         // set tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
@@ -54,10 +64,10 @@ public class MissionActivity extends BaseActivity {
 
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        MissionPagerAdapter adapter;
+        InspectionPagerAdapter adapter;
         FragmentManager fM = getSupportFragmentManager();
         int numOfT = tabLayout.getTabCount();
-        adapter = new MissionPagerAdapter(fM, numOfT, missionNumber, mission, username);
+        adapter = new InspectionPagerAdapter(fM, numOfT, missionNumber, mission, operatorName);
         viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -81,7 +91,14 @@ public class MissionActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.navigation, menu);
         MenuItem item = menu.findItem(R.id.title);
-        item.setTitle("Logged in as: " + username);
+        item.setTitle("Logged in as: " + operatorName);
         return true;
     }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, PastInspectionsActivity.class));
+        finish();
+    }
+
 }

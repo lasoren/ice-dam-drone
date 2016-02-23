@@ -8,15 +8,15 @@ import android.content.Intent;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.services.DroneService;
 
-public class ConfirmEndMissionDialog extends AlertDialog {
+public class ConfirmEndInspectionDialog extends AlertDialog {
 
     private final AlertDialog.Builder builder;
 
-    public ConfirmEndMissionDialog(final Context context){
+    public ConfirmEndInspectionDialog(final Context context){
         super(context);
 
         builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.confirm_end_mission);
+        builder.setMessage(R.string.confirm_end_inspection);
         builder.setCancelable(true);
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener(){
             public void onClick(DialogInterface dialog, int id) {

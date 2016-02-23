@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.tberroa.girodicerapp.activities.ActiveMissionActivity" >
+    tools:context="com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity" >
 
     <include layout="@layout/header"
         android:id="@+id/header"/>
@@ -19,7 +19,7 @@
         android:layout_below="@id/header"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:text="@string/active_mission_text"
+        android:text="@string/active_inspection_text"
         android:textSize="24sp"
         android:visibility="visible"
         />
@@ -33,7 +33,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:text="@string/no_active_mission_text"
+        android:text="@string/no_active_inspection_text"
         android:textSize="24sp"
         android:visibility="visible"
         />

@@ -7,9 +7,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.network.CloudTools;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -17,17 +17,17 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class FetchPMIntentService extends IntentService {
+public class FetchPIIntentService extends IntentService {
 
-    public FetchPMIntentService() {
-        super("FetchPMIntentService");
+    public FetchPIIntentService() {
+        super("FetchPIIntentService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         // currently fetching
-        PreviousMissionsInfo previousMissionsInfo = new PreviousMissionsInfo();
-        previousMissionsInfo.setFetching(this, true);
+        PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
+        pastInspectionsInfo.setFetching(this, true);
 
         // broadcast that fetching has begun
         Intent fetchingStarted = new Intent();
@@ -35,7 +35,7 @@ public class FetchPMIntentService extends IntentService {
         sendBroadcast(fetchingStarted);
 
         // grab username
-        String username = new UserInfo().getUsername(this);
+        String username = new OperatorInfo().getUsername(this);
 
         // initialize the client
         AmazonS3 s3Client = CloudTools.getAmazonS3Client(this);
@@ -86,17 +86,17 @@ public class FetchPMIntentService extends IntentService {
         }
 
         // save the number of missions
-        previousMissionsInfo.setNumOfMissions(this, numberOfMissions);
+        pastInspectionsInfo.setNumOfMissions(this, numberOfMissions);
 
         // save the missions array
         Gson gson = new Gson();
         Type listOfMissions = new TypeToken<ArrayList<Mission>>(){}.getType();
         String json = gson.toJson(missions, listOfMissions);
-        previousMissionsInfo.setMissions(this, json);
+        pastInspectionsInfo.setMissions(this, json);
 
         // done fetching and previous missions info is up to date
-        previousMissionsInfo.setFetching(this, false);
-        previousMissionsInfo.setUpToDate(this, true);
+        pastInspectionsInfo.setFetching(this, false);
+        pastInspectionsInfo.setUpToDate(this, true);
 
         // broadcast that the service is complete
         Intent broadcastIntent = new Intent(Params.FETCHING_COMPLETE);

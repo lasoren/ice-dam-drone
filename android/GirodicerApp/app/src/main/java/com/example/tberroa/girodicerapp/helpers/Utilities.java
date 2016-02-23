@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.helpers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
@@ -8,10 +9,10 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.activities.ActiveMissionActivity;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
+import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PreviousMissionsInfo;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.services.DroneService;
@@ -83,12 +84,12 @@ final public class Utilities {
     }
 
     public static ArrayList<Mission> getMissions(Context context){
-        String jsonMissions = new PreviousMissionsInfo().getMissions(context);
+        String jsonMissions = new PastInspectionsInfo().getMissions(context);
         return new Gson().fromJson(jsonMissions, new TypeToken<ArrayList<Mission>>(){}.getType());
     }
 
     public static String ConstructImageURL(String username, int missionNumber, String imageName){
-        return Params.CLOUD_URL +username+"/mission"+missionNumber+"/images/"+imageName;
+        return Params.CLOUD_URL +"1/images/"+imageName;
     }
 
 
@@ -105,7 +106,7 @@ final public class Utilities {
     }
 
     public static String ConstructImageKey(String username, int missionNumber, String imageName){
-        return username+"/mission"+missionNumber+"/images/"+imageName;
+        return "1/images/"+imageName;
     }
 
     public static String validate(Bundle enteredInfo){
@@ -147,20 +148,23 @@ final public class Utilities {
 
     public static void AttemptMissionStart(Context context){
 
-        PreviousMissionsInfo pMInfo = new PreviousMissionsInfo();
+        PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;
         if (!pMInfo.isUpToDate(context) || pMInfo.isFetching(context)){
-            message = context.getResources().getString(R.string.previous_missions_not_up_to_date);
+            message = context.getResources().getString(R.string.previous_inspections_not_up_to_date);
             new MessageDialog(context, message).getDialog().show();
         }
-        else if (!new ActiveMissionInfo().missionNotInProgress(context)) {
-            message = context.getResources().getString(R.string.mission_in_progress);
+        else if (!new ActiveInspectionInfo().missionNotInProgress(context)) {
+            message = context.getResources().getString(R.string.inspection_in_progress);
             new MessageDialog(context, message).getDialog().show();
         }
         else{
             context.startService(new Intent(context, DroneService.class));
-            context.startActivity(new Intent(context, ActiveMissionActivity.class));
+            context.startActivity(new Intent(context, ActiveInspectionActivity.class));
+            if(context instanceof Activity){
+                ((Activity)context).finish();
+            }
+
         }
     }
-
 }

@@ -10,8 +10,8 @@ import android.os.Environment;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.Mission;
-import com.example.tberroa.girodicerapp.data.ActiveMissionInfo;
-import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,8 +30,8 @@ public class ImageTransferIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // mission in transfer phase, phase=2
-        ActiveMissionInfo activeMissionInfo = new ActiveMissionInfo();
-        activeMissionInfo.setMissionPhase(this, 2);
+        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
+        activeInspectionInfo.setMissionPhase(this, 2);
 
         // broadcast that transfer phase has begun
         Intent transferStarted = new Intent();
@@ -39,8 +39,8 @@ public class ImageTransferIntentService extends IntentService {
         sendBroadcast(transferStarted);
 
         // grab username and mission number
-        String username = new UserInfo().getUsername(this);
-        int missionNumber = activeMissionInfo.getMissionNumber(this);
+        String username = new OperatorInfo().getUsername(this);
+        int missionNumber = activeInspectionInfo.getMissionNumber(this);
 
         // initialize number of images to zero
         int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
@@ -110,7 +110,7 @@ public class ImageTransferIntentService extends IntentService {
                 }
             }
             // save id of last download
-            activeMissionInfo.setLastDownload(this, lastDownload);
+            activeInspectionInfo.setLastDownload(this, lastDownload);
         }
         // save the mission data
         Bundle bundle = new Bundle();
@@ -123,7 +123,7 @@ public class ImageTransferIntentService extends IntentService {
         // save the mission as JSON
         Type singleMission = new TypeToken<Mission>(){}.getType();
         String json = new Gson().toJson(missionData, singleMission);
-        activeMissionInfo.setMissionData(this, json);
+        activeInspectionInfo.setMissionData(this, json);
 
         // broadcast that the transfer is complete
         sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));

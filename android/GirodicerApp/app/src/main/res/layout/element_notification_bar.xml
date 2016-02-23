@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/mission_phase_text"
-        android:text="@string/mission_phase_text"
+        android:text="@string/inspection_phase_text"
         android:textColor="@color/colorPrimaryDark"
         android:gravity="center"
         android:background="#d3ff7f"

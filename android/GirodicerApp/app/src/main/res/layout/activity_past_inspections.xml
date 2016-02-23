@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.tberroa.girodicerapp.activities.PreviousMissionsActivity">
+    tools:context="com.example.tberroa.girodicerapp.activities.PastInspectionsActivity">
 
     <include layout="@layout/header"
         android:id="@+id/header"/>
@@ -14,5 +14,7 @@
         android:layout_height="match_parent"
         android:id="@+id/previous_missions_recycler_view"
         android:layout_below="@id/header"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="true"
         />
 </RelativeLayout>
