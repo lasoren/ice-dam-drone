@@ -19,7 +19,7 @@ public class TabAerialFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_aerial, group, false);
+        View v = inflater.inflate(R.layout.fragment_tab_images, group, false);
 
         if (isAdded()){
             String inspectionJson = "";
@@ -35,7 +35,7 @@ public class TabAerialFragment extends Fragment {
             Context context = getActivity();
 
             // initialize recycler view
-            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.inspection_recycler_view);
             int span = Utilities.getSpanGrid(context);
             int spacing = Utilities.getSpacingGrid(context);
             recyclerView.setLayoutManager(new GridLayoutManager(context, span));

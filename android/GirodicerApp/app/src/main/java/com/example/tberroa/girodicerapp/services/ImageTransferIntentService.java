@@ -39,7 +39,7 @@ public class ImageTransferIntentService extends IntentService {
 
         // grab username and mission number
         String username = new OperatorId().getUsername(this);
-        int missionNumber = activeInspectionInfo.getMissionNumber(this);
+        int missionNumber = activeInspectionInfo.getId(this);
 
         // initialize number of images to zero
         int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;

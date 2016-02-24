@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.tberroa.girodicerapp.activities.PastInspectionsActivity">
+    tools:context=".PastInspectionsActivity" >
 
     <include layout="@layout/header"
-        android:id="@+id/header"/>
+        android:id="@+id/header"
+        />
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

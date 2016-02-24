@@ -14,17 +14,12 @@ import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.adapters.FragmentViewAdapter;
-import com.example.tberroa.girodicerapp.models.Inspection;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 
 public class TabThermalFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_thermal, group, false);
+        View v = inflater.inflate(R.layout.fragment_tab_images, group, false);
 
         if (isAdded()){
             String inspectionJson = "";
@@ -40,7 +35,7 @@ public class TabThermalFragment extends Fragment {
             Context context = getActivity();
 
             // initialize recycler view
-            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
+            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.inspection_recycler_view);
             int span = Utilities.getSpanGrid(context);
             int spacing = Utilities.getSpacingGrid(context);
             recyclerView.setLayoutManager(new GridLayoutManager(context, span));

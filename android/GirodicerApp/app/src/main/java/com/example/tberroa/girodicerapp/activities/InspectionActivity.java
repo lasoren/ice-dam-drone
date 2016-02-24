@@ -15,12 +15,6 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.models.Inspection;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 
 public class InspectionActivity extends BaseActivity {
 
@@ -66,7 +60,7 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.setVisibility(View.VISIBLE);
 
         // populate the activity
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
         InspectionPagerAdapter inspectionPagerAdapter;
         FragmentManager fragmentManager = getSupportFragmentManager();
         int numberOfTabs = tabLayout.getTabCount();

@@ -18,7 +18,7 @@ import com.example.tberroa.girodicerapp.models.Client;
 
 import java.util.List;
 
-public class ClientManagerActivity extends AppCompatActivity {
+public class ClientManagerActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

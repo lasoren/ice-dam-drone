@@ -150,7 +150,7 @@ final public class Utilities {
         return validation;
     }
 
-    public static void AttemptMissionStart(Context context){
+    public static void AttemptInspectionStart(Context context){
 
         PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;

@@ -42,8 +42,8 @@ public class ImageUploadService extends Service {
 
         // grab data
         username = new OperatorId().getUsername(ImageUploadService.this);
-        missionNumber = activeInspectionInfo.getMissionNumber(ImageUploadService.this);
-        String json = activeInspectionInfo.getMissionData(ImageUploadService.this);
+        missionNumber = activeInspectionInfo.getId(ImageUploadService.this);
+        String json = activeInspectionInfo.getData(ImageUploadService.this);
         Client clientData = new Gson().fromJson(json, new TypeToken<Client>() {}.getType());
         int numberOfAerials = clientData.getNumberOfAerials();
         int numberOfThermals = clientData.getNumberOfThermals();

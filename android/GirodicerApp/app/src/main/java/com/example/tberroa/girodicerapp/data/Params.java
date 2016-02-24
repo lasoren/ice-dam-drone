@@ -13,7 +13,7 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcast parameters
-    final public static String MISSION_STARTED = "MISSION_STARTED";
+    final public static String INSPECTION_STARTED = "INSPECTION_STARTED";
     final public static String DRONE_DONE = "DRONE_DONE";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
     final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
