@@ -8,24 +8,37 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalTestDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
+import com.example.tberroa.girodicerapp.models.InspectionImage;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 public class FragmentViewAdapter extends RecyclerView.Adapter<FragmentViewAdapter.ImageViewHolder> {
 
     private final Context context;
+    private final List<InspectionImage> inspectionImages;
     private final int numberOfImages;
-    private final Inspection inspection;
-    private final String tab;
 
-    public FragmentViewAdapter(Context context, Inspection inspection, String tab){
+    public FragmentViewAdapter(Context context, String inspectionJson, String tab){
         this.context = context;
-        this.inspection = inspection;
-        numberOfImages = new LocalTestDB().getNumberOfType(inspection, tab);
-        this.tab = tab;
+
+        // deserialize the inspection
+        Type singleInspection = new TypeToken<Inspection>(){}.getType();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Inspection inspection = gson.fromJson(inspectionJson, singleInspection);
+
+        // get all inspection images of type "tab" belonging to the inspection
+        inspectionImages = new LocalTestDB().getInspectionImages(inspection, tab);
+
+        // get number of images
+        numberOfImages = inspectionImages.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
@@ -43,32 +56,18 @@ public class FragmentViewAdapter extends RecyclerView.Adapter<FragmentViewAdapte
 
     @Override
     public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        Context c = viewGroup.getContext();
-        View mission = LayoutInflater.from(c).inflate(R.layout.element_tab_images, viewGroup, false);
-        return new ImageViewHolder(mission);
+        Context context = viewGroup.getContext();
+        View inspection = LayoutInflater.from(context).inflate(R.layout.element_tab_images, viewGroup, false);
+        return new ImageViewHolder(inspection);
     }
 
     @Override
     public void onBindViewHolder(ImageViewHolder imageViewHolder, int i) {
-        // construct image url
-        String imageType;
-        switch (tab){
-            case Params.AERIAL_TAB:
-                imageType = "aerial";
-                break;
-            case Params.THERMAL_TAB:
-                imageType = "thermal";
-                break;
-            case Params.ICEDAM_TAB:
-                imageType = "icedam";
-                break;
-            case Params.SALT_TAB:
-                imageType = "salt";
-                break;
-            default:
-                imageType = "aerial";
-        }
-        String url = new LocalTestDB().getInspectionImages(inspection, imageType).get(i).link;
+        // get the inspection image pertaining to this position
+        InspectionImage inspectionImage = inspectionImages.get(i);
+
+        // get the url for this inspection image
+        String url = inspectionImage.link;
 
         // render image with Picasso
         int width = Utilities.getImageWidthGrid(context);

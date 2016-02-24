@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/header"
-    tools:context="com.example.tberroa.girodicerapp.activities.BaseActivity">
+    tools:context=".BaseActivity" >
 
     <include layout="@layout/element_toolbar"
-        android:id="@+id/toolbar_layout"/>
+        android:id="@+id/toolbar_layout"
+        />
 
     <include layout="@layout/element_tab_bar"
         android:id="@+id/tab_bar_layout"

@@ -15,12 +15,6 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.models.Inspection;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 
 public class InspectionActivity extends BaseActivity {
 
@@ -34,13 +28,13 @@ public class InspectionActivity extends BaseActivity {
         operatorName = new LocalDB().getOperator(operatorId).user.first_name;
 
         // grab client JSON and client number, these values were passed to the activity
-        String jsonInspection = getIntent().getExtras().getString("inspection");
+        String inspectionJson = getIntent().getExtras().getString("inspection_json");
         int inspectionNumber = getIntent().getExtras().getInt("inspection_number");
 
         // unpack inspection JSON into Inspection object
-        Type typeInspection = new TypeToken<Inspection>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        Inspection inspection = gson.fromJson(jsonInspection, typeInspection);
+        //Type typeInspection = new TypeToken<Inspection>(){}.getType();
+        //Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        //Inspection inspection = gson.fromJson(inspectionJson, typeInspection);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -66,11 +60,11 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.setVisibility(View.VISIBLE);
 
         // populate the activity
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
         InspectionPagerAdapter inspectionPagerAdapter;
         FragmentManager fragmentManager = getSupportFragmentManager();
         int numberOfTabs = tabLayout.getTabCount();
-        inspectionPagerAdapter = new InspectionPagerAdapter(fragmentManager, numberOfTabs, inspection);
+        inspectionPagerAdapter = new InspectionPagerAdapter(fragmentManager, numberOfTabs, inspectionJson);
         viewPager.setAdapter(inspectionPagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

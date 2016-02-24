@@ -1,7 +1,5 @@
 package com.example.tberroa.girodicerapp.database;
 
-import android.util.Log;
-
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -11,9 +9,8 @@ import com.example.tberroa.girodicerapp.models.User;
 
 import java.util.ArrayList;
 
-/**
- * local database to be loaded up on app start for the purpose of testing
- */
+// local database to be loaded up on app start for the purpose of testing
+
 public class TestCase {
 
     public TestCase(){
@@ -43,17 +40,15 @@ public class TestCase {
         String inspectionNumber[] = {"1", "2", "3", "4"};               // iterator
         String imageTypes[] = {"aerial", "thermal", "icedam", "salt"};  // iterator
         String imageNumber[] = {"1", "2", "3", "4", "5"};               // iterator
-        ArrayList<InspectionImage> inspectionImages = new ArrayList<>(20);
+        InspectionImage inspectionImage;
         int i = 0;
         for (String iNum : inspectionNumber){
             for (String type : imageTypes){
                 for (String num : imageNumber){
 
                     String url = Params.CLOUD_URL + iNum+"/images/"+type+num+".jpg";
-                    Log.d("test1", "creation url for I"+iNum+"= "+url);
-                    InspectionImage inspectionImage = new InspectionImage("today", "today", inspections.get(i), type, url, 0);
+                    inspectionImage = new InspectionImage("today", "today", inspections.get(i), type, url, 0);
                     inspectionImage.CascadeSave();
-                    inspectionImages.add(inspectionImage);
                 }
             }
             i++;

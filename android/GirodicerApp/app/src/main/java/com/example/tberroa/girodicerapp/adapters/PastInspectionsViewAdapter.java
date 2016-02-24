@@ -32,8 +32,6 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
     public PastInspectionsViewAdapter(Context context, List<Inspection> inspections) {
         this.context = context;
         this.inspections = inspections;
-        Log.d("test1", "inspection_class: "+Integer.toString(this.inspections.size()));
-        Log.d("test1", "inspection_argument: " + Integer.toString(inspections.size()));
     }
 
     public class InspectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -59,11 +57,11 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
             // pack inspection into JSON
             Type singleInspection = new TypeToken<Inspection>() {}.getType();
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-            String jsonInspection = gson.toJson(inspection, singleInspection);
+            String inspectionJson = gson.toJson(inspection, singleInspection);
 
             // start inspection activity, send inspection JSON and inspection number
             Intent inspectionIntent = new Intent(v.getContext(), InspectionActivity.class);
-            inspectionIntent.putExtra("inspection", jsonInspection);
+            inspectionIntent.putExtra("inspection_json", inspectionJson);
             inspectionIntent.putExtra("inspection_number", i + 1);
             context.startActivity(inspectionIntent);
             if(context instanceof Activity){
@@ -74,7 +72,6 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
     @Override
     public int getItemCount() {
-        Log.d("test1", "return value: "+Integer.toString(inspections.size()));
         return inspections.size();
     }
 
@@ -92,11 +89,9 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
         String title = "Inspection " + Integer.toString(i + 1);
         inspectionViewHolder.inspectionNumber.setText(title);
 
-        Log.d("test1", "last value: " + Integer.toString(inspections.size()));
-
         // get thumbnail url (TEST)
-        String url = new LocalTestDB().getInspectionImages(inspections.get(i), "aerial").get(i).link;
-        Log.d("test1", "past inspection thumbnail url = "+url);
+        String url = new LocalTestDB().getInspectionImages(inspections.get(i), "aerial").get(0).link;
+
 
         // render thumbnail with Picasso
         int width = Utilities.getImageWidthGrid(context);

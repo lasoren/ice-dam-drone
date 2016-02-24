@@ -21,11 +21,11 @@ public class DroneService extends Service {
 
         // set inspection number
         int missionNumber = new PastInspectionsInfo().getNumOfMissions(this)+1;
-        activeInspectionInfo.setInspectionNumber(this, missionNumber);
+        activeInspectionInfo.setId(this, missionNumber);
 
         // broadcast that a new mission has started
         Intent missionStarted = new Intent();
-        missionStarted.setAction(Params.MISSION_STARTED);
+        missionStarted.setAction(Params.INSPECTION_STARTED);
         sendBroadcast(missionStarted);
         */
     }

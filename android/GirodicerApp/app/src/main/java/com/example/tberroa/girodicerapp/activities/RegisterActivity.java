@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // check if user is already logged in
         if (new UserInfo().isLoggedIn(this)){
-            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+            startActivity(new Intent(RegisterActivity.this, ClientManagerActivity.class));
             finish();
         }
 

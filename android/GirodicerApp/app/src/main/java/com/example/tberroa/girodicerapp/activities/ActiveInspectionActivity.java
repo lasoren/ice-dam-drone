@@ -46,7 +46,7 @@ public class ActiveInspectionActivity extends BaseActivity {
         loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
 
         // populate view according to mission phase
-        int missionPhase = activeInspectionInfo.getMissionPhase(this);
+        int missionPhase = activeInspectionInfo.getPhase(this);
         PopulateView(missionPhase);
 
         // set up receiver to update activity as necessary
@@ -56,7 +56,7 @@ public class ActiveInspectionActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 // update view according to mission phase
-                int phase = activeInspectionInfo.getMissionPhase(ActiveInspectionActivity.this);
+                int phase = activeInspectionInfo.getPhase(ActiveInspectionActivity.this);
                 PopulateView(phase);
             }
         };

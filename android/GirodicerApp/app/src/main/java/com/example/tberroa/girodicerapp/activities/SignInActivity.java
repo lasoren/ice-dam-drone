@@ -47,8 +47,8 @@ public class SignInActivity extends AppCompatActivity {
         new TestCase().Create();
 
         // check if user is already logged in
-        if (new UserInfo().isLoggedIn(this)){ // if so, send them to the main screen
-            startActivity(new Intent(SignInActivity.this, HomeActivity.class));
+        if (new UserInfo().isLoggedIn(this)){ // if so, send them to the client manager
+            startActivity(new Intent(SignInActivity.this, ClientManagerActivity.class));
             finish();
         }
 

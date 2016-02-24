@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,9 +47,6 @@ public class PastInspectionsActivity extends BaseActivity {
         // get inspections belonging to that operator&client combination (TEST)
         Client client = localTestDB.getClient();
         List<Inspection> inspections = localTestDB.getInspections(client);
-        //String url = localTestDB.getInspectionImages(inspections.get(0), "aerial").get(0).link;
-        String size = Integer.toString(inspections.size());
-        Log.d("test1", "number of inspections pulled: "+size);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
