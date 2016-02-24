@@ -5,7 +5,7 @@
     android:layout_height="match_parent" >
 
     <ImageView
-        android:id="@+id/mission_thumbnail"
+        android:id="@+id/client_thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/image"
@@ -13,13 +13,13 @@
         />
 
     <TextView
-        android:id="@+id/mission_number"
+        android:id="@+id/client_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/mission_thumbnail"
-        android:layout_alignStart="@id/mission_thumbnail"
-        android:layout_alignEnd="@id/mission_thumbnail"
-        android:text="@string/inspection_x"
+        android:layout_below="@id/client_thumbnail"
+        android:layout_alignStart="@id/client_thumbnail"
+        android:layout_alignEnd="@id/client_thumbnail"
+        android:text="@string/client_x"
         android:gravity="center_horizontal"
         android:textSize="18sp"
         />

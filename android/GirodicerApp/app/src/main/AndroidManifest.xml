@@ -53,6 +53,7 @@
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.BaseActivity" />
         <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.ClientManagerActivity" />
         <activity android:name=".activities.ActiveInspectionActivity" />
         <activity android:name=".activities.PastInspectionsActivity" />
         <activity android:name=".activities.InspectionActivity" />

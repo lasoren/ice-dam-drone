@@ -32,7 +32,7 @@ public class ActiveInspectionInfo extends Application {
         return getSharedPreferences(context).getInt(INSPECTION_NUMBER, 0);
     }
 
-    public String getMissionData(Context context){ // as JSON of a Mission object
+    public String getMissionData(Context context){ // as JSON of a Client object
         return getSharedPreferences(context).getString(DATA, "");
     }
 
@@ -58,7 +58,7 @@ public class ActiveInspectionInfo extends Application {
         editor.apply();
     }
 
-    public void setData(Context context, String data){ // as JSON of a Mission object
+    public void setData(Context context, String data){ // as JSON of a Client object
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(this.DATA, data);
         editor.apply();

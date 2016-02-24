@@ -1,5 +1,7 @@
 package com.example.tberroa.girodicerapp.database;
 
+import android.util.Log;
+
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -17,7 +19,7 @@ public class TestCase {
     public TestCase(){
     }
 
-    private void Create(){
+    public void Create(){
         // create operator and client
         User operatorUser = new User(1, "today", "Thomas", "Berroa", "tberroa@outlook.com");
         operatorUser.save();
@@ -30,8 +32,9 @@ public class TestCase {
 
         // create inspections
         ArrayList<Inspection> inspections = new ArrayList<>(4);
+        Inspection inspection;
         for (int i=0; i<4; i++){
-            Inspection inspection = new Inspection("today", droneOperator, client, 0);
+            inspection = new Inspection(i+1, "today", droneOperator, client, 0);
             inspection.CascadeSave();
             inspections.add(inspection);
         }
@@ -47,6 +50,7 @@ public class TestCase {
                 for (String num : imageNumber){
 
                     String url = Params.CLOUD_URL + iNum+"/images/"+type+num+".jpg";
+                    Log.d("test1", "creation url for I"+iNum+"= "+url);
                     InspectionImage inspectionImage = new InspectionImage("today", "today", inspections.get(i), type, url, 0);
                     inspectionImage.CascadeSave();
                     inspectionImages.add(inspectionImage);

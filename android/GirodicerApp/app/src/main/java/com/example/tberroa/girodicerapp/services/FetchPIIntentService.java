@@ -23,7 +23,7 @@ public class FetchPIIntentService extends IntentService {
 
         // broadcast that fetching has begun
         Intent fetchingStarted = new Intent();
-        fetchingStarted.setAction(Params.FETCHING_STARTED);
+        fetchingStarted.setAction(Params.UPDATING_STARTED);
         sendBroadcast(fetchingStarted);
 
         // grab username
@@ -40,7 +40,7 @@ public class FetchPIIntentService extends IntentService {
         int numberOfMissions= s3Client.listObjects(listObjectsRequest).getCommonPrefixes().size();
 
         // create array of missions
-        ArrayList<Mission> missions = new ArrayList<>(numberOfMissions);
+        ArrayList<Client> missions = new ArrayList<>(numberOfMissions);
 
         // get number of images for all missions
         for (int i=1; i <= numberOfMissions; i++ ){
@@ -69,7 +69,7 @@ public class FetchPIIntentService extends IntentService {
             numberOfSalts = salts.getObjectSummaries().size();
 
             // create new mission object and store in missions array
-            Mission mission = new Mission();
+            Client mission = new Client();
             mission.setNumberOfAerials(numberOfAerials);
             mission.setNumberOfThermals(numberOfThermals);
             mission.setNumberOfIceDams(numberOfIceDams);
@@ -82,7 +82,7 @@ public class FetchPIIntentService extends IntentService {
 
         // save the missions array
         Gson gson = new Gson();
-        Type listOfMissions = new TypeToken<ArrayList<Mission>>(){}.getType();
+        Type listOfMissions = new TypeToken<ArrayList<Client>>(){}.getType();
         String json = gson.toJson(missions, listOfMissions);
         pastInspectionsInfo.setMissions(this, json);
 
@@ -91,7 +91,7 @@ public class FetchPIIntentService extends IntentService {
         pastInspectionsInfo.setUpToDate(this, true);
 
         // broadcast that the service is complete
-        Intent broadcastIntent = new Intent(Params.FETCHING_COMPLETE);
+        Intent broadcastIntent = new Intent(Params.UPDATING_COMPLETE);
         sendBroadcast(broadcastIntent);
         */
     }

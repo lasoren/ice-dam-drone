@@ -15,6 +15,10 @@ public class Inspection extends Model {
     dam. */
 
     @Expose
+    @Column(name = "inspection_id")
+    public int id;
+
+    @Expose
     @Column(name = "created")
     public String created;
 
@@ -34,8 +38,9 @@ public class Inspection extends Model {
         super();
     }
 
-    public Inspection(String created, DroneOperator drone_operator, Client client, long deleted){
+    public Inspection(int id, String created, DroneOperator drone_operator, Client client, long deleted){
         super();
+        this.id = id;
         this.created = created;
         this.drone_operator = drone_operator;
         this.client = client;

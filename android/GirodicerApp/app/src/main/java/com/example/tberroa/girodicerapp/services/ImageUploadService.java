@@ -11,7 +11,6 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
@@ -32,7 +31,7 @@ public class ImageUploadService extends Service {
     private TransferUtility transfer;
 
     @Override
-    public void onCreate(){
+    public void onCreate(){/*
         // mission in upload phase, phase=3
         activeInspectionInfo.setPhase(this, 3);
 
@@ -45,11 +44,11 @@ public class ImageUploadService extends Service {
         username = new OperatorId().getUsername(ImageUploadService.this);
         missionNumber = activeInspectionInfo.getMissionNumber(ImageUploadService.this);
         String json = activeInspectionInfo.getMissionData(ImageUploadService.this);
-        Mission missionData = new Gson().fromJson(json, new TypeToken<Mission>() {}.getType());
-        int numberOfAerials = missionData.getNumberOfAerials();
-        int numberOfThermals = missionData.getNumberOfThermals();
-        int numberOfIceDams = missionData.getNumberOfIceDams();
-        int numberOfSalts = missionData.getNumberOfSalts();
+        Client clientData = new Gson().fromJson(json, new TypeToken<Client>() {}.getType());
+        int numberOfAerials = clientData.getNumberOfAerials();
+        int numberOfThermals = clientData.getNumberOfThermals();
+        int numberOfIceDams = clientData.getNumberOfIceDams();
+        int numberOfSalts = clientData.getNumberOfSalts();
 
         // pack data into bundle to make iterative access simpler
         numberOfImages = new Bundle();
@@ -60,10 +59,11 @@ public class ImageUploadService extends Service {
 
         // initialize transfer utility
         transfer = CloudTools.getTransferUtility(ImageUploadService.this);
+        */
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(Intent intent, int flags, int startId) { /*
         super.onStartCommand(intent, flags, startId);
 
         final Runnable runnable = new Runnable() {
@@ -114,7 +114,9 @@ public class ImageUploadService extends Service {
         thread.start();
 
         // recreate service if killed by OS
+        */
         return START_STICKY;
+
     }
 
     @Override
@@ -130,7 +132,7 @@ public class ImageUploadService extends Service {
         pastInspectionsInfo.setUpToDate(this, false);
 
         // update previous missions info
-        if (!pastInspectionsInfo.isFetching(this)){
+        if (!pastInspectionsInfo.isUpdating(this)){
             startService(new Intent(this, FetchPIIntentService.class));
         }
 

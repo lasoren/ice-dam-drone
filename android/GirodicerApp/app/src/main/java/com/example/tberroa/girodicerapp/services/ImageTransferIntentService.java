@@ -10,7 +10,6 @@ import android.os.Environment;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.google.gson.Gson;
@@ -28,7 +27,7 @@ public class ImageTransferIntentService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleIntent(Intent intent) {/*
         // mission in transfer phase, phase=2
         ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
         activeInspectionInfo.setPhase(this, 2);
@@ -118,14 +117,15 @@ public class ImageTransferIntentService extends IntentService {
         bundle.putInt("number_of_thermals", numberOfThermals);
         bundle.putInt("number_of_icedams", numberOfIceDams);
         bundle.putInt("number_of_salts", numberOfSalts);
-        Mission missionData = new Mission(bundle);
+        Client clientData = new Client(bundle);
 
         // save the mission as JSON
-        Type singleMission = new TypeToken<Mission>(){}.getType();
-        String json = new Gson().toJson(missionData, singleMission);
+        Type singleMission = new TypeToken<Client>(){}.getType();
+        String json = new Gson().toJson(clientData, singleMission);
         activeInspectionInfo.setData(this, json);
 
         // broadcast that the transfer is complete
         sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
+        */
     }
 }
