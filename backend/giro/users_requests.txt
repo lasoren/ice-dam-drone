@@ -16,15 +16,15 @@ Request:
 Response:
 {
     "id": 1,
-    "created": "2016-02-23T20:06:05.897212Z",
+    "created": "2016-02-24T22:07:52.371513Z",
     "user": {
         "id": 1,
-        "created": "2016-02-23T20:06:05.888600Z",
+        "created": "2016-02-24T22:07:52.368630Z",
         "first_name": "Luke",
         "last_name": "Sorenson",
         "email": "lukeasorenson@gmail.com"
     },
-    "session_id": "5e4415533d674424bae5337fe053018b304b0f09556478b6ffeaa922bb69b315974a6d8daeb17bb547a612a52ad227e4cdef88b678299d46661528d339ed630b"
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929"
 }
 
 Sample Error Response:
@@ -46,15 +46,16 @@ Request:
 
 Response:
 {
-    "created": "2016-02-18T02:33:41.093284Z",
+    "id": 1,
+    "created": "2016-02-24T22:07:52.371513Z",
     "user": {
-        "id": 8,
-        "created": "2016-02-18T02:33:41.090139Z",
+        "id": 1,
+        "created": "2016-02-24T22:07:52.368630Z",
         "first_name": "Luke",
         "last_name": "Sorenson",
         "email": "lukeasorenson@gmail.com"
     },
-    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546"
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929"
 }
 
 Sample Error Response:
@@ -75,8 +76,8 @@ url POST: /users/client/create
 
 Request:
 {
-    "user_id": 8,
-    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
     "client": {
         "user": {
             "first_name": "Michael",
@@ -90,10 +91,10 @@ Request:
 Response:
 {
     "id": 1,
-    "created": "2016-02-23T20:07:47.094522Z",
+    "created": "2016-02-24T22:09:05.405903Z",
     "user": {
         "id": 2,
-        "created": "2016-02-23T20:07:47.087010Z",
+        "created": "2016-02-24T22:09:05.397211Z",
         "first_name": "Michael",
         "last_name": "Sorenson",
         "email": "msoren@bu.edu"
@@ -110,7 +111,7 @@ url POST: /users/clients/get
 Request:
 {
     "user_id": 1,
-    "session_id": "b2838a57640c43f9a8e036f30689f92a209d1d7eb71472040e6f95abe932cf3fd20853200a814b94fc2843759f4d7f85faa62b9fa968a2492ca1bce1a5df2546",
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
     "provision": 0
 }
 
@@ -118,31 +119,18 @@ Response:  # Sorted with the most recently updated clients first.
 {
     "clients": [
         {
-            "id": 3,
-            "created": "2016-02-21T20:43:05.654558Z",
+            "id": 1,
+            "created": "2016-02-24T22:09:05.405903Z",
             "user": {
-                "id": 19,
-                "created": "2016-02-21T20:43:05.647363Z",
+                "id": 2,
+                "created": "2016-02-24T22:09:05.397211Z",
                 "first_name": "Michael",
                 "last_name": "Sorenson",
                 "email": "msoren@bu.edu"
             },
             "address": "14 Barnesdale Rd. Natick, MA 01760",
             "deleted": null
-        },
-        {
-            "id": 4,
-            "created": "2016-02-21T22:57:04.512474Z",
-            "user": {
-                "id": 21,
-                "created": "2016-02-21T22:57:04.507423Z",
-                "first_name": "Lisa",
-                "last_name": "Sorenson",
-                "email": "lsoren@bu.edu"
-            },
-            "address": "14 Barnesdale Rd. Natick, MA 01760",
-            "deleted": null
         }
     ],
-    "provision": 5
+    "provision": 2
 }
