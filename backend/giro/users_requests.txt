@@ -8,7 +8,7 @@ Request:
     "user": {
         "first_name": "Luke",
         "last_name": "Sorenson",
-        "email": "lukeasorenson@gmail.com"
+        "email": "lasoren@bu.edu"
     },
     "password": "password"
 }
