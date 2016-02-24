@@ -9,23 +9,23 @@ import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.database.LocalTestDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
+import com.example.tberroa.girodicerapp.models.Inspection;
 import com.squareup.picasso.Picasso;
 
-public class InspectionViewAdapter extends RecyclerView.Adapter<InspectionViewAdapter.ImageViewHolder> {
+public class FragmentViewAdapter extends RecyclerView.Adapter<FragmentViewAdapter.ImageViewHolder> {
 
     private final Context context;
     private final int numberOfImages;
-    private final int missionNumber;
-    private final String username;
+    private final Inspection inspection;
     private final String tab;
 
-    public InspectionViewAdapter(Context c, int missionNum, int numOfImages, String tab, String user){
-        context = c;
-        missionNumber = missionNum;
-        numberOfImages = numOfImages;
+    public FragmentViewAdapter(Context context, Inspection inspection, String tab){
+        this.context = context;
+        this.inspection = inspection;
+        numberOfImages = new LocalTestDB().getNumberOfType(inspection, tab);
         this.tab = tab;
-        username = user;
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
@@ -51,24 +51,24 @@ public class InspectionViewAdapter extends RecyclerView.Adapter<InspectionViewAd
     @Override
     public void onBindViewHolder(ImageViewHolder imageViewHolder, int i) {
         // construct image url
-        String imageName;
+        String imageType;
         switch (tab){
             case Params.AERIAL_TAB:
-                imageName = "aerial"+Integer.toString(i+1)+".jpg";
+                imageType = "aerial";
                 break;
             case Params.THERMAL_TAB:
-                imageName = "thermal"+Integer.toString(i+1)+".jpg";
+                imageType = "thermal";
                 break;
             case Params.ICEDAM_TAB:
-                imageName = "icedam"+Integer.toString(i+1)+".jpg";
+                imageType = "icedam";
                 break;
             case Params.SALT_TAB:
-                imageName = "salt"+Integer.toString(i+1)+".jpg";
+                imageType = "salt";
                 break;
             default:
-                imageName = "aerial"+Integer.toString(i+1)+".jpg";
+                imageType = "aerial";
         }
-        String url = Utilities.ConstructImageURL(username, missionNumber, imageName);
+        String url = new LocalTestDB().getInspectionImages(inspection, imageType).get(i).link;
 
         // render image with Picasso
         int width = Utilities.getImageWidthGrid(context);

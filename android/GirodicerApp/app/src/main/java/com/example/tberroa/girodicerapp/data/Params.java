@@ -20,8 +20,8 @@ public class Params {
     final public static String UPLOAD_STARTED = "UPLOAD_STARTED";
     final public static String UPLOAD_COMPLETE = "UPLOAD_COMPLETE";
     final public static String RELOAD_AM_ACTIVITY = "RELOAD_AM_ACTIVITY";
-    final public static String FETCHING_STARTED = "FETCHING_STARTED";
-    final public static String FETCHING_COMPLETE = "FETCHING_COMPLETE";
+    final public static String UPDATING_STARTED = "UPDATING_STARTED";
+    final public static String UPDATING_COMPLETE = "UPDATING_COMPLETE";
 
 
     // UI parameters

@@ -53,7 +53,7 @@
         android:layout_below="@id/password"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
-        android:text="@string/login"
+        android:text="@string/sign_in"
         />
 
     <TextView android:id="@+id/register"

@@ -11,18 +11,19 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
-import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 public class BaseActivity extends AppCompatActivity {
 
-    final OperatorId operatorId = new OperatorId();
+    final UserInfo userInfo = new UserInfo();
     final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
     private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
     private RelativeLayout fetchingData;
@@ -33,13 +34,9 @@ public class BaseActivity extends AppCompatActivity {
     protected void onStart(){
         super.onStart();
 
-        // if user is not logged in, boot them
-        if (!operatorId.isLoggedIn(this)){
-            // clear operatorName
-            operatorId.setUsername(this, "");
-            // go back to login page
-            startActivity(new Intent(BaseActivity.this, SignInActivity.class));
-            finish();
+        // if user is not signed in, boot them
+        if (!userInfo.isLoggedIn(this)){
+            Utilities.SignOut(this);
         }
 
         // set notifications if necessary
@@ -62,7 +59,7 @@ public class BaseActivity extends AppCompatActivity {
             missionPhase.setVisibility(View.VISIBLE);
             missionPhase.animate().translationY(missionPhase.getHeight());
         }
-        if (pastInspectionsInfo.isFetching(this)){
+        if (pastInspectionsInfo.isUpdating(this)){
             fetchingData.setVisibility(View.VISIBLE);
             fetchingData.animate().translationY(fetchingData.getHeight());
         }
@@ -71,8 +68,8 @@ public class BaseActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Params.TRANSFER_STARTED);
         filter.addAction(Params.UPLOAD_STARTED);
-        filter.addAction(Params.FETCHING_STARTED);
-        filter.addAction(Params.FETCHING_COMPLETE);
+        filter.addAction(Params.UPDATING_STARTED);
+        filter.addAction(Params.UPDATING_COMPLETE);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -86,10 +83,10 @@ public class BaseActivity extends AppCompatActivity {
                         startActivity(getIntent());
                         finish();
                         break;
-                    case Params.FETCHING_STARTED:
+                    case Params.UPDATING_STARTED:
                         startActivity(getIntent());
                         finish();
-                    case Params.FETCHING_COMPLETE:
+                    case Params.UPDATING_COMPLETE:
                         // check which activity is currently in view
                         String currentActivity = context.getClass().getSimpleName();
                         String pMActivity = "PastInspectionsActivity";
@@ -157,21 +154,14 @@ public class BaseActivity extends AppCompatActivity {
             case R.id.delete_previous_missions: // user wants to delete previous missions
                 // run delete metadata service
                 return true;
-            case R.id.logout: // user wants to logout
+            case R.id.sign_out: // user wants to sign out
                 // check if there is an active mission
                 if (!activeInspectionInfo.isNotInProgress(this)){ // mission in progress
-                    String message = getResources().getString(R.string.cannot_logout);
+                    String message = getResources().getString(R.string.cannot_sign_out);
                     new MessageDialog(this, message).getDialog().show();
                 }
                 else{
-                    // clear all local data
-                    operatorId.clear(this);
-                    activeInspectionInfo.clearAll(this);
-                    pastInspectionsInfo.clearAll(this);
-
-                    // go back to login page
-                    startActivity(new Intent(this, SignInActivity.class));
-                    finish();
+                    Utilities.SignOut(this);
                 }
             default:
                 // the users action was not recognized, invoke the superclass to handle it

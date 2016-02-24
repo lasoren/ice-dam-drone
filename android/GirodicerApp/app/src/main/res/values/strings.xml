@@ -3,12 +3,14 @@
     <string name="app_logo">The Applications Logo</string>
 
     <!-- main app -->
+    <!-- client manager activity-->
+    <string name="client_x">Client X</string>
     <!-- main menu navigation and buttons -->
     <string name="start_inspection">Start Inspection</string>
     <string name="end_inspection">End Inspection</string>
     <string name="current_inspection">Current Inspection</string>
     <string name="previous_inspections">Previous Inspections</string>
-    <string name="logout">Logout</string>
+    <string name="sign_out">Sign Out</string>
     <!-- active inspection activity -->
     <string name="inspection_phase_text">Inspection Phase: X</string>
     <string name="phase_1">Inspection Phase 1: Drone is active</string>
@@ -16,10 +18,10 @@
     <string name="phase_3">Inspection Phase 3: uploading data to cloud</string>
     <string name="no_active_inspection_text">There is currently no active inspection.</string>
     <string name="active_inspection_text">
-        Please keep your eyes on the drone as it is currently performing a inspection.</string>
+        Please keep your eyes on the drone as it is currently performing an inspection.</string>
     <string name="transfer_phase_text">data is being transferred to the phone&#8230;</string>
     <string name="upload_phase_text">data is being uploaded to the cloud&#8230;</string>
-    <!-- previous inspections activity -->
+    <!-- past inspections activity -->
     <string name="fetching_data">Fetching data from the cloud</string>
     <string name="delete_previous_inspections">Delete Previous Inspections</string>
     <!-- inspection activity -->
@@ -38,25 +40,25 @@
     <string name="password_mismatch">password mismatch</string>
     <string name="enter_valid_email">enter a valid email address</string>
     <!-- submit buttons -->
-    <string name="login">Login</string>
+    <string name="sign_in">Sign In</string>
     <string name="create_account">Create Account</string>
     <!-- text links -->
     <string name="register">No account yet? Create one</string>
-    <string name="go_to_login">Already have an account? Login</string>
+    <string name="go_to_sign_in">Already have an account? Sign In</string>
 
     <!-- download manager-->
     <string name="download_title">Girodicer Image Transfer</string>
     <string name="download_description">in process of receiving images from drone</string>
 
     <!-- dialogs -->
-    <string name="cannot_logout">
-        Cannot logout until active inspection is terminated and post inspection data processing completes.
+    <string name="cannot_sign_out">
+        Cannot sign out until active inspection is terminated and post inspection data processing completes.
     </string>
     <string name="confirm_end_inspection">Are you sure you want to end the current inspection?</string>
     <string name="no_active_inspection">There is no active inspection to end.</string>
-    <string name="inspection_in_progress">A inspection is already in progress.</string>
+    <string name="inspection_in_progress">An inspection is already in progress.</string>
     <string name="previous_inspections_not_up_to_date">
-        Previous inspections data needs to finish updating before a new inspection can be started.
+        Past inspection data needs to finish updating before a new inspection can be started.
     </string>
     <string name="got_it">Got it!</string>
     <string name="no">No</string>

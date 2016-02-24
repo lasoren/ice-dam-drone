@@ -10,16 +10,24 @@ import android.view.WindowManager;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
+import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
+import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
-import com.example.tberroa.girodicerapp.data.Mission;
+import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.database.LocalTestDB;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
+import com.example.tberroa.girodicerapp.models.DroneOperator;
+import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.services.DroneService;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 final public class Utilities {
@@ -81,11 +89,6 @@ final public class Utilities {
 
     public static int getSpacingGrid(Context context){
         return getScreenWidth(context)/(getSpanGrid(context)*12);
-    }
-
-    public static ArrayList<Mission> getMissions(Context context){
-        String jsonMissions = new PastInspectionsInfo().getMissions(context);
-        return new Gson().fromJson(jsonMissions, new TypeToken<ArrayList<Mission>>(){}.getType());
     }
 
     public static String ConstructImageURL(String username, int missionNumber, String imageName){
@@ -150,7 +153,7 @@ final public class Utilities {
 
         PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;
-        if (!pMInfo.isUpToDate(context) || pMInfo.isFetching(context)){
+        if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)){
             message = context.getResources().getString(R.string.previous_inspections_not_up_to_date);
             new MessageDialog(context, message).getDialog().show();
         }
@@ -167,4 +170,56 @@ final public class Utilities {
 
         }
     }
+
+    public static void SignIn(Context context, DroneOperator operator){
+        // clear shared preferences of old data
+        final OperatorId operatorId = new OperatorId();
+        operatorId.clear(context);
+        new ActiveInspectionInfo().clearAll(context);
+        new PastInspectionsInfo().clearAll(context);
+
+        // save the operators id to shared preference
+        operatorId.set(context, operator.id);
+
+        // update user sign in status
+        new UserInfo().setUserStatus(context, true);
+
+        // go to client manager
+        context.startActivity(new Intent(context, ClientManagerActivity.class));
+        if(context instanceof Activity){
+            ((Activity)context).finish();
+        }
+    }
+
+    public static void SignOut(Context context){
+        // clear shared preferences of old data
+        new OperatorId().clear(context);
+        new ActiveInspectionInfo().clearAll(context);
+        new PastInspectionsInfo().clearAll(context);
+
+        // update user sign in status
+        new UserInfo().setUserStatus(context, false);
+
+        // delete database
+        context.deleteDatabase("AA_DB_NAME");
+
+        // go back to sign in page
+        context.startActivity(new Intent(context, SignInActivity.class));
+        if(context instanceof Activity){
+            ((Activity)context).finish();
+        }
+    }
+
+    /*
+    public static <T> String serializeModel(T model){
+        Type singleType = new TypeToken<T>(){}.getType();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return gson.toJson(model, singleType);
+    }
+
+    public static <T> T deserializeModel(String json, T type){
+        Type modelType = new TypeToken<T>(){}.getType();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return gson.fromJson(json, modelType);
+    }*/
 }

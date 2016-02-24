@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +18,7 @@ import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.database.LocalTestDB;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -170,39 +170,37 @@ public class RegisterActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            /* LIVE code
             try{
                 String url = REGISTER_URL;
-                Log.d("test1", dataJSON);
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 e.printStackTrace();
             }
+            */
+
+            // Test code
+            postResponse = "id";
             return null;
         }
 
         protected void onPostExecute(Void param) {
             if (postResponse.contains("id")){
+                /* LIVE code
                 // create DroneOperator model from response json
                 Type droneOperator = new TypeToken<DroneOperator>(){}.getType();
                 Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
+                */
+
+                // TEST code
+                DroneOperator operator = new LocalTestDB().getOperator();
 
                 // save this operator to local storage
                 operator.CascadeSave();
 
-                // clear shared preferences of old data
-                final OperatorId operatorId = new OperatorId();
-                operatorId.clear(RegisterActivity.this);
-                new ActiveInspectionInfo().clearAll(RegisterActivity.this);
-                PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
-                pastInspectionsInfo.clearAll(RegisterActivity.this);
-
-                // save the operators id to shared preference
-                operatorId.set(RegisterActivity.this, operator.id);
-
-                // go to client manager
-                startActivity(new Intent(RegisterActivity.this, ClientManagerActivity.class));
-                finish();
+                // sign in
+                Utilities.SignIn(RegisterActivity.this, operator);
             }
             else{ // display error
                 Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
