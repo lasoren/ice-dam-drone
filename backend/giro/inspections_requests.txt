@@ -1,0 +1,16 @@
+// ------------------------------------------------------
+// CREATE AN INSPECTION
+
+url POST: /inspections/create/
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "5e4415533d674424bae5337fe053018b304b0f09556478b6ffeaa922bb69b315974a6d8daeb17bb547a612a52ad227e4cdef88b678299d46661528d339ed630b",
+    "inspection": {
+        "drone_operator": 1,
+        "client": 1
+    }
+}
+
+Response:
