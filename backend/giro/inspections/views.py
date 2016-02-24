@@ -1,6 +1,7 @@
 from giro import exceptions
 
 from inspections.serializers import InspectionSerializer
+import inspections.db_utils as inspections_db_utils
 
 from rest_framework.views import APIView
 from rest_framework.exceptions import APIException

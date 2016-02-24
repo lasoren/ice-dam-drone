@@ -1,3 +1,4 @@
+from django.db import transaction
 from inspections.models import InspectionProvision
 
 @transaction.atomic()

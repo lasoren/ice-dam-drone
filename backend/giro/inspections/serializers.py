@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from inspections.models import Inspection
+from users.serializers import ClientSerializer
 
 class InspectionSerializer(serializers.ModelSerializer):
     """
@@ -7,9 +8,10 @@ class InspectionSerializer(serializers.ModelSerializer):
     """
     client_id = serializers.IntegerField(write_only=True)
     drone_operator_id = serializers.IntegerField(write_only=True)
+    client = ClientSerializer(read_only=True)
 
     class Meta:
-        model = User
+        model = Inspection
         fields = (
             'id',
             'created',
