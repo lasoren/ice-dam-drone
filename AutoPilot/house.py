@@ -245,6 +245,11 @@ class house:
 
         self.path = self.path + tempPath
 
+        temp = []
+        for p in path:
+            temp.append(p.toLatLon())
+        self.path = temp
+
 
 if __name__ == "__main__":
     points = [geoPoint(38.84711546747433, -94.6733683347702), geoPoint(38.84703399781023, -94.67331871390343), geoPoint(38.847007885718675, -94.67337772250175),
@@ -261,8 +266,8 @@ if __name__ == "__main__":
     for b in myHouse.sbb:
         sbb.append(b.toLatLon())
 
-    for q in myHouse.path:
-        path.append(q.toLatLon())
+    # for q in myHouse.path:
+    #     path.append(q.toLatLon())
 
     print "original"
     printLatLong(points)
