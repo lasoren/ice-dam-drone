@@ -2,6 +2,7 @@ import hashlib
 import random
 import string
 import time
+import giro.short_url as short_url
 
 def generate_session_id(email):
     """
@@ -15,3 +16,8 @@ def generate_session_id(email):
     m.update(str(time.time()))
     m.update("giro")
     return m.hexdigest()
+
+
+def generate_confirmation_url(base_url, drone_operator_id):
+    unique_code = short_url.encode_url(drone_operator_id)
+    return base_url + unique_code, unique_code

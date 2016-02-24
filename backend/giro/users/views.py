@@ -46,10 +46,13 @@ class RegisterDroneOperator(APIView):
         except DroneOperator.DoesNotExist:
             pass
 
-        # TODO(luke): Send out email to complete registration.
         serializer = DroneOperatorSerializer(data=request_data)
         if serializer.is_valid():
             serializer.save()
+            # Send out confirmation email to drone operator
+            # for them to confirm their account.
+            users_db_utils.send_confirmation_email(
+                request.build_absolute_uri(), serializer.instance)
             return Response(serializer.data,
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
@@ -141,7 +144,8 @@ class ClientsGet(APIView):
         ).select_related(
             'client__user'
         ).filter(
-            client__inspection_client__drone_operator__pk=request.data["user_id"]
+            client__inspection_client__drone_operator__pk=request.data["user_id"],
+            client__deleted=None  # Client record has not been deleted.
         ).order_by(  # Order by the clients that have been updated recently.
             '-timestamp'
         ).distinct()

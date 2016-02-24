@@ -2,8 +2,13 @@ from django.conf import settings
 from rest_framework import permissions
 from users.models import DroneOperator
 from users.models import ClientProvision
+from users.models import EmailConfirmation
+import users.utils as users_utils
 
 from django.db import transaction
+from django.core.mail import send_mail
+
+import datetime
 import logging
 
 
@@ -58,3 +63,29 @@ def add_to_client_provision(client_id):
     ClientProvision.objects.filter(client_id=client_id).delete()
     provision = ClientProvision.objects.create(client_id=client_id)
     provision.save()
+
+
+def send_confirmation_email(base_url, drone_operator):
+    """
+    Sends out a confirmation email to a registering drone operator.
+    Adds a row to the confirmation table.
+    """
+    # Delete all old email confirmations for this account.
+    EmailConfirmation.objects.filter(
+        drone_operator=drone_operator).update(
+        deleted=datetime.datetime.utcnow())
+    # Generate a unique url.
+    unique_url, unique_code = users_utils.generate_confirmation_url(
+        base_url, drone_operator.id)
+    EmailConfirmation.objects.create(
+        drone_operator=drone_operator,
+        unique_code=unique_code,
+        unique_url=unique_url)
+    # Send account confirmation email.
+    send_mail('Girodicer Email Confirmation',
+        'Thanks for registering to be a drone operator! ' +
+        'Click here to confirm your account: ' + unique_url,
+        settings.EMAIL,
+        [drone_operator.user.email],
+        fail_silently=False)
+

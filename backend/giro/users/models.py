@@ -50,6 +50,25 @@ class DroneOperator(models.Model):
         default=NOT_SPECIFIED)
 
 
+class EmailConfirmation(models.Model):
+    """
+    Model for storing emails that have been sent to drone operators
+    to confirm their account. Keeps track of the unique code and url
+    that were sent in the confirmation email.
+    """
+    # Automatically added with new row.
+    created = models.DateTimeField(auto_now_add=True)
+    # The operator the email was sent to.
+    drone_operator = models.ForeignKey(DroneOperator)
+    # Unique code for their url.
+    unique_code = models.TextField()
+    # Unique url for this confirmation.
+    unique_url = models.TextField()
+    # When set to something other than null, this row has been
+    # deleted and no longer works to confirm operator account.
+    deleted = models.DateTimeField(blank=True, null=True)
+
+
 class Client(models.Model):
     """
     A paying client of the Ice Dam Drone service. Client pays
