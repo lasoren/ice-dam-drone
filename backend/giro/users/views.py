@@ -52,7 +52,7 @@ class RegisterDroneOperator(APIView):
             # Send out confirmation email to drone operator
             # for them to confirm their account.
             users_db_utils.send_confirmation_email(
-                request.build_absolute_uri(), serializer.instance)
+                request.get_host(), serializer.instance)
             return Response(serializer.data,
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)

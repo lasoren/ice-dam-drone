@@ -4,6 +4,8 @@ import string
 import time
 import giro.short_url as short_url
 
+EMAIL_PATH = "/console/confirm/"
+
 def generate_session_id(email):
     """
     Generates a valid 128 character session_id for users to
@@ -20,4 +22,4 @@ def generate_session_id(email):
 
 def generate_confirmation_url(base_url, drone_operator_id):
     unique_code = short_url.encode_url(drone_operator_id)
-    return base_url + unique_code, unique_code
+    return base_url + EMAIL_PATH + unique_code, unique_code
