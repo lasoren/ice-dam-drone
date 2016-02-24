@@ -18,6 +18,13 @@ def printPoints(points):
 def printLidarDistance(distance):
     print "Distance %d" % distance
 
+def setPath(house):
+    iceCutter.house = house
+
+def transferPath():
+    #add functionality here
+    print "Transferring path to Girodicer..."
+
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
 parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
 parser.add_argument('--baud', default='57600', help="connection baud rate")
@@ -28,6 +35,8 @@ eventQueue.addEventCallback(bluetoothConnected, EventHandler.BLUETOOTH_CONNECTED
 eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.BLUETOOTH_DISCONNECTED)
 eventQueue.addEventCallback(printPoints, EventHandler.BLUETOOTH_GET_POINTS)
 eventQueue.addEventCallback(printLidarDistance, EventHandler.LIDAR_DISTANCE)
+eventQueue.addEventCallback(setPath, EventHandler.BLUETOOTH_SEND_PATH)
+eventQueue.addEventCallback(transferPath, EventHandler.TRANSFER_PATH)
 
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue)

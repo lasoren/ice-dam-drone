@@ -1,6 +1,7 @@
 from bluetooth import *
 import EventHandler
 import threading
+from house import *
 
 
 class Blue(threading.Thread):
@@ -58,6 +59,7 @@ class BlueDataProcessor(threading.Thread):
     COMMAND_STATUS = 0x5
     COMMAND_SEND_POINTS = 0x6
     COMMAND_READY_TO_TRANSFER = 0x7
+    COMMAND_CALCULATE_PATH = 0x8
 
     def __init__(self, data, queue):
         super(BlueDataProcessor, self).__init__()
@@ -68,22 +70,31 @@ class BlueDataProcessor(threading.Thread):
     def run(self):
         (command, payloadSize) = struct.unpack('Bi', self.data)
 
+        newDataPacker = BlueDataPackager()
+
         if command == self.COMMAND_ARM:
             None
         elif command == self.COMMAND_UNARM:
             None
         elif command == self.COMMAND_START_INSPECTION:
-            None
+            self.__transferPath()
         elif command == self.COMMAND_END_INSPECTION:
             None
         elif command == self.COMMAND_STATUS:
             None
         elif command == self.COMMAND_SEND_POINTS:
-            self.__decipherSendPoints(payloadSize)
+            self.__decipherRcvdPoints(payloadSize)
+
+        elif command == self.COMMAND_CALCULATE_PATH:
+            self.__calculatepath(points)
+            newDataPacker.run(0x3,payload)
         elif command == self.COMMAND_READY_TO_TRANSFER:
             None
 
-    def __decipherSendPoints(self, payloadSize):
+    def __decipherRcvdPoints(self, payloadSize):
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
+
+    def __unpackagePoints(self, payloadSize):
         offset = struct.calcsize('Bi')
         windPos = struct.calcsize('dd')
         numPoints = payloadSize/windPos
@@ -92,10 +103,17 @@ class BlueDataProcessor(threading.Thread):
 
         for i in range(0, numPoints):
             (lat, lng) = struct.unpack('dd', offset)
-            points.append((lat,lng))
+            points.append(geoPoint(lat,lng))
             offset += windPos
 
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, points)
+        return points
+
+    def __calculatePath(self, payloadSize):
+        newhouse = house(self.__unpackagePoints(payloadSize))
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_SEND_PATH, newhouse)
+
+    def __transferPath(self):
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.TRANSFER_PATH)
 
 
 class BlueDataPackager(threading.Thread):
@@ -107,6 +125,11 @@ class BlueDataPackager(threading.Thread):
     COMMAND_SEND_POINTS = 0x6
     COMMAND_READY_TO_TRANSFER = 0x7
 
-    def __init__(self):
+    def __init__(self, command, payload):
         super(BlueDataPackager, self).__init__()
+        self.command = command
+        self.payload = payload
+
+    def run(self):
+        # do stuff
 

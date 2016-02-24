@@ -5,6 +5,7 @@ import time, math, threading, lidar
 class Girodicer():
 
     status = None
+    house = None
 
     def __init__(self, connection, baud, queue):
         self.eventQueue = queue
