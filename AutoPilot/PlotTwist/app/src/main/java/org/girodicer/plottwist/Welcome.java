@@ -101,6 +101,8 @@ public class Welcome extends Activity implements View.OnClickListener {
         next = (Button) findViewById(R.id.nextButton);
         pairNote = (TextView) findViewById(R.id.pair_notification);
 
+        next.setVisibility(View.VISIBLE);
+
         pair.setOnClickListener(this);
         next.setOnClickListener(this);
 
@@ -157,7 +159,8 @@ public class Welcome extends Activity implements View.OnClickListener {
     public void onPause(){
         super.onPause();
         unregisterReceiver(bScan);
-        unbindService(bluetoothConnection);
+        if(bluetoothServiceBound)
+            unbindService(bluetoothConnection);
     }
 
     @Override
@@ -190,8 +193,8 @@ public class Welcome extends Activity implements View.OnClickListener {
     }
 
     public void skip(View view){
-        Intent next = new Intent(this, MapsActivity.class);
-        next.putExtra(App.LOCATION, currentStatus.location);
+        Intent next = new Intent(this, DroneActivity.class);
+        //next.putExtra(App.LOCATION, currentStatus.location);
         startActivity(next);
     }
 

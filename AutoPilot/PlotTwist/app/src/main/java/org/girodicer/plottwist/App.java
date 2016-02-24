@@ -66,7 +66,8 @@ public class App extends android.app.Application {
             if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)){
                 if(BTConnection != null)
                     BTConnection.cancel(); // we're no longer connected
-                    BTConnected = false;
+
+                BTConnected = false;
                 if(!manualBluetoothDisconnect){ // we weren't the ones disconnecting
                     try {
                         bluetoothMessenger.send(Message.obtain(null, BluetoothService.MESSAGE_BT_CONNECTION_LOST));

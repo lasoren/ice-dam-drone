@@ -1,8 +1,18 @@
 package org.girodicer.plottwist;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -18,8 +28,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.girodicer.plottwist.Bluetooth.BluetoothException;
+import org.girodicer.plottwist.Bluetooth.ConnectionThread;
+import org.girodicer.plottwist.Bluetooth.GProtocol;
+import org.girodicer.plottwist.Fragments.DroneMapFragment;
+import org.girodicer.plottwist.Fragments.DroneStateFragment;
+import org.girodicer.plottwist.Models.Status;
+import org.girodicer.plottwist.services.BluetoothService;
 
 public class DroneActivity extends AppCompatActivity {
+    public static final String DRONE_ACTIVITY_BROADCAST = "DRONE_ACTIVITY_BROADCAST";
+    public static final String WHICH_FRAG = "WHICH_FRAG";
+    public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
+    public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -36,9 +60,43 @@ public class DroneActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+    private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
+
+    private static Messenger bluetoothMessenger; // only for the handler in this class
+    private static boolean bluetoothServiceBound = false;
+
+    private ServiceConnection bluetoothConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            bluetoothMessenger = new Messenger(service);
+            bluetoothServiceBound = true;
+
+            Message msg = Message.obtain(null, BluetoothService.MESSAGE_NEW_CLIENT);
+            msg.replyTo = btMessageHandler;
+            try {
+                bluetoothMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Message msg = Message.obtain(null, BluetoothService.MESSAGE_DETACH_CLIENT);
+            try{
+                bluetoothMessenger.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            bluetoothMessenger = null;
+            bluetoothServiceBound = false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_drone);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -54,15 +112,6 @@ public class DroneActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
     }
 
@@ -89,39 +138,16 @@ public class DroneActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(new Intent(this, BluetoothService.class), bluetoothConnection, Context.BIND_AUTO_CREATE);
+    }
 
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_drone, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(bluetoothConnection);
     }
 
     /**
@@ -129,6 +155,8 @@ public class DroneActivity extends AppCompatActivity {
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        private static final int NUM_PAGES = 2;
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -138,26 +166,68 @@ public class DroneActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch(position){
+                case 0:
+                    return new DroneStateFragment();
+                case 1:
+                    return new DroneMapFragment();
+            }
+
+            return null;
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return NUM_PAGES;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return "Status";
                 case 1:
-                    return "SECTION 2";
-                case 2:
-                    return "SECTION 3";
+                    return "Map";
             }
             return null;
+        }
+    }
+
+    private class BTMessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg){
+            switch(msg.what){
+                case BluetoothService.MESSAGE_READ:
+                    Bundle bundle = msg.getData();
+                    byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
+                    try {
+                        GProtocol received = GProtocol.Unpack(data);
+                        switch(received.getCommand()){
+                            case GProtocol.COMMAND_STATUS:
+                                Status currentStatus = (Status) received.read();
+                                Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
+                                broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
+                                broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
+
+                                LocalBroadcastManager.getInstance(DroneActivity.this).sendBroadcast(broadcastToFrag);
+                                break;
+                            case GProtocol.COMMAND_SEND_POINTS:
+                                break;
+                        }
+                    } catch (BluetoothException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case BluetoothService.MESSAGE_BT_CONNECTION_LOST:
+                    Toast.makeText(DroneActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DroneActivity.this, "Reconnecting....", Toast.LENGTH_LONG).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_FAILED_RECONNECT:
+                    Toast.makeText(DroneActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
+                    break;
+                case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
+                    Toast.makeText(DroneActivity.this, "Successfully reconnected", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

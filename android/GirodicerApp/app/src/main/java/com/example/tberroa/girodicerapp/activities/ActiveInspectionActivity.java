@@ -29,7 +29,7 @@ public class ActiveInspectionActivity extends BaseActivity {
         setContentView(R.layout.activity_active_inspection);
 
         // grab operatorName
-        operatorName = operatorInfo.getUsername(this);
+        operatorName = operatorId.getUsername(this);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

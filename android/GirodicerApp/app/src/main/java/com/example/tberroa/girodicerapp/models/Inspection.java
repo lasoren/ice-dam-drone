@@ -16,7 +16,7 @@ public class Inspection extends Model {
 
     @Expose
     @Column(name = "created")
-    public long created;
+    public String created;
 
     @Expose
     @Column(name = "drone_operator")
@@ -34,7 +34,7 @@ public class Inspection extends Model {
         super();
     }
 
-    public Inspection(long created, DroneOperator drone_operator, Client client, long deleted){
+    public Inspection(String created, DroneOperator drone_operator, Client client, long deleted){
         super();
         this.created = created;
         this.drone_operator = drone_operator;

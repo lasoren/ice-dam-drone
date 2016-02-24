@@ -16,8 +16,12 @@ public class Client extends Model {
     using a unique, non-guessable link. */
 
     @Expose
+    @Column(name = "client_id") // changed to avoid duplicate id scenario
+    public int id;
+
+    @Expose
     @Column(name = "created")
-    public long created;
+    public String created;
 
     @Expose
     @Column(name = "user")
@@ -35,7 +39,8 @@ public class Client extends Model {
         super();
     }
 
-    public Client(long created, User user, String address, long deleted){
+    public Client(int id, String created, User user, String address, long deleted){
+        this.id = id;
         this.created = created;
         this.user = user;
         this.address = address;

@@ -15,6 +15,10 @@ public class DroneOperator extends Model {
     low cost. */
 
     @Expose
+    @Column(name = "operator_id") // changed to avoid duplicate id scenario
+    public int id;
+
+    @Expose
     @Column(name = "created")
     public String created;
 
@@ -30,8 +34,9 @@ public class DroneOperator extends Model {
         super();
     }
 
-    public DroneOperator(String created, User user, String session_id){
+    public DroneOperator(int id, String created, User user, String session_id){
         super();
+        this.id = id;
         this.created = created;
         this.user = user;
         this.session_id = session_id;
