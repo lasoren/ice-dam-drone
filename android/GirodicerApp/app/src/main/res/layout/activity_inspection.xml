@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".InspectionActivity" >
 
     <include layout="@layout/header"
-        android:id="@+id/header"/>
+        android:id="@+id/header"
+        />
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager"
+        android:id="@+id/inspection_view_pager"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/header"

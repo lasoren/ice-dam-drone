@@ -13,16 +13,16 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
+import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
-import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 public class BaseActivity extends AppCompatActivity {
 
-    final OperatorId operatorId = new OperatorId();
+    final UserInfo userInfo = new UserInfo();
     final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
     private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
     private RelativeLayout fetchingData;
@@ -33,36 +33,32 @@ public class BaseActivity extends AppCompatActivity {
     protected void onStart(){
         super.onStart();
 
-        // if user is not logged in, boot them
-        if (!operatorId.isLoggedIn(this)){
-            // clear operatorName
-            operatorId.setUsername(this, "");
-            // go back to login page
-            startActivity(new Intent(BaseActivity.this, SignInActivity.class));
-            finish();
+        // if user is not signed in, boot them
+        if (!userInfo.isLoggedIn(this)){
+            Utilities.SignOut(this);
         }
 
         // set notifications if necessary
-        TextView missionPhase = (TextView) findViewById(R.id.mission_phase_text);
+        TextView inspectionPhase = (TextView) findViewById(R.id.inspection_phase_text);
         fetchingData = (RelativeLayout) findViewById(R.id.fetching_text);
-        if (activeInspectionInfo.getMissionPhase(this) != 0){
-            int phase = activeInspectionInfo.getMissionPhase(this);
+        if (activeInspectionInfo.getPhase(this) != 0){
+            int phase = activeInspectionInfo.getPhase(this);
             switch(phase){
                 case 1:
-                    missionPhase.setText(R.string.phase_1);
+                    inspectionPhase.setText(R.string.phase_1);
                     break;
                 case 2:
-                    missionPhase.setText(R.string.phase_2);
+                    inspectionPhase.setText(R.string.phase_2);
                     break;
                 case 3:
-                    missionPhase.setText(R.string.phase_3);
+                    inspectionPhase.setText(R.string.phase_3);
                     break;
             }
 
-            missionPhase.setVisibility(View.VISIBLE);
-            missionPhase.animate().translationY(missionPhase.getHeight());
+            inspectionPhase.setVisibility(View.VISIBLE);
+            inspectionPhase.animate().translationY(inspectionPhase.getHeight());
         }
-        if (pastInspectionsInfo.isFetching(this)){
+        if (pastInspectionsInfo.isUpdating(this)){
             fetchingData.setVisibility(View.VISIBLE);
             fetchingData.animate().translationY(fetchingData.getHeight());
         }
@@ -71,8 +67,8 @@ public class BaseActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Params.TRANSFER_STARTED);
         filter.addAction(Params.UPLOAD_STARTED);
-        filter.addAction(Params.FETCHING_STARTED);
-        filter.addAction(Params.FETCHING_COMPLETE);
+        filter.addAction(Params.UPDATING_STARTED);
+        filter.addAction(Params.UPDATING_COMPLETE);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -86,10 +82,10 @@ public class BaseActivity extends AppCompatActivity {
                         startActivity(getIntent());
                         finish();
                         break;
-                    case Params.FETCHING_STARTED:
+                    case Params.UPDATING_STARTED:
                         startActivity(getIntent());
                         finish();
-                    case Params.FETCHING_COMPLETE:
+                    case Params.UPDATING_COMPLETE:
                         // check which activity is currently in view
                         String currentActivity = context.getClass().getSimpleName();
                         String pMActivity = "PastInspectionsActivity";
@@ -120,15 +116,15 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.end_mission: // user wants to end current mission
+            case R.id.end_inspection:
                 if (activeInspectionInfo.isNotInProgress(this)){
                     String message = getResources().getString(R.string.no_active_inspection);
                     new MessageDialog(this, message).getDialog().show();
                 }
-                else { // otherwise
-                    int missionPhase = activeInspectionInfo.getMissionPhase(this);
+                else {
+                    int inspectionPhase = activeInspectionInfo.getPhase(this);
                     String message;
-                    switch(missionPhase){
+                    switch(inspectionPhase){
                         case 1:
                             new ConfirmEndInspectionDialog(this).getDialog().show();
                             break;
@@ -143,38 +139,30 @@ public class BaseActivity extends AppCompatActivity {
                     }
                 }
                 return true;
-            case R.id.start_mission: // user wants to start a new mission
-                Utilities.AttemptMissionStart(this);
+            case R.id.start_inspection:
+                Utilities.AttemptInspectionStart(this);
                 return true;
-            case R.id.current_mission: // user wants to see the current mission
+            case R.id.current_inspection:
                 startActivity(new Intent(this,ActiveInspectionActivity.class));
                 finish();
                 return true;
-            case R.id.previous_missions: // user wants to see previous missions
+            case R.id.past_inspections:
                 startActivity(new Intent(this,PastInspectionsActivity.class));
                 finish();
                 return true;
-            case R.id.delete_previous_missions: // user wants to delete previous missions
+            case R.id.delete_past_inpections:
                 // run delete metadata service
                 return true;
-            case R.id.logout: // user wants to logout
-                // check if there is an active mission
-                if (!activeInspectionInfo.isNotInProgress(this)){ // mission in progress
-                    String message = getResources().getString(R.string.cannot_logout);
+            case R.id.sign_out:
+                // check if there is an ongoing active inspection
+                if (!activeInspectionInfo.isNotInProgress(this)){
+                    String message = getResources().getString(R.string.cannot_sign_out);
                     new MessageDialog(this, message).getDialog().show();
                 }
                 else{
-                    // clear all local data
-                    operatorId.clear(this);
-                    activeInspectionInfo.clearAll(this);
-                    pastInspectionsInfo.clearAll(this);
-
-                    // go back to login page
-                    startActivity(new Intent(this, SignInActivity.class));
-                    finish();
+                    Utilities.SignOut(this);
                 }
             default:
-                // the users action was not recognized, invoke the superclass to handle it
                 return super.onOptionsItemSelected(item);
         }
     }

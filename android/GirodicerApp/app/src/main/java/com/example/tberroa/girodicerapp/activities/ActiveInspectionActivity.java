@@ -27,13 +27,14 @@ public class ActiveInspectionActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_active_inspection);
+        /*
 
         // grab operatorName
-        operatorName = operatorId.getUsername(this);
+        operatorName = userInfo.getUsername(this);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Current Mission");
+        toolbar.setTitle("Current Client");
         toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
@@ -45,7 +46,7 @@ public class ActiveInspectionActivity extends BaseActivity {
         loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
 
         // populate view according to mission phase
-        int missionPhase = activeInspectionInfo.getMissionPhase(this);
+        int missionPhase = activeInspectionInfo.getPhase(this);
         PopulateView(missionPhase);
 
         // set up receiver to update activity as necessary
@@ -55,11 +56,12 @@ public class ActiveInspectionActivity extends BaseActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 // update view according to mission phase
-                int phase = activeInspectionInfo.getMissionPhase(ActiveInspectionActivity.this);
+                int phase = activeInspectionInfo.getPhase(ActiveInspectionActivity.this);
                 PopulateView(phase);
             }
         };
         registerReceiver(broadcastReceiver, filter);
+        */
     }
 
     private void PopulateView(int missionPhase){

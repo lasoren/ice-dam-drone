@@ -24,15 +24,15 @@ public class ActiveInspectionInfo extends Application {
         return getSharedPreferences(context).getBoolean(IS_NOT_IN_PROGRESS, true);
     }
 
-    public int getMissionPhase(Context context){
+    public int getPhase(Context context){
         return getSharedPreferences(context).getInt(PHASE, 0);
     }
 
-    public int getMissionNumber(Context context){
+    public int getId(Context context){
         return getSharedPreferences(context).getInt(INSPECTION_NUMBER, 0);
     }
 
-    public String getMissionData(Context context){ // as JSON of a Mission object
+    public String getData(Context context){ // as JSON of a Client object
         return getSharedPreferences(context).getString(DATA, "");
     }
 
@@ -52,13 +52,13 @@ public class ActiveInspectionInfo extends Application {
         editor.apply();
     }
 
-    public void setInspectionNumber(Context context, int inspectionNumber){
+    public void setId(Context context, int inspectionNumber){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putInt(this.INSPECTION_NUMBER, inspectionNumber);
         editor.apply();
     }
 
-    public void setData(Context context, String data){ // as JSON of a Mission object
+    public void setData(Context context, String data){ // as JSON of a Client object
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(this.DATA, data);
         editor.apply();
@@ -73,7 +73,7 @@ public class ActiveInspectionInfo extends Application {
     public void clearAll(Context context){
         setNotInProgress(context, true);
         setPhase(context, 0);
-        setInspectionNumber(context, 0);
+        setId(context, 0);
         setData(context, "");
         setLastDownload(context, 0);
     }

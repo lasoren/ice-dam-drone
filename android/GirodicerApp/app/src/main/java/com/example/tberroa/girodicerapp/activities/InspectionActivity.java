@@ -10,16 +10,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 
 public class InspectionActivity extends BaseActivity {
 
@@ -32,17 +27,18 @@ public class InspectionActivity extends BaseActivity {
         int operatorId = new OperatorId().get(this);
         operatorName = new LocalDB().getOperator(operatorId).user.first_name;
 
-        // grab mission JSON and mission number, these values were passed to the activity
-        String jsonMission = getIntent().getExtras().getString("mission");
-        int missionNumber = getIntent().getExtras().getInt("mission_number");
+        // grab client JSON and client number, these values were passed to the activity
+        String inspectionJson = getIntent().getExtras().getString("inspection_json");
+        int inspectionNumber = getIntent().getExtras().getInt("inspection_number");
 
-        // unpack mission JSON into Mission object
-        Type typeMission = new TypeToken<Mission>(){}.getType();
-        Mission mission = new Gson().fromJson(jsonMission, typeMission);
+        // unpack inspection JSON into Inspection object
+        //Type typeInspection = new TypeToken<Inspection>(){}.getType();
+        //Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        //Inspection inspection = gson.fromJson(inspectionJson, typeInspection);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Mission " + Integer.toString(missionNumber));
+        toolbar.setTitle("Inspection " + Integer.toString(inspectionNumber));
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.back_button);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -64,12 +60,12 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.setVisibility(View.VISIBLE);
 
         // populate the activity
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        InspectionPagerAdapter adapter;
-        FragmentManager fM = getSupportFragmentManager();
-        int numOfT = tabLayout.getTabCount();
-        adapter = new InspectionPagerAdapter(fM, numOfT, missionNumber, mission, operatorName);
-        viewPager.setAdapter(adapter);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
+        InspectionPagerAdapter inspectionPagerAdapter;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        int numberOfTabs = tabLayout.getTabCount();
+        inspectionPagerAdapter = new InspectionPagerAdapter(fragmentManager, numberOfTabs, inspectionJson);
+        viewPager.setAdapter(inspectionPagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override

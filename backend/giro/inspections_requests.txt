@@ -1,0 +1,34 @@
+// ------------------------------------------------------
+// CREATE AN INSPECTION
+
+url POST: /inspections/create/
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "inspection": {
+        "drone_operator_id": 1,
+        "client_id": 1
+    }
+}
+
+Response:
+{
+    "id": 9,
+    "created": "2016-02-24T22:09:42.270953Z",
+    "client": {
+        "id": 1,
+        "created": "2016-02-24T22:09:05.405903Z",
+        "user": {
+            "id": 2,
+            "created": "2016-02-24T22:09:05.397211Z",
+            "first_name": "Michael",
+            "last_name": "Sorenson",
+            "email": "msoren@bu.edu"
+        },
+        "address": "14 Barnesdale Rd. Natick, MA 01760",
+        "deleted": null
+    },
+    "deleted": null
+}

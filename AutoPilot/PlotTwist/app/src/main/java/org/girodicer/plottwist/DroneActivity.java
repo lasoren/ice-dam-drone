@@ -12,6 +12,7 @@ import android.os.RemoteException;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -29,17 +30,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import org.girodicer.plottwist.Bluetooth.BluetoothException;
 import org.girodicer.plottwist.Bluetooth.ConnectionThread;
 import org.girodicer.plottwist.Bluetooth.GProtocol;
+import org.girodicer.plottwist.Fragments.DroneMapFragment;
+import org.girodicer.plottwist.Fragments.DroneStateFragment;
 import org.girodicer.plottwist.Models.Status;
 import org.girodicer.plottwist.services.BluetoothService;
 
-import java.util.ArrayList;
-
 public class DroneActivity extends AppCompatActivity {
+    public static final String DRONE_ACTIVITY_BROADCAST = "DRONE_ACTIVITY_BROADCAST";
+    public static final String WHICH_FRAG = "WHICH_FRAG";
+    public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
+    public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -55,8 +59,6 @@ public class DroneActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
-    private Status currentStatus;
 
     private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
 
@@ -111,15 +113,6 @@ public class DroneActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
     }
 
 
@@ -158,45 +151,12 @@ public class DroneActivity extends AppCompatActivity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_drone, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
-    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        private static final int NUM_PAGES = 2;
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -206,24 +166,28 @@ public class DroneActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            switch(position){
+                case 0:
+                    return new DroneStateFragment();
+                case 1:
+                    return new DroneMapFragment();
+            }
+
+            return null;
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return NUM_PAGES;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return "Status";
                 case 1:
-                    return "SECTION 2";
-                case 2:
-                    return "SECTION 3";
+                    return "Map";
             }
             return null;
         }
@@ -240,7 +204,12 @@ public class DroneActivity extends AppCompatActivity {
                         GProtocol received = GProtocol.Unpack(data);
                         switch(received.getCommand()){
                             case GProtocol.COMMAND_STATUS:
-                                currentStatus = (Status) received.read();
+                                Status currentStatus = (Status) received.read();
+                                Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
+                                broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
+                                broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
+
+                                LocalBroadcastManager.getInstance(DroneActivity.this).sendBroadcast(broadcastToFrag);
                                 break;
                             case GProtocol.COMMAND_SEND_POINTS:
                                 break;

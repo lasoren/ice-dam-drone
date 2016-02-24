@@ -13,15 +13,15 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcast parameters
-    final public static String MISSION_STARTED = "MISSION_STARTED";
+    final public static String INSPECTION_STARTED = "INSPECTION_STARTED";
     final public static String DRONE_DONE = "DRONE_DONE";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
     final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
     final public static String UPLOAD_STARTED = "UPLOAD_STARTED";
     final public static String UPLOAD_COMPLETE = "UPLOAD_COMPLETE";
     final public static String RELOAD_AM_ACTIVITY = "RELOAD_AM_ACTIVITY";
-    final public static String FETCHING_STARTED = "FETCHING_STARTED";
-    final public static String FETCHING_COMPLETE = "FETCHING_COMPLETE";
+    final public static String UPDATING_STARTED = "UPDATING_STARTED";
+    final public static String UPDATING_COMPLETE = "UPDATING_COMPLETE";
 
 
     // UI parameters

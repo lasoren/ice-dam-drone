@@ -13,41 +13,38 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.adapters.InspectionViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.FragmentViewAdapter;
 
 public class TabIceDamFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tab_ice_dam, group, false);
+        View v = inflater.inflate(R.layout.fragment_tab_images, group, false);
 
         if (isAdded()){
-            int missionNum = 0;
-            int numberOfIceDams = 0;
-            String user = "";
+            String inspectionJson = "";
 
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
-                numberOfIceDams = bundle.getInt("number_of_icedams", 0);
-                missionNum = bundle.getInt("mission_number", 0);
-                user = bundle.getString("username", user);
+                // grab the serialized inspection
+                inspectionJson = bundle.getString("inspection_json", "");
             }
 
             // grab context
-            Context c = getActivity();
+            Context context = getActivity();
 
             // initialize recycler view
-            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.mission_recycler_view);
-            int span = Utilities.getSpanGrid(c);
-            int spacing = Utilities.getSpacingGrid(c);
-            recyclerView.setLayoutManager(new GridLayoutManager(c, span));
+            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.inspection_recycler_view);
+            int span = Utilities.getSpanGrid(context);
+            int spacing = Utilities.getSpacingGrid(context);
+            recyclerView.setLayoutManager(new GridLayoutManager(context, span));
             recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
             // populate recycler view
-            InspectionViewAdapter a;
-            a = new InspectionViewAdapter(c, missionNum, numberOfIceDams, Params.ICEDAM_TAB, user);
-            recyclerView.setAdapter(a);
+            FragmentViewAdapter fragmentViewAdapter;
+            fragmentViewAdapter = new FragmentViewAdapter(context, inspectionJson, Params.ICEDAM_TAB);
+            recyclerView.setAdapter(fragmentViewAdapter);
         }
         return v;
     }

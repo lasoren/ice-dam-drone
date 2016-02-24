@@ -32,7 +32,6 @@ public class LocalDB {
         return new Select()
                 .from(Client.class)
                 .where("drone_operator = ?", droneOperator)
-                .orderBy("Name ASC")
                 .execute();
     }
     public List<Inspection> getInspections(DroneOperator droneOperator, Client client){
@@ -40,7 +39,6 @@ public class LocalDB {
                 .from(Inspection.class)
                 .where("drone_operator = ?", droneOperator)
                 .where("client = ?", client)
-                .orderBy("Name ASC")
                 .execute();
     }
 }

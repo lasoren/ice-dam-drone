@@ -38,7 +38,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
 
                 // get the id of the recently completed downloaded
                 long recentDownload = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-                int missionPhase = activeInspectionInfo.getMissionPhase(context);
+                int missionPhase = activeInspectionInfo.getPhase(context);
                 if (lastDownload==recentDownload && missionPhase==2) {
                     // start uploading
                     context.startService(new Intent(context, ImageUploadService.class));

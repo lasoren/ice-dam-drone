@@ -5,31 +5,26 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.fragments.TabAerialFragment;
 import com.example.tberroa.girodicerapp.fragments.TabIceDamFragment;
 import com.example.tberroa.girodicerapp.fragments.TabSaltFragment;
 import com.example.tberroa.girodicerapp.fragments.TabThermalFragment;
+import com.example.tberroa.girodicerapp.models.Inspection;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 
 public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 
     private final int numberOfTabs;
-    private final int missionNumber;
-    private final int numberOfAerials;
-    private final int numberOfThermals;
-    private final int numberOfIceDams;
-    private final int numberOfSalts;
-    private final String username;
+    private final String inspectionJson;
 
-    public InspectionPagerAdapter(FragmentManager fm, int numOfT, int mNum, Mission m, String user) {
-        super(fm);
-        numberOfTabs = numOfT;
-        missionNumber = mNum;
-        numberOfAerials = m.getNumberOfAerials();
-        numberOfThermals = m.getNumberOfThermals();
-        numberOfIceDams = m.getNumberOfIceDams();
-        numberOfSalts = m.getNumberOfSalts();
-        username = user;
+    public InspectionPagerAdapter(FragmentManager fragmentManager, int numberOfTabs, String inspectionJson) {
+        super(fragmentManager);
+        this.numberOfTabs = numberOfTabs;
+        this.inspectionJson = inspectionJson;
     }
 
     @Override
@@ -37,12 +32,7 @@ public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 
         // create bundle with data required by fragments
         Bundle bundle = new Bundle();
-        bundle.putInt("mission_number", missionNumber);
-        bundle.putInt("number_of_aerials", numberOfAerials);
-        bundle.putInt("number_of_thermals", numberOfThermals);
-        bundle.putInt("number_of_icedams", numberOfIceDams);
-        bundle.putInt("number_of_salts", numberOfSalts);
-        bundle.putString("username", username);
+        bundle.putString("inspection_json", inspectionJson);
 
         // load up the proper fragment based on tab position and pass it the bundle
         switch (position) {

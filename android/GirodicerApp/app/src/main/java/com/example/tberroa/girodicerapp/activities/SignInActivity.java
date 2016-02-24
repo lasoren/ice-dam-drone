@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,6 +17,8 @@ import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.database.TestCase;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -42,9 +43,12 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        // create test case database
+        new TestCase().Create();
+
         // check if user is already logged in
-        if (new UserInfo().isLoggedIn(this)){ // if so, send them to the main screen
-            startActivity(new Intent(SignInActivity.this, HomeActivity.class));
+        if (new UserInfo().isLoggedIn(this)){ // if so, send them to the client manager
+            startActivity(new Intent(SignInActivity.this, ClientManagerActivity.class));
             finish();
         }
 
@@ -137,6 +141,7 @@ public class SignInActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            /* LIVE code
             try{
                 String url = LOGIN_URL;
                 Log.d("test1", dataJSON);
@@ -144,33 +149,30 @@ public class SignInActivity extends AppCompatActivity {
             } catch(java.io.IOException e){
                 new ExceptionHandler().HandleException(e);
             }
+            */
+
+            // TEST code
+            postResponse = "id";
             return null;
         }
 
         protected void onPostExecute(Void param) {
-            Log.d("test1", ""+postResponse);
             if (postResponse.contains("id")) {
+                /* LIVE code
                 // create DroneOperator model from response json
                 Type droneOperator = new TypeToken<DroneOperator>(){}.getType();
                 Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
+                */
+
+                // TEST code
+                DroneOperator operator = new LocalTestDB().getOperator();
 
                 // save this operator to local storage
                 operator.CascadeSave();
 
-                // clear shared preferences of old data
-                final OperatorId operatorId = new OperatorId();
-                operatorId.clear(SignInActivity.this);
-                new ActiveInspectionInfo().clearAll(SignInActivity.this);
-                PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
-                pastInspectionsInfo.clearAll(SignInActivity.this);
-
-                // save the operators id to shared preference
-                operatorId.set(SignInActivity.this, operator.id);
-
-                // go to client manager
-                startActivity(new Intent(SignInActivity.this, ClientManagerActivity.class));
-                finish();
+                // sign in
+                Utilities.SignIn(SignInActivity.this, operator);
             }
             else{ // display error
                 Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();

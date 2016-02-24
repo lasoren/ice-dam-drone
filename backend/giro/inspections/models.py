@@ -50,6 +50,16 @@ class Inspection(models.Model):
     deleted = models.DateTimeField(blank=True, null=True)
 
 
+class InspectionProvision(models.Model):
+    """
+    Keeps track of when a inspection was last updated so that the
+    app doesn't update information it already has.
+    """
+    timestamp = models.DateTimeField(auto_now_add=True)
+    # The inspection that was updated in some way.
+    inspection = models.ForeignKey(Inspection)
+
+
 class InspectionImage(models.Model):
     """
     SQL row, that represents an image collected by the drone

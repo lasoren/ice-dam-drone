@@ -1,7 +1,5 @@
 package com.example.tberroa.girodicerapp.network;
 
-import android.util.Log;
-
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 
@@ -26,7 +24,6 @@ public class HttpPost {
     public String doPostRequest(String url, String jsonString) throws IOException {
         RequestBody body = RequestBody.create(mediaType, jsonString);
         Request request = new Request.Builder().url(url).post(body).build();
-        Log.d("test1", "attempting post");
         Response response = httpClient.newCall(request).execute();
         String rawResponse = response.body().string().trim();
         JSONObject jsonObject;
