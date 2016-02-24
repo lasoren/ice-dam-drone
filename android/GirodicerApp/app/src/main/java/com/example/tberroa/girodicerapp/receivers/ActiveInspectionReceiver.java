@@ -50,7 +50,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
 
             case Params.UPLOAD_COMPLETE:
                 // mission was just completed, phase=0, inactive
-                activeInspectionInfo.setMissionPhase(context, 0);
+                activeInspectionInfo.setPhase(context, 0);
 
                 // reload active mission activity
                 context.sendBroadcast(new Intent().setAction(reload));

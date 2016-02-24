@@ -13,11 +13,11 @@ public class InspectionImage extends Model {
 
     @Expose
     @Column(name = "created")
-    public long created;
+    public String created;
 
     @Expose
     @Column(name = "taken")
-    public long taken;
+    public String taken;
 
     @Expose
     @Column(name = "inspection")
@@ -39,7 +39,7 @@ public class InspectionImage extends Model {
         super();
     }
 
-    public InspectionImage(long created, long taken, Inspection inspection, String image_type, String link, long deleted){
+    public InspectionImage(String created, String taken, Inspection inspection, String image_type, String link, long deleted){
         super();
         this.created = created;
         this.taken = taken;

@@ -13,8 +13,9 @@ import android.view.View;
 import com.example.tberroa.girodicerapp.data.Mission;
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.helpers.DBManager;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -28,8 +29,8 @@ public class InspectionActivity extends BaseActivity {
         setContentView(R.layout.activity_inspection);
 
         // grab operatorName
-        int operatorId = operatorInfo.getId(this);
-        operatorName = DBManager.getOperatorName(operatorId);
+        int operatorId = new OperatorId().get(this);
+        operatorName = new LocalDB().getOperator(operatorId).user.first_name;
 
         // grab mission JSON and mission number, these values were passed to the activity
         String jsonMission = getIntent().getExtras().getString("mission");
