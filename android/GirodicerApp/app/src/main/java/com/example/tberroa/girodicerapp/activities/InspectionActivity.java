@@ -34,13 +34,13 @@ public class InspectionActivity extends BaseActivity {
         operatorName = new LocalDB().getOperator(operatorId).user.first_name;
 
         // grab client JSON and client number, these values were passed to the activity
-        String jsonInspection = getIntent().getExtras().getString("inspection");
+        String inspectionJson = getIntent().getExtras().getString("inspection_json");
         int inspectionNumber = getIntent().getExtras().getInt("inspection_number");
 
         // unpack inspection JSON into Inspection object
-        Type typeInspection = new TypeToken<Inspection>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        Inspection inspection = gson.fromJson(jsonInspection, typeInspection);
+        //Type typeInspection = new TypeToken<Inspection>(){}.getType();
+        //Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        //Inspection inspection = gson.fromJson(inspectionJson, typeInspection);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -70,7 +70,7 @@ public class InspectionActivity extends BaseActivity {
         InspectionPagerAdapter inspectionPagerAdapter;
         FragmentManager fragmentManager = getSupportFragmentManager();
         int numberOfTabs = tabLayout.getTabCount();
-        inspectionPagerAdapter = new InspectionPagerAdapter(fragmentManager, numberOfTabs, inspection);
+        inspectionPagerAdapter = new InspectionPagerAdapter(fragmentManager, numberOfTabs, inspectionJson);
         viewPager.setAdapter(inspectionPagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

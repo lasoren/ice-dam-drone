@@ -14,11 +14,6 @@ import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.adapters.FragmentViewAdapter;
-import com.example.tberroa.girodicerapp.models.Inspection;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 
 public class TabAerialFragment extends Fragment {
 
@@ -27,13 +22,13 @@ public class TabAerialFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_aerial, group, false);
 
         if (isAdded()){
-            Inspection inspection = new Inspection();
+            String inspectionJson = "";
 
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
-                Type typeInspection = new TypeToken<Inspection>(){}.getType();
-                inspection = new Gson().fromJson(bundle.getString("inspection_json", ""), typeInspection);
+                // grab the serialized inspection
+                inspectionJson = bundle.getString("inspection_json", "");
             }
 
             // grab context
@@ -48,7 +43,7 @@ public class TabAerialFragment extends Fragment {
 
             // populate recycler view
             FragmentViewAdapter fragmentViewAdapter;
-            fragmentViewAdapter = new FragmentViewAdapter(context, inspection, Params.AERIAL_TAB);
+            fragmentViewAdapter = new FragmentViewAdapter(context, inspectionJson, Params.AERIAL_TAB);
             recyclerView.setAdapter(fragmentViewAdapter);
         }
         return v;

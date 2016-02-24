@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.activeandroid.query.Delete;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
@@ -200,8 +201,8 @@ final public class Utilities {
         // update user sign in status
         new UserInfo().setUserStatus(context, false);
 
-        // delete database
-        context.deleteDatabase("AA_DB_NAME");
+        // clear database
+        new LocalTestDB().Clear();
 
         // go back to sign in page
         context.startActivity(new Intent(context, SignInActivity.class));

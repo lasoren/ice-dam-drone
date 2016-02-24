@@ -21,13 +21,10 @@ public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
     private final int numberOfTabs;
     private final String inspectionJson;
 
-    public InspectionPagerAdapter(FragmentManager fragmentManager, int numberOfTabs, Inspection inspection) {
+    public InspectionPagerAdapter(FragmentManager fragmentManager, int numberOfTabs, String inspectionJson) {
         super(fragmentManager);
         this.numberOfTabs = numberOfTabs;
-        // pack inspection into JSON
-        Type singleInspection = new TypeToken<Inspection>() {}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        inspectionJson = gson.toJson(inspection, singleInspection);
+        this.inspectionJson = inspectionJson;
     }
 
     @Override

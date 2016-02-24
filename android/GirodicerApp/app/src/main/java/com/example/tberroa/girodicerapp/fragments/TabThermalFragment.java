@@ -27,13 +27,13 @@ public class TabThermalFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_thermal, group, false);
 
         if (isAdded()){
-            Inspection inspection = new Inspection();
+            String inspectionJson = "";
 
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
-                Type typeInspection = new TypeToken<Inspection>(){}.getType();
-                inspection = new Gson().fromJson(bundle.getString("inspection_json", ""), typeInspection);
+                // grab the serialized inspection
+                inspectionJson = bundle.getString("inspection_json", "");
             }
 
             // grab context
@@ -48,7 +48,7 @@ public class TabThermalFragment extends Fragment {
 
             // populate recycler view
             FragmentViewAdapter fragmentViewAdapter;
-            fragmentViewAdapter = new FragmentViewAdapter(context, inspection, Params.THERMAL_TAB);
+            fragmentViewAdapter = new FragmentViewAdapter(context, inspectionJson, Params.THERMAL_TAB);
             recyclerView.setAdapter(fragmentViewAdapter);
         }
         return v;
