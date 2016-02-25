@@ -3,8 +3,6 @@
     <string name="app_logo">The Applications Logo</string>
 
     <!-- main app -->
-    <!-- client manager activity-->
-    <string name="client_x">Client X</string>
     <!-- main menu navigation and buttons -->
     <string name="start_inspection">Start Inspection</string>
     <string name="end_inspection">End Inspection</string>
@@ -19,8 +17,8 @@
     <string name="no_active_inspection_text">There is currently no active inspection.</string>
     <string name="active_inspection_text">
         Please keep your eyes on the drone as it is currently performing an inspection.</string>
-    <string name="transfer_phase_text">data is being transferred to the phone&#8230;</string>
-    <string name="upload_phase_text">data is being uploaded to the cloud&#8230;</string>
+    <string name="transfer_phase_text">Data is being transferred to the phone&#8230;</string>
+    <string name="upload_phase_text">Data is being uploaded to the cloud&#8230;</string>
     <!-- past inspections activity -->
     <string name="fetching_data">Fetching data from the cloud</string>
     <string name="delete_past_inspections">Delete Past Inspections</string>
@@ -36,19 +34,24 @@
     <string name="email">Email</string>
     <!-- input validation -->
     <string name="name_format">3 to 15 alphanumeric characters</string>
-    <string name="password_format">between 6 and 20 characters</string>
-    <string name="password_mismatch">password mismatch</string>
-    <string name="enter_valid_email">enter a valid email address</string>
+    <string name="password_format">Between 6 and 20 characters</string>
+    <string name="password_mismatch">Password mismatch</string>
+    <string name="enter_valid_email">Enter a valid email address</string>
     <!-- submit buttons -->
     <string name="sign_in">Sign In</string>
     <string name="create_account">Create Account</string>
     <!-- text links -->
     <string name="register">No account yet? Create one</string>
     <string name="go_to_sign_in">Already have an account? Sign In</string>
+    <string name="email_confirmation_explanation">Thanks for registering to be a drone operator!
+        \n\n Please check your email for mail from us confirming your account.
+        \n\n Click the provided link in the email to confirm your account to be
+        able to sign in.</string>
+    <string name="okay">Okay</string>
 
     <!-- download manager-->
     <string name="download_title">Girodicer Image Transfer</string>
-    <string name="download_description">in process of receiving images from drone</string>
+    <string name="download_description">In process of receiving images from drone</string>
 
     <!-- dialogs -->
     <string name="cannot_sign_out">
@@ -65,6 +68,8 @@
     <string name="yes">Yes</string>
 
     <!-- other -->
-    <string name="image">image</string>
-    <string name="placeholder">placeholder</string>
+    <string name="thumbnail_label">Label</string>
+    <string name="image">Image</string>
+    <string name="placeholder">Placeholder</string>
+    <string name="title_activity_confirm_email">ConfirmEmailActivity</string>
 </resources>

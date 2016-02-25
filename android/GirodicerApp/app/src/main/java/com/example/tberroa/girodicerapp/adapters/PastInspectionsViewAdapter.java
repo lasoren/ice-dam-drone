@@ -37,8 +37,8 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
         InspectionViewHolder(View itemView) {
             super(itemView);
-            imageThumbnail = (ImageView) itemView.findViewById(R.id.inspection_thumbnail);
-            inspectionNumber = (TextView) itemView.findViewById(R.id.inspection_number);
+            imageThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            inspectionNumber = (TextView) itemView.findViewById(R.id.label);
             imageThumbnail.setOnClickListener(this);
             inspectionNumber.setOnClickListener(this);
         }
@@ -69,7 +69,7 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
     @Override
     public InspectionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         Context c = viewGroup.getContext();
-        View v = LayoutInflater.from(c).inflate(R.layout.element_inspection_thumbnail, viewGroup, false);
+        View v = LayoutInflater.from(c).inflate(R.layout.element_thumbnail, viewGroup, false);
         return new InspectionViewHolder(v);
     }
 
@@ -77,7 +77,7 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
     public void onBindViewHolder(InspectionViewHolder inspectionViewHolder, int i) {
 
         // set inspection number text
-        String title = "Inspection " + Integer.toString(i + 1);
+        String title = inspections.get(i).created;
         inspectionViewHolder.inspectionNumber.setText(title);
 
         // get thumbnail url
