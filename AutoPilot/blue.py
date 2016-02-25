@@ -116,7 +116,7 @@ class BlueDataProcessor(threading.Thread):
 
     def __calculatePath(self, payloadSize):
         newhouse = house(self.__unpackagePoints(payloadSize))
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_NEW_HOUSE, newhouse)
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_NEW_HOUSE, [newhouse])
         return newhouse.path
 
     def __transferPath(self):

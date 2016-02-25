@@ -171,6 +171,7 @@ class house:
 
             if area < self.area and area > 1:
                 self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
+                print self.area
                 self.area = area
                 self.width = width
                 self.height = height
@@ -246,7 +247,7 @@ class house:
         self.path = self.path + tempPath
 
         temp = []
-        for p in path:
+        for p in self.path:
             temp.append(p.toLatLon())
         self.path = temp
 
