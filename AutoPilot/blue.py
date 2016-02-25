@@ -60,17 +60,17 @@ class BlueDataProcessor(threading.Thread):
     COMMAND_SEND_POINTS = 0x6
     COMMAND_READY_TO_TRANSFER = 0x7
     COMMAND_CALCULATE_PATH = 0x8
+    COMMAND_BLUETOOTH_SEND_PATH = 0x9
 
     def __init__(self, data, queue):
         super(BlueDataProcessor, self).__init__()
         self.data = data
         self.queue = queue
         self.start()
+        self.dataPacker = BlueDataPackager()
 
     def run(self):
         (command, payloadSize) = struct.unpack('Bi', self.data)
-
-        newDataPacker = BlueDataPackager()
 
         if command == self.COMMAND_ARM:
             None
@@ -84,10 +84,15 @@ class BlueDataProcessor(threading.Thread):
             None
         elif command == self.COMMAND_SEND_POINTS:
             self.__decipherRcvdPoints(payloadSize)
-
         elif command == self.COMMAND_CALCULATE_PATH:
-            self.__calculatepath(points)
-            newDataPacker.run(0x3,payload)
+            path = self.__calculatepath(points)
+            #newDataPacker.run(COMMAND_BLUETOOTH_SEND_PATH,__packagePoints(path))
+            package = self.__packagePoints(path)
+            data = bytearray()
+            data.append(self.COMMAND_BLUETOOTH_SEND_PATH)
+            data.append(chr(sys.getsizeof(package)))
+            data.append(package)
+            self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_TRANSFER_DATA, data)
         elif command == self.COMMAND_READY_TO_TRANSFER:
             None
 
@@ -108,9 +113,19 @@ class BlueDataProcessor(threading.Thread):
 
         return points
 
+    def __packagePoints(self, points):
+        package = bytearray()
+
+        for pair in points:
+            package += struct.pack('f', pair.lon)
+            package += struct.pack('f', pair.lat)
+
+        return package
+
     def __calculatePath(self, payloadSize):
         newhouse = house(self.__unpackagePoints(payloadSize))
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_SEND_PATH, newhouse)
+        return newhouse.path
 
     def __transferPath(self):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.TRANSFER_PATH)
@@ -131,5 +146,5 @@ class BlueDataPackager(threading.Thread):
         self.payload = payload
 
     def run(self):
-        # do stuff
+        blank
 
