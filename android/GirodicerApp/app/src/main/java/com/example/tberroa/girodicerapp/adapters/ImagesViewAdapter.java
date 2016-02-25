@@ -8,9 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -26,19 +24,17 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
     private final List<InspectionImage> inspectionImages;
     private final int numberOfImages;
 
-    public ImagesViewAdapter(Context context, String inspectionJson, String tab){
+    public ImagesViewAdapter(Context context, String inspectionImagesJson){
         this.context = context;
 
-        // deserialize the inspection
-        Type singleInspection = new TypeToken<Inspection>(){}.getType();
+        // deserialize the inspection images
+        Type inspectionImagesList = new TypeToken<List<InspectionImage>>(){}.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        Inspection inspection = gson.fromJson(inspectionJson, singleInspection);
+        inspectionImages = gson.fromJson(inspectionImagesJson, inspectionImagesList);
 
-        // get all inspection images of type "tab"
-        inspectionImages = new LocalDB().getInspectionImages(inspection, tab);
 
         // get number of images
-        numberOfImages = inspectionImages.size();
+        numberOfImages = this.inspectionImages.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{

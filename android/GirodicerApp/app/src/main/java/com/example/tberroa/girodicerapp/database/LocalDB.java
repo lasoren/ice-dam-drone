@@ -36,6 +36,13 @@ public class LocalDB {
                 .execute();
     }
 
+    public Inspection getInspection(int id){
+        return new Select()
+                .from(Inspection.class)
+                .where("inspection_id = ?", id)
+                .executeSingle();
+    }
+
     public List<Inspection> getInspections(Client client){
         return new Select()
                 .from(Inspection.class)
