@@ -7,7 +7,7 @@
     tools:context=".BaseActivity" >
 
     <ImageView
-        android:id="@+id/client_thumbnail"
+        android:id="@+id/thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/image"
@@ -15,14 +15,17 @@
         />
 
     <TextView
-        android:id="@+id/client_number"
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/client_thumbnail"
-        android:layout_alignStart="@id/client_thumbnail"
-        android:layout_alignEnd="@id/client_thumbnail"
-        android:text="@string/client_x"
-        android:gravity="center_horizontal"
+        android:layout_alignStart="@id/thumbnail"
+        android:layout_alignEnd="@id/thumbnail"
+        android:layout_alignBottom="@id/thumbnail"
+        android:paddingLeft="5dp"
+        android:background="#80000000"
+        android:text="@string/thumbnail_label"
+        android:gravity="left"
         android:textSize="18sp"
+        android:textColor="#FFFFFF"
         />
 </RelativeLayout>

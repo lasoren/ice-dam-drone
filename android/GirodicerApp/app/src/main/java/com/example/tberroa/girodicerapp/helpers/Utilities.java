@@ -83,7 +83,7 @@ final public class Utilities {
     }
 
     public static int getSpacingGrid(Context context){
-        return getScreenWidth(context)/(getSpanGrid(context)*12);
+        return getScreenWidth(context)/(getSpanGrid(context)*48);
     }
 
     public static String ConstructImageURL(String username, int missionNumber, String imageName){

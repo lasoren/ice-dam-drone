@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
 import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -36,8 +37,8 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
 
         ClientViewHolder(View itemView){
             super(itemView);
-            imageThumbnail = (ImageView) itemView.findViewById(R.id.client_thumbnail);
-            clientNumber = (TextView) itemView.findViewById(R.id.client_number);
+            imageThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            clientNumber = (TextView) itemView.findViewById(R.id.label);
             imageThumbnail.setOnClickListener(this);
             clientNumber.setOnClickListener(this);
         }
@@ -73,19 +74,22 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
     @Override
     public ClientViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         Context c = viewGroup.getContext();
-        View v = LayoutInflater.from(c).inflate(R.layout.element_client_thumbnail, viewGroup, false);
+        View v = LayoutInflater.from(c).inflate(R.layout.element_thumbnail, viewGroup, false);
         return new ClientViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ClientViewHolder clientViewHolder, int i) {
 
-        // set client number text
-        String title = "Client " + Integer.toString(i + 1);
+        // set client name text
+        String title = clients.get(i).user.first_name+"\n"+clients.get(i).user.last_name;
         clientViewHolder.clientNumber.setText(title);
 
-        // get thumbnail url (TEST)
-        String url = "http://www.lorensworld.com/wp-content/uploads/2013/06/shutterstock_107172992.jpg";
+        // get thumbnail url
+        String address = clients.get(i).address;
+        String key = Params.GOOGLE_STATIC_MAPS_KEY;
+        String baseUrl = Params.GOOGLE_STATIC_MAPS_URL;
+        String url = baseUrl+"center="+address+"&zoom=17&size=400x400&key="+key+"&markers=color:red|"+address;
 
         // render thumbnail with Picasso
         int width = Utilities.getImageWidthGrid(context);
