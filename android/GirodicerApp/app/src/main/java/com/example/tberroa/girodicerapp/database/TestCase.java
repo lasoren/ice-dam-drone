@@ -16,13 +16,7 @@ public class TestCase {
     public TestCase(){
     }
 
-    public void Create(){
-        // create operator
-        User operatorUser = new User(1, "today", "Thomas", "Berroa", "tberroa@outlook.com");
-        operatorUser.save();
-        DroneOperator droneOperator = new DroneOperator(1, "today", operatorUser, "1234");
-        droneOperator.CascadeSave();
-
+    public void Create(DroneOperator droneOperator){
         // create 1 client
         User clientUser = new User(2, "today", "Luke", "Sorenson", "lasoren@gmail.com");
         clientUser.save();

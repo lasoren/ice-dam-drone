@@ -18,6 +18,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
+import com.example.tberroa.girodicerapp.database.TestCase;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.services.DroneService;
@@ -177,6 +178,9 @@ final public class Utilities {
 
         // save this operator to local storage
         operator.CascadeSave();
+
+        // populate test database using real operator account (TEST CODE)
+        new TestCase().Create(operator);
 
         // update user sign in status
         new UserInfo().setUserStatus(context, true);
