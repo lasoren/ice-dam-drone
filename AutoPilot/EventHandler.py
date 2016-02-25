@@ -20,7 +20,7 @@ class EventQueue:
         self.__queue.put((priority, (event, args, kwargs)))
 
     def execute(self):
-        (event, args, kwargs) = self.__queue.get()
+        (priority,(event, args, kwargs)) = self.__queue.get()
         with self.__condition:
             func = self.__callbacks.get(event)
             self.__condition.notify()
