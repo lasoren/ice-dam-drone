@@ -70,7 +70,8 @@ class BlueDataProcessor(threading.Thread):
         self.start()
 
     def run(self):
-        (command, payloadSize) = struct.unpack('Bi', self.data)
+        print ":".join(x.encode('hex') for x in self.data)
+        (command, payloadSize) = struct.unpack_from('<Bi', self.data)
 
         if command == self.COMMAND_ARM:
             None
@@ -85,6 +86,8 @@ class BlueDataProcessor(threading.Thread):
         elif command == self.COMMAND_SEND_POINTS:
             self.__decipherRcvdPoints(payloadSize)
         elif command == self.COMMAND_NEW_HOUSE:
+            print "new house"
+            print "payloadsize %d" % payloadSize
             path = self.__calculatePath(payloadSize)
             packager = BlueDataPackager(self.COMMAND_BLUETOOTH_SEND_PATH, path, self.bluetooth)
             packager.run()
@@ -95,14 +98,17 @@ class BlueDataProcessor(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
 
     def __unpackagePoints(self, payloadSize):
-        offset = struct.calcsize('Bi')
-        windPos = struct.calcsize('dd')
-        numPoints = payloadSize/windPos
+        offset = struct.calcsize('<Bi')
+        windPos = struct.calcsize('<d')
+        numPoints = (payloadSize/windPos)/2
 
         points = []
 
         for i in range(0, numPoints):
-            (lat, lng) = struct.unpack('dd', offset)
+            (lat, ) = struct.unpack_from('>d', self.data, offset)
+            offset += windPos
+            print "lat %f" % lat
+            (lng, ) = struct.unpack_from('>d', self.data, offset)
             points.append(geoPoint(lat,lng))
             offset += windPos
 
@@ -141,10 +147,11 @@ class BlueDataPackager(threading.Thread):
             self.__sendStatus()
 
     def __sendStatus(self):
-        payloadSize = struct.calcsize('dddBi')
+        payloadSize = struct.calcsize('>ffdBi')
 
-        data = struct.pack('BidddBi', self.command, payloadSize, self.payload[0], self.payload[1], self.payload[2],
+        data = struct.pack('>BiffdBi', self.command, payloadSize, self.payload[0], self.payload[1], self.payload[2],
                            self.payload[3], self.payload[4])
+                           
 
         self.bluetooth.write(data)
 
@@ -154,12 +161,12 @@ class BlueDataPackager(threading.Thread):
         :return:
         """
         numPoints = len(self.payload)
-        pointSize = struct.calcsize('dd')
+        pointSize = struct.calcsize('>dd')
         payloadSize = numPoints * pointSize
 
-        data = struct.pack('Bi', self.command, payloadSize)
+        data = struct.pack('>Bi', self.command, payloadSize)
 
         for i in range(0, numPoints):
-            data = ''.join([data, struct.pack('dd', self.payload[i].lat, self.payload[i].lon)])
+            data = ''.join([data, struct.pack('>dd', self.payload[i].lat, self.payload[i].lon)])
 
         self.bluetooth.write(data)
