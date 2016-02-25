@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -22,13 +21,13 @@ public class TabIceDamFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_tab_images, group, false);
 
         if (isAdded()){
-            String inspectionJson = "";
+            String inspectionImagesJson = "";
 
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
-                // grab the serialized inspection
-                inspectionJson = bundle.getString("inspection_json", "");
+                // grab the serialized images
+                inspectionImagesJson = bundle.getString("icedam_images_json", "");
             }
 
             // grab context
@@ -43,7 +42,7 @@ public class TabIceDamFragment extends Fragment {
 
             // populate recycler view
             ImagesViewAdapter imagesViewAdapter;
-            imagesViewAdapter = new ImagesViewAdapter(context, inspectionJson, Params.ICEDAM_TAB);
+            imagesViewAdapter = new ImagesViewAdapter(context, inspectionImagesJson);
             recyclerView.setAdapter(imagesViewAdapter);
         }
         return v;

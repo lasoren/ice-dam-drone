@@ -14,6 +14,7 @@ import com.example.tberroa.girodicerapp.adapters.PastInspectionsViewAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
+import com.example.tberroa.girodicerapp.models.InspectionImage;
 
 import java.util.List;
 

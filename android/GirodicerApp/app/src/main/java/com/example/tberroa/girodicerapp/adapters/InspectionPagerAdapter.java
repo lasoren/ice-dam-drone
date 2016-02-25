@@ -13,38 +13,33 @@ import com.example.tberroa.girodicerapp.fragments.TabThermalFragment;
 public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 
     private final int numberOfTabs;
-    private final String inspectionJson;
+    private final Bundle inspectionImages;
 
-    public InspectionPagerAdapter(FragmentManager fragmentManager, int numberOfTabs, String inspectionJson) {
+    public InspectionPagerAdapter(FragmentManager fragmentManager, int numberOfTabs, Bundle inspectionImages) {
         super(fragmentManager);
         this.numberOfTabs = numberOfTabs;
-        this.inspectionJson = inspectionJson;
+        this.inspectionImages = inspectionImages;
     }
 
     @Override
     public Fragment getItem(int position) {
-
-        // create bundle with data required by fragments
-        Bundle bundle = new Bundle();
-        bundle.putString("inspection_json", inspectionJson);
-
-        // load up the proper fragment based on tab position and pass it the bundle
+        // load up the proper fragment based on tab position and pass it the images
         switch (position) {
             case 0:
                 TabAerialFragment tabAerial = new TabAerialFragment();
-                tabAerial.setArguments(bundle);
+                tabAerial.setArguments(inspectionImages);
                 return tabAerial;
             case 1:
                 TabThermalFragment tabThermal = new TabThermalFragment();
-                tabThermal.setArguments(bundle);
+                tabThermal.setArguments(inspectionImages);
                 return tabThermal;
             case 2:
                 TabIceDamFragment tabIceDams = new TabIceDamFragment();
-                tabIceDams.setArguments(bundle);
+                tabIceDams.setArguments(inspectionImages);
                 return tabIceDams;
             case 3:
                 TabSaltFragment tabSalt = new TabSaltFragment();
-                tabSalt.setArguments(bundle);
+                tabSalt.setArguments(inspectionImages);
                 return tabSalt;
             default:
                 return null;
