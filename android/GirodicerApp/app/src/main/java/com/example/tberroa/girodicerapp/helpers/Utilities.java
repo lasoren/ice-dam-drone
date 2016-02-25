@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.activeandroid.query.Delete;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
@@ -18,18 +17,12 @@ import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
-import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.services.DroneService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 final public class Utilities {
 
@@ -155,7 +148,7 @@ final public class Utilities {
         PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;
         if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)){
-            message = context.getResources().getString(R.string.previous_inspections_not_up_to_date);
+            message = context.getResources().getString(R.string.past_inspections_not_up_to_date);
             new MessageDialog(context, message).getDialog().show();
         }
         else if (!new ActiveInspectionInfo().isNotInProgress(context)) {
@@ -182,6 +175,9 @@ final public class Utilities {
         // save the operators id to shared preference
         operatorId.set(context, operator.id);
 
+        // save this operator to local storage
+        operator.CascadeSave();
+
         // update user sign in status
         new UserInfo().setUserStatus(context, true);
 
@@ -202,7 +198,7 @@ final public class Utilities {
         new UserInfo().setUserStatus(context, false);
 
         // clear database
-        new LocalTestDB().Clear();
+        new LocalDB().Clear();
 
         // go back to sign in page
         context.startActivity(new Intent(context, SignInActivity.class));

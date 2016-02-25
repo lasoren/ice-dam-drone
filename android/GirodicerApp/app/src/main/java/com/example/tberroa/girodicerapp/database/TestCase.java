@@ -17,17 +17,19 @@ public class TestCase {
     }
 
     public void Create(){
-        // create operator and client
+        // create operator
         User operatorUser = new User(1, "today", "Thomas", "Berroa", "tberroa@outlook.com");
         operatorUser.save();
-        User clientUser = new User(2, "today", "Luke", "Sorenson", "lasoren@gmail.com");
-        clientUser.save();
         DroneOperator droneOperator = new DroneOperator(1, "today", operatorUser, "1234");
         droneOperator.CascadeSave();
+
+        // create 1 client
+        User clientUser = new User(2, "today", "Luke", "Sorenson", "lasoren@gmail.com");
+        clientUser.save();
         Client client = new Client(1, "today", clientUser, "328 Centre St", 0);
         client.CascadeSave();
 
-        // create inspections
+        // create 4 inspections
         ArrayList<Inspection> inspections = new ArrayList<>(4);
         Inspection inspection;
         for (int i=0; i<4; i++){
@@ -36,7 +38,7 @@ public class TestCase {
             inspections.add(inspection);
         }
 
-        // create inspection images
+        // create 20 inspection images per inspection (5 of each type)
         String inspectionNumber[] = {"1", "2", "3", "4"};               // iterator
         String imageTypes[] = {"aerial", "thermal", "icedam", "salt"};  // iterator
         String imageNumber[] = {"1", "2", "3", "4", "5"};               // iterator

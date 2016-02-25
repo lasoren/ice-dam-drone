@@ -13,25 +13,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.database.TestCase;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
-import com.example.tberroa.girodicerapp.network.HttpPost;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.OperatorId;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
-
-import java.lang.reflect.Type;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -144,7 +135,6 @@ public class SignInActivity extends AppCompatActivity {
             /* LIVE code
             try{
                 String url = LOGIN_URL;
-                Log.d("test1", dataJSON);
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 new ExceptionHandler().HandleException(e);
@@ -166,10 +156,7 @@ public class SignInActivity extends AppCompatActivity {
                 */
 
                 // TEST code
-                DroneOperator operator = new LocalTestDB().getOperator();
-
-                // save this operator to local storage
-                operator.CascadeSave();
+                DroneOperator operator = new LocalDB().getOperator();
 
                 // sign in
                 Utilities.SignIn(SignInActivity.this, operator);

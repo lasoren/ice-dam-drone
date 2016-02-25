@@ -13,7 +13,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.adapters.FragmentViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.ImagesViewAdapter;
 
 public class TabSaltFragment extends Fragment {
 
@@ -42,9 +42,9 @@ public class TabSaltFragment extends Fragment {
             recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
             // populate recycler view
-            FragmentViewAdapter fragmentViewAdapter;
-            fragmentViewAdapter = new FragmentViewAdapter(context, inspectionJson, Params.SALT_TAB);
-            recyclerView.setAdapter(fragmentViewAdapter);
+            ImagesViewAdapter imagesViewAdapter;
+            imagesViewAdapter = new ImagesViewAdapter(context, inspectionJson, Params.SALT_TAB);
+            recyclerView.setAdapter(imagesViewAdapter);
         }
         return v;
     }

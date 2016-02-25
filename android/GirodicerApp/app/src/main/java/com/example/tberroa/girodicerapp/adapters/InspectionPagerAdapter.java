@@ -9,12 +9,6 @@ import com.example.tberroa.girodicerapp.fragments.TabAerialFragment;
 import com.example.tberroa.girodicerapp.fragments.TabIceDamFragment;
 import com.example.tberroa.girodicerapp.fragments.TabSaltFragment;
 import com.example.tberroa.girodicerapp.fragments.TabThermalFragment;
-import com.example.tberroa.girodicerapp.models.Inspection;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 
 public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 

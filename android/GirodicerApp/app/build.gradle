@@ -17,12 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
 
-    repositories {
-        mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+repositories {
+    mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
-
 }
 
 dependencies {

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.R;
@@ -27,7 +29,6 @@ public class BaseActivity extends AppCompatActivity {
     private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
     private RelativeLayout fetchingData;
     private BroadcastReceiver broadcastReceiver;
-    String operatorName;
 
     @Override
     protected void onStart(){
@@ -101,9 +102,6 @@ public class BaseActivity extends AppCompatActivity {
             }
         };
         registerReceiver(broadcastReceiver, filter);
-
-
-
     }
 
     @Override
@@ -150,7 +148,7 @@ public class BaseActivity extends AppCompatActivity {
                 startActivity(new Intent(this,PastInspectionsActivity.class));
                 finish();
                 return true;
-            case R.id.delete_past_inpections:
+            case R.id.delete_past_inspections:
                 // run delete metadata service
                 return true;
             case R.id.sign_out:
@@ -166,4 +164,15 @@ public class BaseActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    // populate the navigation
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        String operatorName = new LocalDB().getOperator().user.first_name;
+        getMenuInflater().inflate(R.menu.navigation, menu);
+        MenuItem item = menu.findItem(R.id.title);
+        item.setTitle("Logged in as: " + operatorName);
+        return true;
+    }
+
 }

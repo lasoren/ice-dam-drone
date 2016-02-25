@@ -1,6 +1,5 @@
 package com.example.tberroa.girodicerapp.activities;
 
-
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,22 +10,23 @@ import android.view.View;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.adapters.ClientManagerViewAdapter;
-import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Client;
 
 import java.util.List;
 
-public class ClientManagerActivity extends BaseActivity {
+public class ClientManagerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_manager);
+        LocalDB localDB = new LocalDB();
 
-        // get clients (TEST)
-        List<Client> clients = new LocalTestDB().getClients();
+        // get clients
+        List<Client> clients = localDB.getClients();
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -53,7 +53,7 @@ public class ClientManagerActivity extends BaseActivity {
 
     private final View.OnClickListener createClientButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
-            // client logic here
+            // create client code here
         }
     };
 

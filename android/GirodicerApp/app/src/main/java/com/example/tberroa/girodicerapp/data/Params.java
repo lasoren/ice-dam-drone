@@ -23,7 +23,6 @@ public class Params {
     final public static String UPDATING_STARTED = "UPDATING_STARTED";
     final public static String UPDATING_COMPLETE = "UPDATING_COMPLETE";
 
-
     // UI parameters
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";

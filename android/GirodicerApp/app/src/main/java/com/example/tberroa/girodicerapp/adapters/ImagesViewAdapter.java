@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
@@ -20,13 +20,13 @@ import com.squareup.picasso.Picasso;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class FragmentViewAdapter extends RecyclerView.Adapter<FragmentViewAdapter.ImageViewHolder> {
+public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.ImageViewHolder> {
 
     private final Context context;
     private final List<InspectionImage> inspectionImages;
     private final int numberOfImages;
 
-    public FragmentViewAdapter(Context context, String inspectionJson, String tab){
+    public ImagesViewAdapter(Context context, String inspectionJson, String tab){
         this.context = context;
 
         // deserialize the inspection
@@ -34,8 +34,8 @@ public class FragmentViewAdapter extends RecyclerView.Adapter<FragmentViewAdapte
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         Inspection inspection = gson.fromJson(inspectionJson, singleInspection);
 
-        // get all inspection images of type "tab" belonging to the inspection
-        inspectionImages = new LocalTestDB().getInspectionImages(inspection, tab);
+        // get all inspection images of type "tab"
+        inspectionImages = new LocalDB().getInspectionImages(inspection, tab);
 
         // get number of images
         numberOfImages = inspectionImages.size();
