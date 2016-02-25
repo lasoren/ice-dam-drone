@@ -10,13 +10,13 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>The Big Picture - Start Bootstrap Template</title>
+    <title>Email Confirmation</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="css/the-big-picture.css" rel="stylesheet">
+    <link href="../static/css/the-big-picture.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -30,7 +30,7 @@
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -40,12 +40,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Start Bootstrap</a>
+                <a class="navbar-brand" href="#">Girodicer</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li>
+                    <li class="active">
                         <a href="#">About</a>
                     </li>
                     <li>
@@ -64,9 +64,9 @@
     <!-- Page Content -->
     <div class="container">
         <div class="row">
-            <div class="col-md-6 col-sm-12">
-                <h1>The Big Picture</h1>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Magni, iusto, unde, sunt incidunt id sapiente rerum soluta voluptate harum veniam fuga odit ea pariatur vel eaque sint sequi tenetur eligendi.</p>
+            <div class="col-md-6 col-sm-12" id="confirm">
+                <h1>Thanks {{drone_operator.user.first_name}}!</h1>
+                <h3>You're all set. Your email has been confirmed. Login to the android app to get started.</h4s>
             </div>
         </div>
         <!-- /.row -->
@@ -74,10 +74,10 @@
     <!-- /.container -->
 
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+    <script src="../static/js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
 
 </body>
 
