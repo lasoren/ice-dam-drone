@@ -20,6 +20,7 @@
     <string name="transfer_phase_text">Data is being transferred to the phone&#8230;</string>
     <string name="upload_phase_text">Data is being uploaded to the cloud&#8230;</string>
     <!-- past inspections activity -->
+    <string name="no_past_inspections">It seems there are no inspections for this client.</string>
     <string name="fetching_data">Fetching data from the cloud</string>
     <string name="delete_past_inspections">Delete Past Inspections</string>
     <!-- inspection activity -->
