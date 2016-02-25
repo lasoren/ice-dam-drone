@@ -4,7 +4,7 @@ import string
 import time
 import giro.short_url as short_url
 
-EMAIL_PATH = "/console/confirm/"
+EMAIL_PATH = "confirm/"
 
 def generate_session_id(email):
     """
@@ -22,4 +22,4 @@ def generate_session_id(email):
 
 def generate_confirmation_url(base_url, drone_operator_id):
     unique_code = short_url.encode_url(drone_operator_id)
-    return base_url + EMAIL_PATH + unique_code, unique_code
+    return base_url + '/' + EMAIL_PATH + unique_code, unique_code
