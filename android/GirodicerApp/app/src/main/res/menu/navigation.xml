@@ -28,13 +28,13 @@
 
     <item
         android:id="@+id/past_inspections"
-        android:title="@string/previous_inspections"
+        android:title="@string/past_inspections"
         app:showAsAction="never"
         />
 
     <item
-        android:id="@+id/delete_past_inpections"
-        android:title="@string/delete_previous_inspections"
+        android:id="@+id/delete_past_inspections"
+        android:title="@string/delete_past_inspections"
         app:showAsAction="never"
         />
 

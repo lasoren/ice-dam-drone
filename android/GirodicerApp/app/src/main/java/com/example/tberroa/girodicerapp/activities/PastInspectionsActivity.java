@@ -1,58 +1,48 @@
 package com.example.tberroa.girodicerapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
-import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.adapters.PastInspectionsViewAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.Inspection;
 
 import java.util.List;
 
 public class PastInspectionsActivity extends BaseActivity {
 
-     //private int operatorId;  // TEST code
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_past_inspections);
+        LocalDB localDB = new LocalDB();
 
-        // LIVE
-        //LocalDB localDB = new LocalDB();
-
-        // TEST
-        LocalTestDB localTestDB = new LocalTestDB();
-
-        // get operator (LIVE)
-        //userInfo = new OperatorId().get(this);
-        //DroneOperator operator = new LocalDB().getOperator(userInfo);
-
-        // get client (LIVE)
-        //int clientId = new ClientId().get(this);
-        //Client client = new LocalDB().getClient(clientId);
-
-        // get inspections belonging to that operator&client combination (LIVE)
-        //List<Inspection> inspections = localDB.getInspections(operator, client);
-
-        // get inspections belonging to that operator&client combination (TEST)
-        Client client = localTestDB.getClient();
-        List<Inspection> inspections = localTestDB.getInspections(client);
+        // get inspections relating to this client
+        List<Inspection> inspections = localDB.getInspections(localDB.getClient(new ClientId().get(this)));
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Past Inspections");
-        toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ClientId().clear(PastInspectionsActivity.this);
+                startActivity(new Intent(PastInspectionsActivity.this, ClientManagerActivity.class));
+                finish();
+            }
+        });
+        toolbar.setVisibility(View.VISIBLE);
+
 
         // initialize recycler view
         int span = Utilities.getSpanGrid(this);
@@ -67,19 +57,10 @@ public class PastInspectionsActivity extends BaseActivity {
         recyclerView.setAdapter(pastInspectionsViewAdapter);
     }
 
-    // populate the navigation
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // get operator name (LIVE)
-        //String operatorName = new LocalDB().getOperator(userInfo).user.first_name;
-
-        // get operator name (TEST)
-        String operatorName = new LocalTestDB().getOperator().user.first_name;
-
-        getMenuInflater().inflate(R.menu.navigation, menu);
-        MenuItem item = menu.findItem(R.id.title);
-        item.setTitle("Logged in as: " + operatorName);
-        return true;
+    public void onBackPressed() {
+        new ClientId().clear(this);
+        startActivity(new Intent(this, ClientManagerActivity.class));
+        finish();
     }
-
 }

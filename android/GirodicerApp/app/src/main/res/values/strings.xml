@@ -9,7 +9,7 @@
     <string name="start_inspection">Start Inspection</string>
     <string name="end_inspection">End Inspection</string>
     <string name="current_inspection">Current Inspection</string>
-    <string name="previous_inspections">Previous Inspections</string>
+    <string name="past_inspections">Past Inspections</string>
     <string name="sign_out">Sign Out</string>
     <!-- active inspection activity -->
     <string name="inspection_phase_text">Inspection Phase: X</string>
@@ -23,7 +23,7 @@
     <string name="upload_phase_text">data is being uploaded to the cloud&#8230;</string>
     <!-- past inspections activity -->
     <string name="fetching_data">Fetching data from the cloud</string>
-    <string name="delete_previous_inspections">Delete Previous Inspections</string>
+    <string name="delete_past_inspections">Delete Past Inspections</string>
     <!-- inspection activity -->
     <string name="inspection_x">Inspection X</string>
 
@@ -57,7 +57,7 @@
     <string name="confirm_end_inspection">Are you sure you want to end the current inspection?</string>
     <string name="no_active_inspection">There is no active inspection to end.</string>
     <string name="inspection_in_progress">An inspection is already in progress.</string>
-    <string name="previous_inspections_not_up_to_date">
+    <string name="past_inspections_not_up_to_date">
         Past inspection data needs to finish updating before a new inspection can be started.
     </string>
     <string name="got_it">Got it!</string>

@@ -27,7 +27,4 @@ public class UserInfo extends Application {
     public void clear(Context context){
         setUserStatus(context, false);
     }
-
-
-
 }

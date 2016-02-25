@@ -6,15 +6,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.database.LocalDB;
 
 public class InspectionActivity extends BaseActivity {
 
@@ -23,18 +19,9 @@ public class InspectionActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inspection);
 
-        // grab operatorName
-        int operatorId = new OperatorId().get(this);
-        operatorName = new LocalDB().getOperator(operatorId).user.first_name;
-
-        // grab client JSON and client number, these values were passed to the activity
+        // grab inspection json and inspection number, these values are passed to the activity via intent
         String inspectionJson = getIntent().getExtras().getString("inspection_json");
         int inspectionNumber = getIntent().getExtras().getInt("inspection_number");
-
-        // unpack inspection JSON into Inspection object
-        //Type typeInspection = new TypeToken<Inspection>(){}.getType();
-        //Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        //Inspection inspection = gson.fromJson(inspectionJson, typeInspection);
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -81,15 +68,6 @@ public class InspectionActivity extends BaseActivity {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
-    }
-
-    // populate the navigation
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.navigation, menu);
-        MenuItem item = menu.findItem(R.id.title);
-        item.setTitle("Logged in as: " + operatorName);
-        return true;
     }
 
     @Override

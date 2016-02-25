@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.InspectionActivity;
-import com.example.tberroa.girodicerapp.database.LocalTestDB;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.gson.Gson;
@@ -27,7 +26,7 @@ import java.util.List;
 public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspectionsViewAdapter.InspectionViewHolder> {
 
     private final Context context;
-    private List<Inspection> inspections;
+    private final List<Inspection> inspections;
 
     public PastInspectionsViewAdapter(Context context, List<Inspection> inspections) {
         this.context = context;
@@ -89,9 +88,8 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
         String title = "Inspection " + Integer.toString(i + 1);
         inspectionViewHolder.inspectionNumber.setText(title);
 
-        // get thumbnail url (TEST)
-        String url = new LocalTestDB().getInspectionImages(inspections.get(i), "aerial").get(0).link;
-
+        // get thumbnail url
+        String url = new LocalDB().getInspectionImages(inspections.get(i), "aerial").get(0).link;
 
         // render thumbnail with Picasso
         int width = Utilities.getImageWidthGrid(context);
