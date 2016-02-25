@@ -207,6 +207,7 @@ final public class Utilities {
         }
     }
 
+
     /*
     public static <T> String serializeModel(T model){
         Type singleType = new TypeToken<T>(){}.getType();

@@ -45,6 +45,11 @@
     <!-- text links -->
     <string name="register">No account yet? Create one</string>
     <string name="go_to_sign_in">Already have an account? Sign In</string>
+    <string name="email_confirmation_explanation">Thanks for registering to be a drone operator!
+        \n\n Please check your email for mail from us confirming your account.
+        \n\n Click the provided link in the email to confirm your account to be
+        able to sign in.</string>
+    <string name="okay">Okay</string>
 
     <!-- download manager-->
     <string name="download_title">Girodicer Image Transfer</string>
@@ -67,4 +72,5 @@
     <!-- other -->
     <string name="image">image</string>
     <string name="placeholder">placeholder</string>
+    <string name="title_activity_confirm_email">ConfirmEmailActivity</string>
 </resources>
