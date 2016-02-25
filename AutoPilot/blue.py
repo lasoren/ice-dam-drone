@@ -35,8 +35,8 @@ class Blue(threading.Thread):
             self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_CONNECTED)
             try:
                 while True:
-                    data = self.__client_sock.recv()
-                    BlueDataProcessor(data, self.queue)
+                    data = self.__client_sock.recv(1024)
+                    BlueDataProcessor(data, self.queue, self)
             except IOError:
                 self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_DISCONNECTED)
 
@@ -59,15 +59,15 @@ class BlueDataProcessor(threading.Thread):
     COMMAND_STATUS = 0x5
     COMMAND_SEND_POINTS = 0x6
     COMMAND_READY_TO_TRANSFER = 0x7
-    COMMAND_CALCULATE_PATH = 0x8
+    COMMAND_NEW_HOUSE = 0x8
     COMMAND_BLUETOOTH_SEND_PATH = 0x9
 
-    def __init__(self, data, queue):
+    def __init__(self, data, queue, bluetooth):
         super(BlueDataProcessor, self).__init__()
         self.data = data
         self.queue = queue
+        self.bluetooth = bluetooth
         self.start()
-        self.dataPacker = BlueDataPackager()
 
     def run(self):
         (command, payloadSize) = struct.unpack('Bi', self.data)
@@ -84,15 +84,10 @@ class BlueDataProcessor(threading.Thread):
             None
         elif command == self.COMMAND_SEND_POINTS:
             self.__decipherRcvdPoints(payloadSize)
-        elif command == self.COMMAND_CALCULATE_PATH:
-            path = self.__calculatepath(points)
-            #newDataPacker.run(COMMAND_BLUETOOTH_SEND_PATH,__packagePoints(path))
-            package = self.__packagePoints(path)
-            data = bytearray()
-            data.append(self.COMMAND_BLUETOOTH_SEND_PATH)
-            data.append(chr(sys.getsizeof(package)))
-            data.append(package)
-            self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_TRANSFER_DATA, data)
+        elif command == self.COMMAND_NEW_HOUSE:
+            path = self.__calculatePath(payloadSize)
+            packager = BlueDataPackager(self.COMMAND_BLUETOOTH_SEND_PATH, path, self.bluetooth)
+            packager.run()
         elif command == self.COMMAND_READY_TO_TRANSFER:
             None
 
@@ -113,18 +108,9 @@ class BlueDataProcessor(threading.Thread):
 
         return points
 
-    def __packagePoints(self, points):
-        package = bytearray()
-
-        for pair in points:
-            package += struct.pack('f', pair.lon)
-            package += struct.pack('f', pair.lat)
-
-        return package
-
     def __calculatePath(self, payloadSize):
         newhouse = house(self.__unpackagePoints(payloadSize))
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_SEND_PATH, newhouse)
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_NEW_HOUSE, newhouse)
         return newhouse.path
 
     def __transferPath(self):
@@ -139,12 +125,41 @@ class BlueDataPackager(threading.Thread):
     COMMAND_STATUS = 0x5
     COMMAND_SEND_POINTS = 0x6
     COMMAND_READY_TO_TRANSFER = 0x7
+    COMMAND_NEW_HOUSE = 0x8
+    COMMAND_BLUETOOTH_SEND_PATH = 0x9
 
-    def __init__(self, command, payload):
+    def __init__(self, command, payload, bluetooth):
         super(BlueDataPackager, self).__init__()
         self.command = command
         self.payload = payload
+        self.bluetooth = bluetooth
 
     def run(self):
-        blank
+        if self.command == self.COMMAND_BLUETOOTH_SEND_PATH:
+            self.__sendPath()
+        elif self.command == self.COMMAND_STATUS:
+            self.__sendStatus()
 
+    def __sendStatus(self):
+        payloadSize = struct.calcsize('dddBi')
+
+        data = struct.pack('BidddBi', self.command, payloadSize, self.payload[0], self.payload[1], self.payload[2],
+                           self.payload[3], self.payload[4])
+
+        self.bluetooth.write(data)
+
+    def __sendPath(self):
+        """
+
+        :return:
+        """
+        numPoints = len(self.payload)
+        pointSize = struct.calcsize('dd')
+        payloadSize = numPoints * pointSize
+
+        data = struct.pack('Bi', self.command, payloadSize)
+
+        for i in range(0, numPoints):
+            data = ''.join([data, struct.pack('dd', self.payload[i].lat, self.payload[i].lon)])
+
+        self.bluetooth.write(data)

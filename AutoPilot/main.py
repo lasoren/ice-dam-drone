@@ -18,7 +18,7 @@ def printPoints(points):
 def printLidarDistance(distance):
     print "Distance %d" % distance
 
-def setPath(house):
+def setHouse(house):
     iceCutter.house = house
 
 def transferPath():
@@ -44,8 +44,7 @@ eventQueue.addEventCallback(bluetoothConnected, EventHandler.BLUETOOTH_CONNECTED
 eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.BLUETOOTH_DISCONNECTED)
 eventQueue.addEventCallback(printPoints, EventHandler.BLUETOOTH_GET_POINTS)
 eventQueue.addEventCallback(printLidarDistance, EventHandler.LIDAR_DISTANCE)
-eventQueue.addEventCallback(setPath, EventHandler.BLUETOOTH_SEND_PATH)
-eventQueue.addEventCallback(transferPath, EventHandler.TRANSFER_PATH)
+eventQueue.addEventCallback(setHouse, EventHandler.BLUETOOTH_NEW_HOUSE)
 eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
 
 print "Connecting to vehicle on: %s" % args.connect

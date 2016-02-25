@@ -12,15 +12,12 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.InspectionActivity;
+import com.example.tberroa.girodicerapp.data.InspectionId;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspectionsViewAdapter.InspectionViewHolder> {
@@ -53,16 +50,11 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
             int i = getLayoutPosition();
             Inspection inspection = inspections.get(i);
 
-            // pack inspection into JSON
-            Type singleInspection = new TypeToken<Inspection>() {}.getType();
-            Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-            String inspectionJson = gson.toJson(inspection, singleInspection);
+            // save inspection id
+            new InspectionId().set(context, inspection.id);
 
-            // start inspection activity, send inspection JSON and inspection number
-            Intent inspectionIntent = new Intent(v.getContext(), InspectionActivity.class);
-            inspectionIntent.putExtra("inspection_json", inspectionJson);
-            inspectionIntent.putExtra("inspection_number", i + 1);
-            context.startActivity(inspectionIntent);
+            // start inspection activity
+            context.startActivity(new Intent(v.getContext(), InspectionActivity.class));
             if(context instanceof Activity){
                 ((Activity)context).finish();
             }

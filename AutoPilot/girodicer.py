@@ -13,9 +13,9 @@ class Girodicer():
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
         print "Initializing bluetooth"
         self.blue = blue.Blue(self.eventQueue)
-        print "Initializing Lidar"
-        self.lidar = lidar.Lidar()
-        self.lidar.start()
+        # print "Initializing Lidar"
+        # self.lidar = lidar.Lidar()
+        # self.lidar.start()
 
     def arm_vehicle(self):
         """
@@ -163,13 +163,48 @@ class Girodicer():
         return bearing
 
 class GirodicerStatus(threading.Thread):
+    """
+    A threaded class that sends a status update every 0.5 seconds
+    """
 
     def __init__(self, vehicle, bluetooth):
-        self(GirodicerStatus, self).__init__()
+        super(GirodicerStatus, self).__init__()
         self.vehicle = vehicle
         self.bluetooth = bluetooth
-        self.__running = True
+        self.__stopped = threading.Event()
         self.start()
 
     def run(self):
-        self.vehicle.is_armable
+        self.__stopped.clear()
+        while self.__stopped.isSet() is False:
+            time.sleep(0.5) # only send a message every 0.5 seconds about your state
+            location = self.vehicle.location.global_frame
+            velocity = self.vehicle.velocity
+            state = self.vehicle.system_status
+            armable = self.vehicle.is_armable
+
+            payload = (float(location.lat), float(location.lon), float(velocity[0]), self.__decipherState(state), 1)
+
+            packager = blue.BlueDataPackager(blue.BlueDataPackager.COMMAND_STATUS, payload, self.bluetooth)
+            packager.run()
+
+    def stop(self):
+        self.__stopped.set()
+
+    def __decipherState(self, state):
+        if "UNINIT" == state:
+            return 0x0
+        elif "BOOT" == state:
+            return 0x1
+        elif "CALIBRATING" == state:
+            return 0x2
+        elif "STANDBY" == state:
+            return 0x3
+        elif "ACTIVE" == state:
+            return 0x4
+        elif "CRITICAL" == state:
+            return 0x5
+        elif "EMERGENCY" == state:
+            return 0x6
+        elif "POWEROFF" == state:
+            return 0x7
