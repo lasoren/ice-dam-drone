@@ -21,11 +21,12 @@
         android:layout_alignStart="@id/thumbnail"
         android:layout_alignEnd="@id/thumbnail"
         android:layout_alignBottom="@id/thumbnail"
-        android:paddingLeft="5dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:background="#80000000"
         android:text="@string/thumbnail_label"
-        android:gravity="left"
+        android:gravity="start"
         android:textSize="18sp"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/white"
         />
 </RelativeLayout>

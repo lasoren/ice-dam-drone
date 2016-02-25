@@ -10,15 +10,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.adapters.PastInspectionsViewAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
-import com.example.tberroa.girodicerapp.models.InspectionImage;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -32,6 +30,12 @@ public class PastInspectionsActivity extends BaseActivity {
 
         // get inspections relating to this client
         List<Inspection> inspections = localDB.getInspections(localDB.getClient(new ClientId().get(this)));
+
+        // set most recent inspection id (id of most recent inspection. used for inspection creation later)
+        if (inspections.size() != 0){
+            int id = inspections.get(0).id; // inspections list is ordered by descending id
+            new PastInspectionsInfo().setMostRecentId(this, id);
+        }
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

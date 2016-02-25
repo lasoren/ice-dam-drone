@@ -24,7 +24,7 @@ import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 public class BaseActivity extends AppCompatActivity {
 
-    final UserInfo userInfo = new UserInfo();
+    private final UserInfo userInfo = new UserInfo();
     final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
     private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
     private RelativeLayout fetchingData;

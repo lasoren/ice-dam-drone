@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.database.TestCase;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -32,7 +31,7 @@ import java.lang.reflect.Type;
 public class SignInActivity extends AppCompatActivity {
 
     private EditText email, password;
-    final public String LOGIN_URL = Params.BASE_URL + "users/signin.json";
+    private final String LOGIN_URL = Params.BASE_URL + "users/signin.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

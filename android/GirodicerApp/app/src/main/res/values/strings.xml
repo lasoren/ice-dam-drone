@@ -23,8 +23,6 @@
     <string name="no_past_inspections">It seems there are no inspections for this client.</string>
     <string name="fetching_data">Fetching data from the cloud</string>
     <string name="delete_past_inspections">Delete Past Inspections</string>
-    <!-- inspection activity -->
-    <string name="inspection_x">Inspection X</string>
 
     <!-- user authentication -->
     <!-- field hints -->
@@ -62,7 +60,7 @@
     <string name="no_active_inspection">There is no active inspection to end.</string>
     <string name="inspection_in_progress">An inspection is already in progress.</string>
     <string name="past_inspections_not_up_to_date">
-        Past inspection data needs to finish updating before a new inspection can be started.
+        Past inspection data needs to be up to date before a new inspection can be started.
     </string>
     <string name="got_it">Got it!</string>
     <string name="no">No</string>
@@ -72,5 +70,4 @@
     <string name="thumbnail_label">Label</string>
     <string name="image">Image</string>
     <string name="placeholder">Placeholder</string>
-    <string name="title_activity_confirm_email">ConfirmEmailActivity</string>
 </resources>

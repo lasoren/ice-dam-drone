@@ -18,20 +18,14 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.network.HttpPost;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
-
-import java.lang.reflect.Type;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstName, lastName, password, confirmPassword, email;
-    final public String REGISTER_URL = Params.BASE_URL + "users/register.json";
+    private final String REGISTER_URL = Params.BASE_URL + "users/register.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,18 +166,11 @@ public class RegisterActivity extends AppCompatActivity {
             } catch(java.io.IOException e){
                 e.printStackTrace();
             }
-
-//            // Test code
-//            postResponse = "id";
             return null;
         }
 
         protected void onPostExecute(Void param) {
             if (postResponse.contains("id")){
-
-//                // TEST code
-//                DroneOperator operator = new LocalDB().getOperator();
-
                 startActivity(new Intent(RegisterActivity.this, ConfirmEmailActivity.class));
                 finish();
             }

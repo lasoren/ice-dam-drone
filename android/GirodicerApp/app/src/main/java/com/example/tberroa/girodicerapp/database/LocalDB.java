@@ -47,6 +47,7 @@ public class LocalDB {
         return new Select()
                 .from(Inspection.class)
                 .where("client = ?", client.getId())
+                .orderBy("inspection_id DESC")
                 .execute();
     }
 

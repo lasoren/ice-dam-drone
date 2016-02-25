@@ -9,8 +9,12 @@ public class ActiveInspectionInfo extends Application {
     // keys
     private final String IS_NOT_IN_PROGRESS = "is_not_in_progress";
     private final String PHASE = "phase";
-    private final String INSPECTION_NUMBER = "inspection_number";
-    private final String DATA = "data";
+    private final String INSPECTION_ID = "inspection_id";   // id for the newly started inspection
+    private final String CLIENT_ID = "client_id";           // id for the client this inspection belongs to
+    private final String AERIAL_COUNT = "aerial_count";
+    private final String THERMAL_COUNT = "thermal_count";
+    private final String ICEDAM_COUNT = "icedam_count";
+    private final String SALT_COUNT = "salt_count";
     private final String LAST_DOWNLOAD = "last_download";
 
     public ActiveInspectionInfo() {
@@ -28,12 +32,28 @@ public class ActiveInspectionInfo extends Application {
         return getSharedPreferences(context).getInt(PHASE, 0);
     }
 
-    public int getId(Context context){
-        return getSharedPreferences(context).getInt(INSPECTION_NUMBER, 0);
+    public int getInspectionId(Context context){
+        return getSharedPreferences(context).getInt(INSPECTION_ID, 0);
     }
 
-    public String getData(Context context){ // as JSON of a Client object
-        return getSharedPreferences(context).getString(DATA, "");
+    public int getClientId(Context context){
+        return getSharedPreferences(context).getInt(CLIENT_ID, 0);
+    }
+
+    public int getAerialCount(Context context){
+        return getSharedPreferences(context).getInt(AERIAL_COUNT, 0);
+    }
+
+    public int getThermalCount(Context context){
+        return getSharedPreferences(context).getInt(THERMAL_COUNT, 0);
+    }
+
+    public int getIceDamCount(Context context){
+        return getSharedPreferences(context).getInt(ICEDAM_COUNT, 0);
+    }
+
+    public int getSaltCount(Context context){
+        return getSharedPreferences(context).getInt(SALT_COUNT, 0);
     }
 
     public long getLastDownload(Context context){
@@ -48,19 +68,43 @@ public class ActiveInspectionInfo extends Application {
 
     public void setPhase(Context context, int phase){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(this.PHASE, phase);
+        editor.putInt(PHASE, phase);
         editor.apply();
     }
 
-    public void setId(Context context, int inspectionNumber){
+    public void setInspectionId(Context context, int id){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(this.INSPECTION_NUMBER, inspectionNumber);
+        editor.putInt(INSPECTION_ID, id);
         editor.apply();
     }
 
-    public void setData(Context context, String data){ // as JSON of a Client object
+    public void setClientId(Context context, int id){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putString(this.DATA, data);
+        editor.putInt(CLIENT_ID, id);
+        editor.apply();
+    }
+
+    public void setAerialCount(Context context, int num){
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putInt(AERIAL_COUNT, num);
+        editor.apply();
+    }
+
+    public void setThermalCount(Context context, int num){
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putInt(THERMAL_COUNT, num);
+        editor.apply();
+    }
+
+    public void setIceDamCount(Context context, int num){
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putInt(ICEDAM_COUNT, num);
+        editor.apply();
+    }
+
+    public void setSaltCount(Context context, int num){
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putInt(SALT_COUNT, num);
         editor.apply();
     }
 
@@ -73,8 +117,7 @@ public class ActiveInspectionInfo extends Application {
     public void clearAll(Context context){
         setNotInProgress(context, true);
         setPhase(context, 0);
-        setId(context, 0);
-        setData(context, "");
+        setInspectionId(context, 0);
         setLastDownload(context, 0);
     }
 }
