@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Points {
 
     public static final byte[] Pack(ArrayList<LatLng> points){
-        ByteBuffer builder = ByteBuffer.allocate(points.size() * Double.SIZE * 2);
+        ByteBuffer builder = ByteBuffer.allocate(points.size() * 8 * 2);
 
         for (LatLng point : points){
             builder.putDouble(point.latitude);

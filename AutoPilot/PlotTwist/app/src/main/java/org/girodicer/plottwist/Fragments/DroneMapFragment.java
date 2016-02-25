@@ -41,7 +41,8 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
 
             if(frag.equals(DroneStateFragment.class.getName())){
                 currentLocation = intent.getParcelableExtra(DroneActivity.LOCATION_PACKAGE);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
+                if(currentLocation != null)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
             }
         }
     };

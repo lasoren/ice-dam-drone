@@ -37,9 +37,9 @@ public class DroneStateFragment extends Fragment {
 
                 velocity.setText(currentStatus.velocity.toString());
 
-                state.setText(currentStatus.state);
+                state.setText(Byte.toString(currentStatus.state));
 
-                armable.setText(currentStatus.armable);
+                armable.setText(Integer.toString(currentStatus.armable));
             }
         }
     };
