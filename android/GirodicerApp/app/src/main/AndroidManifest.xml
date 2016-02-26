@@ -41,6 +41,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".activities.ConfirmEmailActivity" />
         <activity android:name=".activities.BaseActivity" />
         <activity android:name=".activities.ClientManagerActivity" />
         <activity android:name=".activities.ActiveInspectionActivity" />
@@ -80,11 +81,6 @@
                 <action android:name="UPLOAD_COMPLETE" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name=".activities.ConfirmEmailActivity"
-            android:label="@string/title_activity_confirm_email"
-            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

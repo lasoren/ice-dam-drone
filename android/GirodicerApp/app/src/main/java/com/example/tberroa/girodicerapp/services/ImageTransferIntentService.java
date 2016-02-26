@@ -4,19 +4,14 @@ import android.app.DownloadManager;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
-import java.lang.reflect.Type;
 
 // class to receive and store images received from drone
 // for now this class will simply download images from the internet
@@ -27,8 +22,8 @@ public class ImageTransferIntentService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {/*
-        // mission in transfer phase, phase=2
+    protected void onHandleIntent(Intent intent) {
+        // inspection in transfer phase, phase=2
         ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
         activeInspectionInfo.setPhase(this, 2);
 
@@ -37,9 +32,11 @@ public class ImageTransferIntentService extends IntentService {
         transferStarted.setAction(Params.TRANSFER_STARTED);
         sendBroadcast(transferStarted);
 
-        // grab username and mission number
-        String username = new OperatorId().getUsername(this);
-        int missionNumber = activeInspectionInfo.getId(this);
+        // get inspection id
+        int inspectionId = activeInspectionInfo.getInspectionId(this);
+
+        // get today's date (TEST CODE, date format will be different in live code)
+        //String date = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
 
         // initialize number of images to zero
         int numberOfAerials = 0, numberOfThermals = 0, numberOfIceDams = 0, numberOfSalts = 0;
@@ -51,7 +48,7 @@ public class ImageTransferIntentService extends IntentService {
         // I wouldn't know the number of images per type until they all came in from the drone
         String imageNumber[] = {"1", "2", "3", "4", "5"};
 
-        // download and save one image at a time
+        // download and save one image at a time (TEST CODE!!, always copying inspection 1)
         long lastDownload = 0;
         for (String type: imageType) { // loop 4 times, once per image type
             for (String num: imageNumber) { // loop 5 times (up to 5 images per type for test)
@@ -59,7 +56,7 @@ public class ImageTransferIntentService extends IntentService {
                 String imageName = type+num+".jpg";
 
                 // name of image including folder prefixes up to username
-                String key = Utilities.ConstructImageKey(username, missionNumber, imageName);
+                String key = Utilities.ConstructImageKey(inspectionId, imageName);
 
                 // users local directory for pictures
                 String directory = Environment.DIRECTORY_PICTURES;
@@ -74,7 +71,7 @@ public class ImageTransferIntentService extends IntentService {
                     DownloadManager dM = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
                     // construct  uri
-                    Uri uri = Uri.parse(Utilities.ConstructImageURL(username, 1, imageName));
+                    Uri uri = Uri.parse(Utilities.ConstructImageURL(1, imageName));
 
                     // initialize the download request
                     DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -111,21 +108,14 @@ public class ImageTransferIntentService extends IntentService {
             // save id of last download
             activeInspectionInfo.setLastDownload(this, lastDownload);
         }
-        // save the mission data
-        Bundle bundle = new Bundle();
-        bundle.putInt("number_of_aerials", numberOfAerials);
-        bundle.putInt("number_of_thermals", numberOfThermals);
-        bundle.putInt("number_of_icedams", numberOfIceDams);
-        bundle.putInt("number_of_salts", numberOfSalts);
-        Client clientData = new Client(bundle);
-
-        // save the mission as JSON
-        Type singleMission = new TypeToken<Client>(){}.getType();
-        String json = new Gson().toJson(clientData, singleMission);
-        activeInspectionInfo.setData(this, json);
+        // save the inspection images count
+        activeInspectionInfo.setAerialCount(this, numberOfAerials);
+        activeInspectionInfo.setThermalCount(this, numberOfThermals);
+        activeInspectionInfo.setIceDamCount(this, numberOfIceDams);
+        activeInspectionInfo.setSaltCount(this, numberOfSalts);
 
         // broadcast that the transfer is complete
         sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
-        */
+
     }
 }

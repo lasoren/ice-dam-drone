@@ -49,6 +49,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static Messenger bluetoothMessenger; // only for the handler in this class
     private static boolean bluetoothServiceBound = false;
 
+    private boolean pathFound = false;
+
     private ServiceConnection bluetoothConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -175,25 +177,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.maps_next:
-                goToStatus();
+                if(pathFound) {
+                    goToStatus();
+                } else {
+                    findPath();
+                }
                 break;
         }
     }
 
     private void goToStatus(){
-        if(houseBoundary.size() < 4){
-            Toast.makeText(MapsActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
-        return;
+        Intent status = new Intent(this, DroneActivity.class);
+        startActivity(status);
     }
 
+    private void findPath(){
+        if(houseBoundary.size() < 4){
+            Toast.makeText(MapsActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         byte[] points = Points.Pack(houseBoundary);
-        App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_SEND_POINTS, points.length, points, false));
+        App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
+        Toast.makeText(MapsActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
     }
 
     private void plotPoints(ArrayList<LatLng> points){
         for (LatLng point : points){
             mMap.addMarker(new MarkerOptions().position(point));
         }
+
+        pathFound = true;
     }
 
     private class BTMessageHandler extends Handler {
@@ -209,7 +223,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
                                 break;
-                            case GProtocol.COMMAND_SEND_POINTS:
+                            case GProtocol.COMMAND_SEND_PATH:
                                 plotPoints((ArrayList<LatLng>) received.read());
                                 break;
                         }

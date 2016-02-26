@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Created by Carlos on 2/22/2016.
@@ -37,8 +38,8 @@ public class Status implements Parcelable {
 
     public static final Status Unpack(byte[] data){
         ByteBuffer buffer = ByteBuffer.wrap(data);
-        Double latitude = buffer.getDouble();
-        Double longitude = buffer.getDouble();
+        Float latitude = buffer.getFloat();
+        Float longitude = buffer.getFloat();
         Double velocity = buffer.getDouble();
         byte state = buffer.get();
         int armable = buffer.getInt();

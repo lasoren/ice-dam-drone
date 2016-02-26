@@ -17,5 +17,30 @@
         android:layout_below="@id/header"
         android:scrollbars="vertical"
         android:fadeScrollbars="true"
+        android:visibility="gone"
         />
+
+    <TextView
+        android:id="@+id/no_past_inspections_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_marginTop="150dp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/no_past_inspections"
+        android:textSize="18sp"
+        android:visibility="gone"
+        />
+
+    <Button
+        android:id="@+id/start_inspection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/no_past_inspections_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="@string/start_inspection"
+        android:visibility="gone"
+        />
+
 </RelativeLayout>

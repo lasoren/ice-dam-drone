@@ -193,8 +193,8 @@ public class Welcome extends Activity implements View.OnClickListener {
     }
 
     public void skip(View view){
-        Intent next = new Intent(this, DroneActivity.class);
-        //next.putExtra(App.LOCATION, currentStatus.location);
+        Intent next = new Intent(this, MapsActivity.class);
+        next.putExtra(App.LOCATION, currentStatus.location);
         startActivity(next);
     }
 
@@ -232,6 +232,7 @@ public class Welcome extends Activity implements View.OnClickListener {
                         switch(received.getCommand()){
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
+                                //Toast.makeText(Welcome.this, "Lat:" + currentStatus.location.latitude + "Lng:" + currentStatus.location.longitude, Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     } catch (BluetoothException e) {

@@ -64,16 +64,16 @@ public class TestCase {
         for (int i=0; i<4; i++){
             String creationDate;
             switch(i){
-                case 0:
+                case 3:
                     creationDate = "2/24/2016";
                     break;
-                case 1:
+                case 2:
                     creationDate = "1/15/2016";
                     break;
-                case 2:
+                case 1:
                     creationDate = "12/25/2015";
                     break;
-                case 3:
+                case 0:
                     creationDate = "12/5/2015";
                     break;
                 default:

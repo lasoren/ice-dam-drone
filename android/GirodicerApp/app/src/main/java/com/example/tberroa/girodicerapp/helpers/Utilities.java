@@ -86,8 +86,8 @@ final public class Utilities {
         return getScreenWidth(context)/(getSpanGrid(context)*48);
     }
 
-    public static String ConstructImageURL(String username, int missionNumber, String imageName){
-        return Params.CLOUD_URL +"1/images/"+imageName;
+    public static String ConstructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
+        return Params.CLOUD_URL +inspectionId+"/images/"+imageName;
     }
 
 
@@ -103,8 +103,8 @@ final public class Utilities {
         }
     }
 
-    public static String ConstructImageKey(String username, int missionNumber, String imageName){
-        return "1/images/"+imageName;
+    public static String ConstructImageKey(int inspectionId, String imageName){
+        return inspectionId+"/images/"+imageName;
     }
 
     public static String validate(Bundle enteredInfo){
@@ -181,6 +181,7 @@ final public class Utilities {
 
         // populate test database using real operator account (TEST CODE)
         new TestCase().Create(operator);
+        new PastInspectionsInfo().setUpToDate(context, true); // TEST CODE!
 
         // update user sign in status
         new UserInfo().setUserStatus(context, true);

@@ -24,6 +24,8 @@ public class GProtocol {
     public static final byte COMMAND_STATUS = 0x5;
     public static final byte COMMAND_SEND_POINTS = 0x6;
     public static final byte COMMAND_READY_TO_TRANSFER = 0x7;
+    public static final byte COMMAND_NEW_HOUSE = 0x8;
+    public static final byte COMMAND_SEND_PATH = 0x9;
 
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
 
@@ -32,7 +34,7 @@ public class GProtocol {
     private boolean partial;
 
     public static byte[] Pack(byte command, int payloadSize, byte[] array, boolean partial){
-        ByteBuffer builder = ByteBuffer.allocate(payloadSize + 1).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer builder = ByteBuffer.allocate(payloadSize + 1 + 4).order(ByteOrder.LITTLE_ENDIAN);
 
         if(partial){
             command |= PARTIAL_MESSAGE;
@@ -45,7 +47,7 @@ public class GProtocol {
     }
 
     public static GProtocol Unpack(byte[] array) throws BluetoothException{
-        ByteBuffer builder = ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN);
+        ByteBuffer builder = ByteBuffer.wrap(array);
 
         if(!builder.hasRemaining()){ // array passed in has nothing
             throw new BluetoothException("Empty Array", BluetoothException.ERRORS.ARRAY_EMPTY);
@@ -62,6 +64,7 @@ public class GProtocol {
                 return new GProtocol(receivedCommand, null, false);
             case COMMAND_STATUS:
             case COMMAND_SEND_POINTS:
+            case COMMAND_SEND_PATH:
                 boolean partial = ((receivedCommand & PARTIAL_MESSAGE) != 0x0);
                 if(builder.hasRemaining()){
                     int payloadSize = builder.getInt();
@@ -84,7 +87,7 @@ public class GProtocol {
 
     public GProtocol(byte command, byte[] data, boolean partial){
         this.command = command;
-        this.data = data;
+        this.data = data.clone();
         this.partial = partial;
     }
 
@@ -97,6 +100,7 @@ public class GProtocol {
             case COMMAND_STATUS:
                 return Status.Unpack(this.data);
             case COMMAND_SEND_POINTS:
+            case COMMAND_SEND_PATH:
                 return Points.Unpack(this.data);
         }
         return null;
