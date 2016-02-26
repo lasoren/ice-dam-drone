@@ -6,6 +6,7 @@ dronekit-sitl==3.0.1
 psutil==3.4.2
 pycparser==2.14
 pymavlink==1.1.69
+pyserial==3.0.1
 requests==2.9.1
 smbus-cffi==0.5.1
 utm==0.4.0
