@@ -56,7 +56,7 @@ public class ImageTransferIntentService extends IntentService {
                 String imageName = type+num+".jpg";
 
                 // name of image including folder prefixes up to username
-                String key = Utilities.ConstructImageKey(inspectionId, imageName);
+                String key = Utilities.constructImageKey(inspectionId, imageName);
 
                 // users local directory for pictures
                 String directory = Environment.DIRECTORY_PICTURES;
@@ -71,7 +71,7 @@ public class ImageTransferIntentService extends IntentService {
                     DownloadManager dM = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
                     // construct  uri
-                    Uri uri = Uri.parse(Utilities.ConstructImageURL(1, imageName));
+                    Uri uri = Uri.parse(Utilities.constructImageURL(1, imageName));
 
                     // initialize the download request
                     DownloadManager.Request request = new DownloadManager.Request(uri);

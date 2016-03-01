@@ -2,10 +2,15 @@ package com.example.tberroa.girodicerapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
@@ -13,6 +18,9 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.InspectionId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
+import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
+import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.google.gson.Gson;
@@ -22,7 +30,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class InspectionActivity extends BaseActivity {
+public class InspectionActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +85,17 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setVisibility(View.VISIBLE);
 
+        // initialize drawer layout
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        // initialize navigation view
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
         InspectionPagerAdapter inspectionPagerAdapter;
@@ -105,6 +124,60 @@ public class InspectionActivity extends BaseActivity {
     public void onBackPressed() {
         startActivity(new Intent(this, PastInspectionsActivity.class));
         finish();
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        switch (item.getItemId()) {
+            case R.id.end_inspection:
+                if (activeInspectionInfo.isNotInProgress(this)){
+                    String message = getResources().getString(R.string.no_active_inspection);
+                    new MessageDialog(this, message).getDialog().show();
+                }
+                else {
+                    int inspectionPhase = activeInspectionInfo.getPhase(this);
+                    String message;
+                    switch(inspectionPhase){
+                        case 1:
+                            new ConfirmEndInspectionDialog(this).getDialog().show();
+                            break;
+                        case 2:
+                            message = getResources().getString(R.string.transfer_phase_text);
+                            new MessageDialog(this, message).getDialog().show();
+                            break;
+                        case 3:
+                            message = getResources().getString(R.string.upload_phase_text);
+                            new MessageDialog(this, message).getDialog().show();
+                            break;
+                    }
+                }
+                return true;
+            case R.id.start_inspection:
+                Utilities.attemptInspectionStart(this);
+                return true;
+            case R.id.current_inspection:
+                startActivity(new Intent(this,ActiveInspectionActivity.class));
+                finish();
+                return true;
+            case R.id.past_inspections:
+                startActivity(new Intent(this,PastInspectionsActivity.class));
+                finish();
+                return true;
+            case R.id.sign_out:
+                // check if there is an ongoing active inspection
+                if (!activeInspectionInfo.isNotInProgress(this)){
+                    String message = getResources().getString(R.string.cannot_sign_out);
+                    new MessageDialog(this, message).getDialog().show();
+                }
+                else{
+                    Utilities.signOut(this);
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

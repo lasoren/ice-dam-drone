@@ -151,7 +151,7 @@ public class SignInActivity extends AppCompatActivity {
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
 
                 // sign in
-                Utilities.SignIn(SignInActivity.this, operator);
+                Utilities.signIn(SignInActivity.this, operator);
             }
             else{ // display error
                 Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();

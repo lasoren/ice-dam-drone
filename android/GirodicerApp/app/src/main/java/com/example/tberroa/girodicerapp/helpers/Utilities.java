@@ -86,15 +86,14 @@ final public class Utilities {
         return getScreenWidth(context)/(getSpanGrid(context)*48);
     }
 
-    public static String ConstructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
+    public static String constructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
         return Params.CLOUD_URL +inspectionId+"/images/"+imageName;
     }
 
-
-    public static void DeleteDirectory(File fileOrDirectory) {
+    public static void deleteDirectory(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
             for (File child : fileOrDirectory.listFiles()) {
-                DeleteDirectory(child);
+                deleteDirectory(child);
             }
         }
         boolean success = false;
@@ -103,7 +102,7 @@ final public class Utilities {
         }
     }
 
-    public static String ConstructImageKey(int inspectionId, String imageName){
+    public static String constructImageKey(int inspectionId, String imageName){
         return inspectionId+"/images/"+imageName;
     }
 
@@ -144,7 +143,7 @@ final public class Utilities {
         return validation;
     }
 
-    public static void AttemptInspectionStart(Context context){
+    public static void attemptInspectionStart(Context context){
 
         PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;
@@ -166,7 +165,7 @@ final public class Utilities {
         }
     }
 
-    public static void SignIn(Context context, DroneOperator operator){
+    public static void signIn(Context context, DroneOperator operator){
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
         operatorId.clear(context);
@@ -193,7 +192,7 @@ final public class Utilities {
         }
     }
 
-    public static void SignOut(Context context){
+    public static void signOut(Context context){
         // clear shared preferences of old data
         new OperatorId().clear(context);
         new ActiveInspectionInfo().clearAll(context);

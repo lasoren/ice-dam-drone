@@ -9,6 +9,8 @@
     <string name="current_inspection">Current Inspection</string>
     <string name="past_inspections">Past Inspections</string>
     <string name="sign_out">Sign Out</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <!-- active inspection activity -->
     <string name="inspection_phase_text">Inspection Phase: X</string>
     <string name="phase_1">Inspection Phase 1: Drone is active</string>
@@ -23,6 +25,10 @@
     <string name="no_past_inspections">It seems there are no inspections for this client.</string>
     <string name="fetching_data">Fetching data from the cloud</string>
     <string name="delete_past_inspections">Delete Past Inspections</string>
+    <string name="account">Account</string>
+    <string name="client">Client</string>
+    <string name="inspections">Inspections</string>
+    <string name="add_client">Add Client</string>
 
     <!-- user authentication -->
     <!-- field hints -->

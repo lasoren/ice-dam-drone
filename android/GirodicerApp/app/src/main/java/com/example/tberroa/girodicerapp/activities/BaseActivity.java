@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -15,9 +13,6 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
-import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -36,7 +31,7 @@ public class BaseActivity extends AppCompatActivity {
 
         // if user is not signed in, boot them
         if (!userInfo.isLoggedIn(this)){
-            Utilities.SignOut(this);
+            Utilities.signOut(this);
         }
 
         // set notifications if necessary
@@ -109,70 +104,4 @@ public class BaseActivity extends AppCompatActivity {
         super.onStop();
         unregisterReceiver(broadcastReceiver);
     }
-
-    // implement navigation functions
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.end_inspection:
-                if (activeInspectionInfo.isNotInProgress(this)){
-                    String message = getResources().getString(R.string.no_active_inspection);
-                    new MessageDialog(this, message).getDialog().show();
-                }
-                else {
-                    int inspectionPhase = activeInspectionInfo.getPhase(this);
-                    String message;
-                    switch(inspectionPhase){
-                        case 1:
-                            new ConfirmEndInspectionDialog(this).getDialog().show();
-                            break;
-                        case 2:
-                            message = getResources().getString(R.string.transfer_phase_text);
-                            new MessageDialog(this, message).getDialog().show();
-                            break;
-                        case 3:
-                            message = getResources().getString(R.string.upload_phase_text);
-                            new MessageDialog(this, message).getDialog().show();
-                            break;
-                    }
-                }
-                return true;
-            case R.id.start_inspection:
-                Utilities.AttemptInspectionStart(this);
-                return true;
-            case R.id.current_inspection:
-                startActivity(new Intent(this,ActiveInspectionActivity.class));
-                finish();
-                return true;
-            case R.id.past_inspections:
-                startActivity(new Intent(this,PastInspectionsActivity.class));
-                finish();
-                return true;
-            case R.id.delete_past_inspections:
-                // run delete metadata service
-                return true;
-            case R.id.sign_out:
-                // check if there is an ongoing active inspection
-                if (!activeInspectionInfo.isNotInProgress(this)){
-                    String message = getResources().getString(R.string.cannot_sign_out);
-                    new MessageDialog(this, message).getDialog().show();
-                }
-                else{
-                    Utilities.SignOut(this);
-                }
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    // populate the navigation
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        String operatorName = new LocalDB().getOperator().user.first_name;
-        getMenuInflater().inflate(R.menu.navigation, menu);
-        MenuItem item = menu.findItem(R.id.title);
-        item.setTitle("Logged in as: " + operatorName);
-        return true;
-    }
-
 }
