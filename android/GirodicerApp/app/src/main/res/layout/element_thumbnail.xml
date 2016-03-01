@@ -11,8 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/image"
-        android:src="@mipmap/ic_launcher"
-        />
+        android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:id="@+id/label"
@@ -27,6 +26,5 @@
         android:text="@string/thumbnail_label"
         android:gravity="start"
         android:textSize="18sp"
-        android:textColor="@color/white"
-        />
+        android:textColor="@color/white" />
 </RelativeLayout>

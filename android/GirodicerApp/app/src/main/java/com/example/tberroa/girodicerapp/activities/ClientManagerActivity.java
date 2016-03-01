@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.adapters.ClientManagerViewAdapter;
@@ -31,6 +32,10 @@ public class ClientManagerActivity extends AppCompatActivity implements Navigati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_manager);
         LocalDB localDB = new LocalDB();
+
+        if (getIntent().getAction() != null){
+            overridePendingTransition(0, 0);
+        }
 
         // get clients
         List<Client> clients = localDB.getClients();
@@ -55,6 +60,11 @@ public class ClientManagerActivity extends AppCompatActivity implements Navigati
         // initialize navigation view
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // initialize text view within drawer navigation
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView operatorName = (TextView) headerLayout.findViewById(R.id.operator_name);
+        operatorName.setText(new LocalDB().getOperator().user.first_name);
 
         // initialize recycler view
         int span = Utilities.getSpanGrid(this);

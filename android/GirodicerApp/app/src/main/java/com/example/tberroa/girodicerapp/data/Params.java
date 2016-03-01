@@ -28,6 +28,7 @@ public class Params {
     final public static String THERMAL_TAB = "thermal";
     final public static String ICEDAM_TAB = "icedam";
     final public static String SALT_TAB = "salt";
+    final public static String RELOAD = "reload";
 
     // parameters connected to Amazon Web Services
     final public static String CLOUD_URL = "http://s3.amazonaws.com/girodicer/";

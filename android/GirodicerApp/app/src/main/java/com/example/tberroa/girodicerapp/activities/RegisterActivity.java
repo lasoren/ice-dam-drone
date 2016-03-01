@@ -25,12 +25,15 @@ import org.json.JSONObject;
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstName, lastName, password, confirmPassword, email;
-    private final String REGISTER_URL = Params.BASE_URL + "users/register.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        if (getIntent().getAction() != null){
+            overridePendingTransition(0, 0);
+        }
 
         // check if user is already logged in
         if (new UserInfo().isLoggedIn(this)){
@@ -73,7 +76,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private final OnClickListener goToLoginButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(RegisterActivity.this, SignInActivity.class));
+            startActivity(new Intent(RegisterActivity.this, SignInActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
             finish();
         }
     };
@@ -161,7 +165,7 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try{
-                String url = REGISTER_URL;
+                String url = Params.BASE_URL + "users/register.json";
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 e.printStackTrace();

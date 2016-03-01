@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_page"
     tools:context=".SignInActivity" >
 
     <ImageView
@@ -16,8 +15,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="75dp"
-        android:layout_marginBottom="45dp"
-        />
+        android:layout_marginBottom="45dp" />
 
     <EditText
         android:id="@+id/email"
@@ -30,8 +28,7 @@
         android:focusable="true"
         android:hint="@string/email"
         android:inputType="textEmailAddress"
-        android:imeOptions="actionNext"
-        />
+        android:imeOptions="actionNext" />
 
     <EditText
         android:id="@+id/password"
@@ -43,8 +40,7 @@
         android:ems="12"
         android:hint="@string/password"
         android:inputType="textPassword"
-        android:imeOptions="actionGo"
-        />
+        android:imeOptions="actionGo" />
 
     <Button
         android:id="@+id/login"
@@ -54,9 +50,8 @@
         android:layout_alignEnd="@id/password"
         android:layout_below="@id/password"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp"
-        android:text="@string/sign_in"
-        />
+        android:layout_marginBottom="35dp"
+        android:text="@string/sign_in" />
 
     <TextView android:id="@+id/register"
         android:layout_width="wrap_content"
@@ -64,6 +59,5 @@
         android:layout_centerHorizontal="true"
         android:text="@string/register"
         android:layout_below="@id/login"
-        android:textSize="16sp"
-        />
+        android:textSize="16sp" />
 </RelativeLayout>

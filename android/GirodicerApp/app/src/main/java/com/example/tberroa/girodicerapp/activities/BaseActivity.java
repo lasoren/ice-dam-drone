@@ -22,7 +22,6 @@ public class BaseActivity extends AppCompatActivity {
     private final UserInfo userInfo = new UserInfo();
     final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
     private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
-    private RelativeLayout fetchingData;
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -34,9 +33,11 @@ public class BaseActivity extends AppCompatActivity {
             Utilities.signOut(this);
         }
 
-        // set notifications if necessary
-        TextView inspectionPhase = (TextView) findViewById(R.id.inspection_phase_text);
-        fetchingData = (RelativeLayout) findViewById(R.id.fetching_text);
+        // declare notifications
+        final TextView inspectionPhase = (TextView) findViewById(R.id.inspection_phase_text);
+        final RelativeLayout fetchingData = (RelativeLayout) findViewById(R.id.fetching_text);
+
+        // check if either needs to be set
         if (activeInspectionInfo.getPhase(this) != 0){
             int phase = activeInspectionInfo.getPhase(this);
             switch(phase){
@@ -50,19 +51,17 @@ public class BaseActivity extends AppCompatActivity {
                     inspectionPhase.setText(R.string.phase_3);
                     break;
             }
-
             inspectionPhase.setVisibility(View.VISIBLE);
-            inspectionPhase.animate().translationY(inspectionPhase.getHeight());
         }
         if (pastInspectionsInfo.isUpdating(this)){
             fetchingData.setVisibility(View.VISIBLE);
-            fetchingData.animate().translationY(fetchingData.getHeight());
         }
 
         // set up receiver to handle updating notifications
         IntentFilter filter = new IntentFilter();
         filter.addAction(Params.TRANSFER_STARTED);
         filter.addAction(Params.UPLOAD_STARTED);
+        filter.addAction(Params.UPLOAD_COMPLETE);
         filter.addAction(Params.UPDATING_STARTED);
         filter.addAction(Params.UPDATING_COMPLETE);
         broadcastReceiver = new BroadcastReceiver() {
@@ -71,28 +70,25 @@ public class BaseActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 switch(action) {
                     case Params.TRANSFER_STARTED:
-                        startActivity(getIntent());
+                        startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         finish();
                         break;
                     case Params.UPLOAD_STARTED:
-                        startActivity(getIntent());
+                        startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        finish();
+                        break;
+                    case Params.UPLOAD_COMPLETE:
+                        startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
                         finish();
                         break;
                     case Params.UPDATING_STARTED:
                         startActivity(getIntent());
                         finish();
+                        break;
                     case Params.UPDATING_COMPLETE:
-                        // check which activity is currently in view
-                        String currentActivity = context.getClass().getSimpleName();
-                        String pMActivity = "PastInspectionsActivity";
-                        if (currentActivity.equals(pMActivity)){
-                            startActivity(getIntent());
-                            finish();
-                        }
-                        else{
-                            fetchingData.setVisibility(View.GONE);
-                        }
-
+                        startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                        finish();
+                        break;
                 }
             }
         };

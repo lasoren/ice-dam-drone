@@ -18,8 +18,7 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
-import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 public class ActiveInspectionActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -35,6 +34,10 @@ public class ActiveInspectionActivity extends BaseActivity implements Navigation
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_active_inspection);
+
+        if (getIntent().getAction() != null){
+            overridePendingTransition(0, 0);
+        }
 
         // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -53,6 +56,11 @@ public class ActiveInspectionActivity extends BaseActivity implements Navigation
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // initialize text view within drawer navigation
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView operatorName = (TextView) headerLayout.findViewById(R.id.operator_name);
+        operatorName.setText(new LocalDB().getOperator().user.first_name);
+
         // initialize view elements
         noActiveInspectionText = (TextView) findViewById(R.id.no_active_inspection_text);
         activeInspectionText = (TextView) findViewById(R.id.active_inspection_text);
@@ -62,7 +70,7 @@ public class ActiveInspectionActivity extends BaseActivity implements Navigation
 
         // populate view according to inspection phase
         int inspectionPhase = activeInspectionInfo.getPhase(this);
-        PopulateView(inspectionPhase);
+        populateView(inspectionPhase);
 
         // set up receiver to update activity as necessary
         IntentFilter filter = new IntentFilter();
@@ -72,14 +80,13 @@ public class ActiveInspectionActivity extends BaseActivity implements Navigation
             public void onReceive(Context context, Intent intent) {
                 // update view according to inspection phase
                 int phase = activeInspectionInfo.getPhase(ActiveInspectionActivity.this);
-                PopulateView(phase);
+                populateView(phase);
             }
         };
         registerReceiver(broadcastReceiver, filter);
-
     }
 
-    private void PopulateView(int inspectionPhase){
+    private void populateView(int inspectionPhase){
         noActiveInspectionText.setVisibility(View.GONE);
         activeInspectionText.setVisibility(View.GONE);
         transferPhaseText.setVisibility(View.GONE);
@@ -108,7 +115,6 @@ public class ActiveInspectionActivity extends BaseActivity implements Navigation
             default:
                 break;
         }
-
     }
 
     @Override
@@ -128,53 +134,6 @@ public class ActiveInspectionActivity extends BaseActivity implements Navigation
     public boolean onNavigationItemSelected(MenuItem item) {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        switch (item.getItemId()) {
-            case R.id.end_inspection:
-                if (activeInspectionInfo.isNotInProgress(this)){
-                    String message = getResources().getString(R.string.no_active_inspection);
-                    new MessageDialog(this, message).getDialog().show();
-                }
-                else {
-                    int inspectionPhase = activeInspectionInfo.getPhase(this);
-                    String message;
-                    switch(inspectionPhase){
-                        case 1:
-                            new ConfirmEndInspectionDialog(this).getDialog().show();
-                            break;
-                        case 2:
-                            message = getResources().getString(R.string.transfer_phase_text);
-                            new MessageDialog(this, message).getDialog().show();
-                            break;
-                        case 3:
-                            message = getResources().getString(R.string.upload_phase_text);
-                            new MessageDialog(this, message).getDialog().show();
-                            break;
-                    }
-                }
-                return true;
-            case R.id.start_inspection:
-                Utilities.attemptInspectionStart(this);
-                return true;
-            case R.id.current_inspection:
-                startActivity(new Intent(this,ActiveInspectionActivity.class));
-                finish();
-                return true;
-            case R.id.past_inspections:
-                startActivity(new Intent(this,PastInspectionsActivity.class));
-                finish();
-                return true;
-            case R.id.sign_out:
-                // check if there is an ongoing active inspection
-                if (!activeInspectionInfo.isNotInProgress(this)){
-                    String message = getResources().getString(R.string.cannot_sign_out);
-                    new MessageDialog(this, message).getDialog().show();
-                }
-                else{
-                    Utilities.signOut(this);
-                }
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        return (Utilities.inspectionMenu(item.getItemId(), this))|| super.onOptionsItemSelected(item);
     }
 }

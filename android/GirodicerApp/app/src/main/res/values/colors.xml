@@ -5,5 +5,5 @@
     <color name="colorPrimaryLight">#318EE7</color>
     <color name="colorAccent">#FF4081</color>
     <color name="white">#FFFFFF</color>
-    <color name="home_page">#F0F8FF</color>
+    <color name="colorPrimaryBackground">#F0F8FF</color>
 </resources>

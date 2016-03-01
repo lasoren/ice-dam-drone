@@ -24,11 +24,11 @@
     <!-- past inspections activity -->
     <string name="no_past_inspections">It seems there are no inspections for this client.</string>
     <string name="fetching_data">Fetching data from the cloud</string>
-    <string name="delete_past_inspections">Delete Past Inspections</string>
     <string name="account">Account</string>
     <string name="client">Client</string>
     <string name="inspections">Inspections</string>
     <string name="add_client">Add Client</string>
+    <string name="operator_name">Operator first name</string>
 
     <!-- user authentication -->
     <!-- field hints -->
@@ -75,5 +75,4 @@
     <!-- other -->
     <string name="thumbnail_label">Label</string>
     <string name="image">Image</string>
-    <string name="placeholder">Placeholder</string>
 </resources>
