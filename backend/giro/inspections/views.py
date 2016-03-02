@@ -1,8 +1,10 @@
 from giro import exceptions
 
+from inspections.models import InspectionImageProvision
 from inspections.serializers import InspectionSerializer
 from inspections.serializers import InspectionImageSerializer
 import inspections.db_utils as inspections_db_utils
+import inspections.utils as inspections_utils
 
 from rest_framework.views import APIView
 from rest_framework.exceptions import APIException
@@ -40,9 +42,23 @@ class InspectionImagesCreate(APIView):
         if serializer.is_valid():
             serializer.save()
             # Add the images to the provision table for images.
-            serializer_data = serializer.data
-            image_ids = [json["id"] for json in serializer_data]
-            inspections_db_utils.add_images_to_inspection_image_provision()
-            return Response(serializer_data,
+            image_instances = serializer.instance
+            image_ids = []
+            for image_instance in image_instances:
+                image_instance.path = inspections_utils.generate_image_path(
+                    image_instance.inspection_id, image_instance.id)
+                image_instance.save()
+                image_ids.append(image_instance.id)
+            inspections_db_utils.add_images_to_inspection_image_provision(image_ids)
+            return Response(serializer.data,
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
+
+        # if "provision" not in request.data:
+        #     raise exceptions.RequiredFieldMissing(
+        #         'Provision field missing.')
+        # try:
+        #     next_provision = InspectionImageProvision.objects.latest('id').id + 1
+        # except InspectionImageProvision.DoesNotExist:
+        #     next_provision = 0
+        # response = {'provision': next_provision}

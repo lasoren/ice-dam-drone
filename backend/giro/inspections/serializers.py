@@ -3,6 +3,7 @@ from inspections.models import Inspection
 from inspections.models import InspectionImage
 from users.serializers import ClientSerializer
 
+
 class InspectionSerializer(serializers.ModelSerializer):
     """
     Serializes JSON input and out for a inspection object.
@@ -36,5 +37,5 @@ class InspectionImageSerializer(serializers.ModelSerializer):
             'taken',
             'inspection_id',
             'image_type',
-            'link',
+            'path',
             'deleted',)

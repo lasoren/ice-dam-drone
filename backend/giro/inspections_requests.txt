@@ -55,6 +55,23 @@ Request:
 }
 
 Response:
-{
-    
-}
+[
+    {
+        "id": 31,
+        "created": "2016-03-02T04:53:50.230195",
+        "taken": "2016-02-24T22:09:05",
+        "inspection_id": 9,
+        "image_type": 2,
+        "path": "mb4tc8/mz7z5m",
+        "deleted": null
+    },
+    {
+        "id": 32,
+        "created": "2016-03-02T04:53:50.236448",
+        "taken": "2016-02-24T22:09:05",
+        "inspection_id": 9,
+        "image_type": 3,
+        "path": "mb4tc8/mmvttv",
+        "deleted": null
+    }
+]

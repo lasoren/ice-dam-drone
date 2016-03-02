@@ -1,5 +1,6 @@
 from django.db import transaction
 from inspections.models import InspectionProvision
+from inspections.models import InspectionImageProvision
 
 @transaction.atomic()
 def add_to_inspection_provision(inspection_id):
