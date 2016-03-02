@@ -1,6 +1,7 @@
 from giro import exceptions
 
 from inspections.serializers import InspectionSerializer
+from inspections.serializers import InspectionImageSerializer
 import inspections.db_utils as inspections_db_utils
 
 from rest_framework.views import APIView
@@ -44,4 +45,4 @@ class InspectionImagesCreate(APIView):
             inspections_db_utils.add_images_to_inspection_image_provision()
             return Response(serializer_data,
                 status=status.HTTP_201_CREATED)
-        return Response(serializers.errors)
+        return Response(serializer.errors)

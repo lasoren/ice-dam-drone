@@ -44,12 +44,12 @@ Request:
         {
             "taken": "2016-02-24T22:09:05Z",
             "inspection_id": 9,
-            "image_type": 2,
+            "image_type": 2
         },
         {
             "taken": "2016-02-24T22:09:05Z",
             "inspection_id": 9,
-            "image_type": 3,
+            "image_type": 3
         }
     ]
 }

@@ -80,7 +80,7 @@ class InspectionImage(models.Model):
     image_type = models.IntegerField(
         choices=IMAGE_TYPES, default=NOT_SPECIFIED)
     # The location of the image in bucket store on AWS.
-    link = models.URLField()
+    path = models.TextField(max_length=128)
     # If set, the image was deleted for being poor quality, not
     # relevant, etc.
     deleted = models.DateTimeField(blank=True, null=True)
