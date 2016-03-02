@@ -19,7 +19,7 @@ public class ConfirmEmailActivity extends AppCompatActivity {
         okayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utilities.SignOut(ConfirmEmailActivity.this);
+                Utilities.signOut(ConfirmEmailActivity.this);
             }
         });
     }

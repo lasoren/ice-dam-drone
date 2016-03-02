@@ -64,7 +64,7 @@ public class ImageUploadService extends Service {
                 for (String type : imageType) {
                     for (int j = 1; j <= numberOfImages.getInt(type); j++) {
                         String imageName = type + Integer.toString(j) + ".jpg";
-                        String keyName = Utilities.ConstructImageKey(inspectionId, imageName);
+                        String keyName = Utilities.constructImageKey(inspectionId, imageName);
                         String location = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER + keyName;
                         final File file = Environment.getExternalStoragePublicDirectory(location);
 
@@ -104,7 +104,7 @@ public class ImageUploadService extends Service {
                 // delete directory
                 String path = Environment.DIRECTORY_PICTURES+Params.HOME_FOLDER;
                 File directory = Environment.getExternalStoragePublicDirectory(path);
-                Utilities.DeleteDirectory(directory);
+                Utilities.deleteDirectory(directory);
                 ImageUploadService.this.stopSelf();
                 stopSelf();
             }

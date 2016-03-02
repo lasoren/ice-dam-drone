@@ -3,9 +3,6 @@ package com.example.tberroa.girodicerapp.services;
 import android.app.IntentService;
 import android.content.Intent;
 
-import com.example.tberroa.girodicerapp.data.ClientId;
-import com.example.tberroa.girodicerapp.data.OperatorId;
-
 public class FetchPIIntentService extends IntentService {
 
     public FetchPIIntentService() {

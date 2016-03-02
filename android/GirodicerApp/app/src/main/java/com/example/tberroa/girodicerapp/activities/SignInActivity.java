@@ -31,12 +31,15 @@ import java.lang.reflect.Type;
 public class SignInActivity extends AppCompatActivity {
 
     private EditText email, password;
-    private final String LOGIN_URL = Params.BASE_URL + "users/signin.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+        if (getIntent().getAction() != null){
+            overridePendingTransition(0, 0);
+        }
 
         // check if user is already logged in
         if (new UserInfo().isLoggedIn(this)){ // if so, send them to the client manager
@@ -64,8 +67,8 @@ public class SignInActivity extends AppCompatActivity {
         // declare and initialize buttons
         Button loginButton = (Button)findViewById(R.id.login);
         loginButton.setOnClickListener(loginButtonListener);
-        TextView registerButton = (TextView)findViewById(R.id.register);
-        registerButton.setOnClickListener(registerButtonListener);
+        TextView goToRegisterButton = (TextView)findViewById(R.id.register);
+        goToRegisterButton.setOnClickListener(goToRegisterButtonListener);
     }
 
     private final OnClickListener loginButtonListener = new OnClickListener() {
@@ -74,9 +77,10 @@ public class SignInActivity extends AppCompatActivity {
         }
     };
 
-    private final OnClickListener registerButtonListener = new OnClickListener() {
+    private final OnClickListener goToRegisterButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(SignInActivity.this, RegisterActivity.class));
+            startActivity(new Intent(SignInActivity.this, RegisterActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
             finish();
         }
     };
@@ -134,7 +138,7 @@ public class SignInActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try{
-                String url = LOGIN_URL;
+                String url = Params.BASE_URL + "users/signin.json";
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
             } catch(java.io.IOException e){
                 new ExceptionHandler().HandleException(e);
@@ -151,7 +155,7 @@ public class SignInActivity extends AppCompatActivity {
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
 
                 // sign in
-                Utilities.SignIn(SignInActivity.this, operator);
+                Utilities.signIn(SignInActivity.this, operator);
             }
             else{ // display error
                 Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();

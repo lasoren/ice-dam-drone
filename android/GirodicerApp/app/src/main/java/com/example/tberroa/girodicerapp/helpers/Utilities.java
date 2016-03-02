@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.helpers;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
@@ -11,6 +12,7 @@ import android.view.WindowManager;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
+import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
@@ -19,6 +21,7 @@ import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.database.TestCase;
+import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.services.DroneService;
@@ -86,15 +89,14 @@ final public class Utilities {
         return getScreenWidth(context)/(getSpanGrid(context)*48);
     }
 
-    public static String ConstructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
+    public static String constructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
         return Params.CLOUD_URL +inspectionId+"/images/"+imageName;
     }
 
-
-    public static void DeleteDirectory(File fileOrDirectory) {
+    public static void deleteDirectory(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
             for (File child : fileOrDirectory.listFiles()) {
-                DeleteDirectory(child);
+                deleteDirectory(child);
             }
         }
         boolean success = false;
@@ -103,7 +105,7 @@ final public class Utilities {
         }
     }
 
-    public static String ConstructImageKey(int inspectionId, String imageName){
+    public static String constructImageKey(int inspectionId, String imageName){
         return inspectionId+"/images/"+imageName;
     }
 
@@ -144,7 +146,7 @@ final public class Utilities {
         return validation;
     }
 
-    public static void AttemptInspectionStart(Context context){
+    public static void attemptInspectionStart(Context context){
 
         PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;
@@ -166,7 +168,7 @@ final public class Utilities {
         }
     }
 
-    public static void SignIn(Context context, DroneOperator operator){
+    public static void signIn(Context context, DroneOperator operator){
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
         operatorId.clear(context);
@@ -193,7 +195,7 @@ final public class Utilities {
         }
     }
 
-    public static void SignOut(Context context){
+    public static void signOut(Context context){
         // clear shared preferences of old data
         new OperatorId().clear(context);
         new ActiveInspectionInfo().clearAll(context);
@@ -212,17 +214,61 @@ final public class Utilities {
         }
     }
 
+    public static boolean inspectionMenu(int itemId, Context context){
+        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
+        Resources resources = context.getResources();
 
-    /*
-    public static <T> String serializeModel(T model){
-        Type singleType = new TypeToken<T>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(model, singleType);
+        switch (itemId) {
+            case R.id.end_inspection:
+                if (activeInspectionInfo.isNotInProgress(context)){
+                    String message = resources.getString(R.string.no_active_inspection);
+                    new MessageDialog(context, message).getDialog().show();
+                }
+                else {
+                    int inspectionPhase = activeInspectionInfo.getPhase(context);
+                    String message;
+                    switch(inspectionPhase){
+                        case 1:
+                            new ConfirmEndInspectionDialog(context).getDialog().show();
+                            break;
+                        case 2:
+                            message = resources.getString(R.string.transfer_phase_text);
+                            new MessageDialog(context, message).getDialog().show();
+                            break;
+                        case 3:
+                            message = resources.getString(R.string.upload_phase_text);
+                            new MessageDialog(context, message).getDialog().show();
+                            break;
+                    }
+                }
+                return true;
+            case R.id.start_inspection:
+                Utilities.attemptInspectionStart(context);
+                return true;
+            case R.id.current_inspection:
+                context.startActivity(new Intent(context, ActiveInspectionActivity.class));
+                if(context instanceof Activity){
+                    ((Activity)context).finish();
+                }
+                return true;
+            case R.id.past_inspections:
+                context.startActivity(new Intent(context, PastInspectionsActivity.class));
+                if(context instanceof Activity){
+                    ((Activity)context).finish();
+                }
+                return true;
+            case R.id.sign_out:
+                // check if there is an ongoing active inspection
+                if (!activeInspectionInfo.isNotInProgress(context)){
+                    String message = resources.getString(R.string.cannot_sign_out);
+                    new MessageDialog(context, message).getDialog().show();
+                }
+                else{
+                    Utilities.signOut(context);
+                }
+                return true;
+            default:
+                return false;
+        }
     }
-
-    public static <T> T deserializeModel(String json, T type){
-        Type modelType = new TypeToken<T>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.fromJson(json, modelType);
-    }*/
 }

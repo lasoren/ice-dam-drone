@@ -2,17 +2,24 @@ package com.example.tberroa.girodicerapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.InspectionId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.google.gson.Gson;
@@ -22,13 +29,17 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class InspectionActivity extends BaseActivity {
+public class InspectionActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inspection);
         LocalDB localDB = new LocalDB();
+
+        if (getIntent().getAction() != null){
+            overridePendingTransition(0, 0);
+        }
 
         // get inspection
         Inspection inspection = localDB.getInspection(new InspectionId().get(this));
@@ -58,14 +69,6 @@ public class InspectionActivity extends BaseActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Inspection " + Integer.toString(inspection.id));
         setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.back_button);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(InspectionActivity.this, PastInspectionsActivity.class));
-                finish();
-            }
-        });
         toolbar.setVisibility(View.VISIBLE);
 
         // set tab layout
@@ -76,6 +79,22 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.addTab(tabLayout.newTab().setText(Params.SALT_TAB));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setVisibility(View.VISIBLE);
+
+        // initialize drawer layout
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        // initialize navigation view
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        // initialize text view within drawer navigation
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView operatorName = (TextView) headerLayout.findViewById(R.id.operator_name);
+        operatorName.setText(new LocalDB().getOperator().user.first_name);
 
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
@@ -107,4 +126,10 @@ public class InspectionActivity extends BaseActivity {
         finish();
     }
 
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return (Utilities.inspectionMenu(item.getItemId(), this)) || super.onOptionsItemSelected(item);
+    }
 }
