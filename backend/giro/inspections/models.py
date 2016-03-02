@@ -7,13 +7,15 @@ from users.models import Client
 
 # Image types collected by drone.
 NOT_SPECIFIED = 1
-RGB = 2
+ROOF_EDGE = 2
 THERMAL = 3
+AERIAL = 4
 
 IMAGE_TYPES = (
     (NOT_SPECIFIED, 'Not specified'),
-    (RGB, 'RGB Image'),
-    (THERMAL, 'Thermal Image')
+    (ROOF_EDGE, 'Roof Edge Image'),
+    (THERMAL, 'Thermal Image'),
+    (AERIAL, 'Aerial Image')
 )
 
 # Treatment options for ice dam.
@@ -69,7 +71,7 @@ class InspectionImage(models.Model):
     # to the backend.
     created = models.DateTimeField(auto_now_add=True)
     # When this image was taken.
-    taken = models.DateTimeField(auto_now_add=True)
+    taken = models.DateTimeField()
     # Related field to the associated inspection from when this
     # image was collected.
     inspection = models.ForeignKey(Inspection)
@@ -82,6 +84,16 @@ class InspectionImage(models.Model):
     # If set, the image was deleted for being poor quality, not
     # relevant, etc.
     deleted = models.DateTimeField(blank=True, null=True)
+
+
+class InspectionImageProvision(models.Model):
+    """
+    Keeps track of inspection images that are stored locally so
+    the app doesn't update information it already has.
+    """
+    timestamp = models.DateTimeField(auto_now_add=True)
+    # The inspection image that was updated in some way.
+    inspection_image = models.ForeignKey(InspectionImage)
 
 
 class IceDam(models.Model):

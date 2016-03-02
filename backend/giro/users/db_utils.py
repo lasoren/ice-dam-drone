@@ -61,8 +61,7 @@ def add_to_client_provision(client_id):
     Adds a row to the client provision, and deletes old rows
     """
     ClientProvision.objects.filter(client_id=client_id).delete()
-    provision = ClientProvision.objects.create(client_id=client_id)
-    provision.save()
+    ClientProvision.objects.create(client_id=client_id)
 
 
 def send_confirmation_email(base_url, drone_operator):

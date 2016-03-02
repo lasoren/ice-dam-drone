@@ -25,3 +25,23 @@ class InspectionsCreate(APIView):
             return Response(serializer.data,
                 status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
+
+
+class InspectionImagesCreate(APIView):
+    """
+    Endpoint for the android phone to list the images that were
+    taken during an inspection run.
+    """
+    def post(self, request, format=None):
+        inspection_images = request.data["inspection_images"]
+
+        serializer = InspectionImageSerializer(data=inspection_images, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            # Add the images to the provision table for images.
+            serializer_data = serializer.data
+            image_ids = [json["id"] for json in serializer_data]
+            inspections_db_utils.add_images_to_inspection_image_provision()
+            return Response(serializer_data,
+                status=status.HTTP_201_CREATED)
+        return Response(serializers.errors)

@@ -32,3 +32,29 @@ Response:
     },
     "deleted": null
 }
+
+// ------------------------------------------------------
+// CREATE INSPECTION IMAGES TO BE UPLOADED TO S3
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "inspection_images": [
+        {
+            "taken": "2016-02-24T22:09:05Z",
+            "inspection_id": 9,
+            "image_type": 2,
+        },
+        {
+            "taken": "2016-02-24T22:09:05Z",
+            "inspection_id": 9,
+            "image_type": 3,
+        }
+    ]
+}
+
+Response:
+{
+    
+}
