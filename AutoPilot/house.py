@@ -59,8 +59,8 @@ class house:
     utmOutline = []
     zone = 0
     zoneLetter = ""
-    width = 0
-    height = 0
+    width = []
+    height = []
 
     cameraWidth = 8
     cameraHeight = 6
@@ -68,7 +68,7 @@ class house:
     path = []
     convexHull = []
     sbb = []
-    area = sys.maxint
+    area = []
 
     def __init__(self, outline):
         self.outline = outline
@@ -123,6 +123,8 @@ class house:
         topDir = UTMPoint((-1.0, 0.0, self.zone, self.zoneLetter))
         bottomDir = UTMPoint((1.0, 0.0, self.zone, self.zoneLetter))
 
+        minArea = sys.maxint
+
         for i in range(0, len(self.convexHull)):
             # calculate the angles required to turn our "calipers" in each direction
             angles = [math.acos(edgeDirections[leftId].dot(leftDir)),
@@ -169,12 +171,25 @@ class house:
 
             area = width*height
 
-            if area < self.area and area > 1:
-                self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
-                print self.area
-                self.area = area
-                self.width = width
-                self.height = height
+            if area < minArea and area > 1:
+                minArea = area
+                self.sbb.append([upperLeft, upperRight, bottomLeft, bottomRight])
+                print area
+                self.area.append(area)
+                self.width.append(width)
+                self.height.append(height)
+
+        boxes = len(self.sbb)
+        if(boxes < 2):
+            self.sbb = self.sbb[boxes - 1]
+            self.area = self.area[boxes - 1]
+            self.height = self.height[boxes - 1]
+            self.width = self.width[boxes - 1]
+        else:
+            self.sbb = self.sbb[boxes - 2]
+            self.area = self.area[boxes - 2]
+            self.height = self.height[boxes - 2]
+            self.width = self.width[boxes - 2]
 
     def __findConvexHull(self): # uses monotone-chain algorithm
         sortedOutline = sorted(self.utmOutline, key=lambda x: x.e)
@@ -253,8 +268,11 @@ class house:
 
 
 if __name__ == "__main__":
-    points = [geoPoint(38.84711546747433, -94.6733683347702), geoPoint(38.84703399781023, -94.67331871390343), geoPoint(38.847007885718675, -94.67337772250175),
-              geoPoint(38.84698804052266, -94.67336967587471), geoPoint(38.84696192841424, -94.67344209551811), geoPoint(38.84706742127346, -94.67350110411644)]
+    points = [geoPoint(38.847195892564024,-94.67311520129442), geoPoint(38.847113900750884,-94.67307429760695), geoPoint(38.84709144437794,-94.67313230037689),
+              geoPoint(38.84705097066462,-94.67311218380928), geoPoint(38.84702564194198,-94.67319834977388), geoPoint(38.847141579526394,-94.67326674610376)]
+
+    # points = [geoPoint(42.336183,-71.115564), geoPoint(42.336076,-71.115397), geoPoint(42.336036,-71.115445),
+    #            geoPoint(42.335990,-71.115502), geoPoint(42.336045,-71.115593), geoPoint(42.336095,-71.115669)]
 
     myHouse = house(points)
     convexHull = []
@@ -280,6 +298,6 @@ if __name__ == "__main__":
     printLatLong(sbb)
 
     print "path"
-    printLatLong(path)
+    printLatLong(myHouse.path)
 
     print myHouse.area
