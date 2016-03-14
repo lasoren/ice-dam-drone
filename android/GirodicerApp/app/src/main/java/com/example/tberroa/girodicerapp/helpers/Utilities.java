@@ -14,6 +14,7 @@ import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
+import com.example.tberroa.girodicerapp.activities.Welcome;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
@@ -188,8 +189,8 @@ final public class Utilities {
         // update user sign in status
         new UserInfo().setUserStatus(context, true);
 
-        // go to client manager
-        context.startActivity(new Intent(context, ClientManagerActivity.class));
+        // go to client manager **** test *** going to welcome activity
+        context.startActivity(new Intent(context, Welcome.class));
         if(context instanceof Activity){
             ((Activity)context).finish();
         }

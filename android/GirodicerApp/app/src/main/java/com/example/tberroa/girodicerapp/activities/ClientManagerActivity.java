@@ -81,7 +81,7 @@ public class ClientManagerActivity extends AppCompatActivity implements Navigati
 
     private final View.OnClickListener createClientButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
-            // create client code here
+
         }
     };
 
