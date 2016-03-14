@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -100,6 +101,9 @@ public class ClientManagerActivity extends AppCompatActivity implements Navigati
         }
         else if(id == R.id.add_client){
             // add client
+        }
+        else if(id == R.id.plot_twist){
+            startActivity(new Intent(ClientManagerActivity.this, Welcome.class));
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
