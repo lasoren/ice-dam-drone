@@ -2,6 +2,17 @@ from bluetooth import *
 import EventHandler
 import threading
 from house import *
+from dronekit import LocationGlobalRelative
+
+COMMAND_ARM = 0x1
+COMMAND_UNARM = 0x2
+COMMAND_START_INSPECTION = 0x3
+COMMAND_END_INSPECTION = 0x4
+COMMAND_STATUS = 0x5
+COMMAND_SEND_POINTS = 0x6
+COMMAND_READY_TO_TRANSFER = 0x7
+COMMAND_NEW_HOUSE = 0x8
+COMMAND_BLUETOOTH_SEND_PATH = 0x9
 
 
 class Blue(threading.Thread):
@@ -52,15 +63,6 @@ class Blue(threading.Thread):
 
 
 class BlueDataProcessor(threading.Thread):
-    COMMAND_ARM = 0x1
-    COMMAND_UNARM = 0x2
-    COMMAND_START_INSPECTION = 0x3
-    COMMAND_END_INSPECTION = 0x4
-    COMMAND_STATUS = 0x5
-    COMMAND_SEND_POINTS = 0x6
-    COMMAND_READY_TO_TRANSFER = 0x7
-    COMMAND_NEW_HOUSE = 0x8
-    COMMAND_BLUETOOTH_SEND_PATH = 0x9
 
     def __init__(self, data, queue, bluetooth):
         super(BlueDataProcessor, self).__init__()
@@ -73,25 +75,25 @@ class BlueDataProcessor(threading.Thread):
         print ":".join(x.encode('hex') for x in self.data)
         (command, payloadSize) = struct.unpack_from('<Bi', self.data)
 
-        if command == self.COMMAND_ARM:
+        if command == COMMAND_ARM:
             None
-        elif command == self.COMMAND_UNARM:
+        elif command == COMMAND_UNARM:
             None
-        elif command == self.COMMAND_START_INSPECTION:
+        elif command == COMMAND_START_INSPECTION:
             self.__transferPath()
-        elif command == self.COMMAND_END_INSPECTION:
+        elif command == COMMAND_END_INSPECTION:
             None
-        elif command == self.COMMAND_STATUS:
+        elif command == COMMAND_STATUS:
             None
-        elif command == self.COMMAND_SEND_POINTS:
+        elif command == COMMAND_SEND_POINTS:
             self.__decipherRcvdPoints(payloadSize)
-        elif command == self.COMMAND_NEW_HOUSE:
+        elif command == COMMAND_NEW_HOUSE:
             print "new house"
             print "payloadsize %d" % payloadSize
             path = self.__calculatePath(payloadSize)
-            packager = BlueDataPackager(self.COMMAND_BLUETOOTH_SEND_PATH, path, self.bluetooth)
+            packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_PATH, path, self.bluetooth)
             packager.run()
-        elif command == self.COMMAND_READY_TO_TRANSFER:
+        elif command == COMMAND_READY_TO_TRANSFER:
             None
 
     def __decipherRcvdPoints(self, payloadSize):
@@ -109,7 +111,7 @@ class BlueDataProcessor(threading.Thread):
             offset += windPos
             print "lat %f" % lat
             (lng, ) = struct.unpack_from('>d', self.data, offset)
-            points.append(geoPoint(lat,lng))
+            points.append(LocationGlobalRelative(lat,lng))
             offset += windPos
 
         return points
@@ -124,15 +126,6 @@ class BlueDataProcessor(threading.Thread):
 
 
 class BlueDataPackager(threading.Thread):
-    COMMAND_ARM = 0x1
-    COMMAND_UNARM = 0x2
-    COMMAND_START_INSPECTION = 0x3
-    COMMAND_END_INSPECTION = 0x4
-    COMMAND_STATUS = 0x5
-    COMMAND_SEND_POINTS = 0x6
-    COMMAND_READY_TO_TRANSFER = 0x7
-    COMMAND_NEW_HOUSE = 0x8
-    COMMAND_BLUETOOTH_SEND_PATH = 0x9
 
     def __init__(self, command, payload, bluetooth):
         super(BlueDataPackager, self).__init__()
@@ -141,9 +134,9 @@ class BlueDataPackager(threading.Thread):
         self.bluetooth = bluetooth
 
     def run(self):
-        if self.command == self.COMMAND_BLUETOOTH_SEND_PATH:
+        if self.command == COMMAND_BLUETOOTH_SEND_PATH:
             self.__sendPath()
-        elif self.command == self.COMMAND_STATUS:
+        elif self.command == COMMAND_STATUS:
             self.__sendStatus()
 
     def __sendStatus(self):

@@ -1,16 +1,9 @@
 import math, sys, utm
+from dronekit import LocationGlobalRelative
 
 def printLatLong(list):
     for item in list:
         print "%.10f, %.10f" % (item.lat, item.lon)
-
-class geoPoint:
-    lon = 0
-    lat = 0
-
-    def __init__(self, lat, lon):
-        self.lon = lon
-        self.lat = lat
 
 class UTMPoint:
 
@@ -50,7 +43,7 @@ class UTMPoint:
 
     def toLatLon(self):
         conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
-        return geoPoint(conv[0], conv[1])
+        return LocationGlobalRelative(conv[0], conv[1])
 
     def scalarMult(self, scalar):
         return UTMPoint((self.e * scalar, self.n*scalar, self.zone, self.zoneLetter))
@@ -69,6 +62,8 @@ class house:
     convexHull = []
     sbb = []
     area = []
+
+    houseHeight = 7
 
     def __init__(self, outline):
         self.outline = outline
@@ -268,11 +263,11 @@ class house:
 
 
 if __name__ == "__main__":
-    points = [geoPoint(38.847195892564024,-94.67311520129442), geoPoint(38.847113900750884,-94.67307429760695), geoPoint(38.84709144437794,-94.67313230037689),
-              geoPoint(38.84705097066462,-94.67311218380928), geoPoint(38.84702564194198,-94.67319834977388), geoPoint(38.847141579526394,-94.67326674610376)]
+    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689),
+              LocationGlobalRelative(38.84705097066462,-94.67311218380928), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.847141579526394,-94.67326674610376)]
 
-    # points = [geoPoint(42.336183,-71.115564), geoPoint(42.336076,-71.115397), geoPoint(42.336036,-71.115445),
-    #            geoPoint(42.335990,-71.115502), geoPoint(42.336045,-71.115593), geoPoint(42.336095,-71.115669)]
+    # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
+    #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
 
     myHouse = house(points)
     convexHull = []

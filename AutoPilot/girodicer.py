@@ -91,6 +91,40 @@ class Girodicer():
         read_lidar = threading.Thread(Target = self.__get_lidar_distance)
         read_lidar.start()
 
+    def start_border_scan(self):
+        scan_t = threading.Thread(target=self.__border_scan)
+        scan_t.start()
+
+    def __border_scan(self):
+        self.vehicle.mode = VehicleMode("GUIDED")
+
+        start_point = self.house.outline[0]
+        start_point.alt = self.house.height
+
+        start_distance = self.__get_distance_metres(self.vehicle.location.global_frame, start_point)
+
+        self.vehicle.simple_goto(start_point)
+
+        while self.vehicle.mode == "GUIDED":
+            distance = self.__get_distance_metres(self.vehicle.location.global_frame, start_point)
+            if distance <= (start_distance * 0.01):
+                break
+            time.sleep(1)
+
+        for i in range(1, len(self.house.outline)):
+            point = self.house.outline[1]
+            point.alt = self.house.houseHeight
+            point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
+
+            while self.vehicle.mode == "GUIDED":
+                distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
+                if distance <= (point_distance * 0.01):
+                    break
+                time.sleep(0.5)
+
+        self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
+
+
     def stop(self):
         self.blue.stop()
         if self.status is not None:
@@ -185,7 +219,7 @@ class GirodicerStatus(threading.Thread):
 
             payload = (float(38.847004), float(-94.67325), float(velocity[0]), self.__decipherState(state), 1)
 
-            packager = blue.BlueDataPackager(blue.BlueDataPackager.COMMAND_STATUS, payload, self.bluetooth)
+            packager = blue.BlueDataPackager(blue.COMMAND_STATUS, payload, self.bluetooth)
             packager.run()
 
     def stop(self):
