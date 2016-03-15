@@ -14,6 +14,7 @@ import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
+import com.example.tberroa.girodicerapp.activities.Welcome;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
@@ -30,10 +31,10 @@ import java.io.File;
 
 final public class Utilities {
 
-    private Utilities(){
+    private Utilities() {
     }
 
-    private static Point getScreenDimensions(Context context){
+    private static Point getScreenDimensions(Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point screenDimensions = new Point();
@@ -41,56 +42,54 @@ final public class Utilities {
         return screenDimensions;
     }
 
-    private static boolean isLandscape(Context context){
+    private static boolean isLandscape(Context context) {
         boolean bool = false;
-        if (getScreenWidth(context) > getScreenHeight(context)){
+        if (getScreenWidth(context) > getScreenHeight(context)) {
             bool = true;
         }
         return bool;
     }
 
-    private static int getScreenWidth(Context context){
+    private static int getScreenWidth(Context context) {
         return getScreenDimensions(context).x;
     }
 
-    private static int getScreenHeight(Context context){
+    private static int getScreenHeight(Context context) {
         return getScreenDimensions(context).y;
     }
 
-    public static int getImageWidthGrid(Context context){
-        return getScreenWidth(context)/ getSpanGrid(context);
+    public static int getImageWidthGrid(Context context) {
+        return getScreenWidth(context) / getSpanGrid(context);
     }
 
-    public static int getImageHeightGrid(Context context){
+    public static int getImageHeightGrid(Context context) {
         int imageHeight;
         int screenHeight = getScreenHeight(context);
         int span = getSpanGrid(context);
-        if (isLandscape(context)){
-            imageHeight = screenHeight/(span/2);
-        }
-        else{
-            imageHeight = screenHeight/(span*2);
+        if (isLandscape(context)) {
+            imageHeight = screenHeight / (span / 2);
+        } else {
+            imageHeight = screenHeight / (span * 2);
         }
         return imageHeight;
     }
 
-    public static int getSpanGrid(Context context){
+    public static int getSpanGrid(Context context) {
         int span;
-        if (isLandscape(context)){
+        if (isLandscape(context)) {
             span = 4;
-        }
-        else{
+        } else {
             span = 2;
         }
         return span;
     }
 
-    public static int getSpacingGrid(Context context){
-        return getScreenWidth(context)/(getSpanGrid(context)*48);
+    public static int getSpacingGrid(Context context) {
+        return getScreenWidth(context) / (getSpanGrid(context) * 48);
     }
 
-    public static String constructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
-        return Params.CLOUD_URL +inspectionId+"/images/"+imageName;
+    public static String constructImageURL(int inspectionId, String imageName) { // always downloading inspection 1 for testing!!
+        return Params.CLOUD_URL + inspectionId + "/images/" + imageName;
     }
 
     public static void deleteDirectory(File fileOrDirectory) {
@@ -100,16 +99,16 @@ final public class Utilities {
             }
         }
         boolean success = false;
-        while(!success){
+        while (!success) {
             success = fileOrDirectory.delete();
         }
     }
 
-    public static String constructImageKey(int inspectionId, String imageName){
-        return inspectionId+"/images/"+imageName;
+    public static String constructImageKey(int inspectionId, String imageName) {
+        return inspectionId + "/images/" + imageName;
     }
 
-    public static String validate(Bundle enteredInfo){
+    public static String validate(Bundle enteredInfo) {
         String validation = "";
 
         // grab entered information
@@ -118,27 +117,27 @@ final public class Utilities {
         String confirmPassword = enteredInfo.getString("confirm_password", null);
         String email = enteredInfo.getString("email", null);
 
-        if (username != null){
+        if (username != null) {
             boolean tooShort = username.length() < 3;
             boolean tooLong = username.length() > 15;
-            if (!username.matches("[a-zA-Z0-9]+") || tooShort || tooLong ) {
+            if (!username.matches("[a-zA-Z0-9]+") || tooShort || tooLong) {
                 validation = validation.concat("username");
             }
         }
 
-        if (password != null){
+        if (password != null) {
             if (password.length() < 6 || password.length() > 20) {
                 validation = validation.concat("password");
             }
         }
 
-        if (confirmPassword != null){
+        if (confirmPassword != null) {
             if (!confirmPassword.equals(password)) {
                 validation = validation.concat("confirm_password");
             }
         }
 
-        if (email != null){
+        if (email != null) {
             if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 validation = validation.concat("email");
             }
@@ -146,29 +145,27 @@ final public class Utilities {
         return validation;
     }
 
-    public static void attemptInspectionStart(Context context){
+    public static void attemptInspectionStart(Context context) {
 
         PastInspectionsInfo pMInfo = new PastInspectionsInfo();
         String message;
-        if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)){
+        if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)) {
             message = context.getResources().getString(R.string.past_inspections_not_up_to_date);
             new MessageDialog(context, message).getDialog().show();
-        }
-        else if (!new ActiveInspectionInfo().isNotInProgress(context)) {
+        } else if (!new ActiveInspectionInfo().isNotInProgress(context)) {
             message = context.getResources().getString(R.string.inspection_in_progress);
             new MessageDialog(context, message).getDialog().show();
-        }
-        else{
+        } else {
             context.startService(new Intent(context, DroneService.class));
             context.startActivity(new Intent(context, ActiveInspectionActivity.class));
-            if(context instanceof Activity){
-                ((Activity)context).finish();
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
             }
 
         }
     }
 
-    public static void signIn(Context context, DroneOperator operator){
+    public static void signIn(Context context, DroneOperator operator) {
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
         operatorId.clear(context);
@@ -188,14 +185,14 @@ final public class Utilities {
         // update user sign in status
         new UserInfo().setUserStatus(context, true);
 
-        // go to client manager
+        // go to client manager **** test *** going to welcome activity
         context.startActivity(new Intent(context, ClientManagerActivity.class));
-        if(context instanceof Activity){
-            ((Activity)context).finish();
+        if (context instanceof Activity) {
+            ((Activity) context).finish();
         }
     }
 
-    public static void signOut(Context context){
+    public static void signOut(Context context) {
         // clear shared preferences of old data
         new OperatorId().clear(context);
         new ActiveInspectionInfo().clearAll(context);
@@ -209,25 +206,24 @@ final public class Utilities {
 
         // go back to sign in page
         context.startActivity(new Intent(context, SignInActivity.class));
-        if(context instanceof Activity){
-            ((Activity)context).finish();
+        if (context instanceof Activity) {
+            ((Activity) context).finish();
         }
     }
 
-    public static boolean inspectionMenu(int itemId, Context context){
+    public static boolean inspectionMenu(int itemId, Context context) {
         ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
         Resources resources = context.getResources();
 
         switch (itemId) {
             case R.id.end_inspection:
-                if (activeInspectionInfo.isNotInProgress(context)){
+                if (activeInspectionInfo.isNotInProgress(context)) {
                     String message = resources.getString(R.string.no_active_inspection);
                     new MessageDialog(context, message).getDialog().show();
-                }
-                else {
+                } else {
                     int inspectionPhase = activeInspectionInfo.getPhase(context);
                     String message;
-                    switch(inspectionPhase){
+                    switch (inspectionPhase) {
                         case 1:
                             new ConfirmEndInspectionDialog(context).getDialog().show();
                             break;
@@ -247,23 +243,22 @@ final public class Utilities {
                 return true;
             case R.id.current_inspection:
                 context.startActivity(new Intent(context, ActiveInspectionActivity.class));
-                if(context instanceof Activity){
-                    ((Activity)context).finish();
+                if (context instanceof Activity) {
+                    ((Activity) context).finish();
                 }
                 return true;
             case R.id.past_inspections:
                 context.startActivity(new Intent(context, PastInspectionsActivity.class));
-                if(context instanceof Activity){
-                    ((Activity)context).finish();
+                if (context instanceof Activity) {
+                    ((Activity) context).finish();
                 }
                 return true;
             case R.id.sign_out:
                 // check if there is an ongoing active inspection
-                if (!activeInspectionInfo.isNotInProgress(context)){
+                if (!activeInspectionInfo.isNotInProgress(context)) {
                     String message = resources.getString(R.string.cannot_sign_out);
                     new MessageDialog(context, message).getDialog().show();
-                }
-                else{
+                } else {
                     Utilities.signOut(context);
                 }
                 return true;

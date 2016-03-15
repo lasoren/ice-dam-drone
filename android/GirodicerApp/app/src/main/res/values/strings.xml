@@ -75,4 +75,14 @@
     <!-- other -->
     <string name="thumbnail_label">Label</string>
     <string name="image">Image</string>
+
+    <!-- plot twist -->
+    <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
+    <string name="title_activity_maps">Plot Your House</string>
+    <string name="server_name">ubuntu-mate-0</string>
+    <string name="UUID">94f39d29-7d6d-437d-973b-fba39e49d4ee</string>
+    <string name="title_activity_drone">DroneActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
 </resources>
