@@ -1,6 +1,7 @@
 from bluetooth import *
 import EventHandler
 import threading
+import os
 from house import *
 from dronekit import LocationGlobalRelative
 
@@ -123,6 +124,13 @@ class BlueDataProcessor(threading.Thread):
 
     def __transferPath(self):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.TRANSFER_PATH)
+
+    def __packImage(self):
+        img_path = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images')
+        img_list = os.listdir(img_path)
+
+
+
 
 
 class BlueDataPackager(threading.Thread):
