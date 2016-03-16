@@ -22,6 +22,15 @@ class UTMPoint:
 
         return UTMPoint((e/mag, n/mag, self.zone, self.zoneLetter))
 
+    def getVector_nomag(self, point):
+        e = self.e - point.e
+        n = self.n - point.n
+
+        diff = self.diff(point)
+        mag = math.sqrt( math.pow(diff.e, 2) + math.pow(diff.n,2) )
+
+        return UTMPoint((e, n, self.zone, self.zoneLetter))
+
     def add(self, point):
         return UTMPoint((self.e + point.e, self.n + point.n, self.zone, self.zoneLetter))
 
@@ -67,13 +76,46 @@ class house:
 
     def __init__(self, outline):
         self.outline = outline
+        self.__organize_outline_cw()
         self.__findFlyOverPath()
+        self.__offset_outline()
 
     def __convertToUTM(self):
         for point in self.outline:
             self.utmOutline.append(UTMPoint(utm.from_latlon(point.lat, point.lon)))
         self.zone = self.utmOutline[0].zone
         self.zoneLetter = self.utmOutline[0].zoneLetter
+
+    def __organize_outline_cw(self):
+        mlat = sum(x.lat for x in self.outline) / len(self.outline)
+        mlon = sum(x.lon for x in self.outline) / len(self.outline)
+
+        def cw_sort(q):
+            return (math.atan2(q.lat - mlat, q.lon - mlon) + 2 * math.pi) % (2 * math.pi)
+        self.outline.sort(key=cw_sort, reverse=True)
+
+    def __offset_outline(self):
+        c_e = 0
+        c_n = 0
+
+        for p in self.convexHull:
+            c_e += p.e
+            c_n += p.n
+
+        c_e /= len(self.convexHull)
+        c_n /= len(self.convexHull)
+
+        centroid = UTMPoint((c_e, c_n, self.sbb[0].zone, self.sbb[0].zoneLetter))
+
+        for i in range(0, len(self.utmOutline)):
+            vec = centroid.getVector(self.utmOutline[i])
+            self.utmOutline[i].n -= vec.n
+            self.utmOutline[i].e -= vec.e
+
+        self.outline = []
+
+        for p in self.utmOutline:
+            self.outline.append(p.toLatLon())
 
     def __findMinimumBox(self):
         """
@@ -261,10 +303,9 @@ class house:
             temp.append(p.toLatLon())
         self.path = temp
 
-
 if __name__ == "__main__":
-    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689),
-              LocationGlobalRelative(38.84705097066462,-94.67311218380928), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.847141579526394,-94.67326674610376)]
+    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
+              , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
 
     # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
     #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
@@ -296,3 +337,5 @@ if __name__ == "__main__":
     printLatLong(myHouse.path)
 
     print myHouse.area
+
+    printLatLong(myHouse.outline)

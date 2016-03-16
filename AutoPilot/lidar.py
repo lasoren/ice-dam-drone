@@ -54,10 +54,7 @@ class Lidar(threading.Thread):
             return False
 
     def readDistance(self):
-        self.lock.acquire()
-        distance = self.distance
-        self.lock.release()
-        return distance
+        return self.distance
 
     def run(self):
         self._stop.clear()

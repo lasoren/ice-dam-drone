@@ -92,12 +92,11 @@ class Girodicer():
         read_lidar.start()
 
     def start_border_scan(self):
+        self.vehicle.mode = VehicleMode("GUIDED")
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
 
     def __border_scan(self):
-        self.vehicle.mode = VehicleMode("GUIDED")
-
         start_point = self.house.outline[0]
         start_point.alt = self.house.height
 
@@ -124,6 +123,16 @@ class Girodicer():
 
         self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
 
+    def __fly_single_point(self, destination):
+        dist_destination = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
+
+        self.vehicle.simple_goto(destination)
+
+        while self.vehicle.mode == "GUIDED":
+            distance = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
+            if distance <= (dist_destination * 0.01):
+                break
+            time.sleep(0.5)
 
     def stop(self):
         self.blue.stop()

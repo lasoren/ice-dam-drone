@@ -37,6 +37,7 @@ def transferData(data): # dunno if I'm gonna use yet...
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
 parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
 parser.add_argument('--baud', default='57600', help="connection baud rate")
+parser.add_argument('--debug', default=False, help="enable debug option")
 args = parser.parse_args()
 
 eventQueue = EventHandler.EventQueue()
