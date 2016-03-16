@@ -14,6 +14,7 @@ COMMAND_SEND_POINTS = 0x6
 COMMAND_READY_TO_TRANSFER = 0x7
 COMMAND_NEW_HOUSE = 0x8
 COMMAND_BLUETOOTH_SEND_PATH = 0x9
+COMMAND_BLUETOOTH_SEND_IMAGES = 0xA
 
 
 class Blue(threading.Thread):
@@ -95,7 +96,11 @@ class BlueDataProcessor(threading.Thread):
             packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_PATH, path, self.bluetooth)
             packager.run()
         elif command == COMMAND_READY_TO_TRANSFER:
-            None
+            print "packing images..."
+            image_b_array = self.__packImages()
+            for image_data in image_b_array:
+                packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES, image_data, self.bluetooth)
+                packager.run()
 
     def __decipherRcvdPoints(self, payloadSize):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
@@ -125,12 +130,17 @@ class BlueDataProcessor(threading.Thread):
     def __transferPath(self):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.TRANSFER_PATH)
 
-    def __packImage(self):
-        img_path = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images')
-        img_list = os.listdir(img_path)
-
-
-
+    def __packImages(self):
+        image_byte_array = []
+        img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images')
+        img_list = os.listdir(img_dir)
+        for image in img_list:
+            img_path = img_dir + '/' + image
+            with open(img_path, "rb") as imageFile:
+                f = imageFile.read()
+                b_img = bytearray(f)
+            image_byte_array.append(b_img)
+        return image_byte_array
 
 
 class BlueDataPackager(threading.Thread):
@@ -171,3 +181,9 @@ class BlueDataPackager(threading.Thread):
             data = ''.join([data, struct.pack('>dd', self.payload[i].lat, self.payload[i].lon)])
 
         self.bluetooth.write(data)
+
+    def __sendImage(self):
+        payloadSize = len(self.payload)
+
+        data = struct.pack('>Bi', self.command, payloadSize)
+        #gotta find out how to make fragments...
