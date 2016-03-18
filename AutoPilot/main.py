@@ -15,9 +15,6 @@ def printPoints(points):
     for point in points:
         print "lat: %d, lng: %d" % point[0] % point[1]
 
-def printLidarDistance(distance):
-    print "Distance %d" % distance
-
 def setHouse(house):
     iceCutter.house = house
 
@@ -44,7 +41,6 @@ eventQueue = EventHandler.EventQueue()
 eventQueue.addEventCallback(bluetoothConnected, EventHandler.BLUETOOTH_CONNECTED)
 eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.BLUETOOTH_DISCONNECTED)
 eventQueue.addEventCallback(printPoints, EventHandler.BLUETOOTH_GET_POINTS)
-eventQueue.addEventCallback(printLidarDistance, EventHandler.LIDAR_DISTANCE)
 eventQueue.addEventCallback(setHouse, EventHandler.BLUETOOTH_NEW_HOUSE)
 eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
 

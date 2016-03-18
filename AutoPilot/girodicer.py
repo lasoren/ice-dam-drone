@@ -11,6 +11,8 @@ class Girodicer():
         self.eventQueue = queue
         print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
+        print "Initializing lidar"
+        self.lidar = lidar.Lidar()
         print "Initializing bluetooth"
         self.blue = blue.Blue(self.eventQueue)
         # print "Initializing Lidar"
@@ -87,28 +89,35 @@ class Girodicer():
         print "Starting status thread"
         self.status = GirodicerStatus(self.vehicle, self.blue)
 
-    def get_lidar(self):
-        read_lidar = threading.Thread(Target = self.__get_lidar_distance)
-        read_lidar.start()
+    def read_lidar(self):
+        return self.lidar.readDistance()
 
     def start_border_scan(self):
         self.vehicle.mode = VehicleMode("GUIDED")
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
 
+    def stop(self):
+        self.blue.stop()
+        if self.status is not None:
+            self.status.stop()
+            self.status.join()
+
+        self.blue.join()
+
     def __border_scan(self):
+        """
+        function to fly the border perimeter of the house
+        initially flies to the first point of the house and waits until its been reached
+
+        after finishing it will fire an event to the main thread signalling that it has finished the border
+        """
         start_point = self.house.outline[0]
         start_point.alt = self.house.height
 
-        start_distance = self.__get_distance_metres(self.vehicle.location.global_frame, start_point)
-
-        self.vehicle.simple_goto(start_point)
-
-        while self.vehicle.mode == "GUIDED":
-            distance = self.__get_distance_metres(self.vehicle.location.global_frame, start_point)
-            if distance <= (start_distance * 0.01):
-                break
-            time.sleep(1)
+        fly_to_start = threading.Thread(target=self.__fly_single_point, args=start_point)
+        fly_to_start.start()
+        fly_to_start.join()
 
         for i in range(1, len(self.house.outline)):
             point = self.house.outline[1]
@@ -133,18 +142,6 @@ class Girodicer():
             if distance <= (dist_destination * 0.01):
                 break
             time.sleep(0.5)
-
-    def stop(self):
-        self.blue.stop()
-        if self.status is not None:
-            self.status.stop()
-            self.status.join()
-
-        self.blue.join()
-
-    def __get_lidar_distance(self):
-        distance = self.lidar.readDistance()
-        self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.LIDAR_DISTANCE, distance)
 
     def __get_location_metres(original_location, dNorth, dEast):
         """
