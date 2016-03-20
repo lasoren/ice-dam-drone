@@ -1,5 +1,13 @@
 import math, sys, utm
+import copy
+from matplotlib import path
 from dronekit import LocationGlobalRelative
+
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import matplotlib
+
+matplotlib.use('Agg')
 
 def printLatLong(list):
     for item in list:
@@ -134,7 +142,7 @@ class house:
         topId = None
         bottomId = None
         minPt = UTMPoint((sys.maxint, sys.maxint, self.zone, self.zoneLetter))
-        maxPt = UTMPoint((-sys.maxint-1, -sys.maxint-1, self.zone, self.zoneLetter))
+        maxPt = UTMPoint((-sys.maxint+1, -sys.maxint+1, self.zone, self.zoneLetter))
 
         for i in range(0, len(self.convexHull)):
             point = self.convexHull[i]
@@ -174,25 +182,25 @@ class house:
 
             # rotate the "caliper" to the edge with the smallest angle
             if smallestAngleIndex == 0: # left edge
-                leftDir = edgeDirections[leftId]
+                leftDir = copy.deepcopy(edgeDirections[leftId])
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftId = (leftId+1)%len(self.convexHull)
             elif smallestAngleIndex == 1: # right edge
-                rightDir = edgeDirections[leftId]
+                rightDir = copy.deepcopy(edgeDirections[rightId])
                 leftDir = UTMPoint((-rightDir.e, -rightDir.n, self.zone, self.zoneLetter))
                 topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 rightId = (rightId+1)%len(self.convexHull)
             elif smallestAngleIndex == 2: # top edge
-                topDir = edgeDirections[topId]
+                topDir = copy.deepcopy(edgeDirections[topId])
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftDir = UTMPoint((topDir.n, -topDir.e, self.zone, self.zoneLetter))
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topId = (topId+1)%len(self.convexHull)
             elif smallestAngleIndex == 3: # bottom edge
-                bottomDir = edgeDirections[bottomId]
+                bottomDir = copy.deepcopy(edgeDirections[bottomId])
                 topDir = UTMPoint((-bottomDir.e, -bottomDir.n, self.zone, self.zoneLetter))
                 leftDir = UTMPoint((bottomDir.n, -bottomDir.e, self.zone, self.zoneLetter))
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
@@ -208,25 +216,13 @@ class house:
 
             area = width*height
 
-            if area < minArea and area > 1:
+            if area < minArea:
                 minArea = area
-                self.sbb.append([upperLeft, upperRight, bottomLeft, bottomRight])
+                self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
+                self.area = area
+                self.width = width
+                self.height = height
                 print area
-                self.area.append(area)
-                self.width.append(width)
-                self.height.append(height)
-
-        boxes = len(self.sbb)
-        if(boxes < 2):
-            self.sbb = self.sbb[boxes - 1]
-            self.area = self.area[boxes - 1]
-            self.height = self.height[boxes - 1]
-            self.width = self.width[boxes - 1]
-        else:
-            self.sbb = self.sbb[boxes - 2]
-            self.area = self.area[boxes - 2]
-            self.height = self.height[boxes - 2]
-            self.width = self.width[boxes - 2]
 
     def __findConvexHull(self): # uses monotone-chain algorithm
         sortedOutline = sorted(self.utmOutline, key=lambda x: x.e)
