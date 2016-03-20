@@ -1,16 +1,21 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
 import blue, EventHandler
-import time, math, threading, lidar
+import time, math, threading, lidar, datetime, os
 
 class Girodicer():
 
     status = None
     house = None
+    folders = []
+
+    flying_velocity = 1.4 # m/s
 
     def __init__(self, connection, baud, queue):
         self.eventQueue = queue
+        self.eventQueue.addEventCallback(self.__roof_scan,EventHandler.SCAN_BORDER_FINISHED)
         print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
+        self.vehicle.airspeed = 1.4
         print "Initializing lidar"
         self.lidar = lidar.Lidar()
         print "Initializing bluetooth"
@@ -28,8 +33,18 @@ class Girodicer():
             print "Waiting for vehicle to initialise"
             time.sleep(1)
 
-        self.vehicle.mode = VehicleMode("GUIDED")
+        self.vehicle.mode = VehicleMode("LOITER")
         self.vehicle.armed = True
+
+    def disarm_vehicle(self):
+        self.vehicle.mode = VehicleMode("LOITER")
+        self.vehicle.armed = False
+
+    def cancel_movement(self):
+        self.vehicle.mode = VehicleMode("LOITER")
+
+    def return_to_launch(self):
+        self.vehicle.mode = VehicleMode("RETURN_TO_LAUNCH")
 
     def setVelocity(self, velocityX, velocityY, velocityZ, duration):
         """
@@ -92,8 +107,12 @@ class Girodicer():
     def read_lidar(self):
         return self.lidar.readDistance()
 
-    def start_border_scan(self):
-        self.vehicle.mode = VehicleMode("GUIDED")
+    def start_scan(self):
+        if not self.vehicle.armed:
+            self.arm_vehicle()
+
+        self.vehicle.mode = VehicleMode("LOITER")
+
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
 
@@ -113,14 +132,19 @@ class Girodicer():
         after finishing it will fire an event to the main thread signalling that it has finished the border
         """
         start_point = self.house.outline[0]
-        start_point.alt = self.house.height
+        start_point.alt = self.house.houseHeight
 
         fly_to_start = threading.Thread(target=self.__fly_single_point, args=start_point)
         fly_to_start.start()
+
+        #  while drone is flying to start point, set up camera
+        camera = GirodicerCamera(self.vehicle)
+        camera.start()
+
         fly_to_start.join()
 
         for i in range(1, len(self.house.outline)):
-            point = self.house.outline[1]
+            point = self.house.outline[i]
             point.alt = self.house.houseHeight
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
@@ -130,7 +154,57 @@ class Girodicer():
                     break
                 time.sleep(0.5)
 
-        self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
+        # stop camera and save folder location
+        self.folders.append(camera.stop())
+
+        if self.vehicle.mode == "GUIDED":
+            self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
+        else:
+            self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_BORDER_SCAN_INTERRUPTED)
+
+    def __roof_scan(self):
+        """
+        function to fly over the roof
+        initially flies to the first point of the roof and waits until its been reached
+
+        should be called after border scan has finished
+        """
+
+        high_point = self.vehicle.location.global_frame
+        high_point.alt *= 3
+
+        # need to drone to be way above the house so we don't collide with anything
+        # this  will have the drone fly high above its current point
+        rise = threading.Thread(target=self.__fly_single_point, args=high_point)
+        rise.start()
+        rise.join()
+
+        start_point = self.house.path[0]
+        start_point.alt = self.house.houseHeight*2
+
+        fly_to_start = threading.Thread(target=self.__fly_single_point, args=start_point)
+        fly_to_start.start()
+
+        # TODO: Implement thermal camera start up here
+
+        fly_to_start.join()
+
+        for i in range(1, len(self.house.path)):
+            point = self.house.path[i]
+            point.alt = self.house.houseHeight*2
+            point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
+
+            while self.vehicle.mode == "GUIDED":
+                distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
+                if distance <= (point_distance * 0.01):
+                    break
+                time.sleep(0.5)
+
+        if self.vehicle.mode == "GUIDED":
+            self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
+        else:
+            self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
+
 
     def __fly_single_point(self, destination):
         dist_destination = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
@@ -185,7 +259,6 @@ class Girodicer():
         dlat = aLocation2.lat - aLocation1.lat
         dlong = aLocation2.lon - aLocation1.lon
         return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
-
 
     def __get_bearing(aLocation1, aLocation2):
         """
@@ -248,3 +321,30 @@ class GirodicerStatus(threading.Thread):
             return 0x6
         elif "POWEROFF" == state:
             return 0x7
+
+class GirodicerCamera(threading.Thread):
+    """
+    A threaded class that takes pictures every 0.1 seconds
+
+    On stop this class will return the folder where pictures were saved to
+    """
+
+    def __init__(self, vehicle):
+        super(GirodicerCamera, self).__init__()
+        self.vehicle = vehicle
+        self.__stopped = threading.Event()
+        self.folder = str(datetime.datetime.now())
+        os.makedirs(self.folder)
+
+    def run(self):
+        self.__stopped.clear()
+        os.chdir(self.folder)
+        while self.__stopped.isSet() is False:
+            time.sleep(0.1)
+            location = self.vehicle.location.global_frame
+            file_name = str(location.lat) + "," + str(location.lon) + ".jpg"
+            os.system("fswebcam -r 640x480 --jpeg 85" + file_name)
+
+    def stop(self):
+        self.__stopped.set()
+        return self.folder
