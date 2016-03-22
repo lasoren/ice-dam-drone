@@ -163,11 +163,11 @@ class Girodicer():
             point.alt = self.house.houseHeight
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
-            while self.vehicle.mode.name == "GUIDED":
-                distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
-                if distance <= (point_distance * 0.01):
-                    break
+            distance = point_distance
+            while self.vehicle.mode.name == "GUIDED" and distance >= (point_distance * 0.01):
                 time.sleep(0.5)
+                distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
+            print "Completed point %d" % i
 
         # stop camera and save folder location
         print "Finished Border Scan"
@@ -212,11 +212,11 @@ class Girodicer():
             point.alt = self.house.houseHeight*2
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
-            while self.vehicle.mode.name == "GUIDED":
-                distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
-                if distance <= (point_distance * 0.01):
-                    break
+            distance = point_distance
+            while self.vehicle.mode.name == "GUIDED" and distance >= (point_distance * 0.01):
                 time.sleep(0.5)
+                distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
+            print "Completed point %d" % i
 
         print "Finished roof scan"
 
