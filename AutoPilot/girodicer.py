@@ -10,14 +10,18 @@ class Girodicer():
 
     flying_velocity = 1.4 # m/s
 
-    def __init__(self, connection, baud, queue):
+    def __init__(self, connection, baud, queue, debug=False):
+        self.debug = debug
         self.eventQueue = queue
         self.eventQueue.addEventCallback(self.__roof_scan,EventHandler.SCAN_BORDER_FINISHED)
         print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
         self.vehicle.airspeed = 1.4
         print "Initializing lidar"
-        self.lidar = lidar.Lidar()
+        if not debug:
+            self.lidar = lidar.Lidar()
+        else:
+            self.lidar = None
         print "Initializing bluetooth"
         self.blue = blue.Blue(self.eventQueue)
         # print "Initializing Lidar"
@@ -33,6 +37,7 @@ class Girodicer():
             print "Waiting for vehicle to initialise"
             time.sleep(1)
 
+        print "Vehicle Armed!!!"
         self.vehicle.mode = VehicleMode("LOITER")
         self.vehicle.armed = True
 
@@ -113,6 +118,7 @@ class Girodicer():
 
         self.vehicle.mode = VehicleMode("LOITER")
 
+        print "Starting scanning thread"
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
 
@@ -131,6 +137,7 @@ class Girodicer():
 
         after finishing it will fire an event to the main thread signalling that it has finished the border
         """
+        print "Starting border scan"
         start_point = self.house.outline[0]
         start_point.alt = self.house.houseHeight
 
@@ -139,7 +146,7 @@ class Girodicer():
 
         #  while drone is flying to start point, set up camera
         camera = GirodicerCamera(self.vehicle)
-        camera.start()
+        # camera.start()
 
         fly_to_start.join()
 
@@ -155,6 +162,8 @@ class Girodicer():
                 time.sleep(0.5)
 
         # stop camera and save folder location
+        print "Finished Border Scan"
+
         self.folders.append(camera.stop())
 
         if self.vehicle.mode == "GUIDED":
@@ -170,6 +179,7 @@ class Girodicer():
         should be called after border scan has finished
         """
 
+        print "Roof scan"
         high_point = self.vehicle.location.global_frame
         high_point.alt *= 3
 
@@ -199,6 +209,8 @@ class Girodicer():
                 if distance <= (point_distance * 0.01):
                     break
                 time.sleep(0.5)
+
+        print "Finished roof scan"
 
         if self.vehicle.mode == "GUIDED":
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)

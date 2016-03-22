@@ -58,7 +58,8 @@ class Blue(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_DISCONNECTED)
 
     def write(self, data):
-        self.__client_sock.send(data)
+        if self.__client_sock is not None:
+            self.__client_sock.send(data)
 
     def stop(self):
         self.__stop.set()
