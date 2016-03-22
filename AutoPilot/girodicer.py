@@ -141,7 +141,7 @@ class Girodicer():
         start_point = self.house.outline[0]
         start_point.alt = self.house.houseHeight
 
-        fly_to_start = threading.Thread(target=self.__fly_single_point, args=start_point)
+        fly_to_start = threading.Thread(target=self.__fly_single_point, args=(start_point,))
         fly_to_start.start()
 
         #  while drone is flying to start point, set up camera
@@ -192,7 +192,7 @@ class Girodicer():
         start_point = self.house.path[0]
         start_point.alt = self.house.houseHeight*2
 
-        fly_to_start = threading.Thread(target=self.__fly_single_point, args=(start_point))
+        fly_to_start = threading.Thread(target=self.__fly_single_point, args=(start_point,))
         fly_to_start.start()
 
         # TODO: Implement thermal camera start up here
