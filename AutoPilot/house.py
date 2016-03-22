@@ -1,13 +1,6 @@
 import math, sys, utm
 import copy
-from matplotlib import path
 from dronekit import LocationGlobalRelative
-
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib
-
-matplotlib.use('Agg')
 
 def printLatLong(list):
     for item in list:
