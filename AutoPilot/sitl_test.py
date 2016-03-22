@@ -60,6 +60,9 @@ def test_loop(iceCutter, eventQueue, running):
     while running:
         eventQueue.execute()
 
+def leave_queue():
+    None
+
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
 parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
@@ -76,6 +79,7 @@ eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
 eventQueue.addEventCallback(handleRoofFinished, EventHandler.SCAN_ROOF_FINISHED)
 eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
+eventQueue.addEventCallback(leave_queue, EventHandler.EXIT_QUEUE)
 
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
@@ -100,6 +104,7 @@ while True:
         break
 
 running = False
+eventQueue.add(EventHandler.HIGH_PRIORITY, EventHandler.EXIT_QUEUE)
 run_loop.join()
 iceCutter.stop()
 print "Exiting"

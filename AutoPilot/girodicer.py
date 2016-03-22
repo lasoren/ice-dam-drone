@@ -116,7 +116,7 @@ class Girodicer():
         if not self.vehicle.armed:
             self.arm_vehicle()
 
-        self.vehicle.mode = VehicleMode("LOITER")
+        self.vehicle.mode = VehicleMode("GUIDED")
 
         print "Starting scanning thread"
         scan_t = threading.Thread(target=self.__border_scan)
