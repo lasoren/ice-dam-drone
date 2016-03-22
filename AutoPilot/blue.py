@@ -22,24 +22,24 @@ class Blue(threading.Thread):
     __name = "ubuntu-mate-0"
     __client_sock = None
 
-    def __init__(self, queue):
+    def __init__(self, queue, debug=False):
         """
         Initializes the bluetooth system and will start itself as a thread
         :param queue: Main Event Queue
         """
         super(Blue, self).__init__()
-        self.__server_sock = BluetoothSocket(RFCOMM)
-        self.__server_sock.bind(("", PORT_ANY))
-        self.__server_sock.listen(1)
-
-        advertise_service(self.__server_sock, self.__name,
-                          service_id=self.__uuid,
-                          service_classes=[self.__uuid, SERIAL_PORT_CLASS],
-                          profiles=[SERIAL_PORT_PROFILE])
-
         self.queue = queue
         self.__stop = threading.Event()
-        self.start()
+        if not debug:
+            self.__server_sock = BluetoothSocket(RFCOMM)
+            self.__server_sock.bind(("", PORT_ANY))
+            self.__server_sock.listen(1)
+
+            advertise_service(self.__server_sock, self.__name,
+                              service_id=self.__uuid,
+                              service_classes=[self.__uuid, SERIAL_PORT_CLASS],
+                              profiles=[SERIAL_PORT_PROFILE])
+            self.start()
 
     def run(self):
         self.__stop.clear()
