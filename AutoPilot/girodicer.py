@@ -192,7 +192,7 @@ class Girodicer():
         start_point = self.house.path[0]
         start_point.alt = self.house.houseHeight*2
 
-        fly_to_start = threading.Thread(target=self.__fly_single_point, args=start_point)
+        fly_to_start = threading.Thread(target=self.__fly_single_point, args=(start_point))
         fly_to_start.start()
 
         # TODO: Implement thermal camera start up here
@@ -229,7 +229,7 @@ class Girodicer():
                 break
             time.sleep(0.5)
 
-    def __get_location_metres(original_location, dNorth, dEast):
+    def __get_location_metres(self, original_location, dNorth, dEast):
         """
         Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the
         specified `original_location`. The returned LocationGlobal has the same `alt` value
@@ -260,7 +260,7 @@ class Girodicer():
 
         return targetlocation
 
-    def __get_distance_metres(aLocation1, aLocation2):
+    def __get_distance_metres(self, aLocation1, aLocation2):
         """
         Returns the ground distance in metres between two LocationGlobal objects.
 
@@ -272,7 +272,7 @@ class Girodicer():
         dlong = aLocation2.lon - aLocation1.lon
         return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
 
-    def __get_bearing(aLocation1, aLocation2):
+    def __get_bearing(self, aLocation1, aLocation2):
         """
         Returns the bearing between the two LocationGlobal objects passed as parameters.
 
