@@ -28,7 +28,7 @@ class Girodicer():
         # self.lidar = lidar.Lidar()
         # self.lidar.start()
 
-    def arm_vehicle(self):
+    def arm_vehicle(self, mode):
         """
         Arms vehicle
         """
@@ -37,9 +37,13 @@ class Girodicer():
             print "Waiting for vehicle to initialise"
             time.sleep(1)
 
-        print "Vehicle Armed!!!"
-        self.vehicle.mode = VehicleMode("LOITER")
+        self.vehicle.mode = mode
         self.vehicle.armed = True
+
+        while not self.vehicle.armed:
+            time.sleep(1)
+
+        print "Vehicle Armed!!!"
 
     def disarm_vehicle(self):
         self.vehicle.mode = VehicleMode("LOITER")
@@ -114,10 +118,14 @@ class Girodicer():
 
     def start_scan(self):
         if not self.vehicle.armed:
-            self.arm_vehicle()
+            self.arm_vehicle(VehicleMode("GUIDED"))
 
-        self.vehicle.mode = VehicleMode("GUIDED")
+        self.vehicle.simple_takeoff(10)
 
+        while self.vehicle.location.global_relative_frame.alt <= (9.5):
+            time.sleep(1)
+
+        print "Reached acceptable altitude"
         print "Starting scanning thread"
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
@@ -155,7 +163,7 @@ class Girodicer():
             point.alt = self.house.houseHeight
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
-            while self.vehicle.mode == "GUIDED":
+            while self.vehicle.mode.name == "GUIDED":
                 distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
                 if distance <= (point_distance * 0.01):
                     break
@@ -166,7 +174,7 @@ class Girodicer():
 
         self.folders.append(camera.stop())
 
-        if self.vehicle.mode == "GUIDED":
+        if self.vehicle.mode.name == "GUIDED":
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
         else:
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_BORDER_SCAN_INTERRUPTED)
@@ -204,7 +212,7 @@ class Girodicer():
             point.alt = self.house.houseHeight*2
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
-            while self.vehicle.mode == "GUIDED":
+            while self.vehicle.mode.name == "GUIDED":
                 distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
                 if distance <= (point_distance * 0.01):
                     break
@@ -212,7 +220,7 @@ class Girodicer():
 
         print "Finished roof scan"
 
-        if self.vehicle.mode == "GUIDED":
+        if self.vehicle.mode.name == "GUIDED":
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
         else:
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
@@ -223,7 +231,7 @@ class Girodicer():
 
         self.vehicle.simple_goto(destination)
 
-        while self.vehicle.mode == "GUIDED":
+        while self.vehicle.mode.name == "GUIDED":
             distance = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
             if distance <= (dist_destination * 0.01):
                 break
