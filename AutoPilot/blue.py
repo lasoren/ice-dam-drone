@@ -187,4 +187,6 @@ class BlueDataPackager(threading.Thread):
         payloadSize = len(self.payload)
 
         data = struct.pack('>Bi', self.command, payloadSize)
-        #gotta find out how to make fragments...
+        data.append(self.payload)
+
+        self.bluetooth.write(data)
