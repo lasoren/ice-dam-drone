@@ -53,7 +53,7 @@ class UTMPoint:
 
     def toLatLon(self):
         conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
-        return LocationGlobalRelative(conv[0], conv[1])
+        return LocationGlobalRelative(round(conv[0],5), round(conv[1],5))
 
     def scalarMult(self, scalar):
         return UTMPoint((self.e * scalar, self.n*scalar, self.zone, self.zoneLetter))
@@ -293,11 +293,11 @@ class house:
         self.path = temp
 
 if __name__ == "__main__":
-    # points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
-    #           , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
+    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
+              , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
 
-    points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
-               LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
+    # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
+    #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
 
     myHouse = house(points)
     convexHull = []

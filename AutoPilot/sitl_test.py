@@ -4,8 +4,8 @@ from dronekit import LocationGlobalRelative, VehicleMode
 ##### Test Functions #####
 
 def load_new_house():
-    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
-              , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
+    points = [LocationGlobalRelative(38.84719,-94.67311), LocationGlobalRelative(38.84711,-94.67307), LocationGlobalRelative(38.84709,-94.67313)
+              , LocationGlobalRelative(38.84714,-94.67326), LocationGlobalRelative(38.84702,-94.67319), LocationGlobalRelative(38.84705,-94.67311)]
 
     iceCutter.house = house.house(points)
 
@@ -57,11 +57,11 @@ def handleRoofFinished():
     iceCutter.return_to_launch()
 
 def test_loop(iceCutter, eventQueue, running):
-    while running:
+    while running.isSet() is False:
         eventQueue.execute()
 
 def leave_queue():
-    None
+    print "High priority quit"
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
@@ -84,7 +84,8 @@ eventQueue.addEventCallback(leave_queue, EventHandler.EXIT_QUEUE)
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
 
-running = True
+running = threading.Event()
+running.clear()
 run_loop = threading.Thread(target=test_loop, args=(iceCutter, eventQueue, running))
 run_loop.start()
 
@@ -98,12 +99,13 @@ while True:
             start_flight()
         elif command == "e":
             emergency_stop()
+            break
         else:
             print "try again"
     except KeyboardInterrupt:
         break
 
-running = False
+running.set()
 eventQueue.add(EventHandler.HIGH_PRIORITY, EventHandler.EXIT_QUEUE)
 run_loop.join()
 iceCutter.stop()

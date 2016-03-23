@@ -16,7 +16,7 @@ class Girodicer():
         self.eventQueue.addEventCallback(self.__roof_scan,EventHandler.SCAN_BORDER_FINISHED)
         print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
-        self.vehicle.airspeed = 1.4
+        self.vehicle.airspeed = self.flying_velocity
         print "Initializing lidar"
         if not debug:
             self.lidar = lidar.Lidar()
@@ -53,7 +53,7 @@ class Girodicer():
         self.vehicle.mode = VehicleMode("LOITER")
 
     def return_to_launch(self):
-        self.vehicle.mode = VehicleMode("RETURN_TO_LAUNCH")
+        self.vehicle.mode = VehicleMode("RTL")
 
     def setVelocity(self, velocityX, velocityY, velocityZ, duration):
         """
@@ -131,12 +131,14 @@ class Girodicer():
         scan_t.start()
 
     def stop(self):
-        self.blue.stop()
-        if self.status is not None:
-            self.status.stop()
-            self.status.join()
+        if not self.debug:
+            self.blue.stop()
+            if self.status is not None:
+                self.status.stop()
+                self.status.join()
 
-        self.blue.join()
+            self.blue.join()
+        self.vehicle.close()
 
     def __border_scan(self):
         """
@@ -154,18 +156,20 @@ class Girodicer():
 
         #  while drone is flying to start point, set up camera
         camera = GirodicerCamera(self.vehicle)
-        # camera.start()
+        camera.start()
 
         fly_to_start.join()
 
-        for i in range(1, len(self.house.outline)):
-            point = self.house.outline[i]
+        for i in range(1, len(self.house.outline) + 1):
+            point = self.house.outline[i%len(self.house.outline)]
             point.alt = self.house.houseHeight
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
             distance = point_distance
-            while self.vehicle.mode.name == "GUIDED" and distance >= (point_distance * 0.01):
-                time.sleep(0.5)
+
+            self.vehicle.simple_goto(point)
+            while self.vehicle.mode.name == "GUIDED" and distance >= (point_distance * 0.1):
+                time.sleep(2)
                 distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
             print "Completed point %d" % i
 
@@ -188,14 +192,17 @@ class Girodicer():
         """
 
         print "Roof scan"
-        high_point = self.vehicle.location.global_frame
+        high_point = self.vehicle.location.global_relative_frame
         high_point.alt *= 3
 
         # need to drone to be way above the house so we don't collide with anything
         # this  will have the drone fly high above its current point
-        rise = threading.Thread(target=self.__fly_single_point, args=high_point)
-        rise.start()
-        rise.join()
+        self.vehicle.simple_goto(high_point)
+
+        while self.vehicle.location.global_relative_frame.alt <= (high_point.alt * .95):
+            time.sleep(1)
+
+        print "At acceptable altitude"
 
         start_point = self.house.path[0]
         start_point.alt = self.house.houseHeight*2
@@ -213,8 +220,10 @@ class Girodicer():
             point_distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
 
             distance = point_distance
-            while self.vehicle.mode.name == "GUIDED" and distance >= (point_distance * 0.01):
-                time.sleep(0.5)
+
+            self.vehicle.simple_goto(point)
+            while self.vehicle.mode.name == "GUIDED" and distance >= (1.0):
+                time.sleep(2)
                 distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
             print "Completed point %d" % i
 
@@ -227,15 +236,17 @@ class Girodicer():
 
 
     def __fly_single_point(self, destination):
+        print "Flying to initial"
         dist_destination = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
 
         self.vehicle.simple_goto(destination)
 
-        while self.vehicle.mode.name == "GUIDED":
-            distance = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
-            if distance <= (dist_destination * 0.01):
-                break
+        distance = dist_destination
+        while self.vehicle.mode.name == "GUIDED" and distance >= (dist_destination * 0.1):
             time.sleep(0.5)
+            distance = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
+
+        print "Finished flying to initial"
 
     def __get_location_metres(self, original_location, dNorth, dEast):
         """
