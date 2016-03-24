@@ -1,6 +1,6 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
 import blue, EventHandler
-import time, math, threading, lidar, datetime, os
+import time, math, threading, lidar, datetime, os, subprocess
 
 class Girodicer():
 
@@ -210,9 +210,11 @@ class Girodicer():
         fly_to_start = threading.Thread(target=self.__fly_single_point, args=(start_point,))
         fly_to_start.start()
 
-        # TODO: Implement thermal camera start up here
+        thermal = GirodicerThermal()
 
         fly_to_start.join()
+
+        thermal.start_recording()
 
         for i in range(1, len(self.house.path)):
             point = self.house.path[i]
@@ -228,6 +230,8 @@ class Girodicer():
             print "Completed point %d" % i
 
         print "Finished roof scan"
+
+        thermal.stop_recording()
 
         if self.vehicle.mode.name == "GUIDED":
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
@@ -379,3 +383,25 @@ class GirodicerCamera(threading.Thread):
     def stop(self):
         self.__stopped.set()
         return self.folder
+
+class GirodicerThermal():
+
+    camera_ip = "192.168.0.168"
+    ffmpeg = None
+    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', 'out%d.jpg']
+
+    def __init__(self):
+        self.folder = str(datetime.datetime.now()) + "_thermal"
+        os.makedirs(self.folder)
+        self.up = os.system("ping -c 1" + self.camera_ip)
+
+    def start_recording(self):
+        if self.up == 0:
+            self.ffmepg = subprocess.Popen(self.command, stdin=subprocess.PIPE)
+            return True
+        else:
+            return False
+
+    def stop_recording(self):
+        if self.up == 0:
+            self.ffmpeg.communicate('q')
