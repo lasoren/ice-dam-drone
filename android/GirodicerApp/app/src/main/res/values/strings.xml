@@ -19,8 +19,8 @@
     <string name="no_active_inspection_text">There is currently no active inspection.</string>
     <string name="active_inspection_text">
         Please keep your eyes on the drone as it is currently performing an inspection.</string>
-    <string name="transfer_phase_text">Data is being transferred to the phone&#8230;</string>
-    <string name="upload_phase_text">Data is being uploaded to the cloud&#8230;</string>
+    <string name="transfer_phase_text">Data is being transferred to the phone &#8230;</string>
+    <string name="upload_phase_text">Data is being uploaded to the cloud &#8230;</string>
     <!-- past inspections activity -->
     <string name="no_past_inspections">It seems there are no inspections for this client.</string>
     <string name="fetching_data">Fetching data from the cloud</string>
@@ -75,8 +75,22 @@
     <!-- other -->
     <string name="thumbnail_label">Label</string>
     <string name="image">Image</string>
+    <string name="general_message">General message</string>
+    <string name="loading_message">Loading message</string>
+    <string name="start">Start</string>
+    <string name="next">Next</string>
 
     <!-- plot twist -->
+    <!-- bluetooth related -->
+    <string name="bluetooth_not_enabled">Bluetooth is not enabled</string>
+    <string name="connecting_to_drone">Connecting to drone &#8230;</string>
+    <string name="drone_connect_success">Successfully connected to drone</string>
+    <string name="drone_connect_failure">Unable to connect to drone</string>
+    <string name="drone_connection_lost">Drone connection lost, trying to reconnect &#8230;</string>
+    <string name="drone_reconnect_success">Drone reconnect success</string>
+    <string name="drone_reconnect_failure">Drone reconnect failure</string>
+
+    <!-- other -->
     <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
     <string name="title_activity_maps">Plot Your House</string>
     <string name="server_name">ubuntu-mate-0</string>

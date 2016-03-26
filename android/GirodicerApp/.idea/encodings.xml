@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/App.java" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/activities/DroneActivity.java" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/activities/MapsActivity.java" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/activities/Welcome.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/activities/CurrentThreeActivity.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/activities/CurrentTwoActivity.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/bluetooth" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/fragments/DroneMapFragment.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/fragments/DroneStateFragment.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/models/Points.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/models/Status.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/tberroa/girodicerapp/services/BluetoothService.java" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_drone.xml" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_maps.xml" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_welcome.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_current_three.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_current_two.xml" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_drone_map.xml" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_drone_status.xml" charset="windows-1252" />
     <file url="PROJECT" charset="UTF-8" />

@@ -9,13 +9,14 @@ import java.nio.ByteOrder;
 /**
  * Created by Carlos on 2/21/2016.
  *
- * This class is for handling the communicaton protocol between the missionplanner and the android app
+ * This class is for handling the communication protocol between the mission planner and the android app
  *
  * Possible commands are defined
  *
  * Incoming messages must have the protocol message 'Unpacked' then have the message be 'read'
  *  To know what object is being return upon 'read', the command must be deciphered
  */
+
 public class GProtocol {
     public static final byte COMMAND_ARM = 0x1;
     public static final byte COMMAND_UNARM = 0x2;

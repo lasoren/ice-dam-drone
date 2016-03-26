@@ -13,6 +13,14 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcast parameters
+    final public static String BLUETOOTH_NOT_ENABLED = "BLUETOOTH_NOT_ENABLED";
+    final public static String CONNECTING_TO_DRONE = "CONNECTING_TO_DRONE";             // phase -7
+    final public static String DRONE_CONNECT_SUCCESS = "DRONE_CONNECT_SUCCESS";         // phase -6
+    final public static String DRONE_CONNECT_FAILURE = "DRONE_CONNECT_FAILURE";         // phase -5
+    final public static String DRONE_CONNECTION_LOST = "DRONE_CONNECTION_LOST";         // phase -4
+    final public static String DRONE_RECONNECT_SUCCESS = "DRONE_RECONNECT_SUCCESS";     // phase -3
+    final public static String DRONE_RECONNECT_FAILURE = "DRONE_RECONNECT_FAILURE";     // phase -2
+    final public static String HOUSE_BOUNDARY_RECEIVED = "HOUSE_BOUNDARY_RECEIVED";
     final public static String INSPECTION_STARTED = "INSPECTION_STARTED";
     final public static String DRONE_DONE = "DRONE_DONE";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";

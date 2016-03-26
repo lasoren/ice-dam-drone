@@ -103,7 +103,7 @@ public class ClientManagerActivity extends AppCompatActivity implements Navigati
             // add client
         }
         else if(id == R.id.plot_twist){
-            startActivity(new Intent(ClientManagerActivity.this, Welcome.class));
+
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

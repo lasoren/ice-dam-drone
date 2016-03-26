@@ -10,6 +10,7 @@ import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
 import com.example.tberroa.girodicerapp.services.ImageUploadService;
 
+// this broadcast receiver is used to help chain post-inspection processing services
 public class ActiveInspectionReceiver extends BroadcastReceiver {
     public ActiveInspectionReceiver() {
     }
@@ -19,7 +20,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
         String reload = Params.RELOAD_AM_ACTIVITY;
         String action = intent.getAction();
         ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
-        switch(action){
+        switch (action) {
             case Params.DRONE_DONE:
                 // begin image transfer
                 context.startService(new Intent(context, ImageTransferIntentService.class));
@@ -39,7 +40,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
                 // get the id of the recently completed downloaded
                 long recentDownload = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
                 int missionPhase = activeInspectionInfo.getPhase(context);
-                if (lastDownload==recentDownload && missionPhase==2) {
+                if (lastDownload == recentDownload && missionPhase == 2) {
                     // start uploading
                     context.startService(new Intent(context, ImageUploadService.class));
 

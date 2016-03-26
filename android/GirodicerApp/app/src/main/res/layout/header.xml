@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:id="@+id/header"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/header"
-    tools:context=".BaseActivity" >
+    tools:context=".BaseActivity">
 
-    <include layout="@layout/element_toolbar"
-        android:id="@+id/toolbar_layout" />
+    <include
+        android:id="@+id/toolbar_layout"
+        layout="@layout/element_toolbar"/>
 
-    <include layout="@layout/element_tab_bar"
+    <include
         android:id="@+id/tab_bar_layout"
+        layout="@layout/element_tab_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar_layout" />
+        android:layout_below="@id/toolbar_layout"/>
 
-    <include layout="@layout/element_notification_bar"
+    <include
         android:id="@+id/notification_bar_layout"
+        layout="@layout/element_notification_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tab_bar_layout" />
+        android:layout_below="@id/tab_bar_layout"/>
 </RelativeLayout>

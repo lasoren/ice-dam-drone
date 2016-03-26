@@ -1,17 +1,11 @@
 package com.example.tberroa.girodicerapp.activities;
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -19,18 +13,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.view.View;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
+import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.fragments.DroneMapFragment;
 import com.example.tberroa.girodicerapp.fragments.DroneStateFragment;
 import com.example.tberroa.girodicerapp.models.Status;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
-public class DroneActivity extends AppCompatActivity {
+public class CurrentThreeActivity extends BaseActivity {
 
     public static final String DRONE_ACTIVITY_BROADCAST = "DRONE_ACTIVITY_BROADCAST";
     public static final String WHICH_FRAG = "WHICH_FRAG";
@@ -42,45 +38,22 @@ public class DroneActivity extends AppCompatActivity {
     private static Messenger bluetoothMessenger; // only for the handler in this class
     private static boolean bluetoothServiceBound = false;
 
-    private ServiceConnection bluetoothConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            bluetoothMessenger = new Messenger(service);
-            bluetoothServiceBound = true;
-
-            Message msg = Message.obtain(null, BluetoothService.MESSAGE_NEW_CLIENT);
-            msg.replyTo = btMessageHandler;
-            try {
-                bluetoothMessenger.send(msg);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Message msg = Message.obtain(null, BluetoothService.MESSAGE_DETACH_CLIENT);
-            try {
-                bluetoothMessenger.send(msg);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            bluetoothMessenger = null;
-            bluetoothServiceBound = false;
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_current_three);
 
-        setContentView(R.layout.activity_drone);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // if starting activity from a reload call
+        if (getIntent().getAction() != null) {
+            // no animation
+            overridePendingTransition(0, 0);
         }
+
+        // set toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Current Inspection");
+        setSupportActionBar(toolbar);
+        toolbar.setVisibility(View.VISIBLE);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -90,27 +63,19 @@ public class DroneActivity extends AppCompatActivity {
         ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
         tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setVisibility(View.VISIBLE);
 
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        bindService(new Intent(this, BluetoothService.class), bluetoothConnection, Context.BIND_AUTO_CREATE);
+    public void onBackPressed() {
+        new ClientId().clear(this);
+        startActivity(new Intent(this, ClientManagerActivity.class));
+        finish();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unbindService(bluetoothConnection);
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private static final int NUM_PAGES = 2;
@@ -154,7 +119,7 @@ public class DroneActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case BluetoothService.MESSAGE_READ:
+                case BluetoothService.READ:
                     Bundle bundle = msg.getData();
                     byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
                     try {
@@ -166,7 +131,7 @@ public class DroneActivity extends AppCompatActivity {
                                 broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
                                 broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
 
-                                LocalBroadcastManager.getInstance(DroneActivity.this).sendBroadcast(broadcastToFrag);
+                                LocalBroadcastManager.getInstance(CurrentThreeActivity.this).sendBroadcast(broadcastToFrag);
                                 break;
                             case GProtocol.COMMAND_SEND_POINTS:
                                 break;
@@ -175,15 +140,6 @@ public class DroneActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     break;
-                case BluetoothService.MESSAGE_BT_CONNECTION_LOST:
-                    Toast.makeText(DroneActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(DroneActivity.this, "Reconnecting....", Toast.LENGTH_LONG).show();
-                    break;
-                case BluetoothService.MESSAGE_BT_FAILED_RECONNECT:
-                    Toast.makeText(DroneActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
-                    break;
-                case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
-                    Toast.makeText(DroneActivity.this, "Successfully reconnected", Toast.LENGTH_SHORT).show();
             }
         }
     }

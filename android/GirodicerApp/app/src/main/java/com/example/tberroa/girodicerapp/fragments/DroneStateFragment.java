@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.models.Status;
-import com.example.tberroa.girodicerapp.activities.DroneActivity;
+import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 
 public class DroneStateFragment extends Fragment {
 
@@ -24,10 +24,10 @@ public class DroneStateFragment extends Fragment {
     private BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String frag = intent.getStringExtra(DroneActivity.WHICH_FRAG);
+            String frag = intent.getStringExtra(CurrentThreeActivity.WHICH_FRAG);
 
             if(frag.equals(DroneStateFragment.class.getName())){
-                currentStatus = intent.getParcelableExtra(DroneActivity.STATUS_PACKAGE);
+                currentStatus = intent.getParcelableExtra(CurrentThreeActivity.STATUS_PACKAGE);
 
                 location.setText("(" + currentStatus.location.latitude + "," +
                                 currentStatus.location.longitude + ")");
@@ -56,7 +56,7 @@ public class DroneStateFragment extends Fragment {
     @Override
     public void onResume() {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents,
-                new IntentFilter(DroneActivity.DRONE_ACTIVITY_BROADCAST));
+                new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST));
         super.onResume();
     }
 

@@ -6,7 +6,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 import java.io.IOException;
@@ -16,28 +15,28 @@ import java.io.OutputStream;
 public class ConnectionThread extends Thread {
     public static final String BT_DATA = "BTDATA";
 
-    private final BluetoothSocket mmSocket;
-    private final InputStream mmInStream;
-    private final OutputStream mmOutStream;
-    private final Messenger btService;
+    private final BluetoothSocket btSocket;
+    private final InputStream btInStream;
+    private final OutputStream btOutStream;
+    private final Messenger btDataHandler;
 
-    public ConnectionThread(BluetoothSocket socket, Messenger btService) {
-        mmSocket = socket;
+    public ConnectionThread(BluetoothSocket btSocket, Messenger btDataHandler) {
+        this.btSocket = btSocket;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
-        this.btService = btService;
+        this.btDataHandler = btDataHandler;
 
         // Get the input and output streams, using temp objects because
         // member streams are final
         try {
-            tmpIn = socket.getInputStream();
-            tmpOut = socket.getOutputStream();
+            tmpIn = btSocket.getInputStream();
+            tmpOut = btSocket.getOutputStream();
         } catch (IOException e) {
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
 
-        mmInStream = tmpIn;
-        mmOutStream = tmpOut;
+        btInStream = tmpIn;
+        btOutStream = tmpOut;
     }
 
     public void run() {
@@ -48,13 +47,13 @@ public class ConnectionThread extends Thread {
         while (true) {
             try {
                 // Read from the InputStream
-                bytes = mmInStream.read(buffer);
+                bytes = btInStream.read(buffer);
                 // Send the obtained bytes to the UI activity
-                Message msg = Message.obtain(null, BluetoothService.MESSAGE_READ, bytes, -1);
+                Message msg = Message.obtain(null, BluetoothService.READ, bytes, -1);
                 Bundle bundle = new Bundle();
                 bundle.putByteArray(BT_DATA, buffer);
                 msg.setData(bundle);
-                btService.send(msg);
+                btDataHandler.send(msg);
             } catch (IOException e) {
                 break;
             } catch (RemoteException e) {
@@ -66,18 +65,19 @@ public class ConnectionThread extends Thread {
     /* Call this from the main activity to send data to the remote device */
     public void write(byte[] bytes) {
         try {
-            mmOutStream.write(bytes);
+            btOutStream.write(bytes);
         } catch (IOException e) {
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
     }
 
     /* Call this from the main activity to shutdown the connection */
-    public void cancel() {
+    public void shutdown() {
+
         try {
-            mmSocket.close();
+            btSocket.close();
         } catch (IOException e) {
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
     }
 }

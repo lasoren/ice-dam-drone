@@ -10,11 +10,10 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
+import com.example.tberroa.girodicerapp.activities.CurrentOneActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
-import com.example.tberroa.girodicerapp.activities.Welcome;
 import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
@@ -25,7 +24,6 @@ import com.example.tberroa.girodicerapp.database.TestCase;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
-import com.example.tberroa.girodicerapp.services.DroneService;
 
 import java.io.File;
 
@@ -156,8 +154,7 @@ final public class Utilities {
             message = context.getResources().getString(R.string.inspection_in_progress);
             new MessageDialog(context, message).getDialog().show();
         } else {
-            context.startService(new Intent(context, DroneService.class));
-            context.startActivity(new Intent(context, ActiveInspectionActivity.class));
+            context.startActivity(new Intent(context, CurrentOneActivity.class));
             if (context instanceof Activity) {
                 ((Activity) context).finish();
             }
@@ -242,7 +239,7 @@ final public class Utilities {
                 Utilities.attemptInspectionStart(context);
                 return true;
             case R.id.current_inspection:
-                context.startActivity(new Intent(context, ActiveInspectionActivity.class));
+                context.startActivity(new Intent(context, CurrentOneActivity.class));
                 if (context instanceof Activity) {
                     ((Activity) context).finish();
                 }
