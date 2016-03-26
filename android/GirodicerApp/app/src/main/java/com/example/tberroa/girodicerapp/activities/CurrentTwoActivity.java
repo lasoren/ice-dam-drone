@@ -5,8 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
+import android.support.v4.view.GravityCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -28,7 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 
 public class CurrentTwoActivity extends BaseActivity
-        implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener{
+        implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
 
@@ -45,19 +44,19 @@ public class CurrentTwoActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_two);
 
-        // if starting activity from a reload call
-        if (getIntent().getAction() != null) {
-            // no animation
+        // no animation if starting due to a reload
+        String action = getIntent().getAction();
+        if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
         }
 
         // check if user should be in this activity
-        if (BluetoothService.notRunning(this)){ // bluetooth needs to be setup
+        if (BluetoothService.notRunning(this)) { // bluetooth needs to be setup
             startActivity(new Intent(this, CurrentOneActivity.class));
             finish();
             return;
         }
-        if (activeInspectionInfo.getPhase(this) == -1){ // already completed map phase
+        if (currentInspectionInfo.getPhase(this) == -1) { // already completed map phase
             // go to next activity
             startActivity(new Intent(this, CurrentThreeActivity.class));
             finish();
@@ -65,23 +64,32 @@ public class CurrentTwoActivity extends BaseActivity
         }
 
         // get location, this should be passed to the activity via intent
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             Intent incomingIntent = getIntent();
             home = incomingIntent.getParcelableExtra(BluetoothService.LOCATION);
         } else {
             home = savedInstanceState.getParcelable(BluetoothService.LOCATION);
         }
 
+        // set toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.current_inspection_title);
+        }
+
+        // set navigation menu
+        navigationView.inflateMenu(R.menu.nav_client_inspections);
+
         // initialize next button
         next = (Button) findViewById(R.id.maps_next);
         next.setOnClickListener(this);
         next.setEnabled(true);
 
-        // set toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Current Inspection");
-        toolbar.setVisibility(View.VISIBLE);
-        setSupportActionBar(toolbar);
+        // Obtain the MapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        houseBoundary = new ArrayList<>();
 
         // initialize receiver, it's triggered when the house boundary points have been received from the drone
         IntentFilter filter = new IntentFilter();
@@ -91,7 +99,7 @@ public class CurrentTwoActivity extends BaseActivity
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
-                switch (action){
+                switch (action) {
                     case Params.HOUSE_BOUNDARY_RECEIVED:
                         houseBoundary = BluetoothService.houseBoundary;
                         plotPoints(houseBoundary);
@@ -99,13 +107,6 @@ public class CurrentTwoActivity extends BaseActivity
             }
         };
         registerReceiver(broadcastReceiver, filter);
-
-        // Obtain the MapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        houseBoundary = new ArrayList<>();
     }
 
     /**
@@ -142,18 +143,7 @@ public class CurrentTwoActivity extends BaseActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId()){
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(BluetoothService.LOCATION, home);
         super.onSaveInstanceState(outState);
     }
@@ -161,9 +151,9 @@ public class CurrentTwoActivity extends BaseActivity
     @Override
     public void onClick(View v) {
         next.setEnabled(false);
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.maps_next:
-                if(pathFound) {
+                if (pathFound) {
                     goToStatus();
                 } else {
                     findPath();
@@ -172,15 +162,15 @@ public class CurrentTwoActivity extends BaseActivity
         }
     }
 
-    private void goToStatus(){
-        activeInspectionInfo.setPhase(this, -1);
+    private void goToStatus() {
+        currentInspectionInfo.setPhase(this, -1);
         Intent status = new Intent(this, CurrentThreeActivity.class);
         startActivity(status);
         finish();
     }
 
-    private void findPath(){
-        if(houseBoundary.size() < 4){
+    private void findPath() {
+        if (houseBoundary.size() < 4) {
             Toast.makeText(CurrentTwoActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
             next.setEnabled(true);
             return;
@@ -192,8 +182,8 @@ public class CurrentTwoActivity extends BaseActivity
         Toast.makeText(CurrentTwoActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
     }
 
-    private void plotPoints(ArrayList<LatLng> points){
-        for (LatLng point : points){
+    private void plotPoints(ArrayList<LatLng> points) {
+        for (LatLng point : points) {
             mMap.addMarker(new MarkerOptions().position(point));
         }
         pathFound = true;
@@ -202,16 +192,20 @@ public class CurrentTwoActivity extends BaseActivity
 
     @Override
     public void onBackPressed() {
-        new ClientId().clear(this);
-        startActivity(new Intent(this, ClientManagerActivity.class));
-        finish();
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            new ClientId().clear(this);
+            startActivity(new Intent(this, ClientManagerActivity.class));
+            finish();
+        }
     }
 
     // unregister receiver
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
-        if (broadcastReceiver != null){
+        if (broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
             broadcastReceiver = null;
         }

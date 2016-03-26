@@ -30,9 +30,9 @@ public class GProtocol {
 
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
 
-    private byte command;
-    private byte[] data;
-    private boolean partial;
+    private final byte command;
+    private final byte[] data;
+    private final boolean partial;
 
     public static byte[] Pack(byte command, int payloadSize, byte[] array, boolean partial){
         ByteBuffer builder = ByteBuffer.allocate(payloadSize + 1 + 4).order(ByteOrder.LITTLE_ENDIAN);

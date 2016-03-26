@@ -10,8 +10,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
-import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.CloudTools;
 
@@ -19,7 +18,7 @@ import java.io.File;
 
 public class ImageUploadService extends Service {
 
-    private final ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
+    private final CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
     private final String imageType[] = {"aerial", "thermal", "icedam", "salt"};
     private Bundle numberOfImages;
     private int inspectionId;
@@ -28,7 +27,7 @@ public class ImageUploadService extends Service {
     @Override
     public void onCreate(){
         // inspection in upload phase, phase=3
-        activeInspectionInfo.setPhase(this, 3);
+        currentInspectionInfo.setPhase(this, 3);
 
         // broadcast that upload phase has begun
         Intent uploadStarted = new Intent();
@@ -36,11 +35,11 @@ public class ImageUploadService extends Service {
         sendBroadcast(uploadStarted);
 
         // grab data
-        inspectionId = activeInspectionInfo.getInspectionId(this);
-        int numberOfAerials = activeInspectionInfo.getAerialCount(this);
-        int numberOfThermals = activeInspectionInfo.getThermalCount(this);
-        int numberOfIceDams = activeInspectionInfo.getIceDamCount(this);
-        int numberOfSalts = activeInspectionInfo.getSaltCount(this);
+        inspectionId = currentInspectionInfo.getInspectionId(this);
+        int numberOfAerials = currentInspectionInfo.getAerialCount(this);
+        int numberOfThermals = currentInspectionInfo.getThermalCount(this);
+        int numberOfIceDams = currentInspectionInfo.getIceDamCount(this);
+        int numberOfSalts = currentInspectionInfo.getSaltCount(this);
 
         // pack data into bundle to make iterative access simpler
         numberOfImages = new Bundle();
@@ -82,12 +81,12 @@ public class ImageUploadService extends Service {
                                             try{
                                                 throw new Exception("Cannot delete file");
                                             }catch (Exception e){
-                                                new ExceptionHandler().HandleException(e);
+                                                e.printStackTrace();
                                             }
                                         }
                                     }
                                 }catch (InterruptedException e){
-                                    new ExceptionHandler().HandleException(e);
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -121,10 +120,10 @@ public class ImageUploadService extends Service {
     @Override
     public void onDestroy() {
         // inspection is no longer in progress
-        activeInspectionInfo.setNotInProgress(this, true);
+        currentInspectionInfo.setNotInProgress(this, true);
 
         // post inspection processing just concluded, phase=0
-        activeInspectionInfo.setPhase(this, 0);
+        currentInspectionInfo.setPhase(this, 0);
 
         /*
         // past inspection info is out of date

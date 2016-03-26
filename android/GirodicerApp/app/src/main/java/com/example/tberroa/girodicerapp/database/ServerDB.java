@@ -1,7 +1,6 @@
 package com.example.tberroa.girodicerapp.database;
 
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
@@ -36,7 +35,7 @@ public class ServerDB {
             jsonObject.put("session_id", sessionId);
             jsonObject.put("provision", provision);
         }catch (Exception e){
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
 
         String postResponse = "";
@@ -44,7 +43,7 @@ public class ServerDB {
             String dataJSON = jsonObject.toString();
             postResponse = new HttpPost().doPostRequest(GET_CLIENTS_URL, dataJSON);
         }catch(java.io.IOException e){
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
 
         // create List<Client> model from response json
@@ -65,14 +64,14 @@ public class ServerDB {
             jsonObject.put("session_id", sessionId);
             jsonObject.put("client", client);
         }catch (Exception e){
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
 
         try{
             String dataJSON = jsonObject.toString();
             new HttpPost().doPostRequest(CREATE_CLIENT_URL, dataJSON);
         }catch(java.io.IOException e){
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
     }
 

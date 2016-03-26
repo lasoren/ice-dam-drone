@@ -6,11 +6,11 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.View;
@@ -43,26 +43,28 @@ public class CurrentThreeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_three);
 
-        // if starting activity from a reload call
-        if (getIntent().getAction() != null) {
-            // no animation
+        // no animation if starting due to a reload
+        String action = getIntent().getAction();
+        if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
         }
 
-        // set toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Current Inspection");
-        setSupportActionBar(toolbar);
-        toolbar.setVisibility(View.VISIBLE);
+        // set toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.current_inspection_title);
+        }
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
+        // set navigation menu
+        navigationView.inflateMenu(R.menu.nav_client_inspections);
+
+        // Create the adapter that will return a fragment for each of the three primary sections of the activity
         SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
         ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        // initialize the tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setVisibility(View.VISIBLE);
@@ -71,9 +73,13 @@ public class CurrentThreeActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        new ClientId().clear(this);
-        startActivity(new Intent(this, ClientManagerActivity.class));
-        finish();
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            new ClientId().clear(this);
+            startActivity(new Intent(this, ClientManagerActivity.class));
+            finish();
+        }
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

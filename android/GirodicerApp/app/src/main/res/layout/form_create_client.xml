@@ -2,7 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <EditText
         android:id="@+id/first_name"
@@ -14,8 +14,8 @@
         android:ems="12"
         android:focusable="true"
         android:hint="@string/first_name"
-        android:inputType="textCapSentences"
-        android:imeOptions="actionNext" />
+        android:imeOptions="actionNext"
+        android:inputType="textCapSentences"/>
 
     <EditText
         android:id="@+id/last_name"
@@ -27,8 +27,8 @@
         android:ems="12"
         android:focusable="true"
         android:hint="@string/last_name"
-        android:inputType="textCapSentences"
-        android:imeOptions="actionNext" />
+        android:imeOptions="actionNext"
+        android:inputType="textCapSentences"/>
 
     <EditText
         android:id="@+id/email"
@@ -39,8 +39,8 @@
         android:layout_marginBottom="15dp"
         android:ems="12"
         android:hint="@string/email"
-        android:inputType="textEmailAddress"
-        android:imeOptions="actionGo" />
+        android:imeOptions="actionGo"
+        android:inputType="textEmailAddress"/>
 
     <EditText
         android:id="@+id/address"
@@ -52,7 +52,6 @@
         android:ems="12"
         android:focusable="true"
         android:hint="@string/confirm_password"
-        android:inputType="text"
-        android:imeOptions="actionNext" />
-
+        android:imeOptions="actionNext"
+        android:inputType="text"/>
 </RelativeLayout>

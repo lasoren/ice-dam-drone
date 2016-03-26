@@ -3,7 +3,6 @@ package com.example.tberroa.girodicerapp.helpers;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
@@ -12,16 +11,14 @@ import android.view.WindowManager;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.CurrentOneActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
-import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
-import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.database.TestCase;
-import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 
@@ -150,7 +147,7 @@ final public class Utilities {
         if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)) {
             message = context.getResources().getString(R.string.past_inspections_not_up_to_date);
             new MessageDialog(context, message).getDialog().show();
-        } else if (!new ActiveInspectionInfo().isNotInProgress(context)) {
+        } else if (!new CurrentInspectionInfo().isNotInProgress(context)) {
             message = context.getResources().getString(R.string.inspection_in_progress);
             new MessageDialog(context, message).getDialog().show();
         } else {
@@ -166,7 +163,7 @@ final public class Utilities {
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
         operatorId.clear(context);
-        new ActiveInspectionInfo().clearAll(context);
+        new CurrentInspectionInfo().clearAll(context);
         new PastInspectionsInfo().clearAll(context);
 
         // save the operators id to shared preference
@@ -192,7 +189,7 @@ final public class Utilities {
     public static void signOut(Context context) {
         // clear shared preferences of old data
         new OperatorId().clear(context);
-        new ActiveInspectionInfo().clearAll(context);
+        new CurrentInspectionInfo().clearAll(context);
         new PastInspectionsInfo().clearAll(context);
 
         // update user sign in status
@@ -205,62 +202,6 @@ final public class Utilities {
         context.startActivity(new Intent(context, SignInActivity.class));
         if (context instanceof Activity) {
             ((Activity) context).finish();
-        }
-    }
-
-    public static boolean inspectionMenu(int itemId, Context context) {
-        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
-        Resources resources = context.getResources();
-
-        switch (itemId) {
-            case R.id.end_inspection:
-                if (activeInspectionInfo.isNotInProgress(context)) {
-                    String message = resources.getString(R.string.no_active_inspection);
-                    new MessageDialog(context, message).getDialog().show();
-                } else {
-                    int inspectionPhase = activeInspectionInfo.getPhase(context);
-                    String message;
-                    switch (inspectionPhase) {
-                        case 1:
-                            new ConfirmEndInspectionDialog(context).getDialog().show();
-                            break;
-                        case 2:
-                            message = resources.getString(R.string.transfer_phase_text);
-                            new MessageDialog(context, message).getDialog().show();
-                            break;
-                        case 3:
-                            message = resources.getString(R.string.upload_phase_text);
-                            new MessageDialog(context, message).getDialog().show();
-                            break;
-                    }
-                }
-                return true;
-            case R.id.start_inspection:
-                Utilities.attemptInspectionStart(context);
-                return true;
-            case R.id.current_inspection:
-                context.startActivity(new Intent(context, CurrentOneActivity.class));
-                if (context instanceof Activity) {
-                    ((Activity) context).finish();
-                }
-                return true;
-            case R.id.past_inspections:
-                context.startActivity(new Intent(context, PastInspectionsActivity.class));
-                if (context instanceof Activity) {
-                    ((Activity) context).finish();
-                }
-                return true;
-            case R.id.sign_out:
-                // check if there is an ongoing active inspection
-                if (!activeInspectionInfo.isNotInProgress(context)) {
-                    String message = resources.getString(R.string.cannot_sign_out);
-                    new MessageDialog(context, message).getDialog().show();
-                } else {
-                    Utilities.signOut(context);
-                }
-                return true;
-            default:
-                return false;
         }
     }
 }

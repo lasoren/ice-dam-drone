@@ -60,7 +60,7 @@
                 android:value=".activities.CurrentTwoActivity" />
         </activity>
         <activity android:name=".activities.RegisterActivity" />
-        <activity android:name=".activities.ConfirmEmailActivity" />
+        <activity android:name=".activities.PostRegisterActivity" />
         <activity android:name=".activities.BaseActivity" />
         <activity android:name=".activities.ClientManagerActivity" />
         <activity android:name=".activities.CurrentOneActivity" />

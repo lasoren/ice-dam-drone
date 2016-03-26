@@ -1,7 +1,6 @@
 package com.example.tberroa.girodicerapp.network;
 
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 
 import org.json.JSONObject;
 
@@ -37,7 +36,7 @@ public class HttpPost {
                 return jsonObject.optString("detail", "");
             }
         }catch (Exception e){
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
         return "json error occurred";
     }

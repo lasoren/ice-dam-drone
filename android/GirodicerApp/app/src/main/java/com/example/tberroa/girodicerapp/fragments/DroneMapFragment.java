@@ -28,7 +28,7 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
 
 
-    private BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
+    private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String frag = intent.getStringExtra(CurrentThreeActivity.WHICH_FRAG);

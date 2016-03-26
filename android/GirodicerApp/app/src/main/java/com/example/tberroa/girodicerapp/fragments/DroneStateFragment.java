@@ -21,7 +21,7 @@ public class DroneStateFragment extends Fragment {
     private TextView location, velocity, state, armable;
     private Status currentStatus;
 
-    private BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
+    private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String frag = intent.getStringExtra(CurrentThreeActivity.WHICH_FRAG);

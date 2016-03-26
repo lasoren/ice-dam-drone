@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class ActiveInspectionInfo extends Application {
+public class CurrentInspectionInfo extends Application {
 
     // keys
     private final String IS_NOT_IN_PROGRESS = "is_not_in_progress";
@@ -17,7 +17,7 @@ public class ActiveInspectionInfo extends Application {
     private final String SALT_COUNT = "salt_count";
     private final String LAST_DOWNLOAD = "last_download";
 
-    public ActiveInspectionInfo() {
+    public CurrentInspectionInfo() {
     }
 
     private SharedPreferences getSharedPreferences(Context context){
