@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.models.Status;
+import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 
 public class DroneStateFragment extends Fragment {

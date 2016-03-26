@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp.models;
+package com.example.tberroa.girodicerapp.bluetooth;
 
 import android.os.Parcel;
 import android.os.Parcelable;

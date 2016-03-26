@@ -10,8 +10,8 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -213,11 +213,21 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             Utilities.signOut(this);
         }
 
-        // if bluetooth service is not running, reset state (if android system kills service, onDestroy not called)
-        if (BluetoothService.notRunning(this)) {
-            bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+        // check if bluetooth service was destroyed by the system (in this case onDestroy is not called)
+        if (BluetoothService.notRunning(this) && BluetoothService.serviceRunning) {
+            Log.d("dbg", "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
 
-            // also reset current inspection info, all current inspection processing is bluetooth dependent
+            // update variable
+            BluetoothService.serviceRunning = false;
+
+            // reset state
+            bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+            BluetoothService.currentStatus = null;
+            if (BluetoothService.btConnectionThread != null) {
+                BluetoothService.btConnectionThread.shutdown();
+            }
+
+            // also reset current inspection info, most current inspection processing is bluetooth dependent
             currentInspectionInfo.clearAll(this);
         }
 

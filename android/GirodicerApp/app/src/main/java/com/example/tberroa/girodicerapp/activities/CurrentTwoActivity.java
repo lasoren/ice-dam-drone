@@ -14,7 +14,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.models.Points;
+import com.example.tberroa.girodicerapp.bluetooth.Points;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

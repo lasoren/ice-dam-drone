@@ -1,8 +1,5 @@
 package com.example.tberroa.girodicerapp.bluetooth;
 
-import com.example.tberroa.girodicerapp.models.Points;
-import com.example.tberroa.girodicerapp.models.Status;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 

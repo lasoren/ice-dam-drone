@@ -23,7 +23,7 @@ import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.fragments.DroneMapFragment;
 import com.example.tberroa.girodicerapp.fragments.DroneStateFragment;
-import com.example.tberroa.girodicerapp.models.Status;
+import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 public class CurrentThreeActivity extends BaseActivity {

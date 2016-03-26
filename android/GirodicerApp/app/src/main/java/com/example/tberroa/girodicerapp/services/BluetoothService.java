@@ -22,8 +22,9 @@ import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.models.Status;
+import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -43,6 +44,7 @@ public class BluetoothService extends Service {
     @SuppressWarnings("unused")
     public static Status currentStatus;
     public static ArrayList<LatLng> houseBoundary;
+    public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
     private static boolean waitingForInitialStatus = true;
 
@@ -213,12 +215,17 @@ public class BluetoothService extends Service {
     public void onDestroy() {
         Log.d("dbg", "@BluetoothService: service destroyed");
 
-        bluetoothInfo.setState(BluetoothService.this, 0);
+        bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
         currentStatus = null;
         if (btConnectionThread != null){
             btConnectionThread.shutdown();
         }
         unregisterReceiver(btReceiver);
+
+        // also reset current inspection info, most current inspection processing is bluetooth dependent
+        new CurrentInspectionInfo().clearAll(this);
+
+        serviceRunning = false;
     }
 
     // if android system kills service, onDestroy is not called. This method allows us to check if service is running

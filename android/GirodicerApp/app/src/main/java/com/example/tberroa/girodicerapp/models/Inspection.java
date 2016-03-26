@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "Inspection")
 public class Inspection extends Model {
 
