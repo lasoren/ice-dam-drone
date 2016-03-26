@@ -18,6 +18,7 @@ public class Params {
     final public static String DRONE_CONNECT_SUCCESS = "DRONE_CONNECT_SUCCESS";
     final public static String DRONE_CONNECT_FAILURE = "DRONE_CONNECT_FAILURE";
     final public static String DRONE_CONNECTION_LOST = "DRONE_CONNECTION_LOST";
+    final public static String INITIAL_STATUS_RECEIVED = "INITIAL_STATUS_RECEIVED";
     final public static String HOUSE_BOUNDARY_RECEIVED = "HOUSE_BOUNDARY_RECEIVED";
     final public static String INSPECTION_STARTED = "INSPECTION_STARTED";
     final public static String DRONE_DONE = "DRONE_DONE";

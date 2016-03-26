@@ -63,13 +63,8 @@ public class CurrentTwoActivity extends BaseActivity
             return;
         }
 
-        // get location, this should be passed to the activity via intent
-        if (savedInstanceState == null) {
-            Intent incomingIntent = getIntent();
-            home = incomingIntent.getParcelableExtra(BluetoothService.LOCATION);
-        } else {
-            home = savedInstanceState.getParcelable(BluetoothService.LOCATION);
-        }
+        // get location, this should be set by the time this activity is launched
+        home = BluetoothService.currentStatus.location;
 
         // set toolbar title
         if (getSupportActionBar() != null) {
@@ -140,12 +135,6 @@ public class CurrentTwoActivity extends BaseActivity
         houseBoundary.remove(marker.getPosition());
         marker.remove();
         return true;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(BluetoothService.LOCATION, home);
-        super.onSaveInstanceState(outState);
     }
 
     @Override

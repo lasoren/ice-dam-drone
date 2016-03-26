@@ -35,16 +35,16 @@ public class BluetoothService extends Service {
 
     // constants
     public static final int READ = 1;
-    public static final String LOCATION = "LOCATION";
     private final int CONNECT_ATTEMPT_SUCCESS = 100;
     private final int CONNECT_ATTEMPT_FAILED = 50;
     private final UUID DRONE_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
 
     // variables
-    private boolean droneNotFound = true;
     @SuppressWarnings("unused")
     public static Status currentStatus;
     public static ArrayList<LatLng> houseBoundary;
+    private boolean droneNotFound = true;
+    private static boolean waitingForInitialStatus = true;
 
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
@@ -288,6 +288,17 @@ public class BluetoothService extends Service {
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
+
+                                // check if this is the initial status
+                                if (waitingForInitialStatus){
+                                    if (context != null){
+                                        Log.d("dbg", "@BluetoothService: initial status received");
+
+                                        context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
+                                        context = null;
+                                    }
+                                    waitingForInitialStatus = false;
+                                }
                                 break;
                             case GProtocol.COMMAND_SEND_PATH:
                                 // noinspection unchecked

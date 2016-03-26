@@ -216,6 +216,9 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         // if bluetooth service is not running, reset state (if android system kills service, onDestroy not called)
         if (BluetoothService.notRunning(this)) {
             bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+
+            // also reset current inspection info, all current inspection processing is bluetooth dependent
+            currentInspectionInfo.clearAll(this);
         }
 
         // declare the notification text views which may or may not populate the notification bar
@@ -272,6 +275,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         filter.addAction(Params.DRONE_CONNECT_SUCCESS);
         filter.addAction(Params.DRONE_CONNECT_FAILURE);
         filter.addAction(Params.DRONE_CONNECTION_LOST);
+        filter.addAction(Params.INITIAL_STATUS_RECEIVED);
         filter.addAction(Params.TRANSFER_STARTED);
         filter.addAction(Params.UPLOAD_STARTED);
         filter.addAction(Params.UPLOAD_COMPLETE);
@@ -286,6 +290,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     case Params.DRONE_CONNECT_SUCCESS:
                     case Params.DRONE_CONNECT_FAILURE:
                     case Params.DRONE_CONNECTION_LOST:
+                    case Params.INITIAL_STATUS_RECEIVED:
                     case Params.TRANSFER_STARTED:
                     case Params.UPLOAD_STARTED:
                     case Params.UPLOAD_COMPLETE:

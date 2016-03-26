@@ -53,6 +53,7 @@
     <string name="bt_not_enabled">Unable to connect to drone because bluetooth is not enabled</string>
     <string name="bt_connect_failed">Failed to connect to drone</string>
     <string name="bt_connecting">Trying to connect to drone &#8230;</string>
+    <string name="waiting_for_status">Waiting to receive initial status from drone &#8230;</string>
     <!-- 2nd step: establish house boundaries -->
     <!-- 3rd step: drone is active, keep track of status -->
     <string name="drone_active_stay_alert">

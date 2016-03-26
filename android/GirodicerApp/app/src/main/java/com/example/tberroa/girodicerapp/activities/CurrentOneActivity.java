@@ -15,6 +15,9 @@ import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class CurrentOneActivity extends BaseActivity {
 
     // constants
@@ -36,6 +39,7 @@ public class CurrentOneActivity extends BaseActivity {
                 startActivityForResult(enableBt, REQUEST_ENABLE_BT);
             } else { // bluetooth is already enabled
                 startService(new Intent(CurrentOneActivity.this, BluetoothService.class));
+                BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
             }
         }
     };
@@ -54,14 +58,6 @@ public class CurrentOneActivity extends BaseActivity {
         String action = getIntent().getAction();
         if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
-        }
-
-        // check if user has already completed the bluetooth connect step
-        if (btState == Params.BTS_CONNECTED) {
-            // go to next activity
-            startActivity(new Intent(this, CurrentTwoActivity.class));
-            finish();
-            return;
         }
 
         // set toolbar title
@@ -104,6 +100,28 @@ public class CurrentOneActivity extends BaseActivity {
             case Params.BTS_CONNECTING: // attempting to connect to drone
                 // display loading message & loading spinner
                 uiControl(0b11000, R.string.bt_connecting);
+                break;
+            case Params.BTS_CONNECTED: // successfully connected to drone
+                // make sure initial status has been received from drone before continuing
+                if (BluetoothService.currentStatus != null) {
+                    // go to next activity
+                    startActivity(new Intent(this, CurrentTwoActivity.class));
+                    finish();
+                } else { // let user know that the system is waiting to receive initial status
+                    Log.d("dbg", "@CurrentOneActivity: waiting to receive initial status");
+
+                    // display loading message and spinner
+                    uiControl(0b11000, R.string.waiting_for_status);
+
+                    // reload after 500 milliseconds in case the broadcast was missed
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                            finish();
+                        }
+                    }, 500);
+                }
                 break;
         }
     }
