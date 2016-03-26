@@ -36,7 +36,7 @@ void FindHotspots(Mat& input, Mat& output) {
     Scalar mean, std_dev;
     meanStdDev(output, mean, std_dev);
     // Threshold the image on the mean plus the standard deviation.
-    threshold(output, output, mean[0] + std_dev[0], 255, THRESH_BINARY);
+    threshold(output, output, mean[0] + 3*std_dev[0], 255, THRESH_BINARY);
     // Blur the image in order to detect blobs. 
     GaussianBlur(output, output, Size(7, 7), 0, 0 );
     // Detect keypoints.
