@@ -61,7 +61,7 @@ eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SC
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 
 print "Connecting to vehicle on: %s" % args.connect
-iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue)
+iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
 
 running = True
 
