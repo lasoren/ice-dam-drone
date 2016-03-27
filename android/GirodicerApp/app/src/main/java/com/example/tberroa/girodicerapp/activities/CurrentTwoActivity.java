@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ public class CurrentTwoActivity extends BaseActivity
         String action = getIntent().getAction();
         if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
+            Log.d("dbg", "@CurrentTwoActivity: being recreated from a reload");
         }
 
         // check if user should be in this activity
@@ -87,14 +89,11 @@ public class CurrentTwoActivity extends BaseActivity
         houseBoundary = new ArrayList<>();
 
         // initialize receiver, it's triggered when the house boundary points have been received from the drone
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Params.HOUSE_BOUNDARY_RECEIVED);
+        IntentFilter filter = new IntentFilter(Params.HOUSE_BOUNDARY_RECEIVED);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-
-                switch (action) {
+                switch (intent.getAction()) {
                     case Params.HOUSE_BOUNDARY_RECEIVED:
                         houseBoundary = BluetoothService.houseBoundary;
                         plotPoints(houseBoundary);
@@ -168,6 +167,7 @@ public class CurrentTwoActivity extends BaseActivity
         byte[] points = Points.Pack(houseBoundary);
         BluetoothService.BTDataHandler.passContext(this);
         BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
+        Log.d("dbg", "@CurrentTwoActivity: sent house points");
         Toast.makeText(CurrentTwoActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
     }
 

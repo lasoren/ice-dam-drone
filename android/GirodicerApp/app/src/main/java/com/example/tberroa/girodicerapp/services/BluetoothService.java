@@ -42,11 +42,11 @@ public class BluetoothService extends Service {
 
     // variables
     @SuppressWarnings("unused")
-    public static Status currentStatus;
+    public static boolean needInitialStatus = true;
     public static ArrayList<LatLng> houseBoundary;
+    public static Status currentStatus;
     public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
-    private static boolean waitingForInitialStatus = true;
 
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
@@ -225,6 +225,7 @@ public class BluetoothService extends Service {
         // also reset current inspection info, most current inspection processing is bluetooth dependent
         new CurrentInspectionInfo().clearAll(this);
 
+        needInitialStatus = true;
         serviceRunning = false;
     }
 
@@ -295,24 +296,35 @@ public class BluetoothService extends Service {
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
+                                Log.d("dbg", "@BluetoothService/BTDataHandler: status received");
 
-                                // check if this is the initial status
-                                if (waitingForInitialStatus){
+                                // broadcast the status update
+                                if (context != null && !needInitialStatus){
+                                    Log.d("dbg", "@BluetoothService/BTDataHandler: broadcasting status update");
+                                    context.sendBroadcast(new Intent().setAction(Params.STATUS_UPDATE));
+                                }
+
+                                // check if CurrentOneActivity is waiting for initial status
+                                if (needInitialStatus){
+                                    // if so, check if the context has been sent
                                     if (context != null){
-                                        Log.d("dbg", "@BluetoothService: initial status received");
+                                        Log.d("dbg", "@BluetoothService/BTDataHandler: initial status received. broadcasting");
 
                                         context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
                                         context = null;
+                                        needInitialStatus = false;
                                     }
-                                    waitingForInitialStatus = false;
+
                                 }
                                 break;
                             case GProtocol.COMMAND_SEND_PATH:
-                                // noinspection unchecked
+                                // noinspection unchecked (Android Lint Suppression)
                                 houseBoundary = (ArrayList<LatLng>) received.read();
 
                                 // broadcast that the house boundary points are ready
                                 if (context != null){
+                                    Log.d("dbg", "@BluetoothService/BTDataHandler: house boundary received. broadcasting");
+
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
                                     context = null;
                                 }
@@ -328,6 +340,10 @@ public class BluetoothService extends Service {
 
         public static void passContext(Context c){
             context = c;
+        }
+
+        public static void destroyContext(){
+            context = null;
         }
     }
 }

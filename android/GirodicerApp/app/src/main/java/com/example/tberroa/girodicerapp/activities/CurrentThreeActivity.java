@@ -1,12 +1,11 @@
 package com.example.tberroa.girodicerapp.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
+import android.content.IntentFilter;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,9 +15,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
-import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
-import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.fragments.DroneMapFragment;
@@ -33,10 +29,7 @@ public class CurrentThreeActivity extends BaseActivity {
     public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
     public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
 
-    private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
-
-    private static Messenger bluetoothMessenger; // only for the handler in this class
-    private static boolean bluetoothServiceBound = false;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +62,26 @@ public class CurrentThreeActivity extends BaseActivity {
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.setVisibility(View.VISIBLE);
 
+        // initialize receiver, it's triggered when a status signal is received from the drone
+        IntentFilter filter = new IntentFilter(Params.STATUS_UPDATE);
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case Params.STATUS_UPDATE:
+                        Status currentStatus = BluetoothService.currentStatus;
+                        Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
+                        broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
+                        broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
+
+                        LocalBroadcastManager.getInstance(CurrentThreeActivity.this).sendBroadcast(broadcastToFrag);
+                }
+            }
+        };
+        registerReceiver(broadcastReceiver, filter);
+
+        // pass context to bluetooth data handler
+        BluetoothService.BTDataHandler.passContext(this);
     }
 
     @Override
@@ -121,32 +134,15 @@ public class CurrentThreeActivity extends BaseActivity {
         }
     }
 
-    private class BTMessageHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case BluetoothService.READ:
-                    Bundle bundle = msg.getData();
-                    byte[] data = bundle.getByteArray(ConnectionThread.BT_DATA);
-                    try {
-                        GProtocol received = GProtocol.Unpack(data);
-                        switch (received.getCommand()) {
-                            case GProtocol.COMMAND_STATUS:
-                                Status currentStatus = (Status) received.read();
-                                Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
-                                broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
-                                broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
-
-                                LocalBroadcastManager.getInstance(CurrentThreeActivity.this).sendBroadcast(broadcastToFrag);
-                                break;
-                            case GProtocol.COMMAND_SEND_POINTS:
-                                break;
-                        }
-                    } catch (BluetoothException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-            }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
         }
+
+        // destroy context reference from bluetooth data handler
+        BluetoothService.BTDataHandler.destroyContext();
     }
 }

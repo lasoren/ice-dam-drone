@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
@@ -48,12 +49,14 @@ public class ConnectionThread extends Thread {
             try {
                 // Read from the InputStream
                 bytes = btInStream.read(buffer);
-                // Send the obtained bytes to the UI activity
+                // Send the obtained bytes to the bluetooth data handler
                 Message msg = Message.obtain(null, BluetoothService.READ, bytes, -1);
                 Bundle bundle = new Bundle();
                 bundle.putByteArray(BT_DATA, buffer);
                 msg.setData(bundle);
                 btDataHandler.send(msg);
+
+                //Log.d("dbg", "@ConnectionThread: received message from drone & forwarded to handler");
             } catch (IOException e) {
                 break;
             } catch (RemoteException e) {

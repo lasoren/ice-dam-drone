@@ -1,7 +1,10 @@
 package com.example.tberroa.girodicerapp.activities;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
@@ -27,6 +30,9 @@ public class CurrentOneActivity extends BaseActivity {
     private Button startButton, tryAgainButton;
     private TextView generalMessage, loadingMessage;
     private ProgressBar loadingSpinner;
+
+    // receiver used to listen for when bluetooth data handler receives initial status signal
+    private BroadcastReceiver broadcastReceiver;
 
     // button listener
     private final View.OnClickListener connectButtonListener = new View.OnClickListener() {
@@ -89,17 +95,20 @@ public class CurrentOneActivity extends BaseActivity {
                         break;
                     case Params.BTE_NOT_ENABLED: // tried but bluetooth was not enabled
                         // display message and try again button
-                        uiControl(0b00110, R.string.bt_not_enabled);
+                        uiControl(0b00110, R.string.bte_not_enabled);
                         break;
                     case Params.BTE_CONNECT_FAILED: // tried but connection attempt failed
                         // display message and try again button
-                        uiControl(0b00110, R.string.bt_connect_failed);
+                        uiControl(0b00110, R.string.bte_connect_failed);
                         break;
+                    case Params.BTE_TIMEOUT: // was able to connect but never received status signal
+                        // display message and try again button
+                        uiControl(0b00110, R.string.bte_timeout_status);
                 }
                 break;
             case Params.BTS_CONNECTING: // attempting to connect to drone
                 // display loading message & loading spinner
-                uiControl(0b11000, R.string.bt_connecting);
+                uiControl(0b11000, R.string.bts_connecting);
                 break;
             case Params.BTS_CONNECTED: // successfully connected to drone
                 // make sure initial status has been received from drone before continuing
@@ -113,14 +122,42 @@ public class CurrentOneActivity extends BaseActivity {
                     // display loading message and spinner
                     uiControl(0b11000, R.string.waiting_for_status);
 
-                    // reload after 500 milliseconds in case the broadcast was missed
-                    new Timer().schedule(new TimerTask() {
+                    // initialize receiver, it's triggered when the initial status has been received from the drone
+                    final IntentFilter filter = new IntentFilter(Params.INITIAL_STATUS_RECEIVED);
+                    broadcastReceiver = new BroadcastReceiver() {
+                        @Override
+                        public void onReceive(Context context, Intent intent) {
+                            switch (intent.getAction()) {
+                                case Params.INITIAL_STATUS_RECEIVED:
+                                    Log.d("dbg", "@CurrentOneActivity: initial status broadcast received, moving to next step");
+
+                                    // go to next activity
+                                    startActivity(new Intent(CurrentOneActivity.this, CurrentTwoActivity.class));
+                                    finish();
+                            }
+                        }
+                    };
+                    registerReceiver(broadcastReceiver, filter);
+
+                    // timeout after 3 seconds if current status null
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            finish();
+                            Log.d("dbg", "@CurrentOneActivity: timed out while waiting for initial status signal");
+
+                            if (BluetoothService.currentStatus == null){
+                                // kill bluetooth connection
+                                stopService(new Intent(CurrentOneActivity.this, BluetoothService.class));
+                                bluetoothInfo.setErrorCode(CurrentOneActivity.this, Params.BTE_TIMEOUT);
+
+                                // let system know of timeout
+                                sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TIMEOUT));
+                            }
                         }
-                    }, 500);
+                    };
+
+                    timer.schedule(timerTask, 3000);
                 }
                 break;
         }
@@ -145,12 +182,21 @@ public class CurrentOneActivity extends BaseActivity {
                     case RESULT_OK: // user enabled bluetooth
                         // start service
                         startService(new Intent(CurrentOneActivity.this, BluetoothService.class));
+                        BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
                         break;
                     case RESULT_CANCELED: // user chose not to enable bluetooth
                         // display message and try again button
-                        uiControl(0b00110, R.string.bt_not_enabled);
+                        uiControl(0b00110, R.string.bte_not_enabled);
                         break;
                 }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
         }
     }
 

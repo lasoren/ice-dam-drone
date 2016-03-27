@@ -217,7 +217,8 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         if (BluetoothService.notRunning(this) && BluetoothService.serviceRunning) {
             Log.d("dbg", "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
 
-            // update variable
+            // update variables
+            BluetoothService.needInitialStatus = true;
             BluetoothService.serviceRunning = false;
 
             // reset state
@@ -281,11 +282,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         // set up receiver to reload activity upon system updates
         IntentFilter filter = new IntentFilter();
+        filter.addAction(Params.BLUETOOTH_TIMEOUT);
         filter.addAction(Params.CONNECTING_TO_DRONE);
         filter.addAction(Params.DRONE_CONNECT_SUCCESS);
         filter.addAction(Params.DRONE_CONNECT_FAILURE);
         filter.addAction(Params.DRONE_CONNECTION_LOST);
-        filter.addAction(Params.INITIAL_STATUS_RECEIVED);
         filter.addAction(Params.TRANSFER_STARTED);
         filter.addAction(Params.UPLOAD_STARTED);
         filter.addAction(Params.UPLOAD_COMPLETE);
@@ -296,11 +297,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 switch (action) {
+                    case Params.BLUETOOTH_TIMEOUT:
                     case Params.CONNECTING_TO_DRONE:
                     case Params.DRONE_CONNECT_SUCCESS:
                     case Params.DRONE_CONNECT_FAILURE:
                     case Params.DRONE_CONNECTION_LOST:
-                    case Params.INITIAL_STATUS_RECEIVED:
                     case Params.TRANSFER_STARTED:
                     case Params.UPLOAD_STARTED:
                     case Params.UPLOAD_COMPLETE:
