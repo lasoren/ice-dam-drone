@@ -30,6 +30,8 @@ import com.google.android.gms.maps.model.LatLng;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class BluetoothService extends Service {
@@ -92,7 +94,9 @@ public class BluetoothService extends Service {
 
                             if (device.getName().equals(getResources().getString(R.string.drone_bt_name))) {
                                 btDevice = device;
-                                btAdapter.cancelDiscovery();
+                                if (btAdapter.isDiscovering()){
+                                    btAdapter.cancelDiscovery();
+                                }
                                 droneNotFound = false;
                                 pairComplete();
                             }
@@ -181,7 +185,10 @@ public class BluetoothService extends Service {
         new Thread(new Runnable() {
             public void run() {
                 // cancel discovery
-                btAdapter.cancelDiscovery();
+                if (btAdapter.isDiscovering()){
+                    btAdapter.cancelDiscovery();
+                }
+
 
                 // initialize bluetooth socket
                 BluetoothSocket btSocket = null;
@@ -265,6 +272,26 @@ public class BluetoothService extends Service {
                     BluetoothSocket btSocket = (BluetoothSocket) incoming.obj;
                     btConnectionThread = new ConnectionThread(btSocket, new Messenger(btDataHandler));
                     btConnectionThread.start();
+
+                    // timeout after 3 seconds if current status still null (never received status signal)
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            Log.d("dbg", "@BluetoothService: timed out while waiting for initial status signal");
+
+                            if (currentStatus == null){
+                                bluetoothInfo.setErrorCode(BluetoothService.this, Params.BTE_TIMEOUT);
+
+                                // let system know of timeout
+                                sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TIMEOUT));
+
+                                // end bluetooth service
+                                stopSelf();
+                            }
+                        }
+                    };
+                    timer.schedule(timerTask, 3000);
                     break;
                 case CONNECT_ATTEMPT_FAILED:
                     Log.d("dbg", "@BluetoothService: connect attempt failed");

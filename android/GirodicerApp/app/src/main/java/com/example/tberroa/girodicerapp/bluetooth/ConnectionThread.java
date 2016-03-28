@@ -56,7 +56,7 @@ public class ConnectionThread extends Thread {
                 msg.setData(bundle);
                 btDataHandler.send(msg);
 
-                //Log.d("dbg", "@ConnectionThread: received message from drone & forwarded to handler");
+                Log.d("dbg", "@ConnectionThread: received message from drone & forwarded to handler");
             } catch (IOException e) {
                 break;
             } catch (RemoteException e) {
