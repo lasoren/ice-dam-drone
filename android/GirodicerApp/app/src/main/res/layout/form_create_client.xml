@@ -43,7 +43,7 @@
         android:layout_marginBottom="15dp"
         android:ems="12"
         android:hint="@string/email"
-        android:imeOptions="actionGo"
+        android:imeOptions="actionNext"
         android:inputType="textEmailAddress"/>
 
     <EditText
@@ -95,7 +95,7 @@
         android:ems="5"
         android:focusable="true"
         android:hint="@string/zip_code"
-        android:imeOptions="actionNext"
+        android:imeOptions="actionGo"
         android:inputType="text"
         android:maxLength="5"/>
 

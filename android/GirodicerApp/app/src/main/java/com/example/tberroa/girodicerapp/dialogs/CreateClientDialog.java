@@ -4,9 +4,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
@@ -49,6 +52,21 @@ public class CreateClientDialog extends Dialog {
                 if (validateEntry()) {
                     createClient();
                 }
+            }
+        });
+
+        // allow user to submit form via keyboard
+        zipCode.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_GO) {
+                    if (validateEntry()) {
+                        createClient();
+                    }
+                    handled = true;
+                }
+                return handled;
             }
         });
 
