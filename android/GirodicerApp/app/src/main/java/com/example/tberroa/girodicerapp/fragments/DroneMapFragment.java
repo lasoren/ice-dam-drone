@@ -72,9 +72,4 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST));
         super.onResume();
     }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
 }

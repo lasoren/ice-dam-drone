@@ -19,24 +19,25 @@ import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 public class DroneStateFragment extends Fragment {
 
     private TextView location, velocity, state, armable;
-    private Status currentStatus;
 
     private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String frag = intent.getStringExtra(CurrentThreeActivity.WHICH_FRAG);
 
-            if(frag.equals(DroneStateFragment.class.getName())){
-                currentStatus = intent.getParcelableExtra(CurrentThreeActivity.STATUS_PACKAGE);
+            if (frag.equals(DroneStateFragment.class.getName())) {
+                Status currentStatus = intent.getParcelableExtra(CurrentThreeActivity.STATUS_PACKAGE);
 
-                location.setText("(" + currentStatus.location.latitude + "," +
-                                currentStatus.location.longitude + ")");
+                String latitude = String.format("%f", currentStatus.location.latitude);
+                String longitude = String.format("%f", currentStatus.location.longitude);
+                String locationFormatted = "(" + latitude + "," + longitude + ")";
+                location.setText(locationFormatted);
 
-                velocity.setText(currentStatus.velocity.toString());
+                velocity.setText(String.format("%f", currentStatus.velocity));
 
-                state.setText(Byte.toString(currentStatus.state));
+                state.setText(String.format("%d", currentStatus.state));
 
-                armable.setText(Integer.toString(currentStatus.armable));
+                armable.setText(String.format("%d", currentStatus.armable));
             }
         }
     };

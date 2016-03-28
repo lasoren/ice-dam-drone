@@ -179,7 +179,7 @@ final public class Utilities {
         // update user sign in status
         new UserInfo().setUserStatus(context, true);
 
-        // go to client manager **** test *** going to welcome activity
+        // go to client manager
         context.startActivity(new Intent(context, ClientManagerActivity.class));
         if (context instanceof Activity) {
             ((Activity) context).finish();

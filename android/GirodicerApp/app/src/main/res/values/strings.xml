@@ -46,7 +46,10 @@
 
     <!-- client manager activity -->
     <string name="client_manager_title">Client Manager</string>
-
+    <string name="street_address">Street Address</string>
+    <string name="city_town">City/Town</string>
+    <string name="state">State</string>
+    <string name="zip_code">ZIP Code</string>
     <!-- current inspection activity -->
     <string name="current_inspection_title">Current Inspection</string>
     <!-- 1st step: establish bluetooth connection -->
@@ -102,6 +105,7 @@
     <string name="fetching_data">Fetching data from the cloud &#8230;</string>
 
     <!-- general buttons -->
+    <string name="submit">Submit</string>
     <string name="okay">Okay</string>
     <string name="start">Start</string>
     <string name="try_again">Try Again</string>

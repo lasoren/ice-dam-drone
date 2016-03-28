@@ -10,6 +10,8 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.adapters.ClientManagerViewAdapter;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
+import com.example.tberroa.girodicerapp.database.ServerDB;
+import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Client;
@@ -60,7 +62,7 @@ public class ClientManagerActivity extends BaseActivity {
 
     private final View.OnClickListener createClientButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
-
+            new CreateClientDialog(ClientManagerActivity.this).show();
         }
     };
 }

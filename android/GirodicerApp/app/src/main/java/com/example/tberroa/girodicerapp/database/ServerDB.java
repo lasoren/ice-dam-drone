@@ -1,5 +1,7 @@
 package com.example.tberroa.girodicerapp.database;
 
+import android.util.Log;
+
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -16,8 +18,8 @@ import java.util.List;
 
 public class ServerDB {
 
-    final public String GET_CLIENTS_URL = Params.BASE_URL + "users/clients/get";
-    final public String CREATE_CLIENT_URL = Params.BASE_URL + "users/clients/create";
+    final public String GET_CLIENTS_URL = Params.BASE_URL + "users/clients/get.json";
+    final public String CREATE_CLIENT_URL = Params.BASE_URL + "users/client/create";
 
     public ServerDB(){
     }
@@ -45,6 +47,8 @@ public class ServerDB {
         }catch(java.io.IOException e){
             e.printStackTrace();
         }
+
+        Log.d("dbg", "@ServerDB/getClients: postResponse is: " + postResponse);
 
         // create List<Client> model from response json
         Type clientList = new TypeToken<List<Client>>(){}.getType();
@@ -80,6 +84,6 @@ public class ServerDB {
     }
 
     public void createInspectionImage(InspectionImage inspectionImage){
-     // create an inspection image on the backend
+        // create an inspection image on the backend
     }
 }

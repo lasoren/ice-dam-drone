@@ -48,6 +48,15 @@ public class Client extends Model {
         this.deleted = deleted;
     }
 
+    public Client(String firstName, String lastName, String email, String address){
+        User user = new User();
+        user.first_name = firstName;
+        user.last_name = lastName;
+        user.email = email;
+        this.user = user;
+        this.address = address;
+    }
+
     public void CascadeSave() {
         this.user.save();
         this.save();
