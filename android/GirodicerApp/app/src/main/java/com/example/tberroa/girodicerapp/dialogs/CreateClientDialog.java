@@ -154,12 +154,14 @@ public class CreateClientDialog extends Dialog {
                     try{
                         Client newClient = new Client(result);
                         newClient.cascadeSave();
+                        noError = true;
                         return;
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                     noError = false;
                 }
+                noError = false;
             }
         });
         thread.start();
