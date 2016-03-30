@@ -107,22 +107,31 @@ final public class Utilities {
         String validation = "";
 
         // grab entered information
-        String username = enteredInfo.getString("username", null);
-        String password = enteredInfo.getString("password", null);
+        String firstName = enteredInfo.getString("first_name", null);
+        String lastName = enteredInfo.getString("last_name", null);
+        String password = enteredInfo.getString("pass_word", null);
         String confirmPassword = enteredInfo.getString("confirm_password", null);
         String email = enteredInfo.getString("email", null);
 
-        if (username != null) {
-            boolean tooShort = username.length() < 3;
-            boolean tooLong = username.length() > 15;
-            if (!username.matches("[a-zA-Z0-9]+") || tooShort || tooLong) {
-                validation = validation.concat("username");
+        if (firstName != null) {
+            firstName = firstName.trim();
+            boolean tooLong = firstName.length() > 12;
+            if (!firstName.matches("[a-zA-Z]+") || tooLong) {
+                validation = validation.concat("first_name");
+            }
+        }
+
+        if (lastName != null) {
+            lastName = lastName.trim();
+            boolean tooLong = lastName.length() > 12;
+            if (!lastName.matches("[a-zA-Z]+") || tooLong) {
+                validation = validation.concat("last_name");
             }
         }
 
         if (password != null) {
             if (password.length() < 6 || password.length() > 20) {
-                validation = validation.concat("password");
+                validation = validation.concat("pass_word");
             }
         }
 
@@ -133,6 +142,7 @@ final public class Utilities {
         }
 
         if (email != null) {
+            email = email.trim();
             if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 validation = validation.concat("email");
             }
@@ -151,11 +161,10 @@ final public class Utilities {
             message = context.getResources().getString(R.string.inspection_in_progress);
             new MessageDialog(context, message).getDialog().show();
         } else {
-            context.startActivity(new Intent(context, CurrentOneActivity.class));
+            context.startActivity(new Intent(context, CurrentOneActivity.class).setAction(Params.START_INSPECTION));
             if (context instanceof Activity) {
                 ((Activity) context).finish();
             }
-
         }
     }
 

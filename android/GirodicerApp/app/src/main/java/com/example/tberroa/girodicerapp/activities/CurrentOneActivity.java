@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -28,16 +27,7 @@ public class CurrentOneActivity extends BaseActivity {
     // button listener
     private final View.OnClickListener connectButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
-            Log.d("dbg", "@CurrentOneActivity: connect button clicked");
-
-            // request to enable bluetooth if necessary
-            if (!btAdapter.isEnabled()) {
-                Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBt, REQUEST_ENABLE_BT);
-            } else { // bluetooth is already enabled
-                startService(new Intent(CurrentOneActivity.this, BluetoothService.class));
-                BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
-            }
+            start();
         }
     };
 
@@ -48,19 +38,6 @@ public class CurrentOneActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_one);
-        int btState = bluetoothInfo.getState(this);
-        int btErrorCode = bluetoothInfo.getErrorCode(this);
-
-        // no animation if starting due to a reload
-        String action = getIntent().getAction();
-        if (action != null && action.equals(Params.RELOAD)) {
-            overridePendingTransition(0, 0);
-        }
-
-        // set toolbar title
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.current_inspection_title);
-        }
 
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
@@ -72,14 +49,41 @@ public class CurrentOneActivity extends BaseActivity {
         loadingMessage = (TextView) findViewById(R.id.loading_message);
         loadingSpinner = (ProgressBar) findViewById(R.id.loading_spinner);
 
+        // set toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.current_inspection_title);
+        }
+
+        // turn off all ui elements to begin
+        uiControl(0b00000, 0);
+
+        // check some conditions
+        String action = getIntent().getAction();
+        if (action != null && action.equals(Params.RELOAD)) {
+            // no animation if reloading
+            overridePendingTransition(0, 0);
+        } else {
+            // user just arrived, reset bluetooth error code
+            bluetoothInfo.setErrorCode(this, 0);
+        }
+        if (bluetoothInfo.getState(this) == Params.BTS_CONNECTED && BluetoothService.currentStatus != null) {
+            // go to next activity if connection process has already been completed
+            startActivity(new Intent(this, CurrentTwoActivity.class));
+            finish();
+            return;
+        } else if (action != null && action.equals(Params.START_INSPECTION)) {
+            // start connection process if coming from a start inspection button
+            start();
+        }
+
         // attach onclick listener to buttons
         startButton.setOnClickListener(connectButtonListener);
         tryAgainButton.setOnClickListener(connectButtonListener);
 
         // display content based off bluetooth state & error code
-        switch (btState) {
+        switch (bluetoothInfo.getState(this)) {
             case Params.BTS_NOT_CONNECTED: // not currently connected to drone
-                switch (btErrorCode) { // check why
+                switch (bluetoothInfo.getErrorCode(this)) { // check why
                     case Params.BTE_NO_ERROR: // just got here, no error thrown yet
                         // display start button
                         uiControl(0b00001, 0);
@@ -141,6 +145,17 @@ public class CurrentOneActivity extends BaseActivity {
                         uiControl(0b00110, R.string.bte_not_enabled);
                         break;
                 }
+        }
+    }
+
+    private void start() {
+        // request to enable bluetooth if necessary
+        if (!btAdapter.isEnabled()) {
+            Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBt, REQUEST_ENABLE_BT);
+        } else { // bluetooth is already enabled
+            startService(new Intent(CurrentOneActivity.this, BluetoothService.class));
+            BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
         }
     }
 

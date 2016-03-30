@@ -27,7 +27,7 @@ public class CreateClientDialog extends Dialog {
     private boolean noError = true;
 
     public CreateClientDialog(Context context) {
-        super(context);
+        super(context, R.style.dialogStyle);
         this.context = context;
     }
 
@@ -77,15 +77,18 @@ public class CreateClientDialog extends Dialog {
 
     private boolean valid() {
         boolean valid = true;
-        if (firstName.getText().toString().trim().length() == 0) {
-            firstName.setError(context.getResources().getString(R.string.field_empty));
+
+        String first = firstName.getText().toString().trim();
+        if (first.length() > 12 || !first.matches("[a-zA-Z]+")) {
+            firstName.setError(context.getResources().getString(R.string.name_format));
             valid = false;
         } else {
             firstName.setError(null);
         }
 
-        if (lastName.getText().toString().trim().length() == 0) {
-            lastName.setError(context.getResources().getString(R.string.field_empty));
+        String last = lastName.getText().toString().trim();
+        if (last.length() > 12 || !last.matches("[a-zA-Z]+")) {
+            lastName.setError(context.getResources().getString(R.string.name_format));
             valid = false;
         } else {
             lastName.setError(null);
@@ -113,15 +116,17 @@ public class CreateClientDialog extends Dialog {
             cityTown.setError(null);
         }
 
-        if (state.getText().toString().trim().length() == 0) {
-            state.setError(context.getResources().getString(R.string.field_empty));
+        String stateString = state.getText().toString().trim();
+        if (stateString.length() != 2 || !stateString.matches("[a-zA-Z]+")) {
+            state.setError(context.getResources().getString(R.string.state_format));
             valid = false;
         } else {
             state.setError(null);
         }
 
-        if (zipCode.getText().toString().trim().length() == 0) {
-            zipCode.setError(context.getResources().getString(R.string.field_empty));
+        String zip = zipCode.getText().toString().trim();
+        if (zip.length() != 5 || !zip.matches("[0-9]+")) {
+            zipCode.setError(context.getResources().getString(R.string.zip_format));
             valid = false;
         } else {
             zipCode.setError(null);
@@ -151,12 +156,12 @@ public class CreateClientDialog extends Dialog {
                     Log.d("dbg", "@CreateClientDialog: result is: " + result.toJson());
 
                     // save client locally
-                    try{
+                    try {
                         Client newClient = new Client(result);
                         newClient.cascadeSave();
                         noError = true;
                         return;
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     noError = false;
@@ -173,14 +178,13 @@ public class CreateClientDialog extends Dialog {
             e.printStackTrace();
         }
 
-        if (noError){
+        if (noError) {
             // reload once creating the client has been completed
             Intent reload = new Intent(context, ClientManagerActivity.class);
             reload.setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             context.startActivity(reload);
-        }
-        else{
-            Toast.makeText(context, R.string.error_check_fields,  Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(context, R.string.error_check_fields, Toast.LENGTH_LONG).show();
         }
     }
 }

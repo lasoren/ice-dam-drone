@@ -11,22 +11,24 @@
         android:fadeScrollbars="true"
         android:scrollbars="vertical"/>
 
-    <TextView
-        android:id="@+id/no_past_inspections_text"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
-        android:text="@string/no_past_inspections"
-        android:textAlignment="center"
-        android:textSize="18sp"/>
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/start_inspection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/no_past_inspections_text"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:text="@string/start_inspection"/>
+        <include
+            android:id="@+id/general_message_layout"
+            layout="@layout/element_general_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/start_inspection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start_inspection"/>
+    </LinearLayout>
 </RelativeLayout>

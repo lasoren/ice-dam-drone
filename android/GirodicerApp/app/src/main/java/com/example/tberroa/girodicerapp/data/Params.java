@@ -54,7 +54,8 @@ public class Params {
     final public static int CI_UPLOADING = 3;
 
     // UI parameters
-    final public static String RELOAD = "reload"; // action added to intents to reload activities without animation
+    final public static String RELOAD = "reload"; // reload activities without animation
+    final public static String START_INSPECTION = "start_inspection";
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";
     final public static String ICEDAM_TAB = "icedam";

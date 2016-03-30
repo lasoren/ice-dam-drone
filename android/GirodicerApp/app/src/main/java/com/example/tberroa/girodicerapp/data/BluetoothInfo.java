@@ -25,15 +25,15 @@ public class BluetoothInfo extends Application {
         return getSharedPreferences(context).getInt(ERROR_CODE, 0);
     }
 
-    public void setState(Context context, int phase) {
+    public void setState(Context context, int state) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(STATE, phase);
+        editor.putInt(STATE, state);
         editor.apply();
     }
 
-    public void setErrorCode(Context context, int phase) {
+    public void setErrorCode(Context context, int code) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(ERROR_CODE, phase);
+        editor.putInt(ERROR_CODE, code);
         editor.apply();
     }
 }

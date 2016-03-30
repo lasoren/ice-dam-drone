@@ -47,7 +47,8 @@ public class PastInspectionsActivity extends BaseActivity {
         navigationView.inflateMenu(R.menu.nav_client_inspections);
 
         // initialize ui elements, these only appear if there are no past inspections to show
-        TextView noInspectionsText = (TextView) findViewById(R.id.no_past_inspections_text);
+        TextView noInspectionsText = (TextView) findViewById(R.id.general_message);
+        noInspectionsText.setText(R.string.no_past_inspections);
         noInspectionsText.setVisibility(View.GONE);
         Button startInspectionButton = (Button) findViewById(R.id.start_inspection);
         startInspectionButton.setOnClickListener(new View.OnClickListener() {

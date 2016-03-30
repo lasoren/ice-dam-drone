@@ -6,8 +6,7 @@
             <menu>
                 <item
                     android:id="@+id/sign_out"
-                    android:title="@string/sign_out"
-                    />
+                    android:title="@string/sign_out"/>
             </menu>
         </item>
     </group>
@@ -16,8 +15,7 @@
         <menu>
             <item
                 android:id="@+id/add_client"
-                android:title="@string/add_client"
-                />
+                android:title="@string/add_client"/>
         </menu>
     </item>
 </menu>

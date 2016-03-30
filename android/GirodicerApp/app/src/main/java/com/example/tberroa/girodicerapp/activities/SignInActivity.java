@@ -103,7 +103,7 @@ public class SignInActivity extends AppCompatActivity {
             } else {
                 email.setError(null);
             }
-            if (response.contains("password")) {
+            if (response.contains("pass_word")) {
                 password.setError(getResources().getString(R.string.password_format));
             } else {
                 password.setError(null);

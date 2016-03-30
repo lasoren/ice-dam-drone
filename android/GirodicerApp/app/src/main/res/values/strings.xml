@@ -10,7 +10,7 @@
     <string name="confirm_password">Confirm password</string>
     <string name="email">Email</string>
     <!-- input validation -->
-    <string name="name_format">3 to 15 alphanumeric characters</string>
+    <string name="name_format">Up to 12 english letters</string>
     <string name="password_format">Between 6 and 20 characters</string>
     <string name="password_mismatch">Password mismatch</string>
     <string name="enter_valid_email">Enter a valid email address</string>
@@ -51,13 +51,15 @@
     <string name="state">State</string>
     <string name="zip_code">ZIP Code</string>
     <string name="field_empty">Field cannot be empty</string>
-    <string name="error_check_fields">Error occurred, please check fields and try again</string>
+    <string name="state_format">State must be 2 letters</string>
+    <string name="zip_format">ZIP Code must be 5 digits</string>
+    <string name="error_check_fields">Error occurred, please check fields and try again.</string>
     <!-- current inspection activity -->
     <string name="current_inspection_title">Current Inspection</string>
     <!-- 1st step: establish bluetooth connection -->
-    <string name="bte_not_enabled">Unable to connect to drone because bluetooth is not enabled</string>
-    <string name="bte_connect_failed">Failed to connect to drone</string>
-    <string name="bte_timeout_status">Timeout occurred while waiting for status signal</string>
+    <string name="bte_not_enabled">Unable to connect to drone because bluetooth is not enabled.</string>
+    <string name="bte_connect_failed">Failed to connect to drone.</string>
+    <string name="bte_timeout_status">Timeout occurred while waiting for initial status signal.</string>
     <string name="bts_connecting">Trying to connect to drone &#8230;</string>
     <string name="waiting_for_status">Waiting to receive initial status from drone &#8230;</string>
     <!-- 2nd step: establish house boundaries -->
@@ -78,7 +80,7 @@
 
     <!-- past inspections activity -->
     <string name="past_inspections_title">Past Inspections</string>
-    <string name="no_past_inspections">It seems there are no inspections for this client.</string>
+    <string name="no_past_inspections">There are no inspections for this client.</string>
 
     <!-- inspection activity -->
     <string name="inspection_title">Inspection</string>

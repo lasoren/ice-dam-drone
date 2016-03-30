@@ -25,7 +25,8 @@ import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.dialogs.ConfirmEndInspectionDialog;
+import com.example.tberroa.girodicerapp.dialogs.EndInspectionDialog;
+import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
@@ -254,7 +255,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 toggle.runWhenIdle(new Runnable() {
                     @Override
                     public void run() {
-                        // add client
+                        new CreateClientDialog(BaseActivity.this).show();
                     }
                 });
                 drawer.closeDrawers();
@@ -271,7 +272,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                             String message;
                             switch (inspectionPhase) {
                                 case 1:
-                                    new ConfirmEndInspectionDialog(BaseActivity.this).getDialog().show();
+                                    new EndInspectionDialog(BaseActivity.this).getDialog().show();
                                     break;
                                 case 2:
                                     message = getString(R.string.transfer_phase_text);

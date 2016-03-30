@@ -92,7 +92,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         Bundle enteredInfo = new Bundle();
         enteredInfo.putString("first_name", enteredFirstName);
-        enteredInfo.putString("last_ame", enteredLastName);
+        enteredInfo.putString("last_name", enteredLastName);
         enteredInfo.putString("password", enteredPassword);
         enteredInfo.putString("confirm_password", enteredConfirmPassword);
         enteredInfo.putString("email", enteredEmail);
@@ -106,12 +106,12 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 firstName.setError(null);
             }
-            if (string.contains("last_ame")) {
+            if (string.contains("last_name")) {
                 lastName.setError(getResources().getString(R.string.name_format));
             } else {
                 lastName.setError(null);
             }
-            if (string.contains("password")) {
+            if (string.contains("pass_word")) {
                 password.setError(getResources().getString(R.string.password_format));
             } else {
                 password.setError(null);

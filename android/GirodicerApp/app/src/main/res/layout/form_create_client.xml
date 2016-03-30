@@ -19,7 +19,7 @@
         android:focusable="true"
         android:hint="@string/first_name"
         android:imeOptions="actionNext"
-        android:inputType="textCapSentences"/>
+        android:inputType="textCapWords"/>
 
     <EditText
         android:id="@+id/last_name"
@@ -32,7 +32,7 @@
         android:focusable="true"
         android:hint="@string/last_name"
         android:imeOptions="actionNext"
-        android:inputType="textCapSentences"/>
+        android:inputType="textCapWords"/>
 
     <EditText
         android:id="@+id/email"
@@ -57,7 +57,7 @@
         android:focusable="true"
         android:hint="@string/street_address"
         android:imeOptions="actionNext"
-        android:inputType="text"/>
+        android:inputType="textCapWords"/>
 
     <EditText
         android:id="@+id/city_town"
@@ -70,7 +70,7 @@
         android:focusable="true"
         android:hint="@string/city_town"
         android:imeOptions="actionNext"
-        android:inputType="text"/>
+        android:inputType="textCapWords"/>
 
     <EditText
         android:id="@+id/state"
@@ -83,7 +83,7 @@
         android:focusable="true"
         android:hint="@string/state"
         android:imeOptions="actionNext"
-        android:inputType="text"
+        android:inputType="textCapCharacters"
         android:maxLength="2"/>
 
     <EditText
@@ -96,7 +96,7 @@
         android:focusable="true"
         android:hint="@string/zip_code"
         android:imeOptions="actionGo"
-        android:inputType="text"
+        android:inputType="number"
         android:maxLength="5"/>
 
     <Button

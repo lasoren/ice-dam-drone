@@ -8,11 +8,11 @@ import android.content.Intent;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
-public class ConfirmEndInspectionDialog extends AlertDialog {
+public class EndInspectionDialog extends AlertDialog {
 
     private final AlertDialog.Builder builder;
 
-    public ConfirmEndInspectionDialog(final Context context){
+    public EndInspectionDialog(final Context context){
         super(context);
 
         builder = new AlertDialog.Builder(context);
