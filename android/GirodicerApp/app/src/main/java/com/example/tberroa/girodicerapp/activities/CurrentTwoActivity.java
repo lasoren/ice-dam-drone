@@ -31,13 +31,10 @@ public class CurrentTwoActivity extends BaseActivity
         implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
-
     private Button next;
-
     private ArrayList<LatLng> houseBoundary;
     private LatLng home;
     private boolean pathFound = false;
-
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -58,7 +55,7 @@ public class CurrentTwoActivity extends BaseActivity
             finish();
             return;
         }
-        if (currentInspectionInfo.getPhase(this) == -1) { // already completed map phase
+        if (BluetoothService.mapPhaseComplete) {
             // go to next activity
             startActivity(new Intent(this, CurrentThreeActivity.class));
             finish();
@@ -151,7 +148,7 @@ public class CurrentTwoActivity extends BaseActivity
     }
 
     private void goToStatus() {
-        currentInspectionInfo.setPhase(this, -1);
+        BluetoothService.mapPhaseComplete = true;
         Intent status = new Intent(this, CurrentThreeActivity.class);
         startActivity(status);
         finish();

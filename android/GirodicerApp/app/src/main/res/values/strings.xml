@@ -40,12 +40,12 @@
     <!-- upon client selection, inspection related -->
     <string name="inspections">Inspections</string>
     <string name="end_inspection">End Inspection</string>
-    <string name="start_inspection">Start Inspection</string>
     <string name="current_inspection">Current Inspection</string>
     <string name="past_inspections">Past Inspections</string>
 
     <!-- client manager activity -->
     <string name="client_manager_title">Client Manager</string>
+    <string name="no_clients">You have no clients.</string>
     <string name="street_address">Street Address</string>
     <string name="city_town">City/Town</string>
     <string name="state">State</string>
@@ -81,6 +81,7 @@
     <!-- past inspections activity -->
     <string name="past_inspections_title">Past Inspections</string>
     <string name="no_past_inspections">There are no inspections for this client.</string>
+    <string name="begin_new_inspection">Begin New Inspection</string>
 
     <!-- inspection activity -->
     <string name="inspection_title">Inspection</string>

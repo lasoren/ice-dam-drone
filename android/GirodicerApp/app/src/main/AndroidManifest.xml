@@ -74,9 +74,6 @@
             android:name=".services.BluetoothService"
             android:exported="false" />
         <service
-            android:name=".services.DroneService"
-            android:exported="false" />
-        <service
             android:name=".services.ImageTransferIntentService"
             android:exported="false" />
         <service

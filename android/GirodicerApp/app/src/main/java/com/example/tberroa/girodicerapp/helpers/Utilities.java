@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.activities.CurrentOneActivity;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
@@ -18,8 +16,6 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.database.TestCase;
-import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 
 import java.io.File;
@@ -150,24 +146,6 @@ final public class Utilities {
         return validation;
     }
 
-    public static void attemptInspectionStart(Context context) {
-
-        PastInspectionsInfo pMInfo = new PastInspectionsInfo();
-        String message;
-        if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)) {
-            message = context.getResources().getString(R.string.past_inspections_not_up_to_date);
-            new MessageDialog(context, message).getDialog().show();
-        } else if (!new CurrentInspectionInfo().isNotInProgress(context)) {
-            message = context.getResources().getString(R.string.inspection_in_progress);
-            new MessageDialog(context, message).getDialog().show();
-        } else {
-            context.startActivity(new Intent(context, CurrentOneActivity.class).setAction(Params.START_INSPECTION));
-            if (context instanceof Activity) {
-                ((Activity) context).finish();
-            }
-        }
-    }
-
     public static void signIn(Context context, DroneOperator operator) {
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
@@ -182,7 +160,9 @@ final public class Utilities {
         operator.cascadeSave();
 
         // populate test database using real operator account (TEST CODE)
-        new TestCase().Create(operator);
+        //new TestCase().Create(operator);
+
+        // say that inspection stuff is up to date (this will be unneeded later)
         new PastInspectionsInfo().setUpToDate(context, true); // TEST CODE!
 
         // update user sign in status

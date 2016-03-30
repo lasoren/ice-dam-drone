@@ -65,19 +65,19 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         if (BluetoothService.notRunning(this) && BluetoothService.serviceRunning) {
             Log.d("dbg", "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
 
-            // update variables
-            BluetoothService.needInitialStatus = true;
-            BluetoothService.serviceRunning = false;
-
-            // reset state
-            bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
-            BluetoothService.currentStatus = null;
+            // shutdown connection thread
             if (BluetoothService.btConnectionThread != null) {
                 BluetoothService.btConnectionThread.shutdown();
             }
 
-            // also reset current inspection info, most current inspection processing is bluetooth dependent
-            currentInspectionInfo.clearAll(this);
+            // reset state
+            bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+
+            // update variables
+            BluetoothService.needInitialStatus = true;
+            BluetoothService.mapPhaseComplete = false;
+            BluetoothService.serviceRunning = false;
+            BluetoothService.currentStatus = null;
         }
 
         // set up receiver to reload activity upon system updates
@@ -284,15 +284,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                                     break;
                             }
                         }
-                    }
-                });
-                drawer.closeDrawers();
-                break;
-            case R.id.start_inspection:
-                toggle.runWhenIdle(new Runnable() {
-                    @Override
-                    public void run() {
-                        Utilities.attemptInspectionStart(BaseActivity.this);
                     }
                 });
                 drawer.closeDrawers();

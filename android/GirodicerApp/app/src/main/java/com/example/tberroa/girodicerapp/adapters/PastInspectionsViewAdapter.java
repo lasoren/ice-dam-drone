@@ -55,8 +55,8 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
             // start inspection activity
             context.startActivity(new Intent(v.getContext(), InspectionActivity.class));
-            if(context instanceof Activity){
-                ((Activity)context).finish();
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
             }
         }
     }

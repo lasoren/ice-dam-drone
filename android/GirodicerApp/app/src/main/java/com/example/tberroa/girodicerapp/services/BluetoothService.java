@@ -22,6 +22,7 @@ import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
+import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
@@ -46,6 +47,7 @@ public class BluetoothService extends Service {
     @SuppressWarnings("unused")
     public static boolean needInitialStatus = true;
     public static ArrayList<LatLng> houseBoundary;
+    public static boolean mapPhaseComplete = false;
     public static Status currentStatus;
     public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
@@ -222,18 +224,25 @@ public class BluetoothService extends Service {
     public void onDestroy() {
         Log.d("dbg", "@BluetoothService: service destroyed");
 
-        bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
-        currentStatus = null;
+        // shutdown connection thread
         if (btConnectionThread != null){
             btConnectionThread.shutdown();
         }
+
+        // reset state
+        bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
+
+        // update variables
+        needInitialStatus = true;
+        mapPhaseComplete = false;
+        serviceRunning = false;
+        currentStatus = null;
+
+        // unregister receiver (this can leak because onDestroy not guaranteed, will fix later)
         unregisterReceiver(btReceiver);
 
-        // also reset current inspection info, most current inspection processing is bluetooth dependent
-        new CurrentInspectionInfo().clearAll(this);
-
-        needInitialStatus = true;
-        serviceRunning = false;
+        // TEST CODE
+        droneDone();
     }
 
     // if android system kills service, onDestroy is not called. This method allows us to check if service is running
@@ -245,6 +254,22 @@ public class BluetoothService extends Service {
             }
         }
         return true;
+    }
+
+    private void droneStarted(){
+        // inspection is now in progress
+        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+        currentInspectionInfo.setNotInProgress(this, false);
+
+        // drone is active, phase=1
+        currentInspectionInfo.setPhase(this, 1);
+
+        // save client id
+        currentInspectionInfo.setClientId(this, new ClientId().get(this));
+    }
+
+    private void droneDone(){
+        sendBroadcast(new Intent().setAction(Params.DRONE_DONE));
     }
 
     // not used so returns null
@@ -262,6 +287,9 @@ public class BluetoothService extends Service {
             switch (incoming.what) {
                 case CONNECT_ATTEMPT_SUCCESS: // successfully connected to drone via bluetooth device
                     Log.d("dbg", "@BluetoothService: connect attempt successful");
+
+                    // drone has started inspection, set initializations (TEST CODE, THIS WILL LIKELY BE MOVED/DELETED)
+                    droneStarted();
 
                     // let system know that bluetooth was successfully connected
                     bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTED);

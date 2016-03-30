@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.adapters.ClientManagerViewAdapter;
@@ -42,7 +43,10 @@ public class ClientManagerActivity extends BaseActivity {
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_manager);
 
-        // declare and initialize button
+        // declare and initialize ui elements
+        TextView noClients = (TextView) findViewById(R.id.general_message);
+        noClients.setText(R.string.no_clients);
+        noClients.setVisibility(View.GONE);
         FloatingActionButton createClientButton = (FloatingActionButton) findViewById(R.id.create_client);
         createClientButton.setOnClickListener(createClientButtonListener);
 
@@ -54,9 +58,13 @@ public class ClientManagerActivity extends BaseActivity {
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
         // populate view
-        ClientManagerViewAdapter clientManagerViewAdapter;
-        clientManagerViewAdapter = new ClientManagerViewAdapter(this, clients);
-        recyclerView.setAdapter(clientManagerViewAdapter);
+        if (!clients.isEmpty()){
+            ClientManagerViewAdapter clientManagerViewAdapter;
+            clientManagerViewAdapter = new ClientManagerViewAdapter(this, clients);
+            recyclerView.setAdapter(clientManagerViewAdapter);
+        }else{
+            noClients.setVisibility(View.VISIBLE);
+        }
     }
 
     private final View.OnClickListener createClientButtonListener = new View.OnClickListener() {

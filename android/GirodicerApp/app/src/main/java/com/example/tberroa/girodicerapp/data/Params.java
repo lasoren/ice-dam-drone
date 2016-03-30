@@ -24,7 +24,6 @@ public class Params {
     final public static String HOUSE_BOUNDARY_RECEIVED = "HOUSE_BOUNDARY_RECEIVED";
     final public static String STATUS_UPDATE = "STATUS_UPDATE";
     // inspection phase related
-    final public static String INSPECTION_STARTED = "INSPECTION_STARTED";
     final public static String DRONE_DONE = "DRONE_DONE";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
     final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
@@ -55,7 +54,6 @@ public class Params {
 
     // UI parameters
     final public static String RELOAD = "reload"; // reload activities without animation
-    final public static String START_INSPECTION = "start_inspection";
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";
     final public static String ICEDAM_TAB = "icedam";
@@ -70,8 +68,19 @@ public class Params {
     final public static String GOOGLE_STATIC_MAPS_URL = "https://maps.googleapis.com/maps/api/staticmap?";
     final public static String GOOGLE_STATIC_MAPS_KEY = "AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc";
 
-    // parameters connected to backend
+    // parameters connected to the backend
     final public static String BASE_URL = "http://ec2-54-86-133-171.compute-1.amazonaws.com:8000/";
+    // image types
+    final public static int NOT_SPECIFIED = 1;
+    final public static int ROOF_EDGE = 2;
+    final public static int THERMAL = 3;
+    final public static int AERIAL = 4;
+    // treatment options
+    final public static int NOTHING_DONE = 1;
+    final public static int SALTED_BY_DRONE = 2;
+    final public static int POWER_WASHED = 3;
+    final public static int ICE_PICKED = 4;
+    final public static int OTHER = 5;
 }
 
 

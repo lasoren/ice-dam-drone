@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.dialogs;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -183,6 +184,9 @@ public class CreateClientDialog extends Dialog {
             Intent reload = new Intent(context, ClientManagerActivity.class);
             reload.setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             context.startActivity(reload);
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
+            }
         } else {
             Toast.makeText(context, R.string.error_check_fields, Toast.LENGTH_LONG).show();
         }

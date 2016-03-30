@@ -54,7 +54,8 @@ public class PastInspectionsActivity extends BaseActivity {
         startInspectionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utilities.attemptInspectionStart(PastInspectionsActivity.this);
+                startActivity(new Intent(PastInspectionsActivity.this, CurrentOneActivity.class));
+                finish();
             }
         });
         startInspectionButton.setVisibility(View.GONE);

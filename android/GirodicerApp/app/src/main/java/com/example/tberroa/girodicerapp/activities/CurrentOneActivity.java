@@ -71,9 +71,6 @@ public class CurrentOneActivity extends BaseActivity {
             startActivity(new Intent(this, CurrentTwoActivity.class));
             finish();
             return;
-        } else if (action != null && action.equals(Params.START_INSPECTION)) {
-            // start connection process if coming from a start inspection button
-            start();
         }
 
         // attach onclick listener to buttons
