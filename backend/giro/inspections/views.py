@@ -69,23 +69,24 @@ class InspectionsGet(APIView):
     """
     Get all new or updated inspections for an operator account.
     """
-    if "provision" not in request.data:
-        raise exceptions.RequiredFieldMissing(
-            'Provision field missing.')
-    try:
-        next_provision = InspectionProvision.objects.latest('id').id + 1
-    except InspectionProvision.DoesNotExist:
-        next_provision = 0
-    response = {'provision': next_provision}
+    def post(self, request, format=None):
+        if "provision" not in request.data:
+            raise exceptions.RequiredFieldMissing(
+                'Provision field missing.')
+        try:
+            next_provision = InspectionProvision.objects.latest('id').id + 1
+        except InspectionProvision.DoesNotExist:
+            next_provision = 0
+        response = {'provision': next_provision}
 
-    inspection_provisions = InspectionProvision.objects.filter(
-        id_gt=request.data["provision"]
-    ).select_related(
-        'inspection', 'inspection__drone_operator'
-    ).filter(inspection__drone_operator__pk=request.data["user_id"])
+        inspection_provisions = InspectionProvision.objects.filter(
+            id__gt=request.data["provision"]
+        ).select_related(
+            'inspection', 'inspection__drone_operator'
+        ).filter(inspection__drone_operator__pk=request.data["user_id"])
 
-    inspections = []
-    for inspection_provision in inspection_provisions:
-        inspections.append(inspection_provision.inspection)
-    response["inspections"] = InspectionSerializer(inspections, many=True).data
-    return Response(response, status=status.HTTP_200_OK)
+        inspections = []
+        for inspection_provision in inspection_provisions:
+            inspections.append(inspection_provision.inspection)
+        response["inspections"] = InspectionSerializer(inspections, many=True).data
+        return Response(response, status=status.HTTP_200_OK)
