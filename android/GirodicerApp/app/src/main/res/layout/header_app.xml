@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/header"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <include
+        android:id="@+id/toolbar_layout"
+        layout="@layout/element_toolbar"/>
+
+    <include
+        android:id="@+id/tab_bar_layout"
+        layout="@layout/element_tab_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar_layout"/>
+
+    <include
+        android:id="@+id/notification_bar_layout"
+        layout="@layout/element_notification_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tab_bar_layout"/>
+</RelativeLayout>

@@ -8,18 +8,18 @@ import android.widget.Button;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 
-public class ConfirmEmailActivity extends AppCompatActivity {
+public class PostRegisterActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_confirm_email);
+        setContentView(R.layout.activity_post_register);
 
         Button okayButton = (Button) findViewById(R.id.okay_confirm);
         okayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Utilities.signOut(ConfirmEmailActivity.this);
+                Utilities.signOut(PostRegisterActivity.this);
             }
         });
     }

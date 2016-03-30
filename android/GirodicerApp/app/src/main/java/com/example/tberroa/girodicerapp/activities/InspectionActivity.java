@@ -2,24 +2,17 @@ package com.example.tberroa.girodicerapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.InspectionId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.google.gson.Gson;
@@ -29,7 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class InspectionActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class InspectionActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +30,9 @@ public class InspectionActivity extends BaseActivity implements NavigationView.O
         setContentView(R.layout.activity_inspection);
         LocalDB localDB = new LocalDB();
 
-        if (getIntent().getAction() != null){
+        // no animation if starting due to a reload
+        String action = getIntent().getAction();
+        if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
         }
 
@@ -51,7 +46,8 @@ public class InspectionActivity extends BaseActivity implements NavigationView.O
         List<InspectionImage> saltImages = localDB.getInspectionImages(inspection, "salt");
 
         // serialize the inspection images
-        Type inspectionImagesList = new TypeToken<List<InspectionImage>>(){}.getType();
+        Type inspectionImagesList = new TypeToken<List<InspectionImage>>() {
+        }.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String aerialImagesJson = gson.toJson(aerialImages, inspectionImagesList);
         String thermalImagesJson = gson.toJson(thermalImages, inspectionImagesList);
@@ -65,11 +61,13 @@ public class InspectionActivity extends BaseActivity implements NavigationView.O
         inspectionImages.putString("icedam_images_json", iceDamImagesJson);
         inspectionImages.putString("salt_images_json", saltImagesJson);
 
-        // set toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Inspection " + Integer.toString(inspection.id));
-        setSupportActionBar(toolbar);
-        toolbar.setVisibility(View.VISIBLE);
+        // set toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.inspection_title) + " " + Integer.toString(inspection.id));
+        }
+
+        // set navigation menu
+        navigationView.inflateMenu(R.menu.nav_client_inspections);
 
         // set tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
@@ -78,23 +76,7 @@ public class InspectionActivity extends BaseActivity implements NavigationView.O
         tabLayout.addTab(tabLayout.newTab().setText(Params.ICEDAM_TAB));
         tabLayout.addTab(tabLayout.newTab().setText(Params.SALT_TAB));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabLayout.setVisibility(View.VISIBLE);
-
-        // initialize drawer layout
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
-        // initialize navigation view
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        // initialize text view within drawer navigation
-        View headerLayout = navigationView.getHeaderView(0);
-        TextView operatorName = (TextView) headerLayout.findViewById(R.id.operator_name);
-        operatorName.setText(new LocalDB().getOperator().user.first_name);
+        tabLayout.setVisibility(View.VISIBLE); // set to GONE in XML layout for clarity
 
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
@@ -122,14 +104,11 @@ public class InspectionActivity extends BaseActivity implements NavigationView.O
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, PastInspectionsActivity.class));
-        finish();
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return (Utilities.inspectionMenu(item.getItemId(), this)) || super.onOptionsItemSelected(item);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            startActivity(new Intent(this, PastInspectionsActivity.class));
+            finish();
+        }
     }
 }

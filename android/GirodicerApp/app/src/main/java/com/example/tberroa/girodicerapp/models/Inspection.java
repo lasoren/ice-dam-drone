@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "Inspection")
 public class Inspection extends Model {
 
@@ -47,7 +48,7 @@ public class Inspection extends Model {
         this.deleted = deleted;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.drone_operator.save();
         this.client.save();
         this.save();

@@ -23,10 +23,7 @@ class Girodicer():
         else:
             self.lidar = None
         print "Initializing bluetooth"
-        self.blue = blue.Blue(self.eventQueue, debug)
-        # print "Initializing Lidar"
-        # self.lidar = lidar.Lidar()
-        # self.lidar.start()
+        self.blue = blue.Blue(self.eventQueue)
 
     def arm_vehicle(self, mode):
         """

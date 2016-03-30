@@ -33,6 +33,7 @@ public class LocalDB {
     public List<Client> getClients(){
         return new Select()
                 .from(Client.class)
+                .orderBy("client_id DESC")
                 .execute();
     }
 

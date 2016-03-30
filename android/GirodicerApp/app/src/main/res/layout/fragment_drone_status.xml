@@ -1,4 +1,5 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -13,15 +14,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Location:"/>
+            android:text="@string/status_location"/>
 
         <TextView
+            android:id="@+id/status_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="(Lat,Lng)"
-            android:id="@+id/status_location"/>
+            android:gravity="end"
+            android:text="@string/status_location_unit"/>
     </LinearLayout>
 
     <LinearLayout
@@ -34,15 +35,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Velocity:"/>
+            android:text="@string/status_velocity"/>
 
         <TextView
+            android:id="@+id/status_velocity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="inf m/s"
-            android:id="@+id/status_velocity"/>
+            android:gravity="end"
+            android:text="@string/status_velocity_unit"/>
     </LinearLayout>
 
     <LinearLayout
@@ -55,15 +56,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="State:"/>
+            android:text="@string/status_state"/>
 
         <TextView
+            android:id="@+id/status_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="0xf8"
-            android:id="@+id/status_state"/>
+            android:gravity="end"
+            android:text="@string/status_state_placeholder"/>
     </LinearLayout>
 
     <LinearLayout
@@ -76,17 +77,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Armable:"/>
+            android:text="@string/status_armable"/>
 
         <TextView
+            android:id="@+id/status_armable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="true"
-            android:id="@+id/status_armable"/>
+            android:gravity="end"
+            android:text="@string/status_armable_placeholder"/>
     </LinearLayout>
-
-
-
 </LinearLayout>

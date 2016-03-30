@@ -1,4 +1,4 @@
-package com.example.tberroa.girodicerapp.models;
+package com.example.tberroa.girodicerapp.bluetooth;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,10 +8,10 @@ import com.google.android.gms.maps.model.LatLng;
 import java.nio.ByteBuffer;
 
 public class Status implements Parcelable {
-    public LatLng location;
-    public Double velocity;
-    public byte state;
-    public int armable;
+    public final LatLng location;
+    public final Double velocity;
+    public final byte state;
+    public final int armable;
 
     protected Status(Parcel in) {
         location = in.readParcelable(LatLng.class.getClassLoader());

@@ -20,9 +20,4 @@
                 />
         </menu>
     </item>
-
-    <item
-        android:id="@+id/plot_twist"
-        android:title="Plot Twist"
-        />
 </menu>

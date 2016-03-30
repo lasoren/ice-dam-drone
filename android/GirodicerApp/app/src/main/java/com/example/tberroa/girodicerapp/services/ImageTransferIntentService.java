@@ -8,7 +8,7 @@ import android.os.Environment;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 
 import java.io.File;
@@ -24,8 +24,8 @@ public class ImageTransferIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // inspection in transfer phase, phase=2
-        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
-        activeInspectionInfo.setPhase(this, 2);
+        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+        currentInspectionInfo.setPhase(this, 2);
 
         // broadcast that transfer phase has begun
         Intent transferStarted = new Intent();
@@ -33,7 +33,7 @@ public class ImageTransferIntentService extends IntentService {
         sendBroadcast(transferStarted);
 
         // get inspection id
-        int inspectionId = activeInspectionInfo.getInspectionId(this);
+        int inspectionId = currentInspectionInfo.getInspectionId(this);
 
         // get today's date (TEST CODE, date format will be different in live code)
         //String date = new SimpleDateFormat("MM/dd/yyyy").format(new Date());
@@ -106,13 +106,13 @@ public class ImageTransferIntentService extends IntentService {
                 }
             }
             // save id of last download
-            activeInspectionInfo.setLastDownload(this, lastDownload);
+            currentInspectionInfo.setLastDownload(this, lastDownload);
         }
         // save the inspection images count
-        activeInspectionInfo.setAerialCount(this, numberOfAerials);
-        activeInspectionInfo.setThermalCount(this, numberOfThermals);
-        activeInspectionInfo.setIceDamCount(this, numberOfIceDams);
-        activeInspectionInfo.setSaltCount(this, numberOfSalts);
+        currentInspectionInfo.setAerialCount(this, numberOfAerials);
+        currentInspectionInfo.setThermalCount(this, numberOfThermals);
+        currentInspectionInfo.setIceDamCount(this, numberOfIceDams);
+        currentInspectionInfo.setSaltCount(this, numberOfSalts);
 
         // broadcast that the transfer is complete
         sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));

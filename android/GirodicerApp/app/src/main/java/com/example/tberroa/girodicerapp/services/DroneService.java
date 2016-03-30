@@ -6,7 +6,7 @@ import android.os.IBinder;
 
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 
 public class DroneService extends Service {
@@ -14,20 +14,20 @@ public class DroneService extends Service {
     @Override
     public void onCreate(){
         // inspection is now in progress
-        ActiveInspectionInfo activeInspectionInfo = new ActiveInspectionInfo();
-        activeInspectionInfo.setNotInProgress(this, false);
+        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+        currentInspectionInfo.setNotInProgress(this, false);
 
         // drone is active, phase=1
-        activeInspectionInfo.setPhase(this, 1);
+        currentInspectionInfo.setPhase(this, 1);
 
         // get id of most recent inspection
         int mostRecentId = new PastInspectionsInfo().getMostRecentId(this);
 
         // save client id
-        activeInspectionInfo.setClientId(this, new ClientId().get(this));
+        currentInspectionInfo.setClientId(this, new ClientId().get(this));
 
         // save inspection id
-        activeInspectionInfo.setInspectionId(this, mostRecentId + 1);
+        currentInspectionInfo.setInspectionId(this, mostRecentId + 1);
 
         // broadcast that a new inspection has started
         Intent inspectionStarted = new Intent();

@@ -19,7 +19,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
-import com.example.tberroa.girodicerapp.activities.DroneActivity;
+import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 
 public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -28,13 +28,13 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
 
 
-    private BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
+    private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String frag = intent.getStringExtra(DroneActivity.WHICH_FRAG);
+            String frag = intent.getStringExtra(CurrentThreeActivity.WHICH_FRAG);
 
             if(frag.equals(DroneStateFragment.class.getName())){
-                LatLng currentLocation = intent.getParcelableExtra(DroneActivity.LOCATION_PACKAGE);
+                LatLng currentLocation = intent.getParcelableExtra(CurrentThreeActivity.LOCATION_PACKAGE);
                 if(currentLocation != null)
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
             }
@@ -69,12 +69,7 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onResume() {
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, new IntentFilter(DroneActivity.DRONE_ACTIVITY_BROADCAST));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST));
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 }

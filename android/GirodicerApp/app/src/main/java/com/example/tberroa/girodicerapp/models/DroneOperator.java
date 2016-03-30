@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "DroneOperator")
 public class DroneOperator extends Model {
 
@@ -42,7 +43,7 @@ public class DroneOperator extends Model {
         this.session_id = session_id;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.user.save();
         this.save();
     }
