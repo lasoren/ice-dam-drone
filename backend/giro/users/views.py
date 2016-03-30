@@ -136,7 +136,7 @@ class ClientsGet(APIView):
         response = {'provision': next_provision}
 
         client_provisions = ClientProvision.objects.filter(
-            id__gt=request.data["provision"]
+            id__gte=request.data["provision"]
         ).select_related(
             'client'
         ).prefetch_related(

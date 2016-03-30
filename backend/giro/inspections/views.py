@@ -80,7 +80,7 @@ class InspectionsGet(APIView):
         response = {'provision': next_provision}
 
         inspection_provisions = InspectionProvision.objects.filter(
-            id__gt=request.data["provision"]
+            id__gte=request.data["provision"]
         ).select_related(
             'inspection', 'inspection__drone_operator'
         ).filter(inspection__drone_operator__pk=request.data["user_id"])
@@ -89,4 +89,32 @@ class InspectionsGet(APIView):
         for inspection_provision in inspection_provisions:
             inspections.append(inspection_provision.inspection)
         response["inspections"] = InspectionSerializer(inspections, many=True).data
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InspectionImagesGet(APIView):
+    """
+    Get all new or updated inspection images for an operator account.
+    """
+    def post(self, request, format=None):
+        if "provision" not in request.data:
+            raise exceptions.RequiredFieldMissing(
+                'Provision field missing.')
+        try:
+            next_provision = InspectionImageProvision.objects.latest('id').id + 1
+        except InspectionImageProvision.DoesNotExist:
+            next_provision = 0
+        response = {'provision': next_provision}
+
+        inspection_image_provisions = InspectionImageProvision.objects.filter(
+            id__gte=request.data["provision"]
+        ).select_related(
+            'inspection_image', 'inspection_image__inspection__drone_operator'
+        ).filter(inspection_image__inspection__drone_operator__pk=request.data["user_id"])
+
+        inspection_images = []
+        for inspection_image_provision in inspection_image_provisions:
+            inspection_images.append(inspection_image_provision.inspection_image)
+        response["inspection_images"] = InspectionImageSerializer(
+            inspection_images, many=True).data
         return Response(response, status=status.HTTP_200_OK)

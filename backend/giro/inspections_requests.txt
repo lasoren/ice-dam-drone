@@ -88,7 +88,7 @@ Request:
 {
     "user_id": 1,
     "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
-    "provision": 2
+    "provision": 3
 }
 
 Response:
@@ -134,3 +134,39 @@ Response:
     "provision": 5
 }
 
+// ------------------------------------------------------
+// GET MY INSPECTION IMAGES THAT ARE NEW OR UPDATED
+
+url POST: /inspections/images/get
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "provision": 9
+}
+
+Response:
+{
+    "provision": 11,
+    "inspection_images": [
+        {
+            "id": 33,
+            "created": "2016-03-02T04:58:08.443031",
+            "taken": "2016-02-24T22:09:05",
+            "inspection_id": 9,
+            "image_type": 2,
+            "path": "mb4tc8/m8ppx5",
+            "deleted": null
+        },
+        {
+            "id": 34,
+            "created": "2016-03-02T04:58:08.447626",
+            "taken": "2016-02-24T22:09:05",
+            "inspection_id": 9,
+            "image_type": 3,
+            "path": "mb4tc8/m2x78y",
+            "deleted": null
+        }
+    ]
+}
