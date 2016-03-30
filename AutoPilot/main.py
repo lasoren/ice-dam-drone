@@ -6,7 +6,6 @@ def bluetoothConnected():
     print "Bluetooth Connected"
     iceCutter.get_status()
 
-
 def bluetoothDisconnected():
     print "Bluetooth Disconnected"
     iceCutter.return_to_launch()
@@ -42,6 +41,9 @@ def handleRoofFinished():
     # start analysis of images, land, and send pictures
     iceCutter.return_to_launch()
 
+def bluetoothSendStatus():
+    iceCutter.get_status()
+
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
@@ -59,6 +61,7 @@ eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
 eventQueue.addEventCallback(handleRoofFinished, EventHandler.SCAN_ROOF_FINISHED)
 eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
+eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STATUS)
 
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)

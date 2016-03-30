@@ -360,12 +360,12 @@ class GirodicerCamera(threading.Thread):
 
     On stop this class will return the folder where pictures were saved to
     """
-
     def __init__(self, vehicle):
         super(GirodicerCamera, self).__init__()
         self.vehicle = vehicle
         self.__stopped = threading.Event()
-        self.folder = str(datetime.datetime.now())
+        #self.folder = str(datetime.datetime.now())
+        self.folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb')
         os.makedirs(self.folder)
 
     def run(self):
@@ -388,7 +388,8 @@ class GirodicerThermal():
     command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', 'out%d.jpg']
 
     def __init__(self):
-        self.folder = str(datetime.datetime.now()) + "_thermal"
+        #self.folder = str(datetime.datetime.now()) + "_thermal"
+        self.folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal')
         os.makedirs(self.folder)
         self.up = os.system("ping -c 1" + self.camera_ip)
 
