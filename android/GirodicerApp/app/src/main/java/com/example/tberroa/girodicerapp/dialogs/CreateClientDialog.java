@@ -93,7 +93,7 @@ public class CreateClientDialog extends Dialog {
 
         String emailString = email.getText().toString().trim();
         if (emailString.length() == 0 || !android.util.Patterns.EMAIL_ADDRESS.matcher(emailString).matches()) {
-            email.setError(context.getResources().getString(R.string.field_empty));
+            email.setError(context.getResources().getString(R.string.enter_valid_email));
             valid = false;
         } else {
             email.setError(null);
