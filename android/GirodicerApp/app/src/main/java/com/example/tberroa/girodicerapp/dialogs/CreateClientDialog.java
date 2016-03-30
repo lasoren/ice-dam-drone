@@ -4,12 +4,14 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
@@ -18,12 +20,11 @@ import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.example.tberroa.girodicerapp.models.Client;
 
-import java.util.List;
-
 public class CreateClientDialog extends Dialog {
 
     private final Context context;
     private EditText firstName, lastName, email, streetAddress, cityTown, state, zipCode;
+    private boolean noError = true;
 
     public CreateClientDialog(Context context) {
         super(context);
@@ -49,7 +50,7 @@ public class CreateClientDialog extends Dialog {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validateEntry()) {
+                if (valid()) {
                     createClient();
                 }
             }
@@ -61,7 +62,7 @@ public class CreateClientDialog extends Dialog {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    if (validateEntry()) {
+                    if (valid()) {
                         createClient();
                     }
                     handled = true;
@@ -74,46 +75,110 @@ public class CreateClientDialog extends Dialog {
         setCancelable(true);
     }
 
-    private boolean validateEntry() {
-        // validate here
-        return true;
+    private boolean valid() {
+        boolean valid = true;
+        if (firstName.getText().toString().trim().length() == 0) {
+            firstName.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            firstName.setError(null);
+        }
+
+        if (lastName.getText().toString().trim().length() == 0) {
+            lastName.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            lastName.setError(null);
+        }
+
+        String emailString = email.getText().toString().trim();
+        if (emailString.length() == 0 || !android.util.Patterns.EMAIL_ADDRESS.matcher(emailString).matches()) {
+            email.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            email.setError(null);
+        }
+
+        if (streetAddress.getText().toString().trim().length() == 0) {
+            streetAddress.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            streetAddress.setError(null);
+        }
+
+        if (cityTown.getText().toString().trim().length() == 0) {
+            cityTown.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            cityTown.setError(null);
+        }
+
+        if (state.getText().toString().trim().length() == 0) {
+            state.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            state.setError(null);
+        }
+
+        if (zipCode.getText().toString().trim().length() == 0) {
+            zipCode.setError(context.getResources().getString(R.string.field_empty));
+            valid = false;
+        } else {
+            zipCode.setError(null);
+        }
+        return valid;
     }
 
     private void createClient() {
-        String firstName = this.firstName.getText().toString();
-        String lastName = this.lastName.getText().toString();
-        String email = this.email.getText().toString();
-        String streetAddress = this.streetAddress.getText().toString();
-        String cityTown = this.cityTown.getText().toString();
-        String state = this.state.getText().toString();
-        String zipCode = this.zipCode.getText().toString();
+        final String firstName = this.firstName.getText().toString().trim();
+        String lastName = this.lastName.getText().toString().trim();
+        String email = this.email.getText().toString().trim();
+        String streetAddress = this.streetAddress.getText().toString().trim().replaceAll(" ", "+");
+        String cityTown = this.cityTown.getText().toString().trim();
+        String state = this.state.getText().toString().trim();
+        String zipCode = this.zipCode.getText().toString().trim();
         String address = streetAddress + "+" + cityTown + "+" + state + "+" + zipCode;
 
-        // networking needs to be run in background
+        // create initial client object
         final Client client = new Client(firstName, lastName, email, address);
+        // backend request needs to be run in background
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                new ServerDB().createClient(new LocalDB().getOperator(), client);
+                // create client on backend
+                Client result = new ServerDB().createClient(new LocalDB().getOperator(), client);
+                if (result != null) {
+                    Log.d("dbg", "@CreateClientDialog: result is: " + result.toJson());
 
-                // after client is created, get the client back from the server and save them locally
-                List<Client> clients = new ServerDB().getClients(new LocalDB().getOperator());
-                if (clients  != null && !clients.isEmpty()){
-                    clients.get(0).CascadeSave(); // get most recently created client and save them locally
+                    // save client locally
+                    try{
+                        Client newClient = new Client(result);
+                        newClient.cascadeSave();
+                        return;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    noError = false;
                 }
             }
         });
         thread.start();
 
+        // wait for backend request to complete before continuing (will change in the future, this is terrible i know)
         try {
             thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        // reload once creating the client has been completed
-        Intent reload = new Intent(context, ClientManagerActivity.class);
-        reload.setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        context.startActivity(reload);
+        if (noError){
+            // reload once creating the client has been completed
+            Intent reload = new Intent(context, ClientManagerActivity.class);
+            reload.setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            context.startActivity(reload);
+        }
+        else{
+            Toast.makeText(context, R.string.error_check_fields,  Toast.LENGTH_LONG).show();
+        }
     }
 }

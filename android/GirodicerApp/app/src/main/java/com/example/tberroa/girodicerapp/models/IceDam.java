@@ -40,7 +40,7 @@ public class IceDam extends Model {
         this.inspection_image = inspection_image;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.inspection_image.save();
         this.save();
     }

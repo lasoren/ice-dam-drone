@@ -50,6 +50,8 @@
     <string name="city_town">City/Town</string>
     <string name="state">State</string>
     <string name="zip_code">ZIP Code</string>
+    <string name="field_empty">Field cannot be empty</string>
+    <string name="error_check_fields">Error occurred, please check fields and try again</string>
     <!-- current inspection activity -->
     <string name="current_inspection_title">Current Inspection</string>
     <!-- 1st step: establish bluetooth connection -->

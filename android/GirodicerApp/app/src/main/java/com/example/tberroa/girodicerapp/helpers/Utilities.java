@@ -170,7 +170,7 @@ final public class Utilities {
         operatorId.set(context, operator.id);
 
         // save this operator to local storage
-        operator.CascadeSave();
+        operator.cascadeSave();
 
         // populate test database using real operator account (TEST CODE)
         new TestCase().Create(operator);

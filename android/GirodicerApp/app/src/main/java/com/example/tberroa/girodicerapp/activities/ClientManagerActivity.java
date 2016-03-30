@@ -10,7 +10,6 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.adapters.ClientManagerViewAdapter;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.helpers.Utilities;

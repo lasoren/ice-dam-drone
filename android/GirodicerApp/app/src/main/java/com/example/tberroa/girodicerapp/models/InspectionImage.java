@@ -50,7 +50,7 @@ public class InspectionImage extends Model {
         this.deleted = deleted;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.inspection.save();
         this.save();
     }

@@ -3,7 +3,12 @@ package com.example.tberroa.girodicerapp.models;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 
 @SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "Client")
@@ -17,7 +22,7 @@ public class Client extends Model {
     using a unique, non-guessable link. */
 
     @Expose
-    @Column(name = "client_id") // changed to avoid duplicate id scenario
+    @Column(name = "client_id")
     public int id;
 
     @Expose
@@ -36,11 +41,11 @@ public class Client extends Model {
     @Column(name = "deleted")
     public long deleted;
 
-    public Client(){
+    public Client() {
         super();
     }
 
-    public Client(int id, String created, User user, String address, long deleted){
+    public Client(int id, String created, User user, String address, long deleted) {
         this.id = id;
         this.created = created;
         this.user = user;
@@ -48,7 +53,7 @@ public class Client extends Model {
         this.deleted = deleted;
     }
 
-    public Client(String firstName, String lastName, String email, String address){
+    public Client(String firstName, String lastName, String email, String address) {
         User user = new User();
         user.first_name = firstName;
         user.last_name = lastName;
@@ -57,8 +62,23 @@ public class Client extends Model {
         this.address = address;
     }
 
-    public void CascadeSave() {
+    public Client(Client client) {
+        this.id = client.id;
+        this.created = client.created;
+        this.user = client.user;
+        this.address = client.address;
+        this.deleted = client.deleted;
+    }
+
+    public void cascadeSave() {
         this.user.save();
         this.save();
+    }
+
+    public String toJson() {
+        Type clientType = new TypeToken<Client>() {
+        }.getType();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return gson.toJson(this, clientType);
     }
 }

@@ -48,7 +48,7 @@ public class Inspection extends Model {
         this.deleted = deleted;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.drone_operator.save();
         this.client.save();
         this.save();
