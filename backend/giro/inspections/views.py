@@ -1,5 +1,6 @@
 from giro import exceptions
 
+from inspections.models import Inspection
 from inspections.models import InspectionProvision
 from inspections.models import InspectionImageProvision
 from inspections.models import IceDam
@@ -24,15 +25,29 @@ class InspectionsCreate(APIView):
     def post(self, request, format=None):
         inspection_data = request.data["inspection"]
 
-        serializer = InspectionSerializer(data=inspection_data)
-        if serializer.is_valid():
-            serializer.save()
-            # Add the inspection to the provision table.
-            inspections_db_utils.add_to_inspection_provision(
-                serializer.instance.id)
-            return Response(serializer.data,
-                status=status.HTTP_201_CREATED)
-        return Response(serializer.errors)
+        try:
+            inspection = None
+            if "id" in inspection_data:
+                inspection = Inspection.objects.get(id=inspection_data["id"])
+        except Inspection.DoesNotExist:
+            inspection = None
+
+        serializer = None
+        if inspection is not None:
+            serializer = InspectionSerializer(inspection, data=inspection_data)
+        else:
+            serializer = InspectionSerializer(data=inspection_data)
+        
+        if serializer is not None:
+            if serializer.is_valid():
+                serializer.save()
+                # Add the inspection to the provision table.
+                inspections_db_utils.add_to_inspection_provision(
+                    serializer.instance.id)
+                return Response(serializer.data,
+                    status=status.HTTP_201_CREATED)
+            return Response(serializer.errors)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class InspectionImagesCreate(APIView):
