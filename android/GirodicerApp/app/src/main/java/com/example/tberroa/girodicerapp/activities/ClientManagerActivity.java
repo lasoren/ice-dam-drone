@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -15,7 +16,11 @@ import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Client;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class ClientManagerActivity extends BaseActivity {
@@ -34,6 +39,9 @@ public class ClientManagerActivity extends BaseActivity {
 
         // get clients
         List<Client> clients = localDB.getClients();
+        Type type = new TypeToken<List<Client>>(){}.getType();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Log.d("dbg", "@ClientManagerActivity: clients is: " + gson.toJson(clients, type));
 
         // set toolbar title
         if (getSupportActionBar() != null) {

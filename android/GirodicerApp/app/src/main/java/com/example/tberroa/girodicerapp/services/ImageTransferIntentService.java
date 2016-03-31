@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
@@ -46,7 +47,7 @@ public class ImageTransferIntentService extends IntentService {
                 String directory = Environment.DIRECTORY_PICTURES;
 
                 // path to image within users local storage
-                String path = Params.HOME_FOLDER + "/images/" + typeString + iString;
+                String path = Params.HOME_FOLDER + "/images/" + typeString + iString + ".jpg";
 
                 // check if a file already exists at that location
                 File file = Environment.getExternalStoragePublicDirectory(directory + path);
@@ -55,7 +56,9 @@ public class ImageTransferIntentService extends IntentService {
                     DownloadManager dM = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
                     // construct  uri
-                    Uri uri = Uri.parse(Params.CLOUD_URL + 0 + "/images/" + typeString + iString);
+                    String uriString = Params.CLOUD_URL + "0" + "/images/" + typeString + iString + ".jpg";
+                    Log.d("dbg", "@ImageTransferIntentService: uri is: " + uriString);
+                    Uri uri = Uri.parse(uriString);
 
                     // initialize the download request
                     DownloadManager.Request request = new DownloadManager.Request(uri);

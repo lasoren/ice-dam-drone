@@ -41,7 +41,6 @@ public class HttpPost {
         }catch (Exception e){
             e.printStackTrace();
         }
-        return "json error occurred";
+        return rawResponse;
     }
-
 }

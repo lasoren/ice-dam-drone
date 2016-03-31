@@ -13,6 +13,10 @@ public class InspectionImage extends Model {
     and now stored on AWS bucket storage backend. */
 
     @Expose
+    @Column(name = "image_id")
+    public String id;
+
+    @Expose
     @Column(name = "created")
     public String created;
 
@@ -21,37 +25,37 @@ public class InspectionImage extends Model {
     public String taken;
 
     @Expose
-    @Column(name = "inspection")
-    public Inspection inspection;
+    @Column(name = "inspection_id")
+    public int inspection_id;
 
     @Expose
     @Column(name = "image_type")
-    public String image_type;
+    public int image_type;
 
     @Expose
-    @Column(name = "link")
-    public String link;
+    @Column(name = "path")
+    public String path;
 
     @Expose
     @Column(name = "deleted")
     public long deleted;
 
+    @Expose
+    @Column(name = "icedam")
+    public IceDam iceDam;
+
+    @Expose
+    @Column(name = "hotspot")
+    public Hotspot hotspot;
+
     public InspectionImage(){
         super();
     }
 
-    public InspectionImage(String created, String taken, Inspection inspection, String image_type, String link, long deleted){
+    public InspectionImage(String taken, int inspection_id, int image_type){
         super();
-        this.created = created;
         this.taken = taken;
-        this.inspection = inspection;
+        this.inspection_id = inspection_id;
         this.image_type = image_type;
-        this.link = link;
-        this.deleted = deleted;
-    }
-
-    public void cascadeSave() {
-        this.inspection.save();
-        this.save();
     }
 }

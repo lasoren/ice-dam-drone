@@ -63,7 +63,7 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
         InspectionImage inspectionImage = inspectionImages.get(i);
 
         // get the url for this inspection image
-        String url = inspectionImage.link;
+        String url = inspectionImage.path;
 
         // render image with Picasso
         int width = Utilities.getImageWidthGrid(context);

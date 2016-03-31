@@ -75,17 +75,18 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
     @Override
     public void onBindViewHolder(InspectionViewHolder inspectionViewHolder, int i) {
-
         // set inspection number text
         String title = inspections.get(i).created;
         inspectionViewHolder.inspectionNumber.setText(title);
 
         // get thumbnail url
-        String url = new LocalDB().getInspectionImages(inspections.get(i), "aerial").get(0).link;
+        String url = new LocalDB().getInspectionThumbnail(inspections.get(i));
 
         // render thumbnail with Picasso
-        int width = Utilities.getImageWidthGrid(context);
-        int height = Utilities.getImageHeightGrid(context);
-        Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.imageThumbnail);
+        if (url != null){
+            int width = Utilities.getImageWidthGrid(context);
+            int height = Utilities.getImageHeightGrid(context);
+            Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.imageThumbnail);
+        }
     }
 }

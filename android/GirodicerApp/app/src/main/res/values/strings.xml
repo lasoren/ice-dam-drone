@@ -23,7 +23,7 @@
     <!-- post registration -->
     <string name="email_confirmation_explanation">Thanks for registering to be a drone operator!
         \n\n Please check your email for mail from us confirming your account.
-        \n\n Click the provided link in the email to confirm your account to be
+        \n\n Click the provided path in the email to confirm your account to be
         able to sign in.</string>
 
     <!-- sliding drawer navigation -->
