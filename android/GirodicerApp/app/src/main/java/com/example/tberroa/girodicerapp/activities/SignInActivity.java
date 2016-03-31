@@ -30,6 +30,7 @@ import java.lang.reflect.Type;
 public class SignInActivity extends AppCompatActivity {
 
     private EditText email, password;
+    private boolean inView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,18 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        inView = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        inView = false;
+    }
+
     class AttemptLogin extends AsyncTask<Void, Void, Void> {
 
         private String email, password, dataJSON, postResponse;
@@ -154,7 +167,7 @@ public class SignInActivity extends AppCompatActivity {
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
 
                 // sign in
-                Utilities.signIn(SignInActivity.this, operator);
+                Utilities.signIn(SignInActivity.this, operator, inView);
             } else { // display error
                 Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
             }

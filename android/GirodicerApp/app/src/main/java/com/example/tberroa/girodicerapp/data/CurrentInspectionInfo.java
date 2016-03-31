@@ -13,8 +13,7 @@ public class CurrentInspectionInfo extends Application {
     private final String CLIENT_ID = "client_id";           // id for the client this inspection belongs to
     private final String AERIAL_COUNT = "aerial_count";
     private final String THERMAL_COUNT = "thermal_count";
-    private final String ICEDAM_COUNT = "icedam_count";
-    private final String SALT_COUNT = "salt_count";
+    private final String ROOF_EDGE_COUNT = "roof_edge_count";
     private final String LAST_DOWNLOAD = "last_download";
 
     public CurrentInspectionInfo() {
@@ -48,12 +47,8 @@ public class CurrentInspectionInfo extends Application {
         return getSharedPreferences(context).getInt(THERMAL_COUNT, 0);
     }
 
-    public int getIceDamCount(Context context){
-        return getSharedPreferences(context).getInt(ICEDAM_COUNT, 0);
-    }
-
-    public int getSaltCount(Context context){
-        return getSharedPreferences(context).getInt(SALT_COUNT, 0);
+    public int getRoofEdgeCount(Context context){
+        return getSharedPreferences(context).getInt(ROOF_EDGE_COUNT, 0);
     }
 
     public long getLastDownload(Context context){
@@ -96,15 +91,9 @@ public class CurrentInspectionInfo extends Application {
         editor.apply();
     }
 
-    public void setIceDamCount(Context context, int num){
+    public void setRoofEdgeCount(Context context, int num){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(ICEDAM_COUNT, num);
-        editor.apply();
-    }
-
-    public void setSaltCount(Context context, int num){
-        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(SALT_COUNT, num);
+        editor.putInt(ROOF_EDGE_COUNT, num);
         editor.apply();
     }
 

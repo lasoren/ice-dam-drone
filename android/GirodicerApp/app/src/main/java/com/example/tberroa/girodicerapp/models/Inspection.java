@@ -24,10 +24,6 @@ public class Inspection extends Model {
     public String created;
 
     @Expose
-    @Column(name = "drone_operator")
-    public DroneOperator drone_operator;
-
-    @Expose
     @Column(name = "client")
     public Client client;
 
@@ -39,17 +35,15 @@ public class Inspection extends Model {
         super();
     }
 
-    public Inspection(int id, String created, DroneOperator drone_operator, Client client, long deleted){
+    public Inspection(int id, String created, Client client, long deleted){
         super();
         this.id = id;
         this.created = created;
-        this.drone_operator = drone_operator;
         this.client = client;
         this.deleted = deleted;
     }
 
     public void cascadeSave() {
-        this.drone_operator.save();
         this.client.save();
         this.save();
     }

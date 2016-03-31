@@ -133,9 +133,7 @@ public class CurrentOneActivity extends BaseActivity {
             case REQUEST_ENABLE_BT:
                 switch (resultCode) {
                     case RESULT_OK: // user enabled bluetooth
-                        // start service
-                        startService(new Intent(CurrentOneActivity.this, BluetoothService.class));
-                        BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
+                        startBluetoothService();
                         break;
                     case RESULT_CANCELED: // user chose not to enable bluetooth
                         // display message and try again button
@@ -151,9 +149,21 @@ public class CurrentOneActivity extends BaseActivity {
             Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBt, REQUEST_ENABLE_BT);
         } else { // bluetooth is already enabled
-            startService(new Intent(CurrentOneActivity.this, BluetoothService.class));
-            BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
+            startBluetoothService();
         }
+    }
+
+    private void startBluetoothService(){
+        // get client id
+        int clientId = new ClientId().get(this);
+
+        // start service
+        Intent intent = new Intent(CurrentOneActivity.this, BluetoothService.class);
+        intent.putExtra("client_id", clientId);
+        startService(intent);
+
+        // pass context to the service (needed to broadcast initial status, context unreferenced afterwards)
+        BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
     }
 
     private void uiControl(int num, int message) {

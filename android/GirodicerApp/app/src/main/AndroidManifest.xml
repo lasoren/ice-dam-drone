@@ -51,25 +51,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.CurrentTwoActivity" />
-        <activity
-            android:name=".activities.CurrentThreeActivity"
-            android:parentActivityName=".activities.CurrentTwoActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.CurrentTwoActivity" />
-        </activity>
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.PostRegisterActivity" />
+        <activity android:name=".activities.SplashActivity" />
         <activity android:name=".activities.BaseActivity" />
         <activity android:name=".activities.ClientManagerActivity" />
         <activity android:name=".activities.CurrentOneActivity" />
+        <activity android:name=".activities.CurrentTwoActivity" />
+        <activity android:name=".activities.CurrentThreeActivity" />
         <activity android:name=".activities.PastInspectionsActivity" />
         <activity android:name=".activities.InspectionActivity" />
 
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
+        <service
+            android:name=".services.SignInIntentService"
+            android:exported="false" />
         <service
             android:name=".services.BluetoothService"
             android:exported="false" />
@@ -78,9 +76,6 @@
             android:exported="false" />
         <service
             android:name=".services.ImageUploadService"
-            android:exported="false" />
-        <service
-            android:name=".services.FetchPIIntentService"
             android:exported="false" />
 
         <receiver

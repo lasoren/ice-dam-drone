@@ -20,7 +20,6 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
@@ -37,7 +36,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     final BluetoothInfo bluetoothInfo = new BluetoothInfo();
     final CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
     private final UserInfo userInfo = new UserInfo();
-    private final PastInspectionsInfo pastInspectionsInfo = new PastInspectionsInfo();
 
     // control variables for handling reloads upon state changes
     private boolean inView;
@@ -156,17 +154,14 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         // declare the notification text views which may or may not populate the notification bar
         final TextView btStateText = (TextView) findViewById(R.id.bt_state_text);
         final TextView inspectionPhaseText = (TextView) findViewById(R.id.inspection_phase_text);
-        final TextView fetchingDataText = (TextView) findViewById(R.id.fetching_text);
 
         // by default all notifications are off
         btStateText.setVisibility(View.GONE);
         inspectionPhaseText.setVisibility(View.GONE);
-        fetchingDataText.setVisibility(View.GONE);
 
         // get the status of each system
         int btState = bluetoothInfo.getState(this);
         int inspectionPhase = currentInspectionInfo.getPhase(this);
-        boolean isFetchingData = pastInspectionsInfo.isUpdating(this);
 
         // set notification bar accordingly
         switch (btState) {
@@ -196,9 +191,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 inspectionPhaseText.setText(R.string.ci_uploading);
                 inspectionPhaseText.setVisibility(View.VISIBLE);
                 break;
-        }
-        if (isFetchingData) {
-            fetchingDataText.setVisibility(View.VISIBLE);
         }
     }
 

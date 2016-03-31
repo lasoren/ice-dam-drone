@@ -11,7 +11,6 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
-import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.network.CloudTools;
 
 import java.io.File;
@@ -38,15 +37,13 @@ public class ImageUploadService extends Service {
         inspectionId = currentInspectionInfo.getInspectionId(this);
         int numberOfAerials = currentInspectionInfo.getAerialCount(this);
         int numberOfThermals = currentInspectionInfo.getThermalCount(this);
-        int numberOfIceDams = currentInspectionInfo.getIceDamCount(this);
-        int numberOfSalts = currentInspectionInfo.getSaltCount(this);
+        int numberOfIceDams = currentInspectionInfo.getRoofEdgeCount(this);
 
         // pack data into bundle to make iterative access simpler
         numberOfImages = new Bundle();
         numberOfImages.putInt("aerial", numberOfAerials);
         numberOfImages.putInt("thermal", numberOfThermals);
         numberOfImages.putInt("icedam", numberOfIceDams);
-        numberOfImages.putInt("salt", numberOfSalts);
 
         // initialize transfer utility
         transfer = CloudTools.getTransferUtility(ImageUploadService.this);
@@ -62,8 +59,7 @@ public class ImageUploadService extends Service {
                 // generate strings required to upload images, then upload images
                 for (String type : imageType) {
                     for (int j = 1; j <= numberOfImages.getInt(type); j++) {
-                        String imageName = type + Integer.toString(j) + ".jpg";
-                        String keyName = Utilities.constructImageKey(inspectionId, imageName);
+                        String keyName = "";
                         String location = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER + keyName;
                         final File file = Environment.getExternalStoragePublicDirectory(location);
 
@@ -103,7 +99,7 @@ public class ImageUploadService extends Service {
                 // delete directory
                 String path = Environment.DIRECTORY_PICTURES+Params.HOME_FOLDER;
                 File directory = Environment.getExternalStoragePublicDirectory(path);
-                Utilities.deleteDirectory(directory);
+                deleteDirectory(directory);
                 ImageUploadService.this.stopSelf();
                 stopSelf();
             }
@@ -138,6 +134,18 @@ public class ImageUploadService extends Service {
 
         // broadcast that the upload is complete
         sendBroadcast(new Intent().setAction(Params.UPLOAD_COMPLETE));
+    }
+
+    public void deleteDirectory(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            for (File child : fileOrDirectory.listFiles()) {
+                deleteDirectory(child);
+            }
+        }
+        boolean success = false;
+        while (!success) {
+            success = fileOrDirectory.delete();
+        }
     }
 
     @Override
