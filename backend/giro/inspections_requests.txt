@@ -91,23 +91,23 @@ Request:
 Response:
 [
     {
-        "id": 35,
-        "created": "2016-03-31T05:29:45.047045",
+        "id": 37,
+        "created": "2016-03-31T19:10:33.306231",
         "taken": "2016-02-24T22:09:05",
         "inspection_id": 9,
         "image_type": 2,
-        "path": "mb4tc8/mg3cbs",
+        "path": "mb4tc8/mpht67.jpg",
         "deleted": null,
         "icedam": null,
         "hotspot": null
     },
     {
-        "id": 36,
-        "created": "2016-03-31T05:29:45.052400",
+        "id": 38,
+        "created": "2016-03-31T19:10:33.311041",
         "taken": "2016-02-24T22:09:05",
         "inspection_id": 9,
         "image_type": 3,
-        "path": "mb4tc8/m6z4nb",
+        "path": "mb4tc8/mr6qzw.jpg",
         "deleted": null,
         "icedam": null,
         "hotspot": null
