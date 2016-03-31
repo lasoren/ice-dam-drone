@@ -8,6 +8,7 @@
 using namespace cv;
 using namespace std;
 
+void PrintXCoordinate(const Rect& rect);
 int LoadImage(const char* filename, Mat* original);
 void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect);
 void FillShadedRectangle(const Rect& rect, Mat* shaded);
@@ -18,8 +19,8 @@ const char kDetectWindowName[] = "Source with Matched Classifier";
 const double kThreshold = 2000000;
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        cout << "usage: " << argv[0] << " <filename>" << endl;
+    if (argc != 3) {
+        cout << "usage: " << argv[0] << " <input-filename> <output-filename>" << endl;
         return -1;
     }
     Mat detect;
@@ -37,10 +38,9 @@ int main(int argc, char* argv[]) {
     namedWindow(kDetectWindowName, WINDOW_AUTOSIZE);
     imshow(kDetectWindowName, detect);
 
-    system("mkdir output");
-    imwrite("output/matched.jpg", detect);
+    imwrite(argv[2], detect);
     // Wait for the user to end the program.
-    waitKey(0);
+    // waitKey(0);
 }
 
 void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
@@ -53,6 +53,7 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
     for (int i = 0; i < objects.size(); i++) {
         const Rect& rect = objects[i];
         FillShadedRectangle(rect, &shaded);
+        PrintXCoordinate(rect);
     }
     // Try the flipped version of the image.
     flip(greyscale, greyscale, 1);
@@ -62,10 +63,17 @@ void PerformObjectDetection(CascadeClassifier& cascade, Mat* detect) {
         // Flip the rectangle so that it appears correctly on the shaded image.
         rect.x = greyscale.cols - rect.x - rect.width;
         FillShadedRectangle(rect, &shaded);
+        PrintXCoordinate(rect);
     }
     // Color the original image where objects were detected.
     const double alpha = 0.3;
     addWeighted(*detect, 1.0 - alpha, shaded, alpha, 0.0, *detect); 
+    // Put a new line at the end of the output.
+    cout << endl;
+}
+
+void PrintXCoordinate(const Rect& rect) {
+    cout << rect.x + rect.width/2 << ",";
 }
 
 int LoadImage(const char* filename, Mat* original) {
