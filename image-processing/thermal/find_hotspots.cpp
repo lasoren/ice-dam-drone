@@ -14,7 +14,8 @@ const char kDetectWindowName[] = "Source with Hotspots Found";
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        cout << "usage: " << argv[0] << " <filename>" << endl;
+        cout << "usage: " << argv[0] <<
+            " <input-filename> <output-filename>" << endl;
         return -1;
     }
     Mat detect;
@@ -23,10 +24,12 @@ int main(int argc, char* argv[]) {
     }
     Mat output;
     FindHotspots(detect, output);
-    namedWindow(kDetectWindowName, WINDOW_AUTOSIZE);
+    // namedWindow(kDetectWindowName, WINDOW_AUTOSIZE);
     // Wait for user to hit any key to end the program.
-    imshow(kDetectWindowName, detect);
-    waitKey(0);
+    // imshow(kDetectWindowName, detect);
+
+    imwrite(argv[2], detect);
+    // waitKey(0);
 }
 
 void FindHotspots(Mat& input, Mat& output) {
@@ -36,7 +39,7 @@ void FindHotspots(Mat& input, Mat& output) {
     Scalar mean, std_dev;
     meanStdDev(output, mean, std_dev);
     // Threshold the image on the mean plus the standard deviation.
-    threshold(output, output, mean[0] + 3*std_dev[0], 255, THRESH_BINARY);
+    threshold(output, output, mean[0] + 2.5*std_dev[0], 255, THRESH_BINARY);
     // Blur the image in order to detect blobs. 
     GaussianBlur(output, output, Size(7, 7), 0, 0 );
     // Detect keypoints.

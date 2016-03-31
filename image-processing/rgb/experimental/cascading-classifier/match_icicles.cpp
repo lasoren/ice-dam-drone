@@ -20,7 +20,8 @@ const double kThreshold = 2000000;
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        cout << "usage: " << argv[0] << " <input-filename> <output-filename>" << endl;
+        cout << "usage: " << argv[0] <<
+            " <input-filename> <output-filename>" << endl;
         return -1;
     }
     Mat detect;
@@ -35,8 +36,8 @@ int main(int argc, char* argv[]) {
     }
     // Display the images for the source after running the classifier.
     PerformObjectDetection(cascade, &detect);
-    namedWindow(kDetectWindowName, WINDOW_AUTOSIZE);
-    imshow(kDetectWindowName, detect);
+    // namedWindow(kDetectWindowName, WINDOW_AUTOSIZE);
+    // imshow(kDetectWindowName, detect);
 
     imwrite(argv[2], detect);
     // Wait for the user to end the program.
