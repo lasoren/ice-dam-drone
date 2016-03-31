@@ -153,18 +153,19 @@ class InspectionImageHotspot(APIView):
     """
     Mark or unmark a particular image as a hotspot.
     """
-    hotspot_data = request.data["hotspot"]
-    try:
-        hotspot = Hotspot.objects.get(
-            inspection_image_id=hotspot_data["inspection_image_id"])
-        serializer = HotspotSerializer(hotspot, data=hotspot_data)
-    except Hotspot.DoesNotExist:
-        serializer = HotspotSerializer(data=hotspot_data)
+    def post(self, request, format=None):
+        hotspot_data = request.data["hotspot"]
+        try:
+            hotspot = Hotspot.objects.get(
+                inspection_image_id=hotspot_data["inspection_image_id"])
+            serializer = HotspotSerializer(hotspot, data=hotspot_data)
+        except Hotspot.DoesNotExist:
+            serializer = HotspotSerializer(data=hotspot_data)
 
-    if serializer.is_valid():
-        serializer.save()
-        inspections_db_utils.add_images_to_inspection_image_provision(
-                [hotspot_data["inspection_image_id"]])
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors)
+        if serializer.is_valid():
+            serializer.save()
+            inspections_db_utils.add_images_to_inspection_image_provision(
+                    [hotspot_data["inspection_image_id"]])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors)
 
