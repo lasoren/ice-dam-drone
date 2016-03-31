@@ -19,7 +19,7 @@ public class Client extends Model {
     Client can review images with DroneOperator post-inspection or
     through online portal sent to their email. Clients don't need
     a password. They can access they're individual inspection
-    using a unique, non-guessable link. */
+    using a unique, non-guessable path. */
 
     @Expose
     @Column(name = "client_id")

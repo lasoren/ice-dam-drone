@@ -79,7 +79,6 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
 
     @Override
     public void onBindViewHolder(ClientViewHolder clientViewHolder, int i) {
-
         // set client name text
         String title = clients.get(i).user.first_name + "\n" + clients.get(i).user.last_name;
         clientViewHolder.clientNumber.setText(title);

@@ -93,10 +93,10 @@ public class TestCase {
         for (String iNum : inspectionNumber){
             for (String type : imageTypes){
                 for (String num : imageNumber){
-
+                    /*
                     String url = Params.CLOUD_URL + iNum+"/images/"+type+num+".jpg";
                     inspectionImage = new InspectionImage("today", "today", inspections.get(i), type, url, 0);
-                    inspectionImage.cascadeSave();
+                    inspectionImage.cascadeSave();*/
                 }
             }
             i++;
