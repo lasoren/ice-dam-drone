@@ -138,7 +138,7 @@ class InspectionImageIcedam(APIView):
             icedam = IceDam.objects.get(
                 inspection_image_id=icedam_data["inspection_image_id"])
             serializer = IceDamSerializer(icedam, data=icedam_data)
-        except Icedam.DoesNotExist:
+        except IceDam.DoesNotExist:
             serializer = IceDamSerializer(data=icedam_data)
 
         if serializer.is_valid():
