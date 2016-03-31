@@ -2,28 +2,6 @@
     <string name="app_name">Girodicer</string>
     <string name="app_logo">The Applications Logo</string>
 
-    <!-- main app -->
-    <!-- main menu navigation and buttons -->
-    <string name="start_inspection">Start Inspection</string>
-    <string name="end_inspection">End Inspection</string>
-    <string name="current_inspection">Current Inspection</string>
-    <string name="past_inspections">Past Inspections</string>
-    <string name="sign_out">Sign Out</string>
-    <!-- active inspection activity -->
-    <string name="inspection_phase_text">Inspection Phase: X</string>
-    <string name="phase_1">Inspection Phase 1: Drone is active</string>
-    <string name="phase_2">Inspection Phase 2: Receiving data from drone</string>
-    <string name="phase_3">Inspection Phase 3: uploading data to cloud</string>
-    <string name="no_active_inspection_text">There is currently no active inspection.</string>
-    <string name="active_inspection_text">
-        Please keep your eyes on the drone as it is currently performing an inspection.</string>
-    <string name="transfer_phase_text">Data is being transferred to the phone&#8230;</string>
-    <string name="upload_phase_text">Data is being uploaded to the cloud&#8230;</string>
-    <!-- past inspections activity -->
-    <string name="no_past_inspections">It seems there are no inspections for this client.</string>
-    <string name="fetching_data">Fetching data from the cloud</string>
-    <string name="delete_past_inspections">Delete Past Inspections</string>
-
     <!-- user authentication -->
     <!-- field hints -->
     <string name="first_name">First name</string>
@@ -32,7 +10,7 @@
     <string name="confirm_password">Confirm password</string>
     <string name="email">Email</string>
     <!-- input validation -->
-    <string name="name_format">3 to 15 alphanumeric characters</string>
+    <string name="name_format">Up to 12 english letters</string>
     <string name="password_format">Between 6 and 20 characters</string>
     <string name="password_mismatch">Password mismatch</string>
     <string name="enter_valid_email">Enter a valid email address</string>
@@ -42,15 +20,71 @@
     <!-- text links -->
     <string name="register">No account yet? Create one</string>
     <string name="go_to_sign_in">Already have an account? Sign In</string>
+    <!-- post registration -->
     <string name="email_confirmation_explanation">Thanks for registering to be a drone operator!
         \n\n Please check your email for mail from us confirming your account.
         \n\n Click the provided link in the email to confirm your account to be
         able to sign in.</string>
-    <string name="okay">Okay</string>
 
-    <!-- download manager-->
-    <string name="download_title">Girodicer Image Transfer</string>
-    <string name="download_description">In process of receiving images from drone</string>
+    <!-- sliding drawer navigation -->
+    <!-- required descriptive text -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <!-- always visible, drone operator related -->
+    <string name="account">Account</string>
+    <string name="sign_out">Sign Out</string>
+    <!-- @client manager -->
+    <string name="client">Client</string>
+    <string name="add_client">Add Client</string>
+    <string name="operator_name">Operator first name</string>
+    <!-- upon client selection, inspection related -->
+    <string name="inspections">Inspections</string>
+    <string name="end_inspection">End Inspection</string>
+    <string name="current_inspection">Current Inspection</string>
+    <string name="past_inspections">Past Inspections</string>
+
+    <!-- client manager activity -->
+    <string name="client_manager_title">Client Manager</string>
+    <string name="no_clients">You have no clients.</string>
+    <string name="street_address">Street Address</string>
+    <string name="city_town">City/Town</string>
+    <string name="state">State</string>
+    <string name="zip_code">ZIP Code</string>
+    <string name="field_empty">Field cannot be empty</string>
+    <string name="state_format">State must be 2 letters</string>
+    <string name="zip_format">ZIP Code must be 5 digits</string>
+    <string name="error_check_fields">Error occurred, please check fields and try again.</string>
+    <!-- current inspection activity -->
+    <string name="current_inspection_title">Current Inspection</string>
+    <!-- 1st step: establish bluetooth connection -->
+    <string name="bte_not_enabled">Unable to connect to drone because bluetooth is not enabled.</string>
+    <string name="bte_connect_failed">Failed to connect to drone.</string>
+    <string name="bte_timeout_status">Timeout occurred while waiting for initial status signal.</string>
+    <string name="bts_connecting">Trying to connect to drone &#8230;</string>
+    <string name="waiting_for_status">Waiting to receive initial status from drone &#8230;</string>
+    <!-- 2nd step: establish house boundaries -->
+    <!-- 3rd step: drone is active, keep track of status -->
+    <string name="drone_active_stay_alert">
+        Please keep your eyes on the drone as it performs the inspection.</string>
+    <string name="status_location">Location: </string>
+    <string name="status_location_unit">(Lat,Lng)</string>
+    <string name="status_velocity">Velocity: </string>
+    <string name="status_velocity_unit">inf m/s</string>
+    <string name="status_state">State: </string>
+    <string name="status_state_placeholder">0xf8</string>
+    <string name="status_armable">Armable: </string>
+    <string name="status_armable_placeholder">true/false</string>
+    <!-- 4th step: post inspection processing -->
+    <string name="transfer_phase_text">Data is being transferred to the phone &#8230;</string>
+    <string name="upload_phase_text">Data is being uploaded to the cloud &#8230;</string>
+
+    <!-- past inspections activity -->
+    <string name="past_inspections_title">Past Inspections</string>
+    <string name="no_past_inspections">There are no inspections for this client.</string>
+    <string name="begin_new_inspection">Begin New Inspection</string>
+
+    <!-- inspection activity -->
+    <string name="inspection_title">Inspection</string>
 
     <!-- dialogs -->
     <string name="cannot_sign_out">
@@ -59,15 +93,41 @@
     <string name="confirm_end_inspection">Are you sure you want to end the current inspection?</string>
     <string name="no_active_inspection">There is no active inspection to end.</string>
     <string name="inspection_in_progress">An inspection is already in progress.</string>
-    <string name="past_inspections_not_up_to_date">
-        Past inspection data needs to be up to date before a new inspection can be started.
-    </string>
+
+    <!-- notification bar -->
+    <!-- bluetooth state -->
+    <string name="bt_state_connecting">Connecting to drone &#8230;</string>
+    <string name="bt_state_connected">Connected to drone</string>
+    <string name="bt_state_connection_lost">Drone connection lost, trying to reconnect &#8230;</string>
+    <!-- active inspection phase -->
+    <string name="ci_drone_active">Inspection Phase 1: Drone is navigating home</string>
+    <string name="ci_data_transfer">Inspection Phase 2: Receiving data from drone</string>
+    <string name="ci_uploading">Inspection Phase 3: uploading data to cloud</string>
+    <!-- past inspections related -->
+    <string name="fetching_data">Fetching data from the cloud &#8230;</string>
+
+    <!-- general buttons -->
+    <string name="submit">Submit</string>
+    <string name="okay">Okay</string>
+    <string name="start">Start</string>
+    <string name="try_again">Try Again</string>
+    <string name="next">Next</string>
     <string name="got_it">Got it!</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
 
-    <!-- other -->
+    <!-- placeholder text -->
     <string name="thumbnail_label">Label</string>
     <string name="image">Image</string>
-    <string name="placeholder">Placeholder</string>
+    <string name="general_message">General message</string>
+    <string name="loading_message">Loading message</string>
+
+    <!-- download manager-->
+    <string name="download_title">Girodicer Image Transfer</string>
+    <string name="download_description">In process of receiving images from drone</string>
+
+    <!-- other -->
+    <string name="grabbing_data">Grabbing data &#8230;</string>
+    <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
+    <string name="drone_bt_name">ubuntu-mate-0</string>
 </resources>

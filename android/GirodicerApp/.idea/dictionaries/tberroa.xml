@@ -2,7 +2,9 @@
   <dictionary name="tberroa">
     <words>
       <w>&amp;key</w>
+      <w>armable</w>
       <w>briarwood</w>
+      <w>btdata</w>
       <w>goodell</w>
       <w>gson</w>
       <w>ionkn</w>
@@ -11,6 +13,7 @@
       <w>rosedale</w>
       <w>staticmap</w>
       <w>timberlake</w>
+      <w>unarm</w>
       <w>waukegan</w>
       <w>wlnu</w>
     </words>

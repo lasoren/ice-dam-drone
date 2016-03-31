@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.example.tberroa.girodicerapp.adapters.InspectionPagerAdapter;
@@ -30,6 +30,12 @@ public class InspectionActivity extends BaseActivity {
         setContentView(R.layout.activity_inspection);
         LocalDB localDB = new LocalDB();
 
+        // no animation if starting due to a reload
+        String action = getIntent().getAction();
+        if (action != null && action.equals(Params.RELOAD)) {
+            overridePendingTransition(0, 0);
+        }
+
         // get inspection
         Inspection inspection = localDB.getInspection(new InspectionId().get(this));
 
@@ -40,7 +46,8 @@ public class InspectionActivity extends BaseActivity {
         List<InspectionImage> saltImages = localDB.getInspectionImages(inspection, "salt");
 
         // serialize the inspection images
-        Type inspectionImagesList = new TypeToken<List<InspectionImage>>(){}.getType();
+        Type inspectionImagesList = new TypeToken<List<InspectionImage>>() {
+        }.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String aerialImagesJson = gson.toJson(aerialImages, inspectionImagesList);
         String thermalImagesJson = gson.toJson(thermalImages, inspectionImagesList);
@@ -54,19 +61,13 @@ public class InspectionActivity extends BaseActivity {
         inspectionImages.putString("icedam_images_json", iceDamImagesJson);
         inspectionImages.putString("salt_images_json", saltImagesJson);
 
-        // set toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Inspection " + Integer.toString(inspection.id));
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.back_button);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(InspectionActivity.this, PastInspectionsActivity.class));
-                finish();
-            }
-        });
-        toolbar.setVisibility(View.VISIBLE);
+        // set toolbar title
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.inspection_title) + " " + Integer.toString(inspection.id));
+        }
+
+        // set navigation menu
+        navigationView.inflateMenu(R.menu.nav_client_inspections);
 
         // set tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
@@ -75,7 +76,7 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.addTab(tabLayout.newTab().setText(Params.ICEDAM_TAB));
         tabLayout.addTab(tabLayout.newTab().setText(Params.SALT_TAB));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
-        tabLayout.setVisibility(View.VISIBLE);
+        tabLayout.setVisibility(View.VISIBLE); // set to GONE in XML layout for clarity
 
         // populate the activity
         final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
@@ -103,8 +104,11 @@ public class InspectionActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, PastInspectionsActivity.class));
-        finish();
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            startActivity(new Intent(this, PastInspectionsActivity.class));
+            finish();
+        }
     }
-
 }

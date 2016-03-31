@@ -31,6 +31,7 @@ class Lidar(threading.Thread):
         self.bus.write_byte_data(self.__DEF_ADDR, self.__CONTROL_REG, self.__RESET_FPGA)
         time.sleep(0.02)
         self._stop = threading.Event()
+        self.start()
 
     def getDeviceStatus(self):
         return self.bus.read_byte_data(self.__DEF_ADDR, self.__STATUS_REG)
@@ -54,10 +55,7 @@ class Lidar(threading.Thread):
             return False
 
     def readDistance(self):
-        self.lock.acquire()
-        distance = self.distance
-        self.lock.release()
-        return distance
+        return self.distance
 
     def run(self):
         self._stop.clear()

@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "Inspection")
 public class Inspection extends Model {
 
@@ -23,10 +24,6 @@ public class Inspection extends Model {
     public String created;
 
     @Expose
-    @Column(name = "drone_operator")
-    public DroneOperator drone_operator;
-
-    @Expose
     @Column(name = "client")
     public Client client;
 
@@ -38,17 +35,15 @@ public class Inspection extends Model {
         super();
     }
 
-    public Inspection(int id, String created, DroneOperator drone_operator, Client client, long deleted){
+    public Inspection(int id, String created, Client client, long deleted){
         super();
         this.id = id;
         this.created = created;
-        this.drone_operator = drone_operator;
         this.client = client;
         this.deleted = deleted;
     }
 
-    public void CascadeSave() {
-        this.drone_operator.save();
+    public void cascadeSave() {
         this.client.save();
         this.save();
     }

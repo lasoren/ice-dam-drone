@@ -35,7 +35,7 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
         final ImageView imageThumbnail;
         final TextView clientNumber;
 
-        ClientViewHolder(View itemView){
+        ClientViewHolder(View itemView) {
             super(itemView);
             imageThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
             clientNumber = (TextView) itemView.findViewById(R.id.label);
@@ -44,7 +44,7 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
         }
 
         @Override
-        public void onClick(View v){
+        public void onClick(View v) {
 
             // extract clicked client
             int i = getLayoutPosition();
@@ -55,18 +55,17 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
 
             // start past inspections activity
             context.startActivity(new Intent(v.getContext(), PastInspectionsActivity.class));
-            if(context instanceof Activity){
-                ((Activity)context).finish();
+            if (context instanceof Activity) {
+                ((Activity) context).finish();
             }
         }
     }
 
     @Override
     public int getItemCount() {
-        if (clients != null){
+        if (clients != null) {
             return clients.size();
-        }
-        else{
+        } else {
             return 0;
         }
     }
@@ -82,14 +81,14 @@ public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManager
     public void onBindViewHolder(ClientViewHolder clientViewHolder, int i) {
 
         // set client name text
-        String title = clients.get(i).user.first_name+"\n"+clients.get(i).user.last_name;
+        String title = clients.get(i).user.first_name + "\n" + clients.get(i).user.last_name;
         clientViewHolder.clientNumber.setText(title);
 
         // get thumbnail url
         String address = clients.get(i).address;
         String key = Params.GOOGLE_STATIC_MAPS_KEY;
         String baseUrl = Params.GOOGLE_STATIC_MAPS_URL;
-        String url = baseUrl+"center="+address+"&zoom=17&size=400x400&key="+key+"&markers=color:red|"+address;
+        String url = baseUrl + "center=" + address + "&zoom=17&size=400x400&key=" + key + "&markers=color:red|" + address;
 
         // render thumbnail with Picasso
         int width = Utilities.getImageWidthGrid(context);

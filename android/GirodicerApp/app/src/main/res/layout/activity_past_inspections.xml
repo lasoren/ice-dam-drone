@@ -1,46 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".PastInspectionsActivity" >
-
-    <include layout="@layout/header"
-        android:id="@+id/header"
-        />
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/past_inspections_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/past_inspections_recycler_view"
-        android:layout_below="@id/header"
-        android:scrollbars="vertical"
         android:fadeScrollbars="true"
-        android:visibility="gone"
-        />
+        android:scrollbars="vertical"/>
 
-    <TextView
-        android:id="@+id/no_past_inspections_text"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_marginTop="150dp"
         android:layout_centerHorizontal="true"
-        android:text="@string/no_past_inspections"
-        android:textSize="18sp"
-        android:visibility="gone"
-        />
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/start_inspection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/no_past_inspections_text"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:text="@string/start_inspection"
-        android:visibility="gone"
-        />
+        <include
+            android:id="@+id/general_message_layout"
+            layout="@layout/element_general_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
+        <Button
+            android:id="@+id/start_inspection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/begin_new_inspection"/>
+    </LinearLayout>
 </RelativeLayout>

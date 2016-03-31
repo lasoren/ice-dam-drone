@@ -1,0 +1,1 @@
+g++ $(pkg-config --cflags --libs opencv) find_hotspots.cpp -o find_hotspots

@@ -32,3 +32,270 @@ Response:
     },
     "deleted": null
 }
+
+// ------------------------------------------------------
+// CREATE INSPECTION IMAGES TO BE UPLOADED TO S3
+
+url POST: /inspections/images/create
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "inspection_images": [
+        {
+            "taken": "2016-02-24T22:09:05Z",
+            "inspection_id": 9,
+            "image_type": 2
+        },
+        {
+            "taken": "2016-02-24T22:09:05Z",
+            "inspection_id": 9,
+            "image_type": 3
+        }
+    ]
+}
+
+Response:
+[
+    {
+        "id": 31,
+        "created": "2016-03-02T04:53:50.230195",
+        "taken": "2016-02-24T22:09:05",
+        "inspection_id": 9,
+        "image_type": 2,
+        "path": "mb4tc8/mz7z5m",
+        "deleted": null
+    },
+    {
+        "id": 32,
+        "created": "2016-03-02T04:53:50.236448",
+        "taken": "2016-02-24T22:09:05",
+        "inspection_id": 9,
+        "image_type": 3,
+        "path": "mb4tc8/mmvttv",
+        "deleted": null
+    }
+]
+
+
+// ------------------------------------------------------
+// GET MY INSPECTIONS THAT ARE NEW OR UPDATED
+
+url POST: /inspections/get
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "provision": 3
+}
+
+Response:
+{
+    "inspections": [
+        {
+            "id": 8,
+            "created": "2016-02-24T05:23:23.442899",
+            "client": {
+                "id": 1,
+                "created": "2016-02-24T22:09:05.405903",
+                "user": {
+                    "id": 2,
+                    "created": "2016-02-24T22:09:05.397211",
+                    "first_name": "Michael",
+                    "last_name": "Sorenson",
+                    "email": "msoren@bu.edu"
+                },
+                "address": "14 Barnesdale Rd. Natick, MA 01760",
+                "deleted": null
+            },
+            "deleted": null
+        },
+        {
+            "id": 9,
+            "created": "2016-02-24T22:09:42.270953",
+            "client": {
+                "id": 1,
+                "created": "2016-02-24T22:09:05.405903",
+                "user": {
+                    "id": 2,
+                    "created": "2016-02-24T22:09:05.397211",
+                    "first_name": "Michael",
+                    "last_name": "Sorenson",
+                    "email": "msoren@bu.edu"
+                },
+                "address": "14 Barnesdale Rd. Natick, MA 01760",
+                "deleted": null
+            },
+            "deleted": null
+        }
+    ],
+    "provision": 5
+}
+
+// ------------------------------------------------------
+// GET MY INSPECTION IMAGES THAT ARE NEW OR UPDATED
+
+url POST: /inspections/images/get
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "provision": 8
+}
+
+Response:
+{
+    "provision": 16,
+    "inspection_images": [
+        {
+            "id": 32,
+            "created": "2016-03-02T04:53:50.236448",
+            "taken": "2016-02-24T22:09:05",
+            "inspection_id": 9,
+            "image_type": 3,
+            "path": "mb4tc8/mmvttv",
+            "deleted": null,
+            "icedam": null,
+            "hotspot": null
+        },
+        {
+            "id": 33,
+            "created": "2016-03-02T04:58:08.443031",
+            "taken": "2016-02-24T22:09:05",
+            "inspection_id": 9,
+            "image_type": 2,
+            "path": "mb4tc8/m8ppx5",
+            "deleted": null,
+            "icedam": {
+                "id": 1,
+                "inspection_image_id": 33,
+                "created": "2016-03-31T04:19:20.018015",
+                "deleted": "2016-03-31T04:19:20",
+                "treated": 1
+            },
+            "hotspot": null
+        },
+        {
+            "id": 34,
+            "created": "2016-03-02T04:58:08.447626",
+            "taken": "2016-02-24T22:09:05",
+            "inspection_id": 9,
+            "image_type": 3,
+            "path": "mb4tc8/m2x78y",
+            "deleted": null,
+            "icedam": null,
+            "hotspot": {
+                "id": 1,
+                "inspection_image_id": 34,
+                "created": "2016-03-31T04:24:31.813729",
+                "deleted": "2016-03-31T04:19:20"
+            }
+        }
+    ]
+}
+
+
+// ------------------------------------------------------
+// CREATE OR UPDATE AN IMAGE ICEDAM MARKER
+
+url POST: /inspections/image/icedam
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "icedam": {
+        "inspection_image_id": 33
+    }
+}
+
+Response:
+{
+    "id": 1,
+    "inspection_image_id": 33,
+    "created": "2016-03-31T04:19:20.018015",
+    "deleted": null,
+    "treated": 1
+}
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "icedam": {
+        "inspection_image_id": 33,
+        "treated": 2
+    }
+}
+
+Response:
+{
+    "id": 1,
+    "inspection_image_id": 33,
+    "created": "2016-03-31T04:19:20.018015",
+    "deleted": null,
+    "treated": 2
+}
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "icedam": {
+        "inspection_image_id": 33,
+        "treated": 1,
+        "deleted": "2016-03-31T04:19:20"
+    }
+}
+
+Response:
+{
+    "id": 1,
+    "inspection_image_id": 33,
+    "created": "2016-03-31T04:19:20.018015",
+    "deleted": "2016-03-31T04:19:20",
+    "treated": 1
+}
+
+// ------------------------------------------------------
+// CREATE OR UPDATE AN IMAGE HOTSPOT MARKER
+
+url POST: /inspections/image/hotspot
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "hotspot": {
+        "inspection_image_id": 34
+    }
+}
+
+Response:
+{
+    "id": 2,
+    "inspection_image_id": 34,
+    "created": "2016-03-31T04:22:19.760291",
+    "deleted": null
+}
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "hotspot": {
+        "inspection_image_id": 34,
+        "deleted": "2016-03-31T04:19:20"
+    }
+}
+
+Response:
+{
+    "id": 1,
+    "inspection_image_id": 34,
+    "created": "2016-03-31T04:24:31.813729",
+    "deleted": "2016-03-31T04:19:20"
+}

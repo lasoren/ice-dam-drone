@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "InspectionImage")
 public class InspectionImage extends Model {
 
@@ -49,7 +50,7 @@ public class InspectionImage extends Model {
         this.deleted = deleted;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.inspection.save();
         this.save();
     }

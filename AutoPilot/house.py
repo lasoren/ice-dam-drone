@@ -1,16 +1,10 @@
 import math, sys, utm
+import copy
+from dronekit import LocationGlobalRelative
 
 def printLatLong(list):
     for item in list:
         print "%.10f, %.10f" % (item.lat, item.lon)
-
-class geoPoint:
-    lon = 0
-    lat = 0
-
-    def __init__(self, lat, lon):
-        self.lon = lon
-        self.lat = lat
 
 class UTMPoint:
 
@@ -28,6 +22,15 @@ class UTMPoint:
         mag = math.sqrt( math.pow(diff.e, 2) + math.pow(diff.n,2) )
 
         return UTMPoint((e/mag, n/mag, self.zone, self.zoneLetter))
+
+    def getVector_nomag(self, point):
+        e = self.e - point.e
+        n = self.n - point.n
+
+        diff = self.diff(point)
+        mag = math.sqrt( math.pow(diff.e, 2) + math.pow(diff.n,2) )
+
+        return UTMPoint((e, n, self.zone, self.zoneLetter))
 
     def add(self, point):
         return UTMPoint((self.e + point.e, self.n + point.n, self.zone, self.zoneLetter))
@@ -50,7 +53,7 @@ class UTMPoint:
 
     def toLatLon(self):
         conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
-        return geoPoint(conv[0], conv[1])
+        return LocationGlobalRelative(round(conv[0],5), round(conv[1],5))
 
     def scalarMult(self, scalar):
         return UTMPoint((self.e * scalar, self.n*scalar, self.zone, self.zoneLetter))
@@ -59,8 +62,8 @@ class house:
     utmOutline = []
     zone = 0
     zoneLetter = ""
-    width = 0
-    height = 0
+    width = []
+    height = []
 
     cameraWidth = 8
     cameraHeight = 6
@@ -68,17 +71,52 @@ class house:
     path = []
     convexHull = []
     sbb = []
-    area = sys.maxint
+    area = []
+
+    houseHeight = 7
 
     def __init__(self, outline):
         self.outline = outline
+        self.__organize_outline_cw()
         self.__findFlyOverPath()
+        self.__offset_outline()
 
     def __convertToUTM(self):
         for point in self.outline:
             self.utmOutline.append(UTMPoint(utm.from_latlon(point.lat, point.lon)))
         self.zone = self.utmOutline[0].zone
         self.zoneLetter = self.utmOutline[0].zoneLetter
+
+    def __organize_outline_cw(self):
+        mlat = sum(x.lat for x in self.outline) / len(self.outline)
+        mlon = sum(x.lon for x in self.outline) / len(self.outline)
+
+        def cw_sort(q):
+            return (math.atan2(q.lat - mlat, q.lon - mlon) + 2 * math.pi) % (2 * math.pi)
+        self.outline.sort(key=cw_sort, reverse=True)
+
+    def __offset_outline(self):
+        c_e = 0
+        c_n = 0
+
+        for p in self.convexHull:
+            c_e += p.e
+            c_n += p.n
+
+        c_e /= len(self.convexHull)
+        c_n /= len(self.convexHull)
+
+        centroid = UTMPoint((c_e, c_n, self.sbb[0].zone, self.sbb[0].zoneLetter))
+
+        for i in range(0, len(self.utmOutline)):
+            vec = centroid.getVector(self.utmOutline[i])
+            self.utmOutline[i].n -= vec.n
+            self.utmOutline[i].e -= vec.e
+
+        self.outline = []
+
+        for p in self.utmOutline:
+            self.outline.append(p.toLatLon())
 
     def __findMinimumBox(self):
         """
@@ -97,7 +135,7 @@ class house:
         topId = None
         bottomId = None
         minPt = UTMPoint((sys.maxint, sys.maxint, self.zone, self.zoneLetter))
-        maxPt = UTMPoint((-sys.maxint-1, -sys.maxint-1, self.zone, self.zoneLetter))
+        maxPt = UTMPoint((-sys.maxint+1, -sys.maxint+1, self.zone, self.zoneLetter))
 
         for i in range(0, len(self.convexHull)):
             point = self.convexHull[i]
@@ -123,6 +161,8 @@ class house:
         topDir = UTMPoint((-1.0, 0.0, self.zone, self.zoneLetter))
         bottomDir = UTMPoint((1.0, 0.0, self.zone, self.zoneLetter))
 
+        minArea = sys.maxint
+
         for i in range(0, len(self.convexHull)):
             # calculate the angles required to turn our "calipers" in each direction
             angles = [math.acos(edgeDirections[leftId].dot(leftDir)),
@@ -135,25 +175,25 @@ class house:
 
             # rotate the "caliper" to the edge with the smallest angle
             if smallestAngleIndex == 0: # left edge
-                leftDir = edgeDirections[leftId]
+                leftDir = copy.deepcopy(edgeDirections[leftId])
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftId = (leftId+1)%len(self.convexHull)
             elif smallestAngleIndex == 1: # right edge
-                rightDir = edgeDirections[leftId]
+                rightDir = copy.deepcopy(edgeDirections[rightId])
                 leftDir = UTMPoint((-rightDir.e, -rightDir.n, self.zone, self.zoneLetter))
                 topDir = UTMPoint((leftDir.n, -leftDir.e, self.zone, self.zoneLetter))
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 rightId = (rightId+1)%len(self.convexHull)
             elif smallestAngleIndex == 2: # top edge
-                topDir = edgeDirections[topId]
+                topDir = copy.deepcopy(edgeDirections[topId])
                 bottomDir = UTMPoint((-topDir.e, -topDir.n, self.zone, self.zoneLetter))
                 leftDir = UTMPoint((topDir.n, -topDir.e, self.zone, self.zoneLetter))
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
                 topId = (topId+1)%len(self.convexHull)
             elif smallestAngleIndex == 3: # bottom edge
-                bottomDir = edgeDirections[bottomId]
+                bottomDir = copy.deepcopy(edgeDirections[bottomId])
                 topDir = UTMPoint((-bottomDir.e, -bottomDir.n, self.zone, self.zoneLetter))
                 leftDir = UTMPoint((bottomDir.n, -bottomDir.e, self.zone, self.zoneLetter))
                 rightDir = UTMPoint((-leftDir.e, -leftDir.n, self.zone, self.zoneLetter))
@@ -169,12 +209,13 @@ class house:
 
             area = width*height
 
-            if area < self.area and area > 1:
+            if area < minArea:
+                minArea = area
                 self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
-                print self.area
                 self.area = area
                 self.width = width
                 self.height = height
+                print area
 
     def __findConvexHull(self): # uses monotone-chain algorithm
         sortedOutline = sorted(self.utmOutline, key=lambda x: x.e)
@@ -251,10 +292,12 @@ class house:
             temp.append(p.toLatLon())
         self.path = temp
 
-
 if __name__ == "__main__":
-    points = [geoPoint(38.84711546747433, -94.6733683347702), geoPoint(38.84703399781023, -94.67331871390343), geoPoint(38.847007885718675, -94.67337772250175),
-              geoPoint(38.84698804052266, -94.67336967587471), geoPoint(38.84696192841424, -94.67344209551811), geoPoint(38.84706742127346, -94.67350110411644)]
+    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
+              , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
+
+    # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
+    #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
 
     myHouse = house(points)
     convexHull = []
@@ -280,6 +323,8 @@ if __name__ == "__main__":
     printLatLong(sbb)
 
     print "path"
-    printLatLong(path)
+    printLatLong(myHouse.path)
 
     print myHouse.area
+
+    printLatLong(myHouse.outline)

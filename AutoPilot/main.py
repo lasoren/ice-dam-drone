@@ -6,17 +6,13 @@ def bluetoothConnected():
     print "Bluetooth Connected"
     iceCutter.get_status()
 
-
 def bluetoothDisconnected():
     print "Bluetooth Disconnected"
-
+    iceCutter.return_to_launch()
 
 def printPoints(points):
     for point in points:
         print "lat: %d, lng: %d" % point[0] % point[1]
-
-def printLidarDistance(distance):
-    print "Distance %d" % distance
 
 def setHouse(house):
     iceCutter.house = house
@@ -32,23 +28,43 @@ def transferData(data): # dunno if I'm gonna use yet...
     else:
         iceCutter.blue.write(data)
 
+def handleBorderInterrupt():
+    # TODO: implement handle border interruption
+    None
+
+def handleRoofInterrupt():
+    # TODO: implement handle roof interruption
+    None
+
+def handleRoofFinished():
+    # TODO: implement handle roof finished
+    # start analysis of images, land, and send pictures
+    iceCutter.return_to_launch()
+
+def bluetoothSendStatus():
+    iceCutter.get_status()
+
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
 parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
 parser.add_argument('--baud', default='57600', help="connection baud rate")
+parser.add_argument('--debug', default=False, help="enable debug option")
 args = parser.parse_args()
 
 eventQueue = EventHandler.EventQueue()
 eventQueue.addEventCallback(bluetoothConnected, EventHandler.BLUETOOTH_CONNECTED)
 eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.BLUETOOTH_DISCONNECTED)
 eventQueue.addEventCallback(printPoints, EventHandler.BLUETOOTH_GET_POINTS)
-eventQueue.addEventCallback(printLidarDistance, EventHandler.LIDAR_DISTANCE)
 eventQueue.addEventCallback(setHouse, EventHandler.BLUETOOTH_NEW_HOUSE)
 eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
+eventQueue.addEventCallback(handleRoofFinished, EventHandler.SCAN_ROOF_FINISHED)
+eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SCAN_INTERRUPTED)
+eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
+eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STATUS)
 
 print "Connecting to vehicle on: %s" % args.connect
-iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue)
+iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
 
 running = True
 

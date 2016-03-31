@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.google.gson.annotations.Expose;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 @Table(name = "Hotspot")
 public class Hotspot extends Model {
 
@@ -35,7 +36,7 @@ public class Hotspot extends Model {
         this.inspection_image = inspection_image;
     }
 
-    public void CascadeSave() {
+    public void cascadeSave() {
         this.inspection_image.save();
         this.save();
     }

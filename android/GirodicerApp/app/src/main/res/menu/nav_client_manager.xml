@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item android:title="@string/account">
+            <menu>
+                <item
+                    android:id="@+id/sign_out"
+                    android:title="@string/sign_out"/>
+            </menu>
+        </item>
+    </group>
+
+    <item android:title="@string/client">
+        <menu>
+            <item
+                android:id="@+id/add_client"
+                android:title="@string/add_client"/>
+        </menu>
+    </item>
+</menu>

@@ -33,6 +33,7 @@ public class LocalDB {
     public List<Client> getClients(){
         return new Select()
                 .from(Client.class)
+                .orderBy("client_id DESC")
                 .execute();
     }
 
@@ -59,7 +60,7 @@ public class LocalDB {
                 .execute();
     }
 
-    public void Clear(){
+    public void clear(){
         new Delete().from(Hotspot.class).execute();
         new Delete().from(IceDam.class).execute();
         new Delete().from(InspectionImage.class).execute();

@@ -9,28 +9,21 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.activities.ActiveInspectionActivity;
-import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
-import com.example.tberroa.girodicerapp.data.ActiveInspectionInfo;
+import com.example.tberroa.girodicerapp.activities.SplashActivity;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
-import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.database.TestCase;
-import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
-import com.example.tberroa.girodicerapp.services.DroneService;
-
-import java.io.File;
+import com.example.tberroa.girodicerapp.services.SignInIntentService;
 
 final public class Utilities {
 
-    private Utilities(){
+    private Utilities() {
     }
 
-    private static Point getScreenDimensions(Context context){
+    private static Point getScreenDimensions(Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point screenDimensions = new Point();
@@ -38,105 +31,92 @@ final public class Utilities {
         return screenDimensions;
     }
 
-    private static boolean isLandscape(Context context){
+    private static boolean isLandscape(Context context) {
         boolean bool = false;
-        if (getScreenWidth(context) > getScreenHeight(context)){
+        if (getScreenWidth(context) > getScreenHeight(context)) {
             bool = true;
         }
         return bool;
     }
 
-    private static int getScreenWidth(Context context){
+    private static int getScreenWidth(Context context) {
         return getScreenDimensions(context).x;
     }
 
-    private static int getScreenHeight(Context context){
+    private static int getScreenHeight(Context context) {
         return getScreenDimensions(context).y;
     }
 
-    public static int getImageWidthGrid(Context context){
-        return getScreenWidth(context)/ getSpanGrid(context);
+    public static int getImageWidthGrid(Context context) {
+        return getScreenWidth(context) / getSpanGrid(context);
     }
 
-    public static int getImageHeightGrid(Context context){
+    public static int getImageHeightGrid(Context context) {
         int imageHeight;
         int screenHeight = getScreenHeight(context);
         int span = getSpanGrid(context);
-        if (isLandscape(context)){
-            imageHeight = screenHeight/(span/2);
-        }
-        else{
-            imageHeight = screenHeight/(span*2);
+        if (isLandscape(context)) {
+            imageHeight = screenHeight / (span / 2);
+        } else {
+            imageHeight = screenHeight / (span * 2);
         }
         return imageHeight;
     }
 
-    public static int getSpanGrid(Context context){
+    public static int getSpanGrid(Context context) {
         int span;
-        if (isLandscape(context)){
+        if (isLandscape(context)) {
             span = 4;
-        }
-        else{
+        } else {
             span = 2;
         }
         return span;
     }
 
-    public static int getSpacingGrid(Context context){
-        return getScreenWidth(context)/(getSpanGrid(context)*48);
+    public static int getSpacingGrid(Context context) {
+        return getScreenWidth(context) / (getSpanGrid(context) * 48);
     }
 
-    public static String ConstructImageURL(int inspectionId, String imageName){ // always downloading inspection 1 for testing!!
-        return Params.CLOUD_URL +inspectionId+"/images/"+imageName;
-    }
-
-
-    public static void DeleteDirectory(File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            for (File child : fileOrDirectory.listFiles()) {
-                DeleteDirectory(child);
-            }
-        }
-        boolean success = false;
-        while(!success){
-            success = fileOrDirectory.delete();
-        }
-    }
-
-    public static String ConstructImageKey(int inspectionId, String imageName){
-        return inspectionId+"/images/"+imageName;
-    }
-
-    public static String validate(Bundle enteredInfo){
+    public static String validate(Bundle enteredInfo) {
         String validation = "";
 
         // grab entered information
-        String username = enteredInfo.getString("username", null);
-        String password = enteredInfo.getString("password", null);
+        String firstName = enteredInfo.getString("first_name", null);
+        String lastName = enteredInfo.getString("last_name", null);
+        String password = enteredInfo.getString("pass_word", null);
         String confirmPassword = enteredInfo.getString("confirm_password", null);
         String email = enteredInfo.getString("email", null);
 
-        if (username != null){
-            boolean tooShort = username.length() < 3;
-            boolean tooLong = username.length() > 15;
-            if (!username.matches("[a-zA-Z0-9]+") || tooShort || tooLong ) {
-                validation = validation.concat("username");
+        if (firstName != null) {
+            firstName = firstName.trim();
+            boolean tooLong = firstName.length() > 12;
+            if (!firstName.matches("[a-zA-Z]+") || tooLong) {
+                validation = validation.concat("first_name");
             }
         }
 
-        if (password != null){
+        if (lastName != null) {
+            lastName = lastName.trim();
+            boolean tooLong = lastName.length() > 12;
+            if (!lastName.matches("[a-zA-Z]+") || tooLong) {
+                validation = validation.concat("last_name");
+            }
+        }
+
+        if (password != null) {
             if (password.length() < 6 || password.length() > 20) {
-                validation = validation.concat("password");
+                validation = validation.concat("pass_word");
             }
         }
 
-        if (confirmPassword != null){
+        if (confirmPassword != null) {
             if (!confirmPassword.equals(password)) {
                 validation = validation.concat("confirm_password");
             }
         }
 
-        if (email != null){
+        if (email != null) {
+            email = email.trim();
             if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 validation = validation.concat("email");
             }
@@ -144,85 +124,47 @@ final public class Utilities {
         return validation;
     }
 
-    public static void AttemptInspectionStart(Context context){
-
-        PastInspectionsInfo pMInfo = new PastInspectionsInfo();
-        String message;
-        if (!pMInfo.isUpToDate(context) || pMInfo.isUpdating(context)){
-            message = context.getResources().getString(R.string.past_inspections_not_up_to_date);
-            new MessageDialog(context, message).getDialog().show();
-        }
-        else if (!new ActiveInspectionInfo().isNotInProgress(context)) {
-            message = context.getResources().getString(R.string.inspection_in_progress);
-            new MessageDialog(context, message).getDialog().show();
-        }
-        else{
-            context.startService(new Intent(context, DroneService.class));
-            context.startActivity(new Intent(context, ActiveInspectionActivity.class));
-            if(context instanceof Activity){
-                ((Activity)context).finish();
-            }
-
-        }
-    }
-
-    public static void SignIn(Context context, DroneOperator operator){
+    public static void signIn(Context context, DroneOperator operator, boolean inView) {
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
         operatorId.clear(context);
-        new ActiveInspectionInfo().clearAll(context);
-        new PastInspectionsInfo().clearAll(context);
+        new CurrentInspectionInfo().clearAll(context);
 
         // save the operators id to shared preference
         operatorId.set(context, operator.id);
 
         // save this operator to local storage
-        operator.CascadeSave();
+        operator.cascadeSave();
 
-        // populate test database using real operator account (TEST CODE)
-        new TestCase().Create(operator);
-        new PastInspectionsInfo().setUpToDate(context, true); // TEST CODE!
+        // start sign in intent service
+        context.startService(new Intent(context, SignInIntentService.class));
 
-        // update user sign in status
-        new UserInfo().setUserStatus(context, true);
+        // go to splash page if app is in view
+        if (inView) {
+            context.startActivity(new Intent(context, SplashActivity.class));
 
-        // go to client manager
-        context.startActivity(new Intent(context, ClientManagerActivity.class));
-        if(context instanceof Activity){
-            ((Activity)context).finish();
+            // apply sign in animation for entering splash page
+            ((Activity) context).overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
         }
+
+        ((Activity) context).finish();
     }
 
-    public static void SignOut(Context context){
+    public static void signOut(Context context) {
         // clear shared preferences of old data
         new OperatorId().clear(context);
-        new ActiveInspectionInfo().clearAll(context);
-        new PastInspectionsInfo().clearAll(context);
+        new CurrentInspectionInfo().clearAll(context);
 
         // update user sign in status
         new UserInfo().setUserStatus(context, false);
 
         // clear database
-        new LocalDB().Clear();
+        new LocalDB().clear();
 
         // go back to sign in page
         context.startActivity(new Intent(context, SignInActivity.class));
-        if(context instanceof Activity){
-            ((Activity)context).finish();
+        if (context instanceof Activity) {
+            ((Activity) context).finish();
         }
     }
-
-
-    /*
-    public static <T> String serializeModel(T model){
-        Type singleType = new TypeToken<T>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(model, singleType);
-    }
-
-    public static <T> T deserializeModel(String json, T type){
-        Type modelType = new TypeToken<T>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.fromJson(json, modelType);
-    }*/
 }

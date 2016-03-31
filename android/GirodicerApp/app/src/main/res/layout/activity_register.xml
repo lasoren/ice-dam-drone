@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/home_page"
-    tools:context=".RegisterActivity" >
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/logo"
-        android:src="@drawable/app_name"
-        android:contentDescription="@string/app_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="75dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="45dp"
-        />
+        android:layout_marginTop="75dp"
+        android:contentDescription="@string/app_logo"
+        android:src="@drawable/app_name"/>
 
     <EditText
         android:id="@+id/first_name"
@@ -29,9 +25,8 @@
         android:ems="12"
         android:focusable="true"
         android:hint="@string/first_name"
-        android:inputType="textCapSentences"
         android:imeOptions="actionNext"
-        />
+        android:inputType="textCapSentences"/>
 
     <EditText
         android:id="@+id/last_name"
@@ -43,9 +38,8 @@
         android:ems="12"
         android:focusable="true"
         android:hint="@string/last_name"
-        android:inputType="textCapSentences"
         android:imeOptions="actionNext"
-        />
+        android:inputType="textCapSentences"/>
 
     <EditText
         android:id="@+id/password"
@@ -56,9 +50,8 @@
         android:layout_marginBottom="15dp"
         android:ems="12"
         android:hint="@string/password"
-        android:inputType="textPassword"
         android:imeOptions="actionNext"
-        />
+        android:inputType="textPassword"/>
 
     <EditText
         android:id="@+id/confirm_password"
@@ -70,9 +63,8 @@
         android:ems="12"
         android:focusable="true"
         android:hint="@string/confirm_password"
-        android:inputType="textPassword"
         android:imeOptions="actionNext"
-        />
+        android:inputType="textPassword"/>
 
     <EditText
         android:id="@+id/email"
@@ -83,28 +75,26 @@
         android:layout_marginBottom="15dp"
         android:ems="12"
         android:hint="@string/email"
-        android:inputType="textEmailAddress"
         android:imeOptions="actionGo"
-        />
+        android:inputType="textEmailAddress"/>
 
     <Button
         android:id="@+id/create_account"
-        android:layout_width="118dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/email"
-        android:layout_alignStart="@id/password"
         android:layout_alignEnd="@id/password"
+        android:layout_alignStart="@id/password"
+        android:layout_below="@id/email"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp"
-        android:text="@string/create_account"
-        />
+        android:layout_marginBottom="35dp"
+        android:text="@string/create_account"/>
 
-    <TextView android:id="@+id/go_to_login"
+    <TextView
+        android:id="@+id/go_to_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/create_account"
         android:layout_centerHorizontal="true"
         android:text="@string/go_to_sign_in"
-        android:textSize="16sp"
-        />
+        android:textSize="16sp"/>
 </RelativeLayout>

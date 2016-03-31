@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
-import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.network.HttpPost;
@@ -31,22 +30,28 @@ import java.lang.reflect.Type;
 public class SignInActivity extends AppCompatActivity {
 
     private EditText email, password;
-    private final String LOGIN_URL = Params.BASE_URL + "users/signin.json";
+    private boolean inView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        // no animation if starting due to a reload
+        String action = getIntent().getAction();
+        if (action != null && action.equals(Params.RELOAD)) {
+            overridePendingTransition(0, 0);
+        }
+
         // check if user is already logged in
-        if (new UserInfo().isLoggedIn(this)){ // if so, send them to the client manager
+        if (new UserInfo().isLoggedIn(this)) { // if so, send them to the client manager
             startActivity(new Intent(SignInActivity.this, ClientManagerActivity.class));
             finish();
         }
 
         // initialize text boxes for user to enter their information
-        email = (EditText)findViewById(R.id.email);
-        password = (EditText)findViewById(R.id.password);
+        email = (EditText) findViewById(R.id.email);
+        password = (EditText) findViewById(R.id.password);
 
         // allow user to submit form via keyboard
         password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -62,10 +67,10 @@ public class SignInActivity extends AppCompatActivity {
         });
 
         // declare and initialize buttons
-        Button loginButton = (Button)findViewById(R.id.login);
+        Button loginButton = (Button) findViewById(R.id.login);
         loginButton.setOnClickListener(loginButtonListener);
-        TextView registerButton = (TextView)findViewById(R.id.register);
-        registerButton.setOnClickListener(registerButtonListener);
+        TextView goToRegisterButton = (TextView) findViewById(R.id.register);
+        goToRegisterButton.setOnClickListener(goToRegisterButtonListener);
     }
 
     private final OnClickListener loginButtonListener = new OnClickListener() {
@@ -74,14 +79,15 @@ public class SignInActivity extends AppCompatActivity {
         }
     };
 
-    private final OnClickListener registerButtonListener = new OnClickListener() {
+    private final OnClickListener goToRegisterButtonListener = new OnClickListener() {
         public void onClick(View v) {
-            startActivity(new Intent(SignInActivity.this, RegisterActivity.class));
+            startActivity(new Intent(SignInActivity.this, RegisterActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
             finish();
         }
     };
 
-    private void Login(){
+    private void Login() {
         String enteredUsername = email.getText().toString();
         String enteredPassword = password.getText().toString();
 
@@ -90,23 +96,32 @@ public class SignInActivity extends AppCompatActivity {
         enteredInfo.putString("password", enteredPassword);
 
         String response = Utilities.validate(enteredInfo);
-        if (response.matches("")){
+        if (response.matches("")) {
             new AttemptLogin().execute();
-        }
-        else{
-            if (response.contains("email")){
+        } else {
+            if (response.contains("email")) {
                 email.setError(getResources().getString(R.string.enter_valid_email));
-            }
-            else{
+            } else {
                 email.setError(null);
             }
-            if (response.contains("password")){
+            if (response.contains("pass_word")) {
                 password.setError(getResources().getString(R.string.password_format));
-            }
-            else{
+            } else {
                 password.setError(null);
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        inView = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        inView = false;
     }
 
     class AttemptLogin extends AsyncTask<Void, Void, Void> {
@@ -121,11 +136,11 @@ public class SignInActivity extends AppCompatActivity {
             password = SignInActivity.this.password.getText().toString();
 
             JSONObject signinJson = new JSONObject();
-            try{
+            try {
                 signinJson.put("email", email);
                 signinJson.put("password", password);
-            }catch (Exception e){
-                new ExceptionHandler().HandleException(e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             dataJSON = signinJson.toString();
@@ -133,11 +148,11 @@ public class SignInActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            try{
-                String url = LOGIN_URL;
+            try {
+                String url = Params.BASE_URL + "users/signin.json";
                 postResponse = new HttpPost().doPostRequest(url, dataJSON);
-            } catch(java.io.IOException e){
-                new ExceptionHandler().HandleException(e);
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
             }
 
             return null;
@@ -146,14 +161,14 @@ public class SignInActivity extends AppCompatActivity {
         protected void onPostExecute(Void param) {
             if (postResponse.contains("id")) {
                 // create DroneOperator model from response json
-                Type droneOperator = new TypeToken<DroneOperator>(){}.getType();
+                Type droneOperator = new TypeToken<DroneOperator>() {
+                }.getType();
                 Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
 
                 // sign in
-                Utilities.SignIn(SignInActivity.this, operator);
-            }
-            else{ // display error
+                Utilities.signIn(SignInActivity.this, operator, inView);
+            } else { // display error
                 Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
             }
         }

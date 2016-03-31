@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group android:checkableBehavior="single">
+        <item android:title="@string/account">
+            <menu>
+                <item
+                    android:id="@+id/sign_out"
+                    android:title="@string/sign_out"/>
+            </menu>
+        </item>
+    </group>
+
+    <item android:title="@string/inspections">
+        <menu>
+            <item
+                android:id="@+id/end_inspection"
+                android:title="@string/end_inspection"/>
+
+            <item
+                android:id="@+id/current_inspection"
+                android:title="@string/current_inspection"/>
+
+            <item
+                android:id="@+id/past_inspections"
+                android:title="@string/past_inspections"/>
+        </menu>
+    </item>
+
+
+</menu>

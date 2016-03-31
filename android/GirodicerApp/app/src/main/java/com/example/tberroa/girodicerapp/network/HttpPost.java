@@ -1,7 +1,8 @@
 package com.example.tberroa.girodicerapp.network;
 
+import android.util.Log;
+
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.helpers.ExceptionHandler;
 
 import org.json.JSONObject;
 
@@ -26,6 +27,7 @@ public class HttpPost {
         Request request = new Request.Builder().url(url).post(body).build();
         Response response = httpClient.newCall(request).execute();
         String rawResponse = response.body().string().trim();
+        Log.d("dbg", "@HttpPost/doPostRequest: rawResponse is: " + rawResponse);
         JSONObject jsonObject;
         try{
             jsonObject = new JSONObject(rawResponse);
@@ -37,7 +39,7 @@ public class HttpPost {
                 return jsonObject.optString("detail", "");
             }
         }catch (Exception e){
-            new ExceptionHandler().HandleException(e);
+            e.printStackTrace();
         }
         return "json error occurred";
     }
