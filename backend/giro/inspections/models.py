@@ -111,7 +111,8 @@ class IceDam(models.Model):
         choices=TREATMENT_TYPES, default=NOTHING_DONE)
     # Associated inspection image for this ice dam. This allows us
     # to get inspection, as well as, see the image of this ice dam.
-    inspection_image = models.ForeignKey(InspectionImage)
+    inspection_image = models.OneToOneField(
+        InspectionImage, related_name="icedam")
 
 
 class Hotspot(models.Model):
@@ -128,5 +129,6 @@ class Hotspot(models.Model):
     # Associated inspection image for this ice dam. This allows us
     # to get inspection, as well as, see the thermal image of this 
     # hotspot.
-    inspection_image = models.ForeignKey(InspectionImage)
+    inspection_image = models.OneToOneField(
+        InspectionImage, related_name="hotspot")
     

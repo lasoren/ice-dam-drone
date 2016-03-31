@@ -2,8 +2,12 @@ from giro import exceptions
 
 from inspections.models import InspectionProvision
 from inspections.models import InspectionImageProvision
+from inspections.models import Icedam
+from inspections.models import Hotspot
 from inspections.serializers import InspectionSerializer
 from inspections.serializers import InspectionImageSerializer
+from inspections.serializers import IcedamSerializer
+from inspections.serializers import HotspotSerializer
 import inspections.db_utils as inspections_db_utils
 import inspections.utils as inspections_utils
 
@@ -110,7 +114,11 @@ class InspectionImagesGet(APIView):
             id__gte=request.data["provision"]
         ).select_related(
             'inspection_image', 'inspection_image__inspection__drone_operator'
-        ).filter(inspection_image__inspection__drone_operator__pk=request.data["user_id"])
+        ).filter(
+            inspection_image__inspection__drone_operator__pk=request.data["user_id"]
+        ).prefetch_related(
+            "icedam", "hotspot"
+        )
 
         inspection_images = []
         for inspection_image_provision in inspection_image_provisions:
@@ -118,3 +126,45 @@ class InspectionImagesGet(APIView):
         response["inspection_images"] = InspectionImageSerializer(
             inspection_images, many=True).data
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InspectionImageIcedam(APIView):
+    """
+    Mark or unmark a particular image as an icedam.
+    """
+    def post(self, request, format=None):
+        icedam_data = request.data["icedam"]
+        try:
+            icedam = Icedam.objects.get(
+                inspection_image_id=icedam_data["inspection_image_id"])
+            serializer = IcedamSerializer(icedam, data=icedam_data)
+        except Icedam.DoesNotExist:
+            serializer = IcedamSerializer(data=icedam_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            inspections_db_utils.add_images_to_inspection_image_provision(
+                [icedam_data["inspection_image_id"]])
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors)
+
+
+class InspectionImageHotspot(APIView):
+    """
+    Mark or unmark a particular image as a hotspot.
+    """
+    hotspot_data = request.data["hotspot"]
+    try:
+        hotspot = Hotspot.objects.get(
+            inspection_image_id=hotspot_data["inspection_image_id"])
+        serializer = HotspotSerializer(hotspot, data=hotspot_data)
+    except Hotspot.DoesNotExist:
+        serializer = HotspotSerializer(data=hotspot_data)
+
+    if serializer.is_valid():
+        serializer.save()
+        inspections_db_utils.add_images_to_inspection_image_provision(
+                [hotspot_data["inspection_image_id"]])
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors)
+
