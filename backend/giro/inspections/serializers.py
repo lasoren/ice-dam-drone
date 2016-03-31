@@ -48,7 +48,7 @@ class HotspotSerializer(serializers.ModelSerializer):
     inspection_image_id = serializers.IntegerField()
 
     class Meta:
-        model = IceDam
+        model = Hotspot
         fields = (
             'id',
             'inspection_image_id',
