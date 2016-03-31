@@ -117,7 +117,7 @@ class InspectionImagesGet(APIView):
         ).filter(
             inspection_image__inspection__drone_operator__pk=request.data["user_id"]
         ).prefetch_related(
-            "icedam", "hotspot"
+            "inspection_image__icedam", "inspection_image__hotspot"
         )
 
         inspection_images = []
