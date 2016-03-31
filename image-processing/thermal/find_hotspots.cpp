@@ -13,7 +13,7 @@ void FindHotspots(Mat& input, Mat& output);
 const char kDetectWindowName[] = "Source with Hotspots Found";
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
+    if (argc != 3) {
         cout << "usage: " << argv[0] <<
             " <input-filename> <output-filename>" << endl;
         return -1;
