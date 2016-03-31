@@ -93,9 +93,6 @@
     <string name="confirm_end_inspection">Are you sure you want to end the current inspection?</string>
     <string name="no_active_inspection">There is no active inspection to end.</string>
     <string name="inspection_in_progress">An inspection is already in progress.</string>
-    <string name="past_inspections_not_up_to_date">
-        Past inspection data needs to be up to date before a new inspection can be started.
-    </string>9
 
     <!-- notification bar -->
     <!-- bluetooth state -->
@@ -130,6 +127,7 @@
     <string name="download_description">In process of receiving images from drone</string>
 
     <!-- other -->
+    <string name="grabbing_data">Grabbing data &#8230;</string>
     <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
     <string name="drone_bt_name">ubuntu-mate-0</string>
 </resources>

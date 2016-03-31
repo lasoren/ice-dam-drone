@@ -60,7 +60,7 @@ public class LocalDB {
                 .execute();
     }
 
-    public void Clear(){
+    public void clear(){
         new Delete().from(Hotspot.class).execute();
         new Delete().from(IceDam.class).execute();
         new Delete().from(InspectionImage.class).execute();

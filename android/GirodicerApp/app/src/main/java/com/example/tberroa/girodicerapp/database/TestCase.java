@@ -79,7 +79,7 @@ public class TestCase {
                 default:
                     creationDate = "1/1/2016";
             }
-            inspection = new Inspection(i+1, creationDate, droneOperator, client1, 0);
+            inspection = new Inspection(i+1, creationDate, client1, 0);
             inspection.cascadeSave();
             inspections.add(inspection);
         }

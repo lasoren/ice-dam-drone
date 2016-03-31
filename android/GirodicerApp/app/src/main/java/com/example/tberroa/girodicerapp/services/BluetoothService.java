@@ -22,10 +22,11 @@ import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
-import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
+import com.example.tberroa.girodicerapp.database.LocalDB;
+import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class BluetoothService extends Service {
     public static Status currentStatus;
     public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
+    private int clientId;
 
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
@@ -96,7 +98,7 @@ public class BluetoothService extends Service {
 
                             if (device.getName().equals(getResources().getString(R.string.drone_bt_name))) {
                                 btDevice = device;
-                                if (btAdapter.isDiscovering()){
+                                if (btAdapter.isDiscovering()) {
                                     btAdapter.cancelDiscovery();
                                 }
                                 droneNotFound = false;
@@ -155,6 +157,12 @@ public class BluetoothService extends Service {
         }
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        clientId = intent.getIntExtra("client_id", 0);
+        return START_NOT_STICKY;
+    }
+
     // checks if drone is already paired, if not, begins discovery
     private void pair() {
         Log.d("dbg", "@BluetoothService: beginning of pair()");
@@ -187,7 +195,7 @@ public class BluetoothService extends Service {
         new Thread(new Runnable() {
             public void run() {
                 // cancel discovery
-                if (btAdapter.isDiscovering()){
+                if (btAdapter.isDiscovering()) {
                     btAdapter.cancelDiscovery();
                 }
 
@@ -225,7 +233,7 @@ public class BluetoothService extends Service {
         Log.d("dbg", "@BluetoothService: service destroyed");
 
         // shutdown connection thread
-        if (btConnectionThread != null){
+        if (btConnectionThread != null) {
             btConnectionThread.shutdown();
         }
 
@@ -256,19 +264,34 @@ public class BluetoothService extends Service {
         return true;
     }
 
-    private void droneStarted(){
-        // inspection is now in progress
-        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-        currentInspectionInfo.setNotInProgress(this, false);
+    private void droneStarted() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // create inspection on backend, save the id locally
+                int inspectionId = new ServerDB().createInspection(new LocalDB().getOperator(), clientId);
 
-        // drone is active, phase=1
-        currentInspectionInfo.setPhase(this, 1);
+                if (inspectionId < 0) { // error occurred
+                    stopSelf();
+                } else {
+                    // inspection is now in progress
+                    CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+                    currentInspectionInfo.setNotInProgress(BluetoothService.this, false);
 
-        // save client id
-        currentInspectionInfo.setClientId(this, new ClientId().get(this));
+                    // drone is active
+                    currentInspectionInfo.setPhase(BluetoothService.this, Params.CI_DRONE_ACTIVE);
+
+                    // save inspection id
+                    currentInspectionInfo.setInspectionId(BluetoothService.this, inspectionId);
+
+                    // save client id
+                    currentInspectionInfo.setClientId(BluetoothService.this, clientId);
+                }
+            }
+        }).start();
     }
 
-    private void droneDone(){
+    private void droneDone() {
         sendBroadcast(new Intent().setAction(Params.DRONE_DONE));
     }
 
@@ -308,7 +331,7 @@ public class BluetoothService extends Service {
                         public void run() {
                             Log.d("dbg", "@BluetoothService: timed out while waiting for initial status signal");
 
-                            if (currentStatus == null){
+                            if (currentStatus == null) {
                                 bluetoothInfo.setErrorCode(BluetoothService.this, Params.BTE_TIMEOUT);
 
                                 // let system know of timeout
@@ -354,15 +377,15 @@ public class BluetoothService extends Service {
                                 Log.d("dbg", "@BluetoothService/BTDataHandler: status received");
 
                                 // broadcast the status update
-                                if (context != null && !needInitialStatus){
+                                if (context != null && !needInitialStatus) {
                                     Log.d("dbg", "@BluetoothService/BTDataHandler: broadcasting status update");
                                     context.sendBroadcast(new Intent().setAction(Params.STATUS_UPDATE));
                                 }
 
                                 // check if CurrentOneActivity is waiting for initial status
-                                if (needInitialStatus){
+                                if (needInitialStatus) {
                                     // if so, check if the context has been sent
-                                    if (context != null){
+                                    if (context != null) {
                                         Log.d("dbg", "@BluetoothService/BTDataHandler: initial status received. broadcasting");
 
                                         context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
@@ -377,7 +400,7 @@ public class BluetoothService extends Service {
                                 houseBoundary = (ArrayList<LatLng>) received.read();
 
                                 // broadcast that the house boundary points are ready
-                                if (context != null){
+                                if (context != null) {
                                     Log.d("dbg", "@BluetoothService/BTDataHandler: house boundary received. broadcasting");
 
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
@@ -393,11 +416,11 @@ public class BluetoothService extends Service {
             }
         }
 
-        public static void passContext(Context c){
+        public static void passContext(Context c) {
             context = c;
         }
 
-        public static void destroyContext(){
+        public static void destroyContext() {
             context = null;
         }
     }

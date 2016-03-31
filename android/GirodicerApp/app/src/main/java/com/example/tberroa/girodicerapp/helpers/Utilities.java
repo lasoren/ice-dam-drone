@@ -8,17 +8,15 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
+import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
+import com.example.tberroa.girodicerapp.activities.SplashActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorId;
-import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
-
-import java.io.File;
+import com.example.tberroa.girodicerapp.services.SignInIntentService;
 
 final public class Utilities {
 
@@ -79,26 +77,6 @@ final public class Utilities {
         return getScreenWidth(context) / (getSpanGrid(context) * 48);
     }
 
-    public static String constructImageURL(int inspectionId, String imageName) { // always downloading inspection 1 for testing!!
-        return Params.CLOUD_URL + inspectionId + "/images/" + imageName;
-    }
-
-    public static void deleteDirectory(File fileOrDirectory) {
-        if (fileOrDirectory.isDirectory()) {
-            for (File child : fileOrDirectory.listFiles()) {
-                deleteDirectory(child);
-            }
-        }
-        boolean success = false;
-        while (!success) {
-            success = fileOrDirectory.delete();
-        }
-    }
-
-    public static String constructImageKey(int inspectionId, String imageName) {
-        return inspectionId + "/images/" + imageName;
-    }
-
     public static String validate(Bundle enteredInfo) {
         String validation = "";
 
@@ -146,12 +124,11 @@ final public class Utilities {
         return validation;
     }
 
-    public static void signIn(Context context, DroneOperator operator) {
+    public static void signIn(Context context, DroneOperator operator, boolean inView) {
         // clear shared preferences of old data
         final OperatorId operatorId = new OperatorId();
         operatorId.clear(context);
         new CurrentInspectionInfo().clearAll(context);
-        new PastInspectionsInfo().clearAll(context);
 
         // save the operators id to shared preference
         operatorId.set(context, operator.id);
@@ -159,33 +136,30 @@ final public class Utilities {
         // save this operator to local storage
         operator.cascadeSave();
 
-        // populate test database using real operator account (TEST CODE)
-        //new TestCase().Create(operator);
+        // start sign in intent service
+        context.startService(new Intent(context, SignInIntentService.class));
 
-        // say that inspection stuff is up to date (this will be unneeded later)
-        new PastInspectionsInfo().setUpToDate(context, true); // TEST CODE!
+        // go to splash page if app is in view
+        if (inView) {
+            context.startActivity(new Intent(context, SplashActivity.class));
 
-        // update user sign in status
-        new UserInfo().setUserStatus(context, true);
-
-        // go to client manager
-        context.startActivity(new Intent(context, ClientManagerActivity.class));
-        if (context instanceof Activity) {
-            ((Activity) context).finish();
+            // apply sign in animation for entering splash page
+            ((Activity) context).overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
         }
+
+        ((Activity) context).finish();
     }
 
     public static void signOut(Context context) {
         // clear shared preferences of old data
         new OperatorId().clear(context);
         new CurrentInspectionInfo().clearAll(context);
-        new PastInspectionsInfo().clearAll(context);
 
         // update user sign in status
         new UserInfo().setUserStatus(context, false);
 
         // clear database
-        new LocalDB().Clear();
+        new LocalDB().clear();
 
         // go back to sign in page
         context.startActivity(new Intent(context, SignInActivity.class));

@@ -24,14 +24,4 @@
         android:text="@string/ci_drone_active"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="16sp"/>
-
-    <TextView
-        android:id="@+id/fetching_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#d3ff7f"
-        android:gravity="center"
-        android:text="@string/fetching_data"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="16sp"/>
 </LinearLayout>

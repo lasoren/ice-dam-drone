@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.data.PastInspectionsInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.adapters.PastInspectionsViewAdapter;
@@ -70,9 +69,6 @@ public class PastInspectionsActivity extends BaseActivity {
 
         // check if this client has past inspections
         if (inspections != null && !inspections.isEmpty()) {
-            // set most recent inspection id (used for inspection creation later)
-            int id = inspections.get(0).id;
-            new PastInspectionsInfo().setMostRecentId(this, id);
 
             // populate view with past inspections
             PastInspectionsViewAdapter pastInspectionsViewAdapter;

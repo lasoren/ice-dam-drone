@@ -70,11 +70,14 @@ public class Params {
 
     // parameters connected to the backend
     final public static String BASE_URL = "http://ec2-54-86-133-171.compute-1.amazonaws.com:8000/";
+    final public static String CREATE_CLIENT_URL = Params.BASE_URL + "users/client/create.json";
+    final public static String CREATE_INSPECTION_URL = Params.BASE_URL + "inspections/create.json";
+    final public static String GET_CLIENTS_URL = Params.BASE_URL + "users/clients/get.json";
     // image types
-    final public static int NOT_SPECIFIED = 1;
-    final public static int ROOF_EDGE = 2;
-    final public static int THERMAL = 3;
-    final public static int AERIAL = 4;
+    final public static int I_TYPE_NOT_SPECIFIED = 1;
+    final public static int I_TYPE_ROOF_EDGE = 2;
+    final public static int I_TYPE_THERMAL = 3;
+    final public static int I_TYPE_AERIAL = 4;
     // treatment options
     final public static int NOTHING_DONE = 1;
     final public static int SALTED_BY_DRONE = 2;
