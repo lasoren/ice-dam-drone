@@ -2,11 +2,11 @@ from giro import exceptions
 
 from inspections.models import InspectionProvision
 from inspections.models import InspectionImageProvision
-from inspections.models import Icedam
+from inspections.models import IceDam
 from inspections.models import Hotspot
 from inspections.serializers import InspectionSerializer
 from inspections.serializers import InspectionImageSerializer
-from inspections.serializers import IcedamSerializer
+from inspections.serializers import IceDamSerializer
 from inspections.serializers import HotspotSerializer
 import inspections.db_utils as inspections_db_utils
 import inspections.utils as inspections_utils
@@ -135,11 +135,11 @@ class InspectionImageIcedam(APIView):
     def post(self, request, format=None):
         icedam_data = request.data["icedam"]
         try:
-            icedam = Icedam.objects.get(
+            icedam = IceDam.objects.get(
                 inspection_image_id=icedam_data["inspection_image_id"])
-            serializer = IcedamSerializer(icedam, data=icedam_data)
+            serializer = IceDamSerializer(icedam, data=icedam_data)
         except Icedam.DoesNotExist:
-            serializer = IcedamSerializer(data=icedam_data)
+            serializer = IceDamSerializer(data=icedam_data)
 
         if serializer.is_valid():
             serializer.save()

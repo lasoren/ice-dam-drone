@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from inspections.models import Inspection
 from inspections.models import InspectionImage
-from inspections.models import Icedam
+from inspections.models import IceDam
 from inspections.models import Hotspot
 from users.serializers import ClientSerializer
 
@@ -25,14 +25,14 @@ class InspectionSerializer(serializers.ModelSerializer):
             'deleted',)
 
 
-class IcedamSerializer(serializers.ModelSerializer):
+class IceDamSerializer(serializers.ModelSerializer):
     """
     Serializes JSON input and output for icedam objects.
     """
     inspection_image_id = serializers.IntegerField()
 
     class Meta:
-        model = Icedam
+        model = IceDam
         fields = (
             'id',
             'inspection_image_id',
@@ -48,7 +48,7 @@ class HotspotSerializer(serializers.ModelSerializer):
     inspection_image_id = serializers.IntegerField()
 
     class Meta:
-        model = Icedam
+        model = IceDam
         fields = (
             'id',
             'inspection_image_id',
@@ -61,8 +61,8 @@ class InspectionImageSerializer(serializers.ModelSerializer):
     Serializers JSON input and out for image objects.
     """
     inspection_id = serializers.IntegerField()
-    icedam = serializers.IcedamSerializer(read_only=True, required=False)
-    hotspot = serializers.IcedamSerializer(read_only=True, required=False)
+    icedam = IceDamSerializer(read_only=True, required=False)
+    hotspot = HotspotSerializer(read_only=True, required=False)
 
     class Meta:
         model = InspectionImage
