@@ -102,7 +102,9 @@ class InspectionsGet(APIView):
             id__gte=request.data["provision"]
         ).select_related(
             'inspection', 'inspection__drone_operator'
-        ).filter(inspection__drone_operator__pk=request.data["user_id"])
+        ).filter(
+            inspection__drone_operator__pk=request.data["user_id"]
+        ).distinct()
 
         inspections = []
         for inspection_provision in inspection_provisions:
@@ -133,7 +135,7 @@ class InspectionImagesGet(APIView):
             inspection_image__inspection__drone_operator__pk=request.data["user_id"]
         ).prefetch_related(
             "inspection_image__icedam", "inspection_image__hotspot"
-        )
+        ).distinct()
 
         inspection_images = []
         for inspection_image_provision in inspection_image_provisions:

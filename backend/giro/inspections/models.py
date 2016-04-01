@@ -74,7 +74,7 @@ class InspectionImage(models.Model):
     taken = models.DateTimeField()
     # Related field to the associated inspection from when this
     # image was collected.
-    inspection = models.ForeignKey(Inspection)
+    inspection = models.ForeignKey(Inspection, related_name="inspection_image")
     # Specifies whether the image is thermal, RGB, or not
     # specified.
     image_type = models.IntegerField(
