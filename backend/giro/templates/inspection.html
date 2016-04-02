@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html class="full" lang="en">
-<!-- Make sure the <html> tag is set to the .full CSS class. Change the background image in the full.css file. -->
+<html lang="en">
+
 
 <head>
 
@@ -17,6 +17,8 @@
 
     <!-- Custom CSS -->
     <link href="../static/css/the-big-picture.css" rel="stylesheet">
+
+    <link href='../static/css/tabulous.css' rel='stylesheet' type='text/css'>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -45,7 +47,7 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li class="active">
+                    <li>
                         <a href="#">About</a>
                     </li>
                     <li>
@@ -61,11 +63,41 @@
         <!-- /.container -->
     </nav>
 
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-1" title="">Tab 1</a></li>
+            <li><a href="#tabs-2" title="">Tab 2</a></li>
+            <li><a href="#tabs-3" title="">Tab 3</a></li>
+        </ul>
+
+        <div id="tabs_container">
+
+        <div id="tabs-1">
+                <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris. Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus.</p><p>Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing. Duis orci. Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat. Ut et mauris vel pede varius sollicitudin. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
+        </div>
+
+        <div id="tabs-2">
+                <p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor.</p>
+    
+        </div>
+
+        <div id="tabs-3">
+                <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem.</p><p> Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales.</p>
+        </div>
+
+        </div><!--End tabs container-->
+        
+    </div><!--End tabs-->
+
     <!-- jQuery -->
     <script src="../static/js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="../static/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="../static/js/tabulous.js"></script>
+
+    <script type="text/javascript" src="../static/js/tabs.js"></script>
 
 </body>
 
