@@ -139,6 +139,9 @@
                 $imageList = imagesDictionary[$imageKey];
                 for (var i = $imageList.length - 1; i >= 0; i--) {
                     $awsLink = "https://s3.amazonaws.com/girodicer/" + $imageList[i].path;
+                    if (!$awsLink.endsWith('.jpg')) {
+                        $awsLink += '.jpg'
+                    }
                     $imageTitle = "";
                     if ($imageList[i].hotspot != null) {
                         $imageTitle = "Hotspot";
