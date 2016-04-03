@@ -14,6 +14,7 @@ from inspections.serializers import InspectionImageSerializer
 
 import datetime
 import requests
+import json
 
 
 def render_email_confirmation(request, unique_code):
@@ -71,7 +72,11 @@ def render_client_portal(request, unique_code):
     for image in images:
         image_dict[type_dict[image.image_type]].append(
             InspectionImageSerializer(image).data)
-    render_dict["images"] = image_dict
+    # Remove any keys that have no images.
+    for key in image_dict.keys():
+        if len(image_dict[key]) == 0:
+            del image_dict[key]
+    render_dict["images"] = json.dumps(image_dict)
 
     return render(request, "inspection.html", render_dict)
 

@@ -25,9 +25,9 @@ p {
 #tabs li a,#tabs2 li a,#tabs3 li a,#tabs4 li a,#tabs5 li a {
 	display: block;
 	padding: 17px 30px;
-	background: #544f6b;
+	background: #59aafc;
 	text-decoration: none;
-	color: #8478B3;
+	color: #ffffff;
 }
 
 #tabs ul
@@ -36,7 +36,7 @@ p {
 }
 
 #tabs li a:hover,#tabs2 li a:hover,#tabs3 li a:hover,#tabs4 li a:hover,#tabs5 li a:hover {
-	background: rgb(78, 74, 99);
+	color: #d2f1ff;
 }
 
 #tabs_container {
@@ -200,8 +200,8 @@ p {
 }
 
 .tabulous_active {
-	background: white !important;
-	color: #655c89 !important;
+	background: #d2f1ff !important;
+	color: #59aafc !important;
 }
 
 .tabulousclear {

@@ -13,9 +13,9 @@ AERIAL = 4
 
 IMAGE_TYPES = (
     (NOT_SPECIFIED, 'Not specified'),
-    (ROOF_EDGE, 'Roof Edge Image'),
-    (THERMAL, 'Thermal Image'),
-    (AERIAL, 'Aerial Image')
+    (ROOF_EDGE, 'Roof Edge'),
+    (THERMAL, 'Thermal'),
+    (AERIAL, 'Aerial')
 )
 
 # Treatment options for ice dam.
