@@ -1,6 +1,7 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
 import blue, EventHandler
 import time, math, threading, lidar, datetime, os, subprocess
+from .saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
 
 class Girodicer():
 
