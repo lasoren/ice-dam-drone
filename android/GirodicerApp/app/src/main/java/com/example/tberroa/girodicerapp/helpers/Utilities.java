@@ -83,7 +83,7 @@ final public class Utilities {
         // grab entered information
         String firstName = enteredInfo.getString("first_name", null);
         String lastName = enteredInfo.getString("last_name", null);
-        String password = enteredInfo.getString("pass_word", null);
+        String password = enteredInfo.getString("password", null);
         String confirmPassword = enteredInfo.getString("confirm_password", null);
         String email = enteredInfo.getString("email", null);
 

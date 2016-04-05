@@ -145,10 +145,10 @@ public class CurrentOneActivity extends BaseActivity {
 
     private void start() {
         // request to enable bluetooth if necessary
-        if (btAdapter == null){
+        if (btAdapter == null) {
             // display message and try again button
             uiControl(0b00110, R.string.no_bt_adapter);
-        } else{
+        } else {
             if (!btAdapter.isEnabled()) {
                 Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBt, REQUEST_ENABLE_BT);
@@ -158,7 +158,7 @@ public class CurrentOneActivity extends BaseActivity {
         }
     }
 
-    private void startBluetoothService(){
+    private void startBluetoothService() {
         // get client id
         int clientId = new ClientId().get(this);
 
