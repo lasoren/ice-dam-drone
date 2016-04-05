@@ -145,11 +145,16 @@ public class CurrentOneActivity extends BaseActivity {
 
     private void start() {
         // request to enable bluetooth if necessary
-        if (!btAdapter.isEnabled()) {
-            Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBt, REQUEST_ENABLE_BT);
-        } else { // bluetooth is already enabled
-            startBluetoothService();
+        if (btAdapter == null){
+            // display message and try again button
+            uiControl(0b00110, R.string.no_bt_adapter);
+        } else{
+            if (!btAdapter.isEnabled()) {
+                Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBt, REQUEST_ENABLE_BT);
+            } else { // bluetooth is already enabled
+                startBluetoothService();
+            }
         }
     }
 

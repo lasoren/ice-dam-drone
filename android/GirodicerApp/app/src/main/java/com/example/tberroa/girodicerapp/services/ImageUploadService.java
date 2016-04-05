@@ -99,7 +99,7 @@ public class ImageUploadService extends Service {
                             // Create thumbnail image from full size image to be uploaded to AWS.
                             Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                             Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap,
-                                    Params.THUMBSIZE, Params.THUMBSIZE);
+                                    Params.THUMB_SIZE, Params.THUMB_SIZE);
 
                             try {
                                 File thumbfile = new File(thumbLocation);

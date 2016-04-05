@@ -57,6 +57,7 @@
     <!-- current inspection activity -->
     <string name="current_inspection_title">Current Inspection</string>
     <!-- 1st step: establish bluetooth connection -->
+    <string name="no_bt_adapter">Your device does not have a bluetooth adapter.</string>
     <string name="bte_not_enabled">Unable to connect to drone because bluetooth is not enabled.</string>
     <string name="bte_connect_failed">Failed to connect to drone.</string>
     <string name="bte_timeout_status">Timeout occurred while waiting for initial status signal.</string>
