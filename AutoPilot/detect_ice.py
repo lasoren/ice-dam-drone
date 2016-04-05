@@ -1,6 +1,7 @@
 import threading, glob, os, subprocess, utm, jsonpickle, errno
 from saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
 from house import UTMPoint
+from annotations import RgbAnnotation, ThermalAnnotation
 
 class DetectIce(threading.Thread):
     # haven't decided whether this class should be threaded or not
@@ -15,6 +16,7 @@ class DetectIce(threading.Thread):
         :param centroid: center of house
         """
         super(DetectIce, self).__init__()
+        os.chdir(dir)
         self.images = [str(file) for file in glob.glob("*.jpg")]
         self.annotations = annotations
         self.centroid = centroid
@@ -79,6 +81,7 @@ class DetectHotSpot():
     annotations = []
 
     def __init__(self, dir):
+        os.chdir(dir)
         self.images = [str(file) for file in glob.glob('*.jpg')]
         try:
             os.makedirs(self.folder)
@@ -86,3 +89,16 @@ class DetectHotSpot():
             if error.errno != errno.EEXIST:
                 raise error
             pass
+
+    def run(self):
+        for i in range(0, len(self.images)):
+            self.command[1] = self.images[i]
+            self.command[2] = self.folder + "/" + str(i) + ".jpg"
+
+            subprocess.Popen(self.command)
+
+            self.annotations.append(ThermalAnnotation(i, False))
+
+        os.chdir(self.folder)
+        with open("images.json", "w+") as f:
+            f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))

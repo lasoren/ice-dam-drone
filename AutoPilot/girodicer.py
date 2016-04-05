@@ -164,7 +164,7 @@ class Girodicer():
         fly_to_start.start()
 
         #  while drone is flying to start point, set up camera
-        camera = GirodicerCamera(self.vehicle)
+        camera = GirodicerCamera(self.vehicle, self.lidar)
         camera.start()
 
         fly_to_start.join()
@@ -376,9 +376,10 @@ class GirodicerCamera(threading.Thread):
     """
 
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_raw')
-    def __init__(self, vehicle):
+    def __init__(self, vehicle, lidar):
         super(GirodicerCamera, self).__init__()
         self.vehicle = vehicle
+        self.lidar = lidar
         self.__stopped = threading.Event()
         #self.folder = str(datetime.datetime.now())
         os.makedirs(self.folder)
@@ -391,9 +392,11 @@ class GirodicerCamera(threading.Thread):
         while self.__stopped.isSet() is False:
             time.sleep(0.1)
             location = self.vehicle.location.global_frame
-            self.annotations.append(RgbAnnotation(pic_num, str(location.lat) + str(location.lon)))
+            depth = self.lidar.readDistance()
+            self.annotations.append(RgbAnnotation(pic_num, str(location.lat) + str(location.lon), depth))
             file_name = str(pic_num) + ".jpg"
             os.system("fswebcam -r 1280x720 --jpeg 85" + file_name)
+            pic_num += 1
 
         with open("images.json", "w+") as f:
             f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))

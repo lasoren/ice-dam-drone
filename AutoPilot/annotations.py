@@ -10,6 +10,6 @@ class RgbAnnotation():
 
 class ThermalAnnotation():
 
-    def __init__(self):
-        self.image_num = -1
-        self.hot_spot = False
+    def __init__(self, num, is_hotspot):
+        self.image_num = num
+        self.hot_spot = is_hotspot
