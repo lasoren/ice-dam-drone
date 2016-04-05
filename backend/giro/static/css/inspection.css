@@ -1,0 +1,15 @@
+@import url(http://fonts.googleapis.com/css?family=Lato:400,300,700);
+
+body {
+    font-family: 'Lato', sans-serif;
+    background: none;
+}
+
+#tabs ul {
+    -webkit-padding-start: 20px;
+    padding-top: 20px;
+}
+
+div#links {
+    -webkit-padding-start: 20px;
+}
