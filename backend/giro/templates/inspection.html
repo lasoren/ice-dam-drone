@@ -139,16 +139,15 @@
                 $imageList = imagesDictionary[$imageKey];
                 for (var i = $imageList.length - 1; i >= 0; i--) {
                     $awsLink = "https://s3.amazonaws.com/girodicer/" + $imageList[i].path;
-                    if (!$awsLink.endsWith('.jpg')) {
-                        $awsLink += '.jpg';
-                    }
+                    $awsThumb = $awsLink += '_s.jpg';
+                    $awsLink += '.jpg';
                     $imageTitle = "";
                     if ($imageList[i].hotspot != null) {
                         $imageTitle = "Hotspot";
                     } else if ($imageList[i].icedam != null) {
                         $imageTitle = "Ice Dam";
                     }
-                    $links.append('<a href="' + $awsLink + '" title="' + $imageTitle +'" data-gallery><img src="' + $awsLink + '" alt="' + $imageTitle + '"></a>');
+                    $links.append('<a href="' + $awsLink + '" title="' + $imageTitle +'" data-gallery><img src="' + $awsThumb + '" alt="' + $imageTitle + '"></a>');
                 };
             });
 
