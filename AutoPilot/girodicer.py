@@ -1,6 +1,5 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import blue, EventHandler, time, math, threading, lidar, datetime, os, subprocess, jsonpickle
-from .saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
+import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle
 from annotations import RgbAnnotation, ThermalAnnotation
 from detect_ice import DetectIce
 

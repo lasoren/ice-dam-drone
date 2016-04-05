@@ -1,4 +1,4 @@
-import threading, glob, os, subprocess, utm, jsonpickle
+import threading, glob, os, subprocess, utm, jsonpickle, errno
 from saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
 from house import UTMPoint
 
@@ -16,10 +16,15 @@ class DetectIce(threading.Thread):
         """
         super(DetectIce, self).__init__()
         self.images = [str(file) for file in glob.glob("*.jpg")]
-        os.makedirs(self.folder)
         self.annotations = annotations
         self.centroid = centroid
         self.__stopped = threading.Event()
+        try:
+            os.makedirs(self.folder)
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise error
+            pass
 
     def run(self):
         self.__stopped.clear()
@@ -62,7 +67,22 @@ class DetectIce(threading.Thread):
             x_loc = meter_per_pixel * ice_dams[i]
             x_offset = -1 * ((width/2) - x_loc) # left of the center is heading west, right is heading east
             vec.e += x_offset
-            ice_loc = utm_origin.add(vec)
-            annotation.ice_locations.append(ice_loc.toLatLon())
+            ice_loc = utm_origin.add(vec).toLatLon()
+            annotation.ice_locations.append(str(ice_loc.lat) + "," + str(ice_loc.lon))
 
         annotation.is_icedam = True
+
+class DetectHotSpot():
+
+    command = ['./find_hotspots', '', '']
+    folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
+    annotations = []
+
+    def __init__(self, dir):
+        self.images = [str(file) for file in glob.glob('*.jpg')]
+        try:
+            os.makedirs(self.folder)
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise error
+            pass

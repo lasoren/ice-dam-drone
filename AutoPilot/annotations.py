@@ -13,4 +13,3 @@ class ThermalAnnotation():
     def __init__(self):
         self.image_num = -1
         self.hot_spot = False
-        self.origin = ""
