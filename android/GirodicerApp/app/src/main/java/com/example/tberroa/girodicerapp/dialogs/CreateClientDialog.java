@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.example.tberroa.girodicerapp.models.Client;
 
@@ -152,7 +151,7 @@ public class CreateClientDialog extends Dialog {
             @Override
             public void run() {
                 // create client on backend
-                Client result = new ServerDB().createClient(new LocalDB().getOperator(), client);
+                Client result = new ServerDB(context).createClient(client);
                 if (result != null) {
                     Log.d("dbg", "@CreateClientDialog: result is: " + result.toJson());
 

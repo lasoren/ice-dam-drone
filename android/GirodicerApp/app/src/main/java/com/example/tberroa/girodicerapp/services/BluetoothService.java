@@ -25,7 +25,6 @@ import com.example.tberroa.girodicerapp.data.BluetoothInfo;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
-import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -199,7 +198,6 @@ public class BluetoothService extends Service {
                     btAdapter.cancelDiscovery();
                 }
 
-
                 // initialize bluetooth socket
                 BluetoothSocket btSocket = null;
                 try {
@@ -269,7 +267,7 @@ public class BluetoothService extends Service {
             @Override
             public void run() {
                 // create inspection on backend, save the id locally
-                int inspectionId = new ServerDB().createInspection(new LocalDB().getOperator(), clientId);
+                int inspectionId = new ServerDB(BluetoothService.this).createInspection(clientId);
 
                 if (inspectionId < 0) { // error occurred
                     stopSelf();

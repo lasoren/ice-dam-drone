@@ -19,11 +19,11 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
-import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.dialogs.EndInspectionDialog;
 import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
@@ -148,7 +148,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         // initialize drawer header
         View headerLayout = navigationView.getHeaderView(0);
         TextView operatorName = (TextView) headerLayout.findViewById(R.id.operator_name);
-        operatorName.setText(new LocalDB().getOperator().user.first_name);
+        operatorName.setText(new OperatorInfo().getFirstName(this));
 
         // the rest of the code here is for notification bar management
         // declare the notification text views which may or may not populate the notification bar

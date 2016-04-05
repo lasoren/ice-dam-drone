@@ -71,7 +71,7 @@ public class ImageUploadService extends Service {
                 }
 
                 // create the inspection images on the backend and retrieve the inspection image objects from the response
-                ServerDB serverDB = new ServerDB();
+                ServerDB serverDB = new ServerDB(ImageUploadService.this);
                 String taken = "2016-02-24T22:09:05Z"; // TEST CODE, placeholder
                 List<InspectionImage> images = serverDB.createInspectionImages(inspectionId, inspectionImages, taken);
 

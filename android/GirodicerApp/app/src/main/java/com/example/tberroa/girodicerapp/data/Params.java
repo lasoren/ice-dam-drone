@@ -13,6 +13,8 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcasts
+    // sign in related
+    final public static String SIGN_IN_SERVICE_COMPLETE = "SIGN_IN_SERVICE_COMPLETE";
     // bluetooth related
     final public static String BLUETOOTH_NOT_ENABLED = "BLUETOOTH_NOT_ENABLED";
     final public static String BLUETOOTH_TIMEOUT = "BLUETOOTH_TIMEOUT";

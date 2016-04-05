@@ -1,10 +1,11 @@
 package com.example.tberroa.girodicerapp.database;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.models.Client;
-import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.example.tberroa.girodicerapp.network.HttpPost;
@@ -19,17 +20,19 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ServerDB {
 
-    public ServerDB() {
+    int operatorUserId;
+    String sessionId;
+
+    public ServerDB(Context context) {
+        OperatorInfo operatorInfo = new OperatorInfo();
+        operatorUserId = operatorInfo.getUserId(context);
+        sessionId = operatorInfo.getSessionId(context);
     }
 
-    public Client createClient(DroneOperator operator, Client client) {
-        // get required operator fields
-        int userId = operator.user.id;
-        String sessionId = operator.session_id;
-
-        // build into json format
+    public Client createClient(Client client) {
         // create user json object
         JSONObject userJson = new JSONObject();
         try {
@@ -39,6 +42,7 @@ public class ServerDB {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         // create client json object
         JSONObject clientJson = new JSONObject();
         try {
@@ -47,16 +51,18 @@ public class ServerDB {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         // create client request json object
         JSONObject clientRequestJson = new JSONObject();
         try {
-            clientRequestJson.put("user_id", userId);
+            clientRequestJson.put("user_id", operatorUserId);
             clientRequestJson.put("session_id", sessionId);
             clientRequestJson.put("client", clientJson);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // make request
         String postResponse = "";
         try {
             String dataJSON = clientRequestJson.toString();
@@ -82,28 +88,25 @@ public class ServerDB {
         return null;
     }
 
-    public int createInspection(DroneOperator operator, int clientId) {
-        // get required operator fields
-        int userId = operator.user.id;
-        String sessionId = operator.session_id;
-
+    public int createInspection(int clientId) {
         // build into json format
         JSONObject innerJson = new JSONObject();
         try {
-            innerJson.put("drone_operator_id", userId);
+            innerJson.put("drone_operator_id", operatorUserId);
             innerJson.put("client_id", clientId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         JSONObject requestJson = new JSONObject();
         try {
-            requestJson.put("user_id", userId);
+            requestJson.put("user_id", operatorUserId);
             requestJson.put("session_id", sessionId);
             requestJson.put("inspection", innerJson);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        // make request
         String postResponse = "";
         try {
             String dataJSON = requestJson.toString();
@@ -131,9 +134,6 @@ public class ServerDB {
     }
 
     public List<InspectionImage> createInspectionImages(int inspectionId, List<Integer> imageType, String taken) {
-        // get operator
-        DroneOperator operator = new LocalDB().getOperator();
-
         // create the list of images to create
         List<CreateImageModel> imagesToCreate = new ArrayList<>();
         for (int type : imageType) {
@@ -141,12 +141,12 @@ public class ServerDB {
         }
 
         // create the request json
-        CreateImageRequest createImageRequest = new CreateImageRequest(operator.user.id, operator.session_id, imagesToCreate);
+        CreateImageRequest createImageRequest = new CreateImageRequest(operatorUserId, sessionId, imagesToCreate);
         Type createImagesType = new TypeToken<CreateImageRequest>() {
         }.getType();
         String requestJson = new Gson().toJson(createImageRequest, createImagesType);
 
-        // post
+        // make request
         String postResponse = "";
         try {
             Log.d("dbg", "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
@@ -172,16 +172,13 @@ public class ServerDB {
         return null;
     }
 
-    public List<Client> getClients(DroneOperator operator) {
-        // get required operator fields
-        int userId = operator.user.id;
-        String sessionId = operator.session_id;
+    public List<Client> getClients() {
         int provision = 0; // hard code this for now
 
         // build into json format
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("user_id", userId);
+            jsonObject.put("user_id", operatorUserId);
             jsonObject.put("session_id", sessionId);
             jsonObject.put("provision", provision);
         } catch (Exception e) {
@@ -209,12 +206,12 @@ public class ServerDB {
         }
     }
 
-    public List<Inspection> getInspections(DroneOperator operator) {
+    public List<Inspection> getInspections() {
         // create the request json
         JSONObject requestJson = new JSONObject();
         try {
-            requestJson.put("user_id", operator.user.id);
-            requestJson.put("session_id", operator.session_id);
+            requestJson.put("user_id", operatorUserId);
+            requestJson.put("session_id", sessionId);
             requestJson.put("provision", 0);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -241,12 +238,12 @@ public class ServerDB {
         }
     }
 
-    public List<InspectionImage> getInspectionImages(DroneOperator operator) {
+    public List<InspectionImage> getInspectionImages() {
         // create the request json
         JSONObject requestJson = new JSONObject();
         try {
-            requestJson.put("user_id", operator.user.id);
-            requestJson.put("session_id", operator.session_id);
+            requestJson.put("user_id", operatorUserId);
+            requestJson.put("session_id", sessionId);
             requestJson.put("provision", 0);
         } catch (JSONException e) {
             e.printStackTrace();

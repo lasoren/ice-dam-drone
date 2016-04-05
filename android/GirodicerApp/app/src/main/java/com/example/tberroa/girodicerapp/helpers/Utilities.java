@@ -12,7 +12,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.activities.SplashActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
-import com.example.tberroa.girodicerapp.data.OperatorId;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
@@ -126,12 +126,17 @@ final public class Utilities {
 
     public static void signIn(Context context, DroneOperator operator, boolean inView) {
         // clear shared preferences of old data
-        final OperatorId operatorId = new OperatorId();
-        operatorId.clear(context);
+        final OperatorInfo operatorInfo = new OperatorInfo();
+        operatorInfo.clear(context);
         new CurrentInspectionInfo().clearAll(context);
 
-        // save the operators id to shared preference
-        operatorId.set(context, operator.id);
+        // save operator info
+        operatorInfo.setOperatorId(context, operator.id);
+        operatorInfo.setUserId(context, operator.user.id);
+        operatorInfo.setSessionId(context, operator.session_id);
+        operatorInfo.setFirstName(context, operator.user.first_name);
+        operatorInfo.setLastName(context, operator.user.last_name);
+        operatorInfo.setEmail(context, operator.user.email);
 
         // save this operator to local storage
         operator.cascadeSave();
@@ -152,7 +157,7 @@ final public class Utilities {
 
     public static void signOut(Context context) {
         // clear shared preferences of old data
-        new OperatorId().clear(context);
+        new OperatorInfo().clear(context);
         new CurrentInspectionInfo().clearAll(context);
 
         // update user sign in status

@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class LocalDB {
 
     public LocalDB() {
