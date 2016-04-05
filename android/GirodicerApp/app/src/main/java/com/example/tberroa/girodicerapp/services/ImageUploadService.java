@@ -108,7 +108,7 @@ public class ImageUploadService extends Service {
                                     Log.d("dbg", "@ImageUploadService: thumbFile not created");
                                 }
 
-                                // Convert bitmap to byte array
+                                // convert bitmap to byte array
                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                                 thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
                                 byte[] bitMapData = bos.toByteArray();
