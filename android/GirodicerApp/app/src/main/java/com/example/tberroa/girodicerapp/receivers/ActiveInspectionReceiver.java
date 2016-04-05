@@ -31,6 +31,16 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
             case Params.TRANSFER_COMPLETE:
                 // reload active mission activity
                 context.sendBroadcast(new Intent().setAction(reload));
+
+                // check if anything is being downloaded
+                long lastDownloadId = currentInspectionInfo.getLastDownload(context);
+                if (lastDownloadId == 0){ // nothing is being downloaded, go to upload phase
+                    // start uploading
+                    context.startService(new Intent(context, ImageUploadService.class));
+
+                    // reload active mission activity
+                    context.sendBroadcast(new Intent().setAction(reload));
+                }
                 break;
 
             case DownloadManager.ACTION_DOWNLOAD_COMPLETE:
@@ -39,8 +49,8 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
 
                 // get the id of the recently completed downloaded
                 long recentDownload = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-                int missionPhase = currentInspectionInfo.getPhase(context);
-                if (lastDownload == recentDownload && missionPhase == 2) {
+                int phase = currentInspectionInfo.getPhase(context);
+                if (lastDownload == recentDownload && phase == Params.CI_DATA_TRANSFER) {
                     // start uploading
                     context.startService(new Intent(context, ImageUploadService.class));
 

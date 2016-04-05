@@ -32,6 +32,7 @@ public class ImageUploadService extends Service {
     private final String thermalType = Integer.toString(Params.I_TYPE_THERMAL);
     private final String roofEdgeType = Integer.toString(Params.I_TYPE_ROOF_EDGE);
     private final int imageType[] = {Params.I_TYPE_AERIAL, Params.I_TYPE_THERMAL, Params.I_TYPE_ROOF_EDGE};
+    private final String basePath = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER;
     private Bundle numberOfImages;
     private int inspectionId;
     private TransferUtility transfer;
@@ -84,11 +85,11 @@ public class ImageUploadService extends Service {
                 int num = 0;
                 for (int type : imageType) { // loop per image type
                     for (int i = 0; i < numberOfImages.getInt(Integer.toString(type)); i++) { // loop per image of that type
+                        // initialize some variables
                         InspectionImage image = images.get(num);
                         String typeString = Integer.toString(image.image_type);
                         String iString = Integer.toString(i);
-                        String locationGeneric = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER
-                                + "/images/" + typeString + iString;
+                        String locationGeneric = basePath + "/images/" + typeString + iString;
                         String location = locationGeneric + ".jpg";
                         String thumbLocation = locationGeneric + "_s.jpg";  // S for small :)
 
@@ -96,29 +97,31 @@ public class ImageUploadService extends Service {
                         final File file = Environment.getExternalStoragePublicDirectory(location);
 
                         if (file.exists()) { // check if file exists before trying to upload
-                            // Create thumbnail image from full size image to be uploaded to AWS.
+                            // create thumbnail image from full size image to be uploaded to AWS
                             Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                            Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap,
-                                    Params.THUMB_SIZE, Params.THUMB_SIZE);
+                            Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, Params.THUMB_SIZE, Params.THUMB_SIZE);
 
                             try {
-                                File thumbfile = new File(thumbLocation);
-                                thumbfile.createNewFile();
+                                File thumbFile = Environment.getExternalStoragePublicDirectory(thumbLocation);
 
-                                //Convert bitmap to byte array
+                                if (!thumbFile.createNewFile()){
+                                    Log.d("dbg", "@ImageUploadService: thumbFile not created");
+                                }
+
+                                // Convert bitmap to byte array
                                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                                 thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                                byte[] bitmapdata = bos.toByteArray();
+                                byte[] bitMapData = bos.toByteArray();
 
-                                FileOutputStream fos = new FileOutputStream(thumbfile);
-                                fos.write(bitmapdata);
+                                FileOutputStream fos = new FileOutputStream(thumbFile);
+                                fos.write(bitMapData);
                                 fos.flush();
                                 fos.close();
 
-                                // Upload thumbnail image.
+                                // upload thumbnail image
                                 TransferObserver observer; // used to monitor upload status
                                 observer = transfer.upload(Params.CLOUD_BUCKET_NAME,
-                                        image.path + "_s.jpg", thumbfile);
+                                        image.path + "_s.jpg", thumbFile);
                                 boolean notDone = true;
                                 while (notDone) {
                                     try {
@@ -127,7 +130,7 @@ public class ImageUploadService extends Service {
                                         if (observer.getState() == TransferState.COMPLETED) {
                                             Log.d("dbg", "@ImageUploadService: image upload complete");
                                             notDone = false;
-                                            if (!file.delete()) {
+                                            if (!thumbFile.delete()) {
                                                 try {
                                                     throw new Exception("Cannot delete file");
                                                 } catch (Exception e) {
@@ -140,9 +143,10 @@ public class ImageUploadService extends Service {
                                     }
                                 }
                             } catch (Exception e) {
-                                Log.e("err", "FAILED TO CREATE THUMBNAIL IMAGE", e);
+                                Log.e("dbg", "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
                             }
 
+                            // upload image
                             TransferObserver observer; // used to monitor upload status
                             observer = transfer.upload(Params.CLOUD_BUCKET_NAME, image.path + ".jpg", file);
                             boolean notDone = true;
@@ -172,9 +176,9 @@ public class ImageUploadService extends Service {
                     }
                 }
                 Log.d("dbg", "@ImageUploadService: all images are done being uploaded");
+
                 // uploading is complete, delete local file directory
-                String path = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER;
-                File directory = Environment.getExternalStoragePublicDirectory(path);
+                File directory = Environment.getExternalStoragePublicDirectory(basePath);
                 deleteDirectory(directory);
                 ImageUploadService.this.stopSelf();
                 stopSelf();
