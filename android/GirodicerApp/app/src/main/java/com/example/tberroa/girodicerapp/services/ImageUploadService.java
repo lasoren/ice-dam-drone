@@ -2,6 +2,9 @@ package com.example.tberroa.girodicerapp.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -10,13 +13,15 @@ import android.util.Log;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.example.tberroa.girodicerapp.network.CloudTools;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,12 +87,62 @@ public class ImageUploadService extends Service {
                         InspectionImage image = images.get(num);
                         String typeString = Integer.toString(image.image_type);
                         String iString = Integer.toString(i);
-                        String location = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER + "/images/" + typeString + iString + ".jpg";
+                        String locationGeneric = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER
+                                + "/images/" + typeString + iString;
+                        String location = locationGeneric + ".jpg";
+                        String thumbLocation = locationGeneric + "_s.jpg";  // S for small :)
 
                         // get image file from local directory (images are saved during image transfer phase)
                         final File file = Environment.getExternalStoragePublicDirectory(location);
 
                         if (file.exists()) { // check if file exists before trying to upload
+                            // Create thumbnail image from full size image to be uploaded to AWS.
+                            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                            Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap,
+                                    Params.THUMBSIZE, Params.THUMBSIZE);
+
+                            try {
+                                File thumbfile = new File(thumbLocation);
+                                thumbfile.createNewFile();
+
+                                //Convert bitmap to byte array
+                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                byte[] bitmapdata = bos.toByteArray();
+
+                                FileOutputStream fos = new FileOutputStream(thumbfile);
+                                fos.write(bitmapdata);
+                                fos.flush();
+                                fos.close();
+
+                                // Upload thumbnail image.
+                                TransferObserver observer; // used to monitor upload status
+                                observer = transfer.upload(Params.CLOUD_BUCKET_NAME,
+                                        image.path + "_s.jpg", thumbfile);
+                                boolean notDone = true;
+                                while (notDone) {
+                                    try {
+                                        Thread.sleep(250);
+                                        observer.refresh();
+                                        if (observer.getState() == TransferState.COMPLETED) {
+                                            Log.d("dbg", "@ImageUploadService: image upload complete");
+                                            notDone = false;
+                                            if (!file.delete()) {
+                                                try {
+                                                    throw new Exception("Cannot delete file");
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.e("err", "FAILED TO CREATE THUMBNAIL IMAGE", e);
+                            }
+
                             TransferObserver observer; // used to monitor upload status
                             observer = transfer.upload(Params.CLOUD_BUCKET_NAME, image.path + ".jpg", file);
                             boolean notDone = true;
