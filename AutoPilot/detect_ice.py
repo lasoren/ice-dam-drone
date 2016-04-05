@@ -64,3 +64,5 @@ class DetectIce(threading.Thread):
             vec.e += x_offset
             ice_loc = utm_origin.add(vec)
             annotation.ice_locations.append(ice_loc.toLatLon())
+
+        annotation.is_icedam = True
