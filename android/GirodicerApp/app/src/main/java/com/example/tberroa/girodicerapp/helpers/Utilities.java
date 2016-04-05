@@ -124,47 +124,14 @@ final public class Utilities {
         return validation;
     }
 
-    public static void signIn(Context context, DroneOperator operator, boolean inView) {
-        // clear shared preferences of old data
-        final OperatorInfo operatorInfo = new OperatorInfo();
-        operatorInfo.clear(context);
-        new CurrentInspectionInfo().clearAll(context);
-
-        // save operator info
-        operatorInfo.setOperatorId(context, operator.id);
-        operatorInfo.setUserId(context, operator.user.id);
-        operatorInfo.setSessionId(context, operator.session_id);
-        operatorInfo.setFirstName(context, operator.user.first_name);
-        operatorInfo.setLastName(context, operator.user.last_name);
-        operatorInfo.setEmail(context, operator.user.email);
-
-        // save this operator to local storage
-        operator.cascadeSave();
-
-        // start sign in intent service
-        context.startService(new Intent(context, SignInIntentService.class));
-
-        // go to splash page if app is in view
-        if (inView) {
-            context.startActivity(new Intent(context, SplashActivity.class));
-
-            // apply sign in animation for entering splash page
-            ((Activity) context).overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
-        }
-
-        ((Activity) context).finish();
-    }
-
     public static void signOut(Context context) {
-        // clear shared preferences of old data
+        // clear old data
         new OperatorInfo().clear(context);
         new CurrentInspectionInfo().clearAll(context);
+        new LocalDB().clear();
 
         // update user sign in status
         new UserInfo().setUserStatus(context, false);
-
-        // clear database
-        new LocalDB().clear();
 
         // go back to sign in page
         context.startActivity(new Intent(context, SignInActivity.class));

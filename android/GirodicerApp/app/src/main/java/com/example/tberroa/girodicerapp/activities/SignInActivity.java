@@ -14,11 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
+import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
+import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
 import com.example.tberroa.girodicerapp.network.HttpPost;
+import com.example.tberroa.girodicerapp.services.SignInIntentService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -31,6 +35,21 @@ public class SignInActivity extends AppCompatActivity {
 
     private EditText email, password;
     private boolean inView;
+
+    // onClick listeners
+    private final OnClickListener signInButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            start();
+        }
+    };
+    private final OnClickListener goToRegisterButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            Intent intent = new Intent(SignInActivity.this, RegisterActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD);
+            startActivity(intent);
+            finish();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +78,7 @@ public class SignInActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
-                    Login();
+                    start();
                     handled = true;
                 }
                 return handled;
@@ -67,49 +86,10 @@ public class SignInActivity extends AppCompatActivity {
         });
 
         // declare and initialize buttons
-        Button loginButton = (Button) findViewById(R.id.login);
-        loginButton.setOnClickListener(loginButtonListener);
+        Button signInButton = (Button) findViewById(R.id.sign_in);
+        signInButton.setOnClickListener(signInButtonListener);
         TextView goToRegisterButton = (TextView) findViewById(R.id.register);
         goToRegisterButton.setOnClickListener(goToRegisterButtonListener);
-    }
-
-    private final OnClickListener loginButtonListener = new OnClickListener() {
-        public void onClick(View v) {
-            Login();
-        }
-    };
-
-    private final OnClickListener goToRegisterButtonListener = new OnClickListener() {
-        public void onClick(View v) {
-            startActivity(new Intent(SignInActivity.this, RegisterActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
-            finish();
-        }
-    };
-
-    private void Login() {
-        String enteredUsername = email.getText().toString();
-        String enteredPassword = password.getText().toString();
-
-        Bundle enteredInfo = new Bundle();
-        enteredInfo.putString("email", enteredUsername);
-        enteredInfo.putString("password", enteredPassword);
-
-        String response = Utilities.validate(enteredInfo);
-        if (response.matches("")) {
-            new AttemptLogin().execute();
-        } else {
-            if (response.contains("email")) {
-                email.setError(getResources().getString(R.string.enter_valid_email));
-            } else {
-                email.setError(null);
-            }
-            if (response.contains("pass_word")) {
-                password.setError(getResources().getString(R.string.password_format));
-            } else {
-                password.setError(null);
-            }
-        }
     }
 
     @Override
@@ -124,7 +104,65 @@ public class SignInActivity extends AppCompatActivity {
         inView = false;
     }
 
-    class AttemptLogin extends AsyncTask<Void, Void, Void> {
+    private void start() {
+        String enteredUsername = email.getText().toString();
+        String enteredPassword = password.getText().toString();
+
+        Bundle enteredInfo = new Bundle();
+        enteredInfo.putString("email", enteredUsername);
+        enteredInfo.putString("password", enteredPassword);
+
+        String response = Utilities.validate(enteredInfo);
+        if (response.matches("")) {
+            new AttemptSignIn().execute();
+        } else {
+            if (response.contains("email")) {
+                email.setError(getResources().getString(R.string.enter_valid_email));
+            } else {
+                email.setError(null);
+            }
+            if (response.contains("pass_word")) {
+                password.setError(getResources().getString(R.string.password_format));
+            } else {
+                password.setError(null);
+            }
+        }
+    }
+
+    private void signIn(DroneOperator operator) {
+        final OperatorInfo operatorInfo = new OperatorInfo();
+
+        // clear old data
+        operatorInfo.clear(this);
+        new CurrentInspectionInfo().clearAll(this);
+        new LocalDB().clear();
+
+        // save operator info
+        operatorInfo.setOperatorId(this, operator.id);
+        operatorInfo.setUserId(this, operator.user.id);
+        operatorInfo.setSessionId(this, operator.session_id);
+        operatorInfo.setFirstName(this, operator.user.first_name);
+        operatorInfo.setLastName(this, operator.user.last_name);
+        operatorInfo.setEmail(this, operator.user.email);
+
+        // save this operator to local storage
+        operator.cascadeSave();
+
+        // start sign in intent service
+        startService(new Intent(this, SignInIntentService.class));
+
+        // go to splash page if app is in view
+        if (inView) {
+            startActivity(new Intent(this, SplashActivity.class));
+
+            // apply sign in animation for entering splash page
+            overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left);
+        }
+
+        finish();
+    }
+
+    class AttemptSignIn extends AsyncTask<Void, Void, Void> {
 
         private String email, password, dataJSON, postResponse;
 
@@ -167,7 +205,7 @@ public class SignInActivity extends AppCompatActivity {
                 DroneOperator operator = gson.fromJson(postResponse, droneOperator);
 
                 // sign in
-                Utilities.signIn(SignInActivity.this, operator, inView);
+                signIn(operator);
             } else { // display error
                 Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
             }
