@@ -1,13 +1,15 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import blue, EventHandler
-import time, math, threading, lidar, datetime, os, subprocess
+import blue, EventHandler, time, math, threading, lidar, datetime, os, subprocess, jsonpickle
 from .saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
+from annotations import RgbAnnotation, ThermalAnnotation
+from detect_ice import DetectIce
 
 class Girodicer():
 
     status = None
     house = None
-    folders = []
+    rgb_annotations = None
+    thermal_annotations = None
 
     flying_velocity = 1.4 # m/s
 
@@ -128,7 +130,17 @@ class Girodicer():
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
 
+    def process_images(self):
+        """
+        run the image processing routines
+        """
+        detect_ice = DetectIce(GirodicerCamera.folder, self.rgb_annotations, self.house.centroid)
+        detect_ice.run()
+
     def stop(self):
+        """
+        stop all resources and running threads
+        """
         if not self.debug:
             self.blue.stop()
             if self.status is not None:
@@ -158,6 +170,7 @@ class Girodicer():
 
         fly_to_start.join()
 
+        # flies point by point
         for i in range(1, len(self.house.outline) + 1):
             point = self.house.outline[i%len(self.house.outline)]
             point.alt = self.house.houseHeight
@@ -174,7 +187,7 @@ class Girodicer():
         # stop camera and save folder location
         print "Finished Border Scan"
 
-        self.folders.append(camera.stop())
+        self.rgb_annotations = camera.stop()
 
         if self.vehicle.mode.name == "GUIDED":
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
@@ -214,6 +227,7 @@ class Girodicer():
 
         thermal.start_recording()
 
+        # flies point by point
         for i in range(1, len(self.house.path)):
             point = self.house.path[i]
             point.alt = self.house.houseHeight*2
@@ -361,36 +375,43 @@ class GirodicerCamera(threading.Thread):
 
     On stop this class will return the folder where pictures were saved to
     """
+
+    folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_raw')
     def __init__(self, vehicle):
         super(GirodicerCamera, self).__init__()
         self.vehicle = vehicle
         self.__stopped = threading.Event()
         #self.folder = str(datetime.datetime.now())
-        self.folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb')
         os.makedirs(self.folder)
+        self.annotations = []
 
     def run(self):
         self.__stopped.clear()
         os.chdir(self.folder)
+        pic_num = 0
         while self.__stopped.isSet() is False:
             time.sleep(0.1)
             location = self.vehicle.location.global_frame
-            file_name = str(location.lat) + "," + str(location.lon) + ".jpg"
-            os.system("fswebcam -r 640x480 --jpeg 85" + file_name)
+            self.annotations.append(RgbAnnotation(pic_num, str(location.lat) + str(location.lon)))
+            file_name = str(pic_num) + ".jpg"
+            os.system("fswebcam -r 1280x720 --jpeg 85" + file_name)
+
+        with open("images.json", "w+") as f:
+            f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))
 
     def stop(self):
         self.__stopped.set()
-        return self.folder
+        return self.annotations
 
 class GirodicerThermal():
 
     camera_ip = "192.168.0.168"
     ffmpeg = None
     command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', 'out%d.jpg']
+    folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_raw')
 
     def __init__(self):
         #self.folder = str(datetime.datetime.now()) + "_thermal"
-        self.folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal')
         os.makedirs(self.folder)
         self.up = os.system("ping -c 1" + self.camera_ip)
 

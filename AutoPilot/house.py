@@ -73,6 +73,8 @@ class house:
     sbb = []
     area = []
 
+    centroid = None
+
     houseHeight = 7
 
     def __init__(self, outline):
@@ -96,6 +98,11 @@ class house:
         self.outline.sort(key=cw_sort, reverse=True)
 
     def __offset_outline(self):
+        """
+        calculates for each point on the house outline a meter off set so each "point" won't collide into the house
+        The wingspan of the drone is 1 meter and distance from the roof is calculated from the center of the drone
+            To be a meter from the roof requires that your points be 1.5m offset
+        """
         c_e = 0
         c_n = 0
 
@@ -106,10 +113,11 @@ class house:
         c_e /= len(self.convexHull)
         c_n /= len(self.convexHull)
 
-        centroid = UTMPoint((c_e, c_n, self.sbb[0].zone, self.sbb[0].zoneLetter))
+        self.centroid = UTMPoint((c_e, c_n, self.sbb[0].zone, self.sbb[0].zoneLetter))
 
         for i in range(0, len(self.utmOutline)):
-            vec = centroid.getVector(self.utmOutline[i])
+            # we multiply each vector by 1.5 since distance is calculated from center of vehicle
+            vec = self.centroid.getVector(self.utmOutline[i]).scalarMult(1.5)
             self.utmOutline[i].n -= vec.n
             self.utmOutline[i].e -= vec.e
 
