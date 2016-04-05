@@ -1,6 +1,7 @@
-import threading, glob, os, subprocess, utm, jsonpickle
+import threading, glob, os, subprocess, utm, jsonpickle, errno
 from saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
 from house import UTMPoint
+from annotations import RgbAnnotation, ThermalAnnotation
 
 class DetectIce(threading.Thread):
     # haven't decided whether this class should be threaded or not
@@ -15,11 +16,17 @@ class DetectIce(threading.Thread):
         :param centroid: center of house
         """
         super(DetectIce, self).__init__()
+        os.chdir(dir)
         self.images = [str(file) for file in glob.glob("*.jpg")]
-        os.makedirs(self.folder)
         self.annotations = annotations
         self.centroid = centroid
         self.__stopped = threading.Event()
+        try:
+            os.makedirs(self.folder)
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise error
+            pass
 
     def run(self):
         self.__stopped.clear()
@@ -62,7 +69,36 @@ class DetectIce(threading.Thread):
             x_loc = meter_per_pixel * ice_dams[i]
             x_offset = -1 * ((width/2) - x_loc) # left of the center is heading west, right is heading east
             vec.e += x_offset
-            ice_loc = utm_origin.add(vec)
-            annotation.ice_locations.append(ice_loc.toLatLon())
+            ice_loc = utm_origin.add(vec).toLatLon()
+            annotation.ice_locations.append(str(ice_loc.lat) + "," + str(ice_loc.lon))
 
         annotation.is_icedam = True
+
+class DetectHotSpot():
+
+    command = ['./find_hotspots', '', '']
+    folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
+    annotations = []
+
+    def __init__(self, dir):
+        os.chdir(dir)
+        self.images = [str(file) for file in glob.glob('*.jpg')]
+        try:
+            os.makedirs(self.folder)
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise error
+            pass
+
+    def run(self):
+        for i in range(0, len(self.images)):
+            self.command[1] = self.images[i]
+            self.command[2] = self.folder + "/" + str(i) + ".jpg"
+
+            subprocess.Popen(self.command)
+
+            self.annotations.append(ThermalAnnotation(i, False))
+
+        os.chdir(self.folder)
+        with open("images.json", "w+") as f:
+            f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))
