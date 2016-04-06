@@ -17,7 +17,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.network.HttpPost;
+import com.example.tberroa.girodicerapp.network.Http;
 
 import org.json.JSONObject;
 
@@ -161,7 +161,7 @@ public class RegisterActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             try {
                 String url = Params.BASE_URL + "users/register.json";
-                postResponse = new HttpPost().doPostRequest(url, dataJSON);
+                postResponse = new Http().postRequest(url, dataJSON);
             } catch (java.io.IOException e) {
                 e.printStackTrace();
             }

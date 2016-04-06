@@ -239,6 +239,12 @@ public class BluetoothService extends Service {
         // reset state
         bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
 
+        /*// all inspection phases but uploading to aws require bluetooth
+        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+        if (currentInspectionInfo.getPhase(this) != Params.CI_UPLOADING){
+            currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
+        }*/
+
         // update variables
         needInitialStatus = true;
         mapPhaseComplete = false;
@@ -374,6 +380,7 @@ public class BluetoothService extends Service {
                         GProtocol received = GProtocol.Unpack(data);
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
+                                //Log.d("dbg", "@BluetoothService/BTDataHandler/COMMAND_STATUS");
                                 currentStatus = (Status) received.read();
 
                                 // broadcast the status update
@@ -395,6 +402,7 @@ public class BluetoothService extends Service {
                                 }
                                 break;
                             case GProtocol.COMMAND_SEND_PATH:
+                                Log.d("dbg", "@BluetoothService/BTDataHandler/COMMAND_SEND_PATH");
                                 // noinspection unchecked (Android Lint Suppression)
                                 houseBoundary = (ArrayList<LatLng>) received.read();
 

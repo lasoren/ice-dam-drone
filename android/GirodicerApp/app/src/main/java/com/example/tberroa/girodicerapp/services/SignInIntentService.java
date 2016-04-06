@@ -11,10 +11,12 @@ import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
+import com.example.tberroa.girodicerapp.network.Http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +52,7 @@ public class SignInIntentService extends IntentService {
 
         // get inspection images from server & save them locally
         List<InspectionImage> images = serverDB.getInspectionImages();
+        Http http = new Http();
         if (images != null && !images.isEmpty()) {
             Type type = new TypeToken<List<InspectionImage>>() {
             }.getType();
@@ -57,7 +60,13 @@ public class SignInIntentService extends IntentService {
             Log.d("dbg", "@SignInIntentService: images is: " + gson.toJson(images, type));
 
             for (InspectionImage image : images) {
-                image.save();
+                // make sure image & corresponding thumbnail are actually in S3 bucket
+                if (validImage(http, image.path + ".jpg") && validImage(http, image.path + "_s.jpg")) {
+                    image.save();
+                }
+                else{
+                    Log.d("dbg", "@SignInIntentService: image not saved due to invalid path: " + image.path);
+                }
             }
         }
 
@@ -74,10 +83,22 @@ public class SignInIntentService extends IntentService {
             }
         }
 
+
         // update user sign in status
         new UserInfo().setUserStatus(this, true);
 
         // broadcast that service is complete
         sendBroadcast(new Intent().setAction(Params.SIGN_IN_SERVICE_COMPLETE));
+    }
+
+    private boolean validImage(Http http, String path) {
+        String url = Params.CLOUD_URL + path;
+        int code = 0;
+        try {
+            code = http.getRequestCode(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return (code == 200);
     }
 }

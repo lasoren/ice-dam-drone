@@ -21,7 +21,7 @@ import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.DroneOperator;
-import com.example.tberroa.girodicerapp.network.HttpPost;
+import com.example.tberroa.girodicerapp.network.Http;
 import com.example.tberroa.girodicerapp.services.SignInIntentService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -188,7 +188,7 @@ public class SignInActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             try {
                 String url = Params.BASE_URL + "users/signin.json";
-                postResponse = new HttpPost().doPostRequest(url, dataJSON);
+                postResponse = new Http().postRequest(url, dataJSON);
             } catch (java.io.IOException e) {
                 e.printStackTrace();
             }

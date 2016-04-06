@@ -197,8 +197,8 @@ public class ImageUploadService extends Service {
         // inspection is no longer in progress
         currentInspectionInfo.setNotInProgress(this, true);
 
-        // post inspection processing just concluded, phase=0
-        currentInspectionInfo.setPhase(this, 0);
+        // post inspection processing just concluded, inspection is over
+        currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
 
         // broadcast that the upload is complete
         sendBroadcast(new Intent().setAction(Params.UPLOAD_COMPLETE));

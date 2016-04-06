@@ -18,6 +18,8 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class PastInspectionsActivity extends BaseActivity {
@@ -36,6 +38,25 @@ public class PastInspectionsActivity extends BaseActivity {
 
         // get inspections relating to this client
         List<Inspection> inspections = localDB.getInspections(new ClientId().get(this));
+
+        // create list of ids, paths, and labels to be sent to the view adapter
+        List<Integer> ids = new ArrayList<>();
+        List<String> paths = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        if (inspections != null && !inspections.isEmpty()) {
+            for (Iterator<Inspection> iterator = inspections.listIterator(); iterator.hasNext(); ) {
+                Inspection inspection = iterator.next();
+                String path = localDB.getInspectionThumbnail(inspection.id);
+                if (path != null) {
+                    ids.add(inspection.id);
+                    paths.add(path);
+                    labels.add(inspection.created);
+                } else { // delete any inspections which cant produce a path. inspection contains corrupted data
+                    iterator.remove();
+                    inspection.delete();
+                }
+            }
+        }
 
         // set toolbar title
         if (getSupportActionBar() != null) {
@@ -68,11 +89,10 @@ public class PastInspectionsActivity extends BaseActivity {
         recyclerView.setVisibility(View.GONE);
 
         // check if this client has past inspections
-        if (!inspections.isEmpty()) {
-
+        if (inspections != null && !inspections.isEmpty()) {
             // populate view with past inspections
             PastInspectionsViewAdapter pastInspectionsViewAdapter;
-            pastInspectionsViewAdapter = new PastInspectionsViewAdapter(this, inspections);
+            pastInspectionsViewAdapter = new PastInspectionsViewAdapter(this, ids, paths, labels);
             recyclerView.setAdapter(pastInspectionsViewAdapter);
             recyclerView.setVisibility(View.VISIBLE);
         } else { // no past inspections

@@ -105,7 +105,7 @@ public class CurrentInspectionInfo extends Application {
 
     public void clearAll(Context context){
         setNotInProgress(context, true);
-        setPhase(context, 0);
+        setPhase(context, Params.CI_INACTIVE);
         setInspectionId(context, 0);
         setLastDownload(context, 0);
     }

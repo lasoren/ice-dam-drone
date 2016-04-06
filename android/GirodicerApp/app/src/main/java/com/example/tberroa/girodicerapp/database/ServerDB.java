@@ -8,7 +8,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
-import com.example.tberroa.girodicerapp.network.HttpPost;
+import com.example.tberroa.girodicerapp.network.Http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -66,7 +66,7 @@ public class ServerDB {
         String postResponse = "";
         try {
             String dataJSON = clientRequestJson.toString();
-            postResponse = new HttpPost().doPostRequest(Params.CREATE_CLIENT_URL, dataJSON);
+            postResponse = new Http().postRequest(Params.CREATE_CLIENT_URL, dataJSON);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -110,7 +110,7 @@ public class ServerDB {
         String postResponse = "";
         try {
             String dataJSON = requestJson.toString();
-            postResponse = new HttpPost().doPostRequest(Params.CREATE_INSPECTION_URL, dataJSON);
+            postResponse = new Http().postRequest(Params.CREATE_INSPECTION_URL, dataJSON);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -149,7 +149,7 @@ public class ServerDB {
         String postResponse = "";
         try {
             Log.d("dbg", "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
-            postResponse = new HttpPost().doPostRequest(Params.CREATE_INSPECTION_IMAGES_URL, requestJson);
+            postResponse = new Http().postRequest(Params.CREATE_INSPECTION_IMAGES_URL, requestJson);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -187,7 +187,7 @@ public class ServerDB {
         String postResponse = "";
         try {
             String dataJSON = jsonObject.toString();
-            postResponse = new HttpPost().doPostRequest(Params.GET_CLIENTS_URL, dataJSON);
+            postResponse = new Http().postRequest(Params.GET_CLIENTS_URL, dataJSON);
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -219,7 +219,7 @@ public class ServerDB {
         // post
         String postResponse = "";
         try {
-            postResponse = new HttpPost().doPostRequest(Params.GET_INSPECTIONS_URL, requestJson.toString());
+            postResponse = new Http().postRequest(Params.GET_INSPECTIONS_URL, requestJson.toString());
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
@@ -251,7 +251,7 @@ public class ServerDB {
         // post
         String postResponse = "";
         try {
-            postResponse = new HttpPost().doPostRequest(Params.GET_INSPECTION_IMAGES_URL, requestJson.toString());
+            postResponse = new Http().postRequest(Params.GET_INSPECTION_IMAGES_URL, requestJson.toString());
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }

@@ -14,9 +14,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.InspectionActivity;
 import com.example.tberroa.girodicerapp.data.InspectionId;
 import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
-import com.example.tberroa.girodicerapp.models.Inspection;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -24,11 +22,15 @@ import java.util.List;
 public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspectionsViewAdapter.InspectionViewHolder> {
 
     private final Context context;
-    private final List<Inspection> inspections;
+    private final List<Integer> ids;
+    private final List<String> paths;
+    private final List<String> labels;
 
-    public PastInspectionsViewAdapter(Context context, List<Inspection> inspections) {
+    public PastInspectionsViewAdapter(Context context, List<Integer> ids, List<String> paths, List<String> labels) {
         this.context = context;
-        this.inspections = inspections;
+        this.ids = ids;
+        this.paths = paths;
+        this.labels = labels;
     }
 
     public class InspectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -48,10 +50,9 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
         public void onClick(View v) {
             // extract clicked inspection
             int i = getLayoutPosition();
-            Inspection inspection = inspections.get(i);
 
             // save inspection id
-            new InspectionId().set(context, inspection.id);
+            new InspectionId().set(context, ids.get(i));
 
             // start inspection activity
             context.startActivity(new Intent(v.getContext(), InspectionActivity.class));
@@ -63,7 +64,7 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
     @Override
     public int getItemCount() {
-        return inspections.size();
+        return paths.size();
     }
 
     @Override
@@ -75,19 +76,13 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
     @Override
     public void onBindViewHolder(InspectionViewHolder inspectionViewHolder, int i) {
-        // get thumbnail path
-        String path = new LocalDB().getInspectionThumbnail(inspections.get(i).id);
+        // render thumbnail with Picasso
+        String url = Params.CLOUD_URL + paths.get(i);
+        int width = Utilities.getImageWidthGrid(context);
+        int height = Utilities.getImageHeightGrid(context);
+        Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.imageThumbnail);
 
-        if (path != null){
-            // set label
-            String label = inspections.get(i).created;
-            inspectionViewHolder.inspectionNumber.setText(label);
-
-            // render thumbnail with Picasso
-            String url = Params.CLOUD_URL + path;
-            int width = Utilities.getImageWidthGrid(context);
-            int height = Utilities.getImageHeightGrid(context);
-            Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.imageThumbnail);
-        }
+        // set label
+        inspectionViewHolder.inspectionNumber.setText(labels.get(i));
     }
 }
