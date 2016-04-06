@@ -104,8 +104,6 @@
     <string name="ci_drone_active">Inspection Phase 1: Drone is navigating home</string>
     <string name="ci_data_transfer">Inspection Phase 2: Receiving data from drone</string>
     <string name="ci_uploading">Inspection Phase 3: uploading data to cloud</string>
-    <!-- past inspections related -->
-    <string name="fetching_data">Fetching data from the cloud &#8230;</string>
 
     <!-- general buttons -->
     <string name="submit">Submit</string>

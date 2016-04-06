@@ -9,11 +9,7 @@ import com.example.tberroa.girodicerapp.models.IceDam;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.example.tberroa.girodicerapp.models.User;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 
@@ -78,8 +74,6 @@ public class LocalDB {
                 .from(InspectionImage.class)
                 .where("inspection_id = ?", inspectionId)
                 .execute();
-        Type type = new TypeToken<List<InspectionImage>>(){}.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
         for (InspectionImage image : images){
             if (image != null && image.path != null){ // loop through until a valid image is found

@@ -62,7 +62,7 @@ public class BluetoothService extends Service {
     private BluetoothDevice btDevice;
 
     // bluetooth handlers
-    public static final Handler btDataHandler = new BTDataHandler();
+    private static final Handler btDataHandler = new BTDataHandler();
     private final Handler btConnectHandler = new BTConnectHandler();
 
     // main bluetooth connection thread, this is where data is transferred
@@ -291,9 +291,6 @@ public class BluetoothService extends Service {
 
                     // save inspection id
                     currentInspectionInfo.setInspectionId(BluetoothService.this, inspection.id);
-
-                    // save client id
-                    currentInspectionInfo.setClientId(BluetoothService.this, clientId);
                 }
             }
         }).start();

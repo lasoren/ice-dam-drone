@@ -23,8 +23,8 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class ServerDB {
 
-    int operatorUserId;
-    String sessionId;
+    final int operatorUserId;
+    final String sessionId;
 
     public ServerDB(Context context) {
         OperatorInfo operatorInfo = new OperatorInfo();

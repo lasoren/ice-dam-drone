@@ -10,7 +10,6 @@ public class CurrentInspectionInfo extends Application {
     private final String IS_NOT_IN_PROGRESS = "is_not_in_progress";
     private final String PHASE = "phase";
     private final String INSPECTION_ID = "inspection_id";   // id for the newly started inspection
-    private final String CLIENT_ID = "client_id";           // id for the client this inspection belongs to
     private final String AERIAL_COUNT = "aerial_count";
     private final String THERMAL_COUNT = "thermal_count";
     private final String ROOF_EDGE_COUNT = "roof_edge_count";
@@ -33,10 +32,6 @@ public class CurrentInspectionInfo extends Application {
 
     public int getInspectionId(Context context){
         return getSharedPreferences(context).getInt(INSPECTION_ID, 0);
-    }
-
-    public int getClientId(Context context){
-        return getSharedPreferences(context).getInt(CLIENT_ID, 0);
     }
 
     public int getAerialCount(Context context){
@@ -70,12 +65,6 @@ public class CurrentInspectionInfo extends Application {
     public void setInspectionId(Context context, int id){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putInt(INSPECTION_ID, id);
-        editor.apply();
-    }
-
-    public void setClientId(Context context, int id){
-        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putInt(CLIENT_ID, id);
         editor.apply();
     }
 

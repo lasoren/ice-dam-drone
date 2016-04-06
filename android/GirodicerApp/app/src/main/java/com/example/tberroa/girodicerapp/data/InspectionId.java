@@ -25,8 +25,4 @@ public class InspectionId extends Application {
         editor.putInt(this.ID, id);
         editor.apply();
     }
-
-    public void clear(Context context){
-        set(context, 0);
-    }
 }

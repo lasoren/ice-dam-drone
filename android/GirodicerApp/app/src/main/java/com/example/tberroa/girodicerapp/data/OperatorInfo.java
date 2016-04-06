@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+@SuppressWarnings("unused")
 public class OperatorInfo extends Application {
 
     // keys

@@ -34,7 +34,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
     // shared preferences
     final BluetoothInfo bluetoothInfo = new BluetoothInfo();
-    final CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+    private final CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
     private final UserInfo userInfo = new UserInfo();
 
     // control variables for handling reloads upon state changes
@@ -233,7 +233,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void run() {
                         // check if there is an ongoing active inspection
-                        if (!new CurrentInspectionInfo().isNotInProgress(BaseActivity.this)) {
+                        if (!currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
                             String message = getResources().getString(R.string.cannot_sign_out);
                             new MessageDialog(BaseActivity.this, message).getDialog().show();
                         } else {

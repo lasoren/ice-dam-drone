@@ -23,8 +23,4 @@ public class UserInfo extends Application {
         editor.putBoolean(IS_LOGGED_IN, bool);
         editor.apply();
     }
-
-    public void clear(Context context){
-        setUserStatus(context, false);
-    }
 }

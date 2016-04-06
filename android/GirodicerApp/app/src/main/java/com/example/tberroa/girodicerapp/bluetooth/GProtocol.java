@@ -15,22 +15,33 @@ import java.nio.ByteOrder;
  */
 
 public class GProtocol {
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_ARM = 0x1;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_UNARM = 0x2;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_START_INSPECTION = 0x3;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_END_INSPECTION = 0x4;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_STATUS = 0x5;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_SEND_POINTS = 0x6;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_READY_TO_TRANSFER = 0x7;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_NEW_HOUSE = 0x8;
+    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_SEND_PATH = 0x9;
-
+    @SuppressWarnings("WeakerAccess")
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
 
     private final byte command;
     private final byte[] data;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final boolean partial;
 
+    @SuppressWarnings("SameParameterValue")
     public static byte[] Pack(byte command, int payloadSize, byte[] array, boolean partial){
         ByteBuffer builder = ByteBuffer.allocate(payloadSize + 1 + 4).order(ByteOrder.LITTLE_ENDIAN);
 
@@ -83,7 +94,7 @@ public class GProtocol {
         }
     }
 
-    public GProtocol(byte command, byte[] data, boolean partial){
+    private GProtocol(byte command, byte[] data, boolean partial){
         this.command = command;
         this.data = data.clone();
         this.partial = partial;

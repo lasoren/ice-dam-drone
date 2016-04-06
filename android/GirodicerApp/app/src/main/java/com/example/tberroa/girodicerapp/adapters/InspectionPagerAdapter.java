@@ -22,25 +22,24 @@ public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // load up the proper fragment based on tab position and pass it the images
+        ImageTabFragment tab = new ImageTabFragment();
         switch (position) {
             case 0:
                 inspectionImages.putString("type", Integer.toString(Params.I_TYPE_AERIAL));
-                ImageTabFragment tabAerial = new ImageTabFragment();
-                tabAerial.setArguments(inspectionImages);
-                return tabAerial;
+                tab.setArguments(inspectionImages);
+                break;
             case 1:
                 inspectionImages.putString("type", Integer.toString(Params.I_TYPE_THERMAL));
-                ImageTabFragment tabThermal = new ImageTabFragment();
-                tabThermal.setArguments(inspectionImages);
-                return tabThermal;
+                tab.setArguments(inspectionImages);
+                break;
             case 2:
                 inspectionImages.putString("type", Integer.toString(Params.I_TYPE_ROOF_EDGE));
-                ImageTabFragment tabRoofEdge = new ImageTabFragment();
-                tabRoofEdge.setArguments(inspectionImages);
-                return tabRoofEdge;
+                tab.setArguments(inspectionImages);
+                break;
             default:
                 return null;
         }
+        return tab;
     }
 
     @Override

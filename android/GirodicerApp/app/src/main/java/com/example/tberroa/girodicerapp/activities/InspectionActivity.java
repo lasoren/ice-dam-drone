@@ -24,6 +24,8 @@ import java.util.List;
 
 public class InspectionActivity extends BaseActivity {
 
+    private ViewPager viewPager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +77,7 @@ public class InspectionActivity extends BaseActivity {
         tabLayout.setVisibility(View.VISIBLE); // set to GONE in XML layout for clarity
 
         // populate the activity
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
+        viewPager = (ViewPager) findViewById(R.id.inspection_view_pager);
         InspectionPagerAdapter inspectionPagerAdapter;
         FragmentManager fragmentManager = getSupportFragmentManager();
         int numberOfTabs = tabLayout.getTabCount();

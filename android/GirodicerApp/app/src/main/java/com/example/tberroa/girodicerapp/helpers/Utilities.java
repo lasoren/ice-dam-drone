@@ -8,15 +8,11 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
-import com.example.tberroa.girodicerapp.activities.SplashActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
-import com.example.tberroa.girodicerapp.models.DroneOperator;
-import com.example.tberroa.girodicerapp.services.SignInIntentService;
 
 final public class Utilities {
 

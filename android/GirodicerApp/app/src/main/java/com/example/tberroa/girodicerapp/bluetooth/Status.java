@@ -13,7 +13,7 @@ public class Status implements Parcelable {
     public final byte state;
     public final int armable;
 
-    protected Status(Parcel in) {
+    private Status(Parcel in) {
         location = in.readParcelable(LatLng.class.getClassLoader());
         velocity = in.readDouble();
         state = in.readByte();
@@ -42,7 +42,7 @@ public class Status implements Parcelable {
         return new Status(new LatLng(latitude, longitude), velocity, state, armable);
     }
 
-    public Status(LatLng location, Double velocity, byte state, int armable) {
+    private Status(LatLng location, Double velocity, byte state, int armable) {
         this.location = location;
         this.velocity = velocity;
         this.state = state;

@@ -42,10 +42,4 @@ public class Http {
         }
         return rawResponse;
     }
-
-    public int getRequestCode(String url) throws IOException {
-        Request request = new Request.Builder().url(url).build();
-        Response response = httpClient.newCall(request).execute();
-        return response.code();
-    }
 }

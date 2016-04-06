@@ -1,6 +1,7 @@
 package com.example.tberroa.girodicerapp.data;
 
 
+@SuppressWarnings("unused")
 public class Params {
 
     private Params() {
