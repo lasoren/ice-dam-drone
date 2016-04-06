@@ -226,7 +226,13 @@ class house:
                 print area
 
     def __containsExtremes(self, sbb, minPt, maxPt):
+        """
+        checks whether the SBB we found is too small by seeing how times we exceed the extremes
+        we rather end up with a box that is slightly too large than a box that ends up too small
+        """
         count = 0
+
+        # we need count how times we exceed the extremes
         for i in range(0, len(sbb)):
             if sbb[i].n < minPt.n:
                 count += 1
@@ -237,7 +243,8 @@ class house:
             if sbb[i].e > maxPt.e:
                 count += 1
 
-        if(count != 3):
+        # if we only exceed the extremes 2 times or less, the box is probably too small
+        if(count <= 2):
             return False
         return True
 
@@ -327,6 +334,11 @@ if __name__ == "__main__":
     #           , LocationGlobalRelative(38.847167169328145,-94.67325903475285), LocationGlobalRelative(38.84719171463953,-94.67317387461662), LocationGlobalRelative(38.84720790409559,-94.67311218380928),
     #           LocationGlobalRelative(38.84715776899388,-94.6730924025178), LocationGlobalRelative(38.847102150324076,-94.67307161539793), LocationGlobalRelative(38.84707629937822,-94.67310715466738)
     #             , LocationGlobalRelative(38.84702903651357,-94.67310715466738), LocationGlobalRelative(38.84701676383087,-94.67316180467606)]
+
+    # points = [LocationGlobalRelative(38.84703739238143,-94.67322081327438), LocationGlobalRelative(38.8470948389464,-94.67325031757355), LocationGlobalRelative(38.8471460185743,-94.67327579855919)
+    #           , LocationGlobalRelative(38.84701833055644,-94.6732097491622), LocationGlobalRelative(38.84716064131836,-94.67323154211044), LocationGlobalRelative(38.84717918086455,-94.67317286878824),
+    #           LocationGlobalRelative(38.847189103436605,-94.67313196510077), LocationGlobalRelative(38.847147324176575,-94.67311050742865), LocationGlobalRelative(38.84711024506275,-94.67309340834618)
+    #             , LocationGlobalRelative(38.84708961653332,-94.67310950160027), LocationGlobalRelative(38.8470794328267,-94.67314571142197), LocationGlobalRelative(38.84705488747659,-94.67313531786203), LocationGlobalRelative(38.84703269220589,-94.67316649854183)]
 
     myHouse = house(points)
     convexHull = []
