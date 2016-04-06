@@ -217,13 +217,29 @@ class house:
 
             area = width*height
 
-            if area < minArea:
+            if area < minArea and self.__containsExtremes([upperLeft, upperRight, bottomLeft, bottomRight], minPt, maxPt):
                 minArea = area
                 self.sbb = [upperLeft, upperRight, bottomLeft, bottomRight]
                 self.area = area
                 self.width = width
                 self.height = height
                 print area
+
+    def __containsExtremes(self, sbb, minPt, maxPt):
+        count = 0
+        for i in range(0, len(sbb)):
+            if sbb[i].n < minPt.n:
+                count += 1
+            if sbb[i].e < minPt.e:
+                count += 1
+            if sbb[i].n > maxPt.n:
+                count += 1
+            if sbb[i].e > maxPt.e:
+                count += 1
+
+        if(count != 3):
+            return False
+        return True
 
     def __findConvexHull(self): # uses monotone-chain algorithm
         sortedOutline = sorted(self.utmOutline, key=lambda x: x.e)
@@ -306,6 +322,11 @@ if __name__ == "__main__":
 
     # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
     #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
+
+    # points = [LocationGlobalRelative(38.847002141057224,-94.67324059456587), LocationGlobalRelative(38.847066376790465,-94.67327814549208), LocationGlobalRelative(38.84714105728545,-94.67330999672413)
+    #           , LocationGlobalRelative(38.847167169328145,-94.67325903475285), LocationGlobalRelative(38.84719171463953,-94.67317387461662), LocationGlobalRelative(38.84720790409559,-94.67311218380928),
+    #           LocationGlobalRelative(38.84715776899388,-94.6730924025178), LocationGlobalRelative(38.847102150324076,-94.67307161539793), LocationGlobalRelative(38.84707629937822,-94.67310715466738)
+    #             , LocationGlobalRelative(38.84702903651357,-94.67310715466738), LocationGlobalRelative(38.84701676383087,-94.67316180467606)]
 
     myHouse = house(points)
     convexHull = []
