@@ -345,7 +345,7 @@ class GirodicerStatus(threading.Thread):
 
             payload = (float(38.847004), float(-94.67325), float(velocity[0]), self.__decipherState(state), 1)
 
-            packager = blue.BlueDataPackager(blue.COMMAND_STATUS, payload, self.bluetooth)
+            packager = blue.BlueDataPackager(blue.COMMAND_SEND_STATUS, payload, self.bluetooth)
             packager.run()
 
     def stop(self):
