@@ -161,6 +161,12 @@ public class CurrentTwoActivity extends BaseActivity
             return;
         }
 
+        for (LatLng point : houseBoundary) {
+            String latitude = Double.toString(point.latitude);
+            String longitude = Double.toString(point.longitude);
+            Log.d("dbg", "@CurrentTwoActivity: houseBoundary point: (" + latitude + "," + longitude + ")");
+        }
+
         byte[] points = Points.Pack(houseBoundary);
         BluetoothService.BTDataHandler.passContext(this);
         BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));

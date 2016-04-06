@@ -58,8 +58,7 @@ public class Params {
     final public static String RELOAD = "reload"; // reload activities without animation
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";
-    final public static String ICEDAM_TAB = "icedam";
-    final public static String SALT_TAB = "salt";
+    final public static String ROOF_EDGE_TAB = "roof edge";
 
     // parameters connected to Amazon Web Services
     final public static String CLOUD_URL = "http://s3.amazonaws.com/girodicer/";

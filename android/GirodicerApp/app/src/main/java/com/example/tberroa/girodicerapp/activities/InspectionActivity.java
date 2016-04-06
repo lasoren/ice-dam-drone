@@ -40,10 +40,9 @@ public class InspectionActivity extends BaseActivity {
         Inspection inspection = localDB.getInspection(new InspectionId().get(this));
 
         // get images relating to this inspection
-        List<InspectionImage> aerialImages = localDB.getInspectionImages(inspection, "aerial");
-        List<InspectionImage> thermalImages = localDB.getInspectionImages(inspection, "thermal");
-        List<InspectionImage> iceDamImages = localDB.getInspectionImages(inspection, "icedam");
-        List<InspectionImage> saltImages = localDB.getInspectionImages(inspection, "salt");
+        List<InspectionImage> aerialImages = localDB.getInspectionImages(inspection.id, Params.I_TYPE_AERIAL);
+        List<InspectionImage> thermalImages = localDB.getInspectionImages(inspection.id, Params.I_TYPE_THERMAL);
+        List<InspectionImage> roofEdgeImages = localDB.getInspectionImages(inspection.id, Params.I_TYPE_ROOF_EDGE);
 
         // serialize the inspection images
         Type inspectionImagesList = new TypeToken<List<InspectionImage>>() {
@@ -51,15 +50,13 @@ public class InspectionActivity extends BaseActivity {
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String aerialImagesJson = gson.toJson(aerialImages, inspectionImagesList);
         String thermalImagesJson = gson.toJson(thermalImages, inspectionImagesList);
-        String iceDamImagesJson = gson.toJson(iceDamImages, inspectionImagesList);
-        String saltImagesJson = gson.toJson(saltImages, inspectionImagesList);
+        String roofEdgeImagesJson = gson.toJson(roofEdgeImages, inspectionImagesList);
 
         // store the images in a bundle
         Bundle inspectionImages = new Bundle();
-        inspectionImages.putString("aerial_images_json", aerialImagesJson);
-        inspectionImages.putString("thermal_images_json", thermalImagesJson);
-        inspectionImages.putString("icedam_images_json", iceDamImagesJson);
-        inspectionImages.putString("salt_images_json", saltImagesJson);
+        inspectionImages.putString(Integer.toString(Params.I_TYPE_AERIAL), aerialImagesJson);
+        inspectionImages.putString(Integer.toString(Params.I_TYPE_THERMAL), thermalImagesJson);
+        inspectionImages.putString(Integer.toString(Params.I_TYPE_ROOF_EDGE), roofEdgeImagesJson);
 
         // set toolbar title
         if (getSupportActionBar() != null) {
@@ -73,8 +70,7 @@ public class InspectionActivity extends BaseActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_bar);
         tabLayout.addTab(tabLayout.newTab().setText(Params.AERIAL_TAB));
         tabLayout.addTab(tabLayout.newTab().setText(Params.THERMAL_TAB));
-        tabLayout.addTab(tabLayout.newTab().setText(Params.ICEDAM_TAB));
-        tabLayout.addTab(tabLayout.newTab().setText(Params.SALT_TAB));
+        tabLayout.addTab(tabLayout.newTab().setText(Params.ROOF_EDGE_TAB));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         tabLayout.setVisibility(View.VISIBLE); // set to GONE in XML layout for clarity
 

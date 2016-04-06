@@ -88,7 +88,7 @@ public class ServerDB {
         return null;
     }
 
-    public int createInspection(int clientId) {
+    public Inspection createInspection(int clientId) {
         // build into json format
         JSONObject innerJson = new JSONObject();
         try {
@@ -123,14 +123,13 @@ public class ServerDB {
             Type inspectionType = new TypeToken<Inspection>() {
             }.getType();
             try {
-                Inspection inspection = gson.fromJson(postResponse, inspectionType);
-                return inspection.id;
+                return gson.fromJson(postResponse, inspectionType);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return -1;
+            return null;
         }
-        return -1;
+        return null;
     }
 
     public List<InspectionImage> createInspectionImages(int inspectionId, List<Integer> imageType, String taken) {

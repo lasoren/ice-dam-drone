@@ -5,10 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.example.tberroa.girodicerapp.fragments.TabAerialFragment;
-import com.example.tberroa.girodicerapp.fragments.TabIceDamFragment;
-import com.example.tberroa.girodicerapp.fragments.TabSaltFragment;
-import com.example.tberroa.girodicerapp.fragments.TabThermalFragment;
+import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.fragments.ImageTabFragment;
 
 public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -26,21 +24,20 @@ public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
         // load up the proper fragment based on tab position and pass it the images
         switch (position) {
             case 0:
-                TabAerialFragment tabAerial = new TabAerialFragment();
+                inspectionImages.putString("type", Integer.toString(Params.I_TYPE_AERIAL));
+                ImageTabFragment tabAerial = new ImageTabFragment();
                 tabAerial.setArguments(inspectionImages);
                 return tabAerial;
             case 1:
-                TabThermalFragment tabThermal = new TabThermalFragment();
+                inspectionImages.putString("type", Integer.toString(Params.I_TYPE_THERMAL));
+                ImageTabFragment tabThermal = new ImageTabFragment();
                 tabThermal.setArguments(inspectionImages);
                 return tabThermal;
             case 2:
-                TabIceDamFragment tabIceDams = new TabIceDamFragment();
-                tabIceDams.setArguments(inspectionImages);
-                return tabIceDams;
-            case 3:
-                TabSaltFragment tabSalt = new TabSaltFragment();
-                tabSalt.setArguments(inspectionImages);
-                return tabSalt;
+                inspectionImages.putString("type", Integer.toString(Params.I_TYPE_ROOF_EDGE));
+                ImageTabFragment tabRoofEdge = new ImageTabFragment();
+                tabRoofEdge.setArguments(inspectionImages);
+                return tabRoofEdge;
             default:
                 return null;
         }

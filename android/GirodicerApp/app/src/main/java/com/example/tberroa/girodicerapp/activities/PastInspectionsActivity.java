@@ -35,7 +35,7 @@ public class PastInspectionsActivity extends BaseActivity {
         }
 
         // get inspections relating to this client
-        List<Inspection> inspections = localDB.getInspections(localDB.getClient(new ClientId().get(this)));
+        List<Inspection> inspections = localDB.getInspections(new ClientId().get(this));
 
         // set toolbar title
         if (getSupportActionBar() != null) {
@@ -68,7 +68,7 @@ public class PastInspectionsActivity extends BaseActivity {
         recyclerView.setVisibility(View.GONE);
 
         // check if this client has past inspections
-        if (inspections != null && !inspections.isEmpty()) {
+        if (!inspections.isEmpty()) {
 
             // populate view with past inspections
             PastInspectionsViewAdapter pastInspectionsViewAdapter;

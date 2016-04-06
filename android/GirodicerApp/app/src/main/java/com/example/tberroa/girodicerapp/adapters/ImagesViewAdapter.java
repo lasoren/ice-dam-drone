@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.google.gson.Gson;
@@ -24,11 +25,12 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
     private final List<InspectionImage> inspectionImages;
     private final int numberOfImages;
 
-    public ImagesViewAdapter(Context context, String inspectionImagesJson){
+    public ImagesViewAdapter(Context context, String inspectionImagesJson) {
         this.context = context;
 
         // deserialize the inspection images
-        Type inspectionImagesList = new TypeToken<List<InspectionImage>>(){}.getType();
+        Type inspectionImagesList = new TypeToken<List<InspectionImage>>() {
+        }.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         inspectionImages = gson.fromJson(inspectionImagesJson, inspectionImagesList);
 
@@ -37,8 +39,9 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
         numberOfImages = this.inspectionImages.size();
     }
 
-    public class ImageViewHolder extends RecyclerView.ViewHolder{
+    public class ImageViewHolder extends RecyclerView.ViewHolder {
         final ImageView image;
+
         ImageViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.photo);
@@ -63,7 +66,7 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
         InspectionImage inspectionImage = inspectionImages.get(i);
 
         // get the url for this inspection image
-        String url = inspectionImage.path;
+        String url = Params.CLOUD_URL + inspectionImage.path + ".jpg";
 
         // render image with Picasso
         int width = Utilities.getImageWidthGrid(context);

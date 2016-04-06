@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.InspectionActivity;
 import com.example.tberroa.girodicerapp.data.InspectionId;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
@@ -45,7 +46,6 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
         @Override
         public void onClick(View v) {
-
             // extract clicked inspection
             int i = getLayoutPosition();
             Inspection inspection = inspections.get(i);
@@ -75,15 +75,16 @@ public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspect
 
     @Override
     public void onBindViewHolder(InspectionViewHolder inspectionViewHolder, int i) {
-        // set inspection number text
-        String title = inspections.get(i).created;
-        inspectionViewHolder.inspectionNumber.setText(title);
+        // get thumbnail path
+        String path = new LocalDB().getInspectionThumbnail(inspections.get(i).id);
 
-        // get thumbnail url
-        String url = new LocalDB().getInspectionThumbnail(inspections.get(i));
+        if (path != null){
+            // set label
+            String label = inspections.get(i).created;
+            inspectionViewHolder.inspectionNumber.setText(label);
 
-        // render thumbnail with Picasso
-        if (url != null){
+            // render thumbnail with Picasso
+            String url = Params.CLOUD_URL + path;
             int width = Utilities.getImageWidthGrid(context);
             int height = Utilities.getImageHeightGrid(context);
             Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.imageThumbnail);

@@ -1,7 +1,5 @@
 package com.example.tberroa.girodicerapp.database;
 
-import android.util.Log;
-
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.example.tberroa.girodicerapp.models.Client;
@@ -31,10 +29,10 @@ public class LocalDB {
                 .executeSingle();
     }
 
-    public Client getClient(int id) {
+    public Client getClient(int clientId) {
         return new Select()
                 .from(Client.class)
-                .where("client_id = ?", id)
+                .where("client_id = ?", clientId)
                 .executeSingle();
     }
 
@@ -53,14 +51,14 @@ public class LocalDB {
         return clients;
     }
 
-    public Inspection getInspection(int id) {
+    public Inspection getInspection(int inspectionId) {
         return new Select()
                 .from(Inspection.class)
-                .where("inspection_id = ?", id)
+                .where("inspection_id = ?", inspectionId)
                 .executeSingle();
     }
 
-    public List<Inspection> getInspections(Client client) {
+    public List<Inspection> getInspections(int clientId) {
         List<Inspection> inspections = new Select()
                 .from(Inspection.class)
                 .orderBy("inspection_id DESC")
@@ -68,42 +66,33 @@ public class LocalDB {
 
         for (Iterator<Inspection> iterator = inspections.listIterator(); iterator.hasNext(); ) {
             Inspection inspection = iterator.next();
-            if (inspection.client.id != client.id) {
+            if (inspection.client.id != clientId) {
                 iterator.remove();
             }
         }
         return inspections;
     }
 
-    public String getInspectionThumbnail(Inspection inspection){
+    public String getInspectionThumbnail(int inspectionId){
         List<InspectionImage> images = new Select()
                 .from(InspectionImage.class)
-                .where("inspection_id = ?", inspection.id)
+                .where("inspection_id = ?", inspectionId)
                 .execute();
         Type type = new TypeToken<List<InspectionImage>>(){}.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        Log.d("dbg", "@LocalDB/getInspectionThumbnail: images is: " + gson.toJson(images, type));
 
         for (InspectionImage image : images){
-            if (image != null && image.path != null){
-                Log.d("dbg", "@LocalDB/getInspectionThumbnail: " + image.path + ".jpg");
-                return image.path + ".jpg";
+            if (image != null && image.path != null){ // loop through until a valid image is found
+                return image.path + "_s.jpg"; // once a valid image is found, use that as the thumbnail
             }
         }
         return null;
     }
 
-    public List<InspectionImage> getInspectionImages(int inspectionId) {
+    public List<InspectionImage> getInspectionImages(int inspectionId, int imageType) {
         return new Select()
                 .from(InspectionImage.class)
                 .where("inspection_id = ?", inspectionId)
-                .execute();
-    }
-
-    public List<InspectionImage> getInspectionImages(Inspection inspection, String imageType) {
-        return new Select()
-                .from(InspectionImage.class)
-                .where("inspection = ?", inspection.getId())
                 .where("image_type = ?", imageType)
                 .execute();
     }

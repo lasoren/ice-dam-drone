@@ -26,6 +26,7 @@ import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.database.ServerDB;
+import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -266,12 +267,15 @@ public class BluetoothService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // create inspection on backend, save the id locally
-                int inspectionId = new ServerDB(BluetoothService.this).createInspection(clientId);
+                // create inspection on backend
+                Inspection inspection = new ServerDB(BluetoothService.this).createInspection(clientId);
 
-                if (inspectionId < 0) { // error occurred
+                if (inspection == null) { // error occurred
                     stopSelf();
                 } else {
+                    // save inspection locally
+                    inspection.cascadeSave();
+
                     // inspection is now in progress
                     CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
                     currentInspectionInfo.setNotInProgress(BluetoothService.this, false);
@@ -280,7 +284,7 @@ public class BluetoothService extends Service {
                     currentInspectionInfo.setPhase(BluetoothService.this, Params.CI_DRONE_ACTIVE);
 
                     // save inspection id
-                    currentInspectionInfo.setInspectionId(BluetoothService.this, inspectionId);
+                    currentInspectionInfo.setInspectionId(BluetoothService.this, inspection.id);
 
                     // save client id
                     currentInspectionInfo.setClientId(BluetoothService.this, clientId);
@@ -327,10 +331,9 @@ public class BluetoothService extends Service {
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            Log.d("dbg", "@BluetoothService: timed out while waiting for initial status signal");
-
                             if (currentStatus == null) {
                                 bluetoothInfo.setErrorCode(BluetoothService.this, Params.BTE_TIMEOUT);
+                                Log.d("dbg", "@BluetoothService: timed out while waiting for initial status signal");
 
                                 // let system know of timeout
                                 sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TIMEOUT));
@@ -372,11 +375,9 @@ public class BluetoothService extends Service {
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
-                                Log.d("dbg", "@BluetoothService/BTDataHandler: status received");
 
                                 // broadcast the status update
                                 if (context != null && !needInitialStatus) {
-                                    Log.d("dbg", "@BluetoothService/BTDataHandler: broadcasting status update");
                                     context.sendBroadcast(new Intent().setAction(Params.STATUS_UPDATE));
                                 }
 

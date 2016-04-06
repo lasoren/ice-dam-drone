@@ -14,7 +14,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.adapters.ImagesViewAdapter;
 
-public class TabSaltFragment extends Fragment {
+public class ImageTabFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
@@ -26,8 +26,11 @@ public class TabSaltFragment extends Fragment {
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
+                // get type
+                String type = bundle.getString("type", "");
+
                 // grab the serialized images
-                inspectionImagesJson = bundle.getString("salt_images_json", "");
+                inspectionImagesJson = bundle.getString(type, "");
             }
 
             // grab context
