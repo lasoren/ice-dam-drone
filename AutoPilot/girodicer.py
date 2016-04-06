@@ -336,6 +336,7 @@ class GirodicerStatus(threading.Thread):
     def run(self):
         self.__stopped.clear()
         while self.__stopped.isSet() is False:
+
             time.sleep(0.5) # only send a message every 0.5 seconds about your state
             location = self.vehicle.location.global_frame
             velocity = self.vehicle.velocity

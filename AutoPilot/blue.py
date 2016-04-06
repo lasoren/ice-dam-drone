@@ -52,11 +52,11 @@ class Blue(threading.Thread):
                     data = self.__client_sock.recv(1024)
                     BlueDataProcessor(data, self.queue, self)
             except IOError:
-                self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_DISCONNECTED)
+                self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
 
         self.__client_sock.close()
         self.__server_sock.close()
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_DISCONNECTED)
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
 
     def write(self, data):
         if self.__client_sock is not None:

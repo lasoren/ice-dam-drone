@@ -72,7 +72,7 @@ args = parser.parse_args()
 
 eventQueue = EventHandler.EventQueue()
 eventQueue.addEventCallback(bluetoothConnected, EventHandler.BLUETOOTH_CONNECTED)
-eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.BLUETOOTH_DISCONNECTED)
+eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
 eventQueue.addEventCallback(printPoints, EventHandler.BLUETOOTH_GET_POINTS)
 eventQueue.addEventCallback(setHouse, EventHandler.BLUETOOTH_NEW_HOUSE)
 eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
