@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.adapters.ImagesViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.InspectionImagesAdapter;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -42,9 +42,9 @@ public class RoofEdgeTabFragment extends Fragment {
             recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
             // populate recycler view
-            ImagesViewAdapter imagesViewAdapter;
-            imagesViewAdapter = new ImagesViewAdapter(context, inspectionImagesJson);
-            recyclerView.setAdapter(imagesViewAdapter);
+            InspectionImagesAdapter inspectionImagesAdapter;
+            inspectionImagesAdapter = new InspectionImagesAdapter(context, inspectionImagesJson);
+            recyclerView.setAdapter(inspectionImagesAdapter);
         }
         return v;
     }

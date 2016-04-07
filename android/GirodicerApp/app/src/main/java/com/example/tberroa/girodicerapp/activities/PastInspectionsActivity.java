@@ -13,7 +13,7 @@ import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
-import com.example.tberroa.girodicerapp.adapters.PastInspectionsViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.PastInspectionsAdapter;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
@@ -91,9 +91,9 @@ public class PastInspectionsActivity extends BaseActivity {
         // check if this client has past inspections
         if (inspections != null && !inspections.isEmpty()) {
             // populate view with past inspections
-            PastInspectionsViewAdapter pastInspectionsViewAdapter;
-            pastInspectionsViewAdapter = new PastInspectionsViewAdapter(this, ids, paths, labels);
-            recyclerView.setAdapter(pastInspectionsViewAdapter);
+            PastInspectionsAdapter pastInspectionsAdapter;
+            pastInspectionsAdapter = new PastInspectionsAdapter(this, ids, paths, labels);
+            recyclerView.setAdapter(pastInspectionsAdapter);
             recyclerView.setVisibility(View.VISIBLE);
         } else { // no past inspections
             // display text view and button

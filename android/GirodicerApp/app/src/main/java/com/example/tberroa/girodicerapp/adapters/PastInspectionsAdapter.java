@@ -19,14 +19,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class PastInspectionsViewAdapter extends RecyclerView.Adapter<PastInspectionsViewAdapter.InspectionViewHolder> {
+public class PastInspectionsAdapter extends RecyclerView.Adapter<PastInspectionsAdapter.InspectionViewHolder> {
 
     private final Context context;
     private final List<Integer> ids;
     private final List<String> paths;
     private final List<String> labels;
 
-    public PastInspectionsViewAdapter(Context context, List<Integer> ids, List<String> paths, List<String> labels) {
+    public PastInspectionsAdapter(Context context, List<Integer> ids, List<String> paths, List<String> labels) {
         this.context = context;
         this.ids = ids;
         this.paths = paths;

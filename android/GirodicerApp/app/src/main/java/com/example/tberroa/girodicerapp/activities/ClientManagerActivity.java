@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.adapters.ClientManagerViewAdapter;
+import com.example.tberroa.girodicerapp.adapters.ClientManagerAdapter;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
@@ -67,9 +67,9 @@ public class ClientManagerActivity extends BaseActivity {
 
         // populate view
         if (!clients.isEmpty()){
-            ClientManagerViewAdapter clientManagerViewAdapter;
-            clientManagerViewAdapter = new ClientManagerViewAdapter(this, clients);
-            recyclerView.setAdapter(clientManagerViewAdapter);
+            ClientManagerAdapter clientManagerAdapter;
+            clientManagerAdapter = new ClientManagerAdapter(this, clients);
+            recyclerView.setAdapter(clientManagerAdapter);
         }else{
             noClients.setVisibility(View.VISIBLE);
         }

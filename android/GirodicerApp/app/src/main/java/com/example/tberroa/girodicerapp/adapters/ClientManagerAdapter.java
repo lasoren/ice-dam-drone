@@ -20,12 +20,12 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class ClientManagerViewAdapter extends RecyclerView.Adapter<ClientManagerViewAdapter.ClientViewHolder> {
+public class ClientManagerAdapter extends RecyclerView.Adapter<ClientManagerAdapter.ClientViewHolder> {
 
     private final Context context;
     private final List<Client> clients;
 
-    public ClientManagerViewAdapter(Context context, List<Client> clients) {
+    public ClientManagerAdapter(Context context, List<Client> clients) {
         this.context = context;
         this.clients = clients;
     }

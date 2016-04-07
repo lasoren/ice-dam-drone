@@ -2,7 +2,6 @@ package com.example.tberroa.girodicerapp.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +20,13 @@ import com.squareup.picasso.Picasso;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.ImageViewHolder> {
+public class InspectionImagesAdapter extends RecyclerView.Adapter<InspectionImagesAdapter.ImageViewHolder> {
 
     private final Context context;
     private final List<InspectionImage> inspectionImages;
     private final int numberOfImages;
 
-    public ImagesViewAdapter(Context context, String inspectionImagesJson) {
+    public InspectionImagesAdapter(Context context, String inspectionImagesJson) {
         this.context = context;
 
         // deserialize the inspection images
@@ -50,16 +49,11 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
             image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("dbg", "@ImagesViewAdapter: image clicked");
-
                     // get position
                     int i = getLayoutPosition();
 
-                    // get image path
-                    String imagePath = inspectionImages.get(i).path;
-
                     // show image full screen in dialog
-                    new DisplayImageDialog(v.getContext(), imagePath).show();
+                    new DisplayImageDialog(v.getContext(), inspectionImages, i).show();
                 }
             });
         }
