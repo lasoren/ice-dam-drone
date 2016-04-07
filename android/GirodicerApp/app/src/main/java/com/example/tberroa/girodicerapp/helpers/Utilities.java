@@ -35,11 +35,11 @@ final public class Utilities {
         return bool;
     }
 
-    private static int getScreenWidth(Context context) {
+    public static int getScreenWidth(Context context) {
         return getScreenDimensions(context).x;
     }
 
-    private static int getScreenHeight(Context context) {
+    public static int getScreenHeight(Context context) {
         return getScreenDimensions(context).y;
     }
 

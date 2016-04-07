@@ -35,9 +35,9 @@ public class AerialTabFragment extends Fragment {
             Context context = getActivity();
 
             // initialize recycler view
-            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.inspection_recycler_view);
             int span = Utilities.getSpanGrid(context);
             int spacing = Utilities.getSpacingGrid(context);
+            RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.inspection_recycler_view);
             recyclerView.setLayoutManager(new GridLayoutManager(context, span));
             recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 

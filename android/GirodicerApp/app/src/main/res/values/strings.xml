@@ -127,6 +127,7 @@
 
     <!-- other -->
     <string name="grabbing_data">Grabbing data &#8230;</string>
+    <string name="image_description">image</string>
     <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
     <string name="drone_bt_name">ubuntu-mate-0</string>
 </resources>

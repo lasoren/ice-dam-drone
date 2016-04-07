@@ -2,6 +2,7 @@ package com.example.tberroa.girodicerapp.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.dialogs.DisplayImageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.google.gson.Gson;
@@ -34,17 +36,32 @@ public class ImagesViewAdapter extends RecyclerView.Adapter<ImagesViewAdapter.Im
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         inspectionImages = gson.fromJson(inspectionImagesJson, inspectionImagesList);
 
-
         // get number of images
         numberOfImages = this.inspectionImages.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
+
         final ImageView image;
 
         ImageViewHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.photo);
+            image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("dbg", "@ImagesViewAdapter: image clicked");
+
+                    // get position
+                    int i = getLayoutPosition();
+
+                    // get image path
+                    String imagePath = inspectionImages.get(i).path;
+
+                    // show image full screen in dialog
+                    new DisplayImageDialog(v.getContext(), imagePath).show();
+                }
+            });
         }
     }
 
