@@ -204,7 +204,7 @@ public class ImageUploadService extends Service {
         sendBroadcast(new Intent().setAction(Params.UPLOAD_COMPLETE));
     }
 
-    public void deleteDirectory(File fileOrDirectory) {
+    private void deleteDirectory(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
             for (File child : fileOrDirectory.listFiles()) {
                 deleteDirectory(child);

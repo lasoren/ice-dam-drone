@@ -5,8 +5,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.example.tberroa.girodicerapp.data.Params;
-import com.example.tberroa.girodicerapp.fragments.ImageTabFragment;
+import com.example.tberroa.girodicerapp.fragments.AerialTabFragment;
+import com.example.tberroa.girodicerapp.fragments.RoofEdgeTabFragment;
+import com.example.tberroa.girodicerapp.fragments.ThermalTabFragment;
 
 public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -22,24 +23,22 @@ public class InspectionPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // load up the proper fragment based on tab position and pass it the images
-        ImageTabFragment tab = new ImageTabFragment();
         switch (position) {
             case 0:
-                inspectionImages.putString("type", Integer.toString(Params.I_TYPE_AERIAL));
-                tab.setArguments(inspectionImages);
-                break;
+                AerialTabFragment aerialTab = new AerialTabFragment();
+                aerialTab.setArguments(inspectionImages);
+                return aerialTab;
             case 1:
-                inspectionImages.putString("type", Integer.toString(Params.I_TYPE_THERMAL));
-                tab.setArguments(inspectionImages);
-                break;
+                ThermalTabFragment thermalTab = new ThermalTabFragment();
+                thermalTab.setArguments(inspectionImages);
+                return thermalTab;
             case 2:
-                inspectionImages.putString("type", Integer.toString(Params.I_TYPE_ROOF_EDGE));
-                tab.setArguments(inspectionImages);
-                break;
+                RoofEdgeTabFragment roofEdgeTab = new RoofEdgeTabFragment();
+                roofEdgeTab.setArguments(inspectionImages);
+                return roofEdgeTab;
             default:
                 return null;
         }
-        return tab;
     }
 
     @Override

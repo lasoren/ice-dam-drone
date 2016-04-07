@@ -9,28 +9,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
 import com.example.tberroa.girodicerapp.R;
-import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.adapters.ImagesViewAdapter;
+import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.helpers.GridSpacingItemDecoration;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 
-public class ImageTabFragment extends Fragment {
+public class RoofEdgeTabFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_tab_images, group, false);
 
-        if (isAdded()){
+        if (isAdded()) {
             String inspectionImagesJson = "";
 
             // grab data passed to fragment
             Bundle bundle = this.getArguments();
             if (bundle != null) {
-                // get type
-                String type = bundle.getString("type", "");
-
                 // grab the serialized images
-                inspectionImagesJson = bundle.getString(type, "");
+                inspectionImagesJson = bundle.getString(Integer.toString(Params.I_TYPE_ROOF_EDGE), "");
             }
 
             // grab context
