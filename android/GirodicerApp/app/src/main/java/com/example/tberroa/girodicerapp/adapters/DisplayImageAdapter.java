@@ -57,9 +57,11 @@ public class DisplayImageAdapter extends RecyclerView.Adapter<DisplayImageAdapte
         // create url for this inspection image
         String url = Params.CLOUD_URL + inspectionImage.path + ".jpg";
 
-        // render image with Picasso
-        int height = Utilities.getScreenHeight(context);
+        // get dimensions
         int width = Utilities.getScreenWidth(context);
+        int height = Utilities.getScreenHeight(context);
+
+        // render image with Picasso
         Picasso.with(context).load(url).resize(width, height).centerInside().into(imageViewHolder.image);
     }
 }

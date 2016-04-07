@@ -33,14 +33,17 @@ public class DisplayImageDialog extends Dialog {
         setContentView(R.layout.dialog_display_image);
 
         // initialize recycler view
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.display_image_recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.display_image_recycler_view);
         recyclerView.setLayoutManager(layoutManager);
 
         // populate recycler view
         DisplayImageAdapter displayImageAdapter;
         displayImageAdapter = new DisplayImageAdapter(context, images);
         recyclerView.setAdapter(displayImageAdapter);
+
+        // scrolling
+        recyclerView.getLayoutManager().scrollToPosition(startingImage);
 
         setCancelable(true);
     }
