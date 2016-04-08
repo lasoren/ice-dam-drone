@@ -131,7 +131,7 @@ class BlueDataProcessor(threading.Thread):
 
     def __packImages(self):
         #packing rgb images
-        rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb')
+        rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
         img_list = os.listdir(rgb_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
@@ -146,7 +146,7 @@ class BlueDataProcessor(threading.Thread):
             img_packager.run()
 
         #packing thermal images
-        therm_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal')
+        therm_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
         img_list = os.listdir(therm_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
