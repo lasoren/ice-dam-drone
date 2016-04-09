@@ -26,6 +26,8 @@ class DetectIce(threading.Thread):
         except OSError as error:
             if error.errno != errno.EEXIST:
                 raise error
+            for item in glob.glob(self.folder+"/*"):
+                os.remove(item)
             pass
 
     def run(self):
@@ -88,6 +90,8 @@ class DetectHotSpot():
         except OSError as error:
             if error.errno != errno.EEXIST:
                 raise error
+            for item in glob.glob(self.folder+"/*"):
+                os.remove(item)
             pass
 
     def run(self):

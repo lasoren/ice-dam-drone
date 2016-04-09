@@ -1,5 +1,5 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle
+import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle, errno, glob
 from annotations import RgbAnnotation, ThermalAnnotation
 from detect_ice import DetectIce
 
@@ -383,8 +383,14 @@ class GirodicerCamera(threading.Thread):
         self.vehicle = vehicle
         self.lidar = lidar
         self.__stopped = threading.Event()
-        #self.folder = str(datetime.datetime.now())
-        os.makedirs(self.folder)
+        try:
+            os.makedirs(self.folder)
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise error
+            for item in glob.glob(self.folder+"/*"):
+                os.remove(item)
+            pass
         self.annotations = []
 
     def run(self):
@@ -410,22 +416,31 @@ class GirodicerCamera(threading.Thread):
 class GirodicerThermal():
 
     camera_ip = "192.168.0.168"
-    ffmpeg = None
     command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', 'out%d.jpg']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_raw')
 
     def __init__(self):
         #self.folder = str(datetime.datetime.now()) + "_thermal"
-        os.makedirs(self.folder)
-        self.up = os.system("ping -c 1" + self.camera_ip)
+        try:
+            os.makedirs(self.folder)
+        except OSError as error:
+            if error.errno != errno.EEXIST:
+                raise error
+            for item in glob.glob(self.folder+"/*"):
+                os.remove(item)
+            pass
+        self.up = os.system("ping -c 1 " + self.camera_ip)
+        self.ffmpeg = None
 
     def start_recording(self):
         if self.up == 0:
-            self.ffmepg = subprocess.Popen(self.command, stdin=subprocess.PIPE)
+            print "starting recording"
+            os.chdir(self.folder)
+            self.ffmpeg = subprocess.Popen(self.command, stdin=subprocess.PIPE)
             return True
         else:
             return False
 
     def stop_recording(self):
         if self.up == 0:
-            self.ffmpeg.communicate('q')
+            self.ffmpeg.communicate('q\n')
