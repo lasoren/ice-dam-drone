@@ -99,9 +99,13 @@ class DetectHotSpot():
             self.command[1] = self.images[i]
             self.command[2] = self.folder + "/" + str(i) + ".jpg"
 
-            subprocess.Popen(self.command)
+            is_hotspot = False
+            proc = subprocess.Popen(self.command)
+            data = int(proc.stdout.readline().strip())
+            if data == 1:
+                is_hotspot = True
 
-            self.annotations.append(ThermalAnnotation(i, False))
+            self.annotations.append(ThermalAnnotation(i, True))
 
         os.chdir(self.folder)
         with open("images.json", "w+") as f:
