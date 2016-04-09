@@ -16,6 +16,8 @@ COMMAND_BLUETOOTH_SEND_PATH = 0x9
 COMMAND_BLUETOOTH_SEND_IMAGES_RGB = 0xA
 COMMAND_BLUETOOTH_SEND_IMAGES_THERM = 0xB
 COMMAND_BLUETOOTH_RETURN_HOME = 0xC
+COMMAND_BLUETOOTH_SEND_JSON_RGB = 0xD
+COMMAND_BLUETOOTH_SEND_JSON_THERM = 0xE
 
 class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -135,14 +137,19 @@ class BlueDataProcessor(threading.Thread):
         #packing rgb images
         rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
         os.chdir(rgb_img_dir)
+        with open('images.json', 'rb') as jsonFile:
+            f = jsonFile.read()
+            json_bytes = bytearray(f)
+            json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, json_bytes, self.bluetooth)
+            json_packager.run()
         img_list = [str(file) for file in glob.glob("*.jpg")]
+        #TODO: find right type
         type = 0
         #img_list = os.listdir(rgb_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
             img_name_byte.extend(image)
             img_path = rgb_img_dir + '/' + image
-            #TODO: find right type
             img_num = img_list.index(image)
             img_packet = struct.pack('>ii', type, img_num)
             with open(img_path, "rb") as imageFile:
@@ -156,14 +163,19 @@ class BlueDataProcessor(threading.Thread):
         #packing thermal images
         therm_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
         os.chdir(therm_img_dir)
+        with open('images.json', 'rb') as jsonFile:
+            f = jsonFile.read()
+            json_bytes = bytearray(f)
+            json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, json_bytes, self.bluetooth)
+            json_packager.run()
         img_list = [str(file) for file in glob.glob("*.jpg")]
+        #TODO: find right type
         type = 1
         #img_list = os.listdir(therm_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
             img_name_byte.extend(image)
             img_path = therm_img_dir + '/' + image
-            #TODO: find right type
             img_num = img_list.index(image)
             img_packet = struct.pack('>ii', type, img_num)
             with open(img_path, "rb") as imageFile:
