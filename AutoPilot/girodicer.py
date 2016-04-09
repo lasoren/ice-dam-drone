@@ -191,13 +191,13 @@ class Girodicer():
             print "Completed point %d" % i
 
         # stop camera and save folder location
-        print "Finished Border Scan"
-
         self.rgb_annotations = camera.stop()
 
         if self.vehicle.mode.name == "GUIDED":
+            print "Finished Border Scan"
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
         else:
+            print "Unable to finish border scan. Interrupted"
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_BORDER_SCAN_INTERRUPTED)
 
     def __roof_scan(self):
@@ -247,13 +247,13 @@ class Girodicer():
                 distance = self.__get_distance_metres(self.vehicle.location.global_frame, point)
             print "Completed point %d" % i
 
-        print "Finished roof scan"
-
         thermal.stop_recording()
 
         if self.vehicle.mode.name == "GUIDED":
+            print "Finished roof scan"
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
         else:
+            print "Unable to finish roof scan. Interrupted"
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 
 
