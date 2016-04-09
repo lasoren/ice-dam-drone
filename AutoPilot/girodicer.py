@@ -1,7 +1,7 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
 import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle, errno, glob
 from annotations import RgbAnnotation, ThermalAnnotation
-from detect_ice import DetectIce
+from detect_ice import DetectIce, DetectHotSpot
 
 class Girodicer():
 
@@ -137,6 +137,11 @@ class Girodicer():
         detect_ice = DetectIce(GirodicerCamera.folder, self.rgb_annotations, self.house.centroid)
         detect_ice.run()
 
+        detect_hot = DetectHotSpot(GirodicerThermal.folder)
+        detect_hot.run()
+
+        detect_ice.join()
+
     def stop(self):
         """
         stop all resources and running threads
@@ -148,6 +153,7 @@ class Girodicer():
                 self.status.join()
 
             self.blue.join()
+        self.lidar.stop()
         self.vehicle.close()
 
     def __border_scan(self):

@@ -15,6 +15,9 @@ def start_flight():
 def emergency_stop():
     iceCutter.vehicle.mode = VehicleMode("LOITER")
 
+def analyze_images():
+    iceCutter.process_images()
+
 ##### Event Handlers ######
 def bluetoothConnected():
     print "Bluetooth Connected"
@@ -100,6 +103,8 @@ while True:
         elif command == "e":
             emergency_stop()
             break
+        elif command == "a":
+            analyze_images()
         else:
             print "try again"
     except KeyboardInterrupt:
