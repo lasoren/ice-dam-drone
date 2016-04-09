@@ -21,13 +21,6 @@ def transferPath():
     #add functionality here
     print "Transferring path to Girodicer..."
 
-def transferData(data): # dunno if I'm gonna use yet...
-    #generic transfer of data from drone to Android App
-    if iceCutter.blue.__stop().isSet() is True:
-        print "Error: cannot send data, bluetooth service stopped"
-    else:
-        iceCutter.blue.write(data)
-
 def handleBorderInterrupt():
     # TODO: implement handle border interruption
     None
@@ -44,6 +37,8 @@ def handleRoofFinished():
 def bluetoothSendStatus():
     iceCutter.get_status()
 
+def return_home():
+    iceCutter.return_to_launch()
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
@@ -57,11 +52,11 @@ eventQueue.addEventCallback(bluetoothConnected, EventHandler.BLUETOOTH_CONNECTED
 eventQueue.addEventCallback(bluetoothDisconnected, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
 eventQueue.addEventCallback(printPoints, EventHandler.BLUETOOTH_GET_POINTS)
 eventQueue.addEventCallback(setHouse, EventHandler.BLUETOOTH_NEW_HOUSE)
-eventQueue.addEventCallback(transferData, EventHandler.BLUETOOTH_TRANSFER_DATA)
 eventQueue.addEventCallback(handleRoofFinished, EventHandler.SCAN_ROOF_FINISHED)
 eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STATUS)
+eventQueue.addEventCallback(return_home, EventHandler.RETURN_TO_LAUNCH)
 
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)

@@ -1,6 +1,5 @@
 from bluetooth import *
-import EventHandler
-import threading
+import EventHandler, threading, glob
 import os
 from house import *
 from dronekit import LocationGlobalRelative
@@ -14,9 +13,9 @@ COMMAND_SEND_POINTS = 0x6
 COMMAND_READY_TO_TRANSFER = 0x7
 COMMAND_NEW_HOUSE = 0x8
 COMMAND_BLUETOOTH_SEND_PATH = 0x9
-COMMAND_BLUETOOTH_SEND_IMAGES = 0xA
-COMMAND_BLUETOOTH_SEND_IMAGE_NAME = 0xB
-
+COMMAND_BLUETOOTH_SEND_IMAGES_RGB = 0xA
+COMMAND_BLUETOOTH_SEND_IMAGES_THERM = 0xB
+COMMAND_BLUETOOTH_RETURN_HOME = 0xC
 
 class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -101,6 +100,8 @@ class BlueDataProcessor(threading.Thread):
         elif command == COMMAND_READY_TO_TRANSFER:
             print "packing images..."
             self.__packImages()
+        elif command == COMMAND_BLUETOOTH_RETURN_HOME:
+            self.__return_home()
 
     def __decipherRcvdPoints(self, payloadSize):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
@@ -130,36 +131,51 @@ class BlueDataProcessor(threading.Thread):
     def __transferPath(self):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.TRANSFER_PATH)
 
-    def __packImages(self):
+    def __packImages_rgb(self):
         #packing rgb images
         rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
-        img_list = os.listdir(rgb_img_dir)
+        os.chdir(rgb_img_dir)
+        img_list = [str(file) for file in glob.glob("*.jpg")]
+        type = 0
+        #img_list = os.listdir(rgb_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
             img_name_byte.extend(image)
-            img_name_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGE_NAME, img_name_byte, self.bluetooth)
-            img_name_packager.run()
             img_path = rgb_img_dir + '/' + image
+            #TODO: find right type
+            img_num = img_list.index(image)
+            img_packet = struct.pack('>ii', type, img_num)
             with open(img_path, "rb") as imageFile:
                 f = imageFile.read()
                 b_img = bytearray(f)
-            img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES, b_img, self.bluetooth)
+            img_packet.append(b_img)
+            img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_RGB, img_packet, self.bluetooth)
             img_packager.run()
 
+    def __packImages_therm(self):
         #packing thermal images
         therm_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
-        img_list = os.listdir(therm_img_dir)
+        os.chdir(therm_img_dir)
+        img_list = [str(file) for file in glob.glob("*.jpg")]
+        type = 1
+        #img_list = os.listdir(therm_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
             img_name_byte.extend(image)
-            img_name_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGE_NAME, img_name_byte, self.bluetooth)
-            img_name_packager.run()
             img_path = therm_img_dir + '/' + image
+            #TODO: find right type
+            img_num = img_list.index(image)
+            img_packet = struct.pack('>ii', type, img_num)
             with open(img_path, "rb") as imageFile:
                 f = imageFile.read()
                 b_img = bytearray(f)
-            img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES, b_img, self.bluetooth)
+            img_packet.append(b_img)
+            img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_THERM, img_packet, self.bluetooth)
             img_packager.run()
+
+    def __return_home(self):
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
+
 
 class BlueDataPackager(threading.Thread):
 
@@ -174,10 +190,8 @@ class BlueDataPackager(threading.Thread):
             self.__sendPath()
         elif self.command == COMMAND_SEND_STATUS:
             self.__sendStatus()
-        elif self.command == COMMAND_BLUETOOTH_SEND_IMAGES:
+        elif self.command == COMMAND_BLUETOOTH_SEND_IMAGES_RGB or self.command == COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
             self.__sendImage()
-        elif self.command == COMMAND_BLUETOOTH_SEND_IMAGE_NAME:
-            self.__sendImageName()
 
     def __sendStatus(self):
         payloadSize = struct.calcsize('>ffdBi')
@@ -204,14 +218,6 @@ class BlueDataPackager(threading.Thread):
         self.bluetooth.write(data)
 
     def __sendImage(self):
-        payloadSize = len(self.payload)
-
-        data = struct.pack('>Bi', self.command, payloadSize)
-        data.append(self.payload)
-
-        self.bluetooth.write(data)
-
-    def __sendImageName(self):
         payloadSize = len(self.payload)
 
         data = struct.pack('>Bi', self.command, payloadSize)
