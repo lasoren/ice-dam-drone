@@ -1,4 +1,5 @@
 from smbus import SMBus
+import Adafruit_GPIO.FT232H as FT232H
 import time, threading
 
 class Lidar(threading.Thread):
@@ -27,14 +28,18 @@ class Lidar(threading.Thread):
     def __init__(self):
         super(Lidar, self).__init__()
         self.lock = threading.RLock()
-        self.bus = SMBus(1)
-        self.bus.write_byte_data(self.__DEF_ADDR, self.__CONTROL_REG, self.__RESET_FPGA)
+        FT232H.use_FT232H()
+        ft232h = FT232H.FT232H()
+        self.bus = FT232H.I2CDevice(ft232h, self.__DEF_ADDR)
+        if self.bus.ping():
+            print "Connected"
+        self.bus.write8(self.__CONTROL_REG, self.__RESET_FPGA)
         time.sleep(0.02)
         self._stop = threading.Event()
         self.start()
 
     def getDeviceStatus(self):
-        return self.bus.read_byte_data(self.__DEF_ADDR, self.__STATUS_REG)
+        return self.bus.readU8(self.__STATUS_REG)
 
     def isOkay(self):
         if (self.getDeviceStatus() & self.__DEVICE_OKAY) != self.__DEVICE_OKAY:
@@ -76,9 +81,9 @@ class Lidar(threading.Thread):
 
     def __getDistance(self):
         self.__spin_while_not_ready()
-        self.bus.write_byte_data(self.__DEF_ADDR, self.__CONTROL_REG, self.__AQUISIT_DC)
+        self.bus.write8(self.__CONTROL_REG, self.__AQUISIT_DC)
         self.__spin_while_not_ready()
-        return (self.bus.read_byte_data(self.__DEF_ADDR, self.__AQUISIT_REG_MSB) << 8) | (self.bus.read_byte_data(self.__DEF_ADDR, self.__AQUISIT_REG_LSB))
+        return (self.bus.readU8(self.__AQUISIT_REG_MSB) << 8) | (self.bus.readU8(self.__AQUISIT_REG_LSB))
 
     def __spin_while_not_ready(self):
         while (not self.isReady()):

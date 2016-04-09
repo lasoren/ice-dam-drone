@@ -2,7 +2,6 @@ from lidar import Lidar
 from datetime import datetime
 
 sensor = Lidar()
-sensor.start()
 
 start = datetime.now()
 count = 0
