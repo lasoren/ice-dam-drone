@@ -324,8 +324,8 @@ class house:
         self.path = temp
 
 if __name__ == "__main__":
-    points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
-              , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
+    # points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
+    #           , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
 
     # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
     #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
@@ -335,10 +335,10 @@ if __name__ == "__main__":
     #           LocationGlobalRelative(38.84715776899388,-94.6730924025178), LocationGlobalRelative(38.847102150324076,-94.67307161539793), LocationGlobalRelative(38.84707629937822,-94.67310715466738)
     #             , LocationGlobalRelative(38.84702903651357,-94.67310715466738), LocationGlobalRelative(38.84701676383087,-94.67316180467606)]
 
-    # points = [LocationGlobalRelative(38.84703739238143,-94.67322081327438), LocationGlobalRelative(38.8470948389464,-94.67325031757355), LocationGlobalRelative(38.8471460185743,-94.67327579855919)
-    #           , LocationGlobalRelative(38.84701833055644,-94.6732097491622), LocationGlobalRelative(38.84716064131836,-94.67323154211044), LocationGlobalRelative(38.84717918086455,-94.67317286878824),
-    #           LocationGlobalRelative(38.847189103436605,-94.67313196510077), LocationGlobalRelative(38.847147324176575,-94.67311050742865), LocationGlobalRelative(38.84711024506275,-94.67309340834618)
-    #             , LocationGlobalRelative(38.84708961653332,-94.67310950160027), LocationGlobalRelative(38.8470794328267,-94.67314571142197), LocationGlobalRelative(38.84705488747659,-94.67313531786203), LocationGlobalRelative(38.84703269220589,-94.67316649854183)]
+    points = [LocationGlobalRelative(38.84703739238143,-94.67322081327438), LocationGlobalRelative(38.8470948389464,-94.67325031757355), LocationGlobalRelative(38.8471460185743,-94.67327579855919)
+              , LocationGlobalRelative(38.84701833055644,-94.6732097491622), LocationGlobalRelative(38.84716064131836,-94.67323154211044), LocationGlobalRelative(38.84717918086455,-94.67317286878824),
+              LocationGlobalRelative(38.847189103436605,-94.67313196510077), LocationGlobalRelative(38.847147324176575,-94.67311050742865), LocationGlobalRelative(38.84711024506275,-94.67309340834618)
+                , LocationGlobalRelative(38.84708961653332,-94.67310950160027), LocationGlobalRelative(38.8470794328267,-94.67314571142197), LocationGlobalRelative(38.84705488747659,-94.67313531786203), LocationGlobalRelative(38.84703269220589,-94.67316649854183)]
 
     myHouse = house(points)
     convexHull = []
