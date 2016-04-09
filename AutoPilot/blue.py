@@ -47,7 +47,7 @@ class Blue(threading.Thread):
             self.__client_sock, client_info = self.__server_sock.accept()
             self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_CONNECTED)
             try:
-                while True:
+                while self.__stop.isSet() is False:
                     data = self.__client_sock.recv(1024)
                     BlueDataProcessor(data, self.queue, self)
             except IOError:
