@@ -52,6 +52,7 @@ class Blue(threading.Thread):
                     data = self.__client_sock.recv(1024)
                     BlueDataProcessor(data, self.queue, self)
             except IOError:
+                self.__client_sock.close()
                 self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
 
         self.__client_sock.close()

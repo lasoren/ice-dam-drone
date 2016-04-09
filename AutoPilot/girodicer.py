@@ -20,12 +20,13 @@ class Girodicer():
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
         self.vehicle.airspeed = self.flying_velocity
         print "Initializing lidar"
+        self.lidar = lidar.Lidar()
         if not debug:
-            self.lidar = lidar.Lidar()
+            print "Initializing bluetooth"
+            self.blue = blue.Blue(self.eventQueue)
         else:
-            self.lidar = None
-        print "Initializing bluetooth"
-        self.blue = blue.Blue(self.eventQueue)
+            print "Debug Mode On, No Bluetooth Running"
+            self.blue = blue.Blue(self.eventQueue, debug)
 
     def arm_vehicle(self, mode):
         """
