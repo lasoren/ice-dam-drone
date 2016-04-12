@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^images/get/$', views.InspectionImagesGet.as_view()),
     url(r'^image/icedam/$', views.InspectionImageIcedam.as_view()),
     url(r'^image/hotspot/$', views.InspectionImageHotspot.as_view()),
+    url(r'^email/client/$', views.InspectionEmailClientUrl.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

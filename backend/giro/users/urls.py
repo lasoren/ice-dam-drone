@@ -7,7 +7,6 @@ urlpatterns = [
     url(r'^signin/$', views.SigninDroneOperator.as_view()),
     url(r'^client/create/$', views.ClientCreate.as_view()),
     url(r'^clients/get/$', views.ClientsGet.as_view()),
-    url(r'^email/client/$', views.InspectionEmailClientUrl.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
