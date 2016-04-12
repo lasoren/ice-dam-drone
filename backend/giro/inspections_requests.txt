@@ -335,3 +335,20 @@ Response:
     "created": "2016-03-31T04:24:31.813729",
     "deleted": "2016-03-31T04:19:20"
 }
+
+// ------------------------------------------------------
+// EMAIL CLIENT THE URL TO INSPECTION PORTAL
+
+url POST: /inspections/email/client
+
+Request:
+{
+    "user_id": 1,
+    "session_id": "90a5d75239706ab8a2d26036cf22728aa792280b41f9c54f9b12905fecdd55fff3be7cf1398267461cbf3409d073792c31827380c3d2b69dd5da9c6feb5d7929",
+    "inspection_id": 9
+}
+
+Response:
+{
+    "url": "127.0.0.1:8000/inspection/mb4tc8"
+}

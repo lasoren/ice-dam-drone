@@ -197,12 +197,12 @@ class InspectionEmailClientUrl(APIView):
         inspection_id = request.data["inspection_id"]
         try:
             inspection = Inspection.objects.get(
-                inspection_id=inspection_id,
-                drone_operator_id=request.user_id)
+                id=inspection_id,
+                drone_operator_id=request.data["user_id"])
         except Inspection.DoesNotExist:
             raise exceptions.InspectionNotFound(
                 'Inspection with this id and operator account not found.')
 
-        result["url"] = users_db_utils.send_inspection_portal_email_to_client(
-            request.get_host(), inspection.id, inspection.client)
+        result = {"url": users_db_utils.send_inspection_portal_email_to_client(
+            request.get_host(), inspection.id, inspection.client)}
         return Response(result, status=status.HTTP_200_OK)
