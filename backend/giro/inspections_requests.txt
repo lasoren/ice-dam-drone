@@ -352,3 +352,9 @@ Response:
 {
     "url": "127.0.0.1:8000/inspection/mb4tc8"
 }
+
+Sample Error Response:
+{
+    "code": -10,
+    "detail": "Inspection with this id and operator account not found."
+}
