@@ -19,6 +19,7 @@ class Girodicer():
         print "Initializing vehicle"
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
         self.vehicle.airspeed = self.flying_velocity
+        self.vehicle.add_attribute_listener('battery', self.__battery_callback)
         print "Initializing lidar"
         self.lidar = lidar.Lidar()
         if not debug:
@@ -328,6 +329,10 @@ class Girodicer():
             bearing += 360.00
         return bearing
 
+    def __battery_callback(self, vehicle, attr_name, battery):
+        if battery.level < 30:
+            self.eventQueue.add(EventHandler.HIGH_PRIORITY, EventHandler.BATTERY_LOW)
+
 class GirodicerStatus(threading.Thread):
     """
     A threaded class that sends a status update every 0.5 seconds
@@ -408,7 +413,7 @@ class GirodicerCamera(threading.Thread):
             time.sleep(0.1)
             location = self.vehicle.location.global_frame
             depth = self.lidar.readDistance()
-            self.annotations.append(RgbAnnotation(pic_num, str(location.lat) + str(location.lon), depth))
+            self.annotations.append(RgbAnnotation(pic_num, str(location.lat) +  "," + str(location.lon), depth))
             file_name = str(pic_num) + ".jpg"
             os.system("fswebcam -r 1280x720 --jpeg 85 " + file_name)
             pic_num += 1
