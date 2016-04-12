@@ -5,6 +5,7 @@ import time
 import giro.short_url as short_url
 
 EMAIL_PATH = "confirm/"
+INSPECTION_PORTAL_PATH = "inspection/"
 
 def generate_session_id(email):
     """
@@ -23,3 +24,8 @@ def generate_session_id(email):
 def generate_confirmation_url(base_url, drone_operator_id):
     unique_code = short_url.encode_url(drone_operator_id)
     return base_url + '/' + EMAIL_PATH + unique_code, unique_code
+
+
+def generate_inspection_portal_url(base_url, inspection_id):
+    unique_code = short_url.encode_url(inspection_id)
+    return base_url + '/' + INSPECTION_PORTAL_PATH + unique_code

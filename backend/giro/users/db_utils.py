@@ -88,3 +88,15 @@ def send_confirmation_email(base_url, drone_operator):
         [drone_operator.user.email],
         fail_silently=False)
 
+
+def send_inspection_portal_email_to_client(base_url, inspection_id, client):
+    unique_url = users_utils.generate_inspection_portal_url(base_url, inspection_id)
+    # Send email to client.
+    send_mail('Girodicer Inspection Portal',
+        'Thanks for using our service to get our inspection and ' +
+        'ice dam relief service. ' +
+        'Click here to view the images from your inspection: ' + unique_url,
+        settings.EMAIL,
+        [client.user.email],
+        fail_silently=False)
+    return unique_url

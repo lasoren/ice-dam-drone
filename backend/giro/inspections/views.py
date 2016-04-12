@@ -11,6 +11,7 @@ from inspections.serializers import IceDamSerializer
 from inspections.serializers import HotspotSerializer
 import inspections.db_utils as inspections_db_utils
 import inspections.utils as inspections_utils
+import users.db_utils as users_db_utils
 
 from rest_framework.views import APIView
 from rest_framework.exceptions import APIException
@@ -186,3 +187,22 @@ class InspectionImageHotspot(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors)
 
+
+class InspectionEmailClientUrl(APIView):
+    """
+    Sends email to inspection client with link to access web portal and
+    returns it to the API client.
+    """
+    def post(self, request, format=None):
+        inspection_id = request.data["inspection_id"]
+        try:
+            inspection = Inspection.objects.get(
+                inspection_id=inspection_id,
+                drone_operator_id=request.user_id)
+        except Inspection.DoesNotExist:
+            raise exceptions.InspectionNotFound(
+                'Inspection with this id and operator account not found.')
+
+        result["url"] = users_db_utils.send_inspection_portal_email_to_client(
+            request.get_host(), inspection.id, inspection.client)
+        return Response(result, status=status.HTTP_200_OK)

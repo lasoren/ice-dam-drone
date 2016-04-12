@@ -15,6 +15,7 @@ class ErrorCodes(object):
     OPERATOR_EXISTS = -7
     OPERATOR_ACCOUNT_INVALID = -8
     PASSWORD_INVALID = -9
+    INSPECTION_NOT_FOUND = -10
 
 
 # Map of Rest Framework exceptions to DWS error codes.
@@ -50,6 +51,11 @@ class OperatorAccountInvalid(rest_exceptions.APIException):
 class PasswordInvalid(rest_exceptions.APIException):
     status_code = 400
     err_code = ErrorCodes.PASSWORD_INVALID
+
+
+class InspectionNotFound(rest_exceptions.APIException):
+    status_code = 400
+    err_code = ErrorCodes.INSPECTION_NOT_FOUND
 
 
 def giro_exception_handler(exc, context):
