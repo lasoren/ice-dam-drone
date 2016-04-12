@@ -6,7 +6,7 @@ from annotations import RgbAnnotation, ThermalAnnotation
 class DetectIce(threading.Thread):
     # haven't decided whether this class should be threaded or not
     # right now it isn't threaded
-    command = ['./match_icicles', '', '']
+    command = ['./match_icicles/match_icicles', '', '']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
 
     def __init__(self, dir, annotations, centroid):
@@ -16,11 +16,11 @@ class DetectIce(threading.Thread):
         :param centroid: center of house
         """
         super(DetectIce, self).__init__()
-        os.chdir(dir)
-        self.images = [str(file) for file in glob.glob("*.jpg")]
+        self.images = [str(file) for file in glob.glob(dir + "/*.jpg")]
         self.annotations = annotations
         self.centroid = centroid
         self.__stopped = threading.Event()
+        self.owd = os.getcwd()
         try:
             os.makedirs(self.folder)
         except OSError as error:
@@ -41,14 +41,14 @@ class DetectIce(threading.Thread):
             data.pop()
             data = [int(x) for x in data]
 
-            ice_dams = KMeansIcicleClusterer(data).cluster()
-
-            if len(ice_dams) > 0:
+            if len(data) > 0:
+                ice_dams = KMeansIcicleClusterer(data).cluster()
                 self.__calculateIcePoints(ice_dams, self.annotations[i])
 
         os.chdir(self.folder)
         with open("images.json", "w+") as f:
             f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))
+        os.chdir(self.owd)
 
     def __calculateIcePoints(self,ice_dams, annotation):
         """
@@ -78,13 +78,13 @@ class DetectIce(threading.Thread):
 
 class DetectHotSpot():
 
-    command = ['./find_hotspots', '', '']
+    command = ['./find_hotspots/find_hotspots', '', '']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
     annotations = []
 
     def __init__(self, dir):
-        os.chdir(dir)
-        self.images = [str(file) for file in glob.glob('*.jpg')]
+        self.images = [str(file) for file in glob.glob(dir + '/*.jpg')]
+        self.owd = os.getcwd()
         try:
             os.makedirs(self.folder)
         except OSError as error:
@@ -100,7 +100,7 @@ class DetectHotSpot():
             self.command[2] = self.folder + "/" + str(i) + ".jpg"
 
             is_hotspot = False
-            proc = subprocess.Popen(self.command)
+            proc = subprocess.Popen(self.command, stdout=subprocess.PIPE)
             data = int(proc.stdout.readline().strip())
             if data == 1:
                 is_hotspot = True
@@ -110,3 +110,4 @@ class DetectHotSpot():
         os.chdir(self.folder)
         with open("images.json", "w+") as f:
             f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))
+        os.chdir(self.owd)

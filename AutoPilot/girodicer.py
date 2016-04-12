@@ -389,6 +389,7 @@ class GirodicerCamera(threading.Thread):
         self.vehicle = vehicle
         self.lidar = lidar
         self.__stopped = threading.Event()
+        self.owd = os.getcwd()
         try:
             os.makedirs(self.folder)
         except OSError as error:
@@ -409,24 +410,25 @@ class GirodicerCamera(threading.Thread):
             depth = self.lidar.readDistance()
             self.annotations.append(RgbAnnotation(pic_num, str(location.lat) + str(location.lon), depth))
             file_name = str(pic_num) + ".jpg"
-            os.system("fswebcam -r 1280x720 --jpeg 85" + file_name)
+            os.system("fswebcam -r 1280x720 --jpeg 85 " + file_name)
             pic_num += 1
 
         with open("images.json", "w+") as f:
             f.write(jsonpickle.encode(self.annotations, unpicklable=False, make_refs=False, keys=True))
 
     def stop(self):
+        os.chdir(self.owd)
         self.__stopped.set()
         return self.annotations
 
 class GirodicerThermal():
 
     camera_ip = "192.168.0.168"
-    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', 'out%d.jpg']
+    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', '%d.jpg']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_raw')
 
     def __init__(self):
-        #self.folder = str(datetime.datetime.now()) + "_thermal"
+        self.owd = os.getcwd()
         try:
             os.makedirs(self.folder)
         except OSError as error:
@@ -448,5 +450,6 @@ class GirodicerThermal():
             return False
 
     def stop_recording(self):
+        os.chdir(self.owd)
         if self.up == 0:
             self.ffmpeg.communicate('q\n')

@@ -112,6 +112,6 @@ while True:
 
 running.set()
 eventQueue.add(EventHandler.HIGH_PRIORITY, EventHandler.EXIT_QUEUE)
-run_loop.join()
 iceCutter.stop()
+run_loop.join()
 print "Exiting"
