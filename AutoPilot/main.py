@@ -40,6 +40,9 @@ def bluetoothSendStatus():
 def return_home():
     iceCutter.return_to_launch()
 
+def battery_low():
+
+
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
 parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
@@ -57,6 +60,7 @@ eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SC
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STATUS)
 eventQueue.addEventCallback(return_home, EventHandler.RETURN_TO_LAUNCH)
+eventQueue.addEventCallback(battery_low, EventHandler.BATTERY_LOW)
 
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
