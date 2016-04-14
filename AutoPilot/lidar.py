@@ -69,6 +69,8 @@ class Lidar(threading.Thread):
             self.distance = self.__getDistance()
             self.lock.release()
             time.sleep(0.02)
+        self.bus._ft232h.close()
+        print "Lidar stopped"
 
     def stop(self):
         self._stop.set()

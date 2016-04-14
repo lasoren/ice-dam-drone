@@ -26,6 +26,7 @@ def bluetoothConnected():
 
 def bluetoothDisconnected():
     print "Bluetooth Disconnected"
+    iceCutter.status.stop()
     iceCutter.return_to_launch()
 
 def printPoints(points):
