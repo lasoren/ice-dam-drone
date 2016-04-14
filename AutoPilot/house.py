@@ -51,9 +51,9 @@ class UTMPoint:
         n = self.n - point.n
         return math.sqrt(math.pow(e, 2) + math.pow(n, 2))
 
-    def toLatLon(self):
+    def toLatLon(self, truncate=5):
         conv = utm.to_latlon(self.e, self.n, self.zone, self.zoneLetter)
-        return LocationGlobalRelative(round(conv[0],5), round(conv[1],5))
+        return LocationGlobalRelative(round(conv[0],truncate), round(conv[1],truncate))
 
     def scalarMult(self, scalar):
         return UTMPoint((self.e * scalar, self.n*scalar, self.zone, self.zoneLetter))

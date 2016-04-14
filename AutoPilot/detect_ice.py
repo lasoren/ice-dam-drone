@@ -1,4 +1,4 @@
-import threading, glob, os, subprocess, utm, jsonpickle, errno
+import threading, glob, os, subprocess, utm, jsonpickle, errno, math
 from saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
 from house import UTMPoint
 from annotations import RgbAnnotation, ThermalAnnotation
@@ -36,6 +36,7 @@ class DetectIce(threading.Thread):
             self.command[1] = self.images[i]
             self.command[2] = self.folder + '/' + str(i) + '.jpg'
 
+            print self.command
             proc = subprocess.Popen(self.command, stdout=subprocess.PIPE)
             data = proc.stdout.readline().strip().split(",")
             data.pop()
@@ -43,6 +44,12 @@ class DetectIce(threading.Thread):
 
             if len(data) > 0:
                 ice_dams = KMeansIcicleClusterer(data).cluster()
+                # cp = self.annotations[i].origin.strip().split(",")
+                # np = self.annotations[i%len(self.annotations)].origin.strip().split(",")
+                # cp = UTMPoint(utm.from_latlon(cp[0], cp[1]))
+                # np = UTMPoint(utm.from_latlon(np[0], np[1]))
+                # edge_vec = np.getVector(cp)
+                # angle = math.atan2(edge_vec.n, edge_vec.x)
                 self.__calculateIcePoints(ice_dams, self.annotations[i])
 
         os.chdir(self.folder)
@@ -59,7 +66,7 @@ class DetectIce(threading.Thread):
         :return:
         """
         width = 3.70419 * annotation.depth # calculated using super accurate picture taking
-        meter_per_pixel = width/1280/100
+        meter_per_pixel = width/1280
         origin = [float(x) for x in annotation.origin.split(",")]
         utm_origin = UTMPoint(utm.from_latlon(origin[0], origin[1]))
 
@@ -68,10 +75,10 @@ class DetectIce(threading.Thread):
         # using the pixel locations we can calculate how far left or right of the center of the projection map the ice dam is located
         for i in range(0, len(ice_dams)):
             vec = self.centroid.getVector(utm_origin).scalarMult(annotation.depth)
-            x_loc = meter_per_pixel * ice_dams[i]
+            x_loc = meter_per_pixel * ice_dams[i][0]
             x_offset = -1 * ((width/2) - x_loc) # left of the center is heading west, right is heading east
             vec.e += x_offset
-            ice_loc = utm_origin.add(vec).toLatLon()
+            ice_loc = utm_origin.add(vec).toLatLon(7)
             annotation.ice_locations.append(str(ice_loc.lat) + "," + str(ice_loc.lon))
 
         annotation.is_icedam = True

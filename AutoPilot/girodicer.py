@@ -136,7 +136,7 @@ class Girodicer():
         run the image processing routines
         """
         detect_ice = DetectIce(GirodicerCamera.folder, self.rgb_annotations, self.house.centroid)
-        detect_ice.run()
+        detect_ice.start()
 
         detect_hot = DetectHotSpot(GirodicerThermal.folder)
         detect_hot.run()
@@ -360,6 +360,8 @@ class GirodicerStatus(threading.Thread):
             packager = blue.BlueDataPackager(blue.COMMAND_SEND_STATUS, payload, self.bluetooth)
             packager.run()
 
+        print "Status Thread Stopped"
+
     def stop(self):
         self.__stopped.set()
 
@@ -412,7 +414,7 @@ class GirodicerCamera(threading.Thread):
         while self.__stopped.isSet() is False:
             time.sleep(0.1)
             location = self.vehicle.location.global_frame
-            depth = self.lidar.readDistance()
+            depth = self.lidar.readDistance()/100.00
             self.annotations.append(RgbAnnotation(pic_num, str(location.lat) +  "," + str(location.lon), depth))
             file_name = str(pic_num) + ".jpg"
             os.system("fswebcam -r 1280x720 --jpeg 85 " + file_name)
