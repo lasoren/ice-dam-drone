@@ -6,7 +6,7 @@ from annotations import RgbAnnotation, ThermalAnnotation
 class DetectIce(threading.Thread):
     # haven't decided whether this class should be threaded or not
     # right now it isn't threaded
-    command = ['./match_icicles/match_icicles', '', '']
+    command = ['./match_icicles', '', '']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
 
     def __init__(self, dir, annotations, centroid):
@@ -78,7 +78,7 @@ class DetectIce(threading.Thread):
 
 class DetectHotSpot():
 
-    command = ['./find_hotspots/find_hotspots', '', '']
+    command = ['./find_hotspots', '', '']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
     annotations = []
 
