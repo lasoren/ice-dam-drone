@@ -41,6 +41,7 @@ def return_home():
     iceCutter.return_to_launch()
 
 def battery_low():
+    return_home()
 
 
 
