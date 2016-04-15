@@ -30,5 +30,8 @@ div#links {
 
 div#info {
     margin-bottom: 20px;
+}
+
+div#info > * {
     border-radius: 0 !important;
 }
