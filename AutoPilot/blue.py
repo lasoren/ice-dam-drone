@@ -87,7 +87,6 @@ class Blue(threading.Thread):
     def stop(self):
         self.__stop.set()
 
-
 class BlueDataProcessor(threading.Thread):
 
     def __init__(self, data, queue, bluetooth):
