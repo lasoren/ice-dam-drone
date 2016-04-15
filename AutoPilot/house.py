@@ -59,28 +59,31 @@ class UTMPoint:
         return UTMPoint((self.e * scalar, self.n*scalar, self.zone, self.zoneLetter))
 
 class house:
-    utmOutline = []
-    zone = 0
-    zoneLetter = ""
-    width = []
-    height = []
-
-    cameraWidth = 8
-    cameraHeight = 6
-
-    path = []
-    convexHull = []
-    sbb = []
-    area = []
-
-    centroid = None
-
-    houseHeight = 7
-
     def __init__(self, outline):
+        self.utmOutline = []
+        self.zone = 0
+        self.zoneLetter = ""
+        self.width = []
+        self.height = []
+
+        self.cameraWidth = 8
+        self.cameraHeight = 6
+
+        self.path = []
+        self.convexHull = []
+        self.sbb = []
+        self.area = []
+
+        self.centroid = None
+
+        self.houseHeight = 7
+
         self.outline = outline
         self.__organize_outline_cw()
+        print "-------"
         self.__findFlyOverPath()
+        for point in self.path:
+            print "%f,%f" % (point.lat, point.lon)
         self.__offset_outline()
 
     def __convertToUTM(self):
@@ -324,48 +327,52 @@ class house:
         self.path = temp
 
 if __name__ == "__main__":
-    # points = [LocationGlobalRelative(38.847195892564024,-94.67311520129442), LocationGlobalRelative(38.847113900750884,-94.67307429760695), LocationGlobalRelative(38.84709144437794,-94.67313230037689)
-    #           , LocationGlobalRelative(38.847141579526394,-94.67326674610376), LocationGlobalRelative(38.84702564194198,-94.67319834977388), LocationGlobalRelative(38.84705097066462,-94.67311218380928)]
+    for i in range(0,10):
+        points = [LocationGlobalRelative(38.847020,-94.673213), LocationGlobalRelative(38.847085,-94.673144), LocationGlobalRelative(38.847047,-94.673131)
+                  , LocationGlobalRelative(38.847099,-94.673094), LocationGlobalRelative(38.847185,-94.673126), LocationGlobalRelative(38.847142,-94.673275)]
 
-    # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
-    #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
+        # points = [LocationGlobalRelative(42.336183,-71.115564), LocationGlobalRelative(42.336076,-71.115397), LocationGlobalRelative(42.336036,-71.115445),
+        #            LocationGlobalRelative(42.335990,-71.115502), LocationGlobalRelative(42.336045,-71.115593), LocationGlobalRelative(42.336095,-71.115669)]
 
-    # points = [LocationGlobalRelative(38.847002141057224,-94.67324059456587), LocationGlobalRelative(38.847066376790465,-94.67327814549208), LocationGlobalRelative(38.84714105728545,-94.67330999672413)
-    #           , LocationGlobalRelative(38.847167169328145,-94.67325903475285), LocationGlobalRelative(38.84719171463953,-94.67317387461662), LocationGlobalRelative(38.84720790409559,-94.67311218380928),
-    #           LocationGlobalRelative(38.84715776899388,-94.6730924025178), LocationGlobalRelative(38.847102150324076,-94.67307161539793), LocationGlobalRelative(38.84707629937822,-94.67310715466738)
-    #             , LocationGlobalRelative(38.84702903651357,-94.67310715466738), LocationGlobalRelative(38.84701676383087,-94.67316180467606)]
+        # points = [LocationGlobalRelative(38.847002141057224,-94.67324059456587), LocationGlobalRelative(38.847066376790465,-94.67327814549208), LocationGlobalRelative(38.84714105728545,-94.67330999672413)
+        #           , LocationGlobalRelative(38.847167169328145,-94.67325903475285), LocationGlobalRelative(38.84719171463953,-94.67317387461662), LocationGlobalRelative(38.84720790409559,-94.67311218380928),
+        #           LocationGlobalRelative(38.84715776899388,-94.6730924025178), LocationGlobalRelative(38.847102150324076,-94.67307161539793), LocationGlobalRelative(38.84707629937822,-94.67310715466738)
+        #             , LocationGlobalRelative(38.84702903651357,-94.67310715466738), LocationGlobalRelative(38.84701676383087,-94.67316180467606)]
 
-    points = [LocationGlobalRelative(38.84703739238143,-94.67322081327438), LocationGlobalRelative(38.8470948389464,-94.67325031757355), LocationGlobalRelative(38.8471460185743,-94.67327579855919)
-              , LocationGlobalRelative(38.84701833055644,-94.6732097491622), LocationGlobalRelative(38.84716064131836,-94.67323154211044), LocationGlobalRelative(38.84717918086455,-94.67317286878824),
-              LocationGlobalRelative(38.847189103436605,-94.67313196510077), LocationGlobalRelative(38.847147324176575,-94.67311050742865), LocationGlobalRelative(38.84711024506275,-94.67309340834618)
-                , LocationGlobalRelative(38.84708961653332,-94.67310950160027), LocationGlobalRelative(38.8470794328267,-94.67314571142197), LocationGlobalRelative(38.84705488747659,-94.67313531786203), LocationGlobalRelative(38.84703269220589,-94.67316649854183)]
+        # points = [LocationGlobalRelative(38.84703739238143,-94.67322081327438), LocationGlobalRelative(38.8470948389464,-94.67325031757355), LocationGlobalRelative(38.8471460185743,-94.67327579855919)
+        #           , LocationGlobalRelative(38.84701833055644,-94.6732097491622), LocationGlobalRelative(38.84716064131836,-94.67323154211044), LocationGlobalRelative(38.84717918086455,-94.67317286878824),
+        #           LocationGlobalRelative(38.847189103436605,-94.67313196510077), LocationGlobalRelative(38.847147324176575,-94.67311050742865), LocationGlobalRelative(38.84711024506275,-94.67309340834618)
+        #             , LocationGlobalRelative(38.84708961653332,-94.67310950160027), LocationGlobalRelative(38.8470794328267,-94.67314571142197), LocationGlobalRelative(38.84705488747659,-94.67313531786203), LocationGlobalRelative(38.84703269220589,-94.67316649854183)]
+        myHouse = None
+        convexHull = None
+        sbb = None
+        path = None
+        myHouse = house(points)
+        convexHull = []
+        sbb = []
+        path = []
 
-    myHouse = house(points)
-    convexHull = []
-    sbb = []
-    path = []
+        for c in myHouse.convexHull:
+            convexHull.append(c.toLatLon())
 
-    for c in myHouse.convexHull:
-        convexHull.append(c.toLatLon())
+        for b in myHouse.sbb:
+            sbb.append(b.toLatLon())
 
-    for b in myHouse.sbb:
-        sbb.append(b.toLatLon())
+        # for q in myHouse.path:
+        #     path.append(q.toLatLon())
 
-    # for q in myHouse.path:
-    #     path.append(q.toLatLon())
+        print "original"
+        printLatLong(points)
 
-    print "original"
-    printLatLong(points)
+        print "convex"
+        printLatLong(convexHull)
 
-    print "convex"
-    printLatLong(convexHull)
+        print "sbb"
+        printLatLong(sbb)
 
-    print "sbb"
-    printLatLong(sbb)
+        print "path"
+        printLatLong(myHouse.path)
 
-    print "path"
-    printLatLong(myHouse.path)
+        print myHouse.area
 
-    print myHouse.area
-
-    printLatLong(myHouse.outline)
+        printLatLong(myHouse.outline)

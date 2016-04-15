@@ -10,7 +10,6 @@ def nat_sort(s):
 class DetectIce(threading.Thread):
     # haven't decided whether this class should be threaded or not
     # right now it isn't threaded
-    command = ['./match_icicles', '', '']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
 
     def __init__(self, dir, annotations, centroid):
@@ -20,6 +19,7 @@ class DetectIce(threading.Thread):
         :param centroid: center of house
         """
         super(DetectIce, self).__init__()
+        self.command = ['./match_icicles', '', '']
         self.images = nat_sort([str(file) for file in glob.glob(dir + "/*.jpg")])
         self.annotations = annotations
         self.centroid = centroid
@@ -88,12 +88,11 @@ class DetectIce(threading.Thread):
         annotation.detected = True
 
 class DetectHotSpot():
-
-    command = ['./find_hotspots', '', '']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
-    annotations = []
 
     def __init__(self, dir):
+        self.annotations = []
+        self.command = ['./find_hotspots', '', '']
         self.images = nat_sort([str(file) for file in glob.glob(dir + '/*.jpg')])
         self.owd = os.getcwd()
         try:

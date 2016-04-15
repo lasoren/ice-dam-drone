@@ -36,7 +36,6 @@ class Blue(threading.Thread):
             self.__server_sock = BluetoothSocket(RFCOMM)
             self.__server_sock.bind(("", PORT_ANY))
             self.__server_sock.listen(1)
-            self.__server_sock.settimeout(60)
 
             advertise_service(self.__server_sock, self.__name,
                               service_id=self.__uuid,
@@ -48,17 +47,24 @@ class Blue(threading.Thread):
         self.__stop.clear()
         while self.__stop.isSet() is False:
             try:
+                print "waiting for connection"
                 self.__client_sock, client_info = self.__server_sock.accept()
                 self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_CONNECTED)
+
                 while self.__stop.isSet() is False:
-                    data = self.__client_sock.recv(1024)
-                    BlueDataProcessor(data, self.queue, self)
+                    try:
+                        data = self.__client_sock.recv(1024)
+                        BlueDataProcessor(data, self.queue, self)
+                    except BluetoothError as error:
+                        if error.message != "timed out":
+                            if self.__client_sock is not None:
+                                self.__client_sock.close()
+                                self.__client_sock = None
+                                self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
+                        break
             except BluetoothError as error:
                 if error.message != "timed out":
-                    if self.__client_sock is not None:
-                        self.__client_sock.close()
-                        self.__client_sock = None
-                        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
+                    raise error
 
         if self.__client_sock is not None:
             self.__client_sock.close()
@@ -128,10 +134,10 @@ class BlueDataProcessor(threading.Thread):
         points = []
 
         for i in range(0, numPoints):
-            (lat, ) = struct.unpack_from('>d', self.data, offset)
+            (lat,) = struct.unpack_from('>d', self.data, offset)
             offset += windPos
-            print "lat %f" % lat
             (lng, ) = struct.unpack_from('>d', self.data, offset)
+            print "%f,%f" % (lat,lng)
             points.append(LocationGlobalRelative(lat,lng))
             offset += windPos
 
