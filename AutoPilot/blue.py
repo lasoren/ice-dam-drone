@@ -18,6 +18,13 @@ COMMAND_BLUETOOTH_SEND_IMAGES_THERM = 0xB
 COMMAND_BLUETOOTH_RETURN_HOME = 0xC
 COMMAND_BLUETOOTH_SEND_JSON_RGB = 0xD
 COMMAND_BLUETOOTH_SEND_JSON_THERM = 0xE
+COMMAND_BLUETOOTH_SEND_DRONE_LANDED = 0xF
+COMMAND_BLUETOOTH_SEND_FINISHED_DAM = 0x10
+COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS = 0x11
+COMMAND_BLUETOOTH_SEND_LOW_BATTERY = 0x12
+COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED = 0X13
+COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED = 0X14
+COMMAND_BLUETOOTH_SEND_FINISHED_SCAN = 0X15
 
 class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -221,6 +228,11 @@ class BlueDataPackager(threading.Thread):
             self.__sendImage()
         elif self.command == COMMAND_BLUETOOTH_SEND_JSON_RGB or COMMAND_BLUETOOTH_SEND_JSON_THERM:
             self.__sendJson()
+        elif (self.command == COMMAND_BLUETOOTH_SEND_DRONE_LANDED or COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS
+              or COMMAND_BLUETOOTH_SEND_FINISHED_DAM or COMMAND_BLUETOOTH_SEND_LOW_BATTERY
+              or COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED or COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED
+              or COMMAND_BLUETOOTH_SEND_FINISHED_SCAN):
+            self.__send_nopayload()
 
     def __sendStatus(self):
         payloadSize = struct.calcsize('>ffdBi')
@@ -259,5 +271,11 @@ class BlueDataPackager(threading.Thread):
 
         data = struct.pack('>Bi', self.command, payloadSize)
         data.append(self.payload)
+
+        self.bluetooth.write(data)
+
+    def __send_nopayload(self):
+        payloadSize = 0
+        data = struct.pack('>Bi', self.command, payloadSize)
 
         self.bluetooth.write(data)
