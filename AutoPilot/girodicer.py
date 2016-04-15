@@ -8,6 +8,7 @@ class Girodicer():
     house = None
     rgb_annotations = None
     thermal_annotations = None
+    ice_dams = None
 
     flying_velocity = 1.4 # m/s
 
@@ -19,6 +20,7 @@ class Girodicer():
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
         self.vehicle.airspeed = self.flying_velocity
         self.vehicle.add_attribute_listener('battery', self.__battery_callback)
+        self.vehicle.add_attribute_listener('armed', self.__armed_callback)
         print "Initializing lidar"
         self.lidar = lidar.Lidar()
         if not debug:
@@ -130,6 +132,21 @@ class Girodicer():
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
 
+    def start_service_ice_dams(self):
+        if not self.vehicle.armed:
+            self.arm_vehicle(VehicleMode("GUIDED"))
+
+        self.vehicle.simple_takeoff(10)
+
+        while self.vehicle.location.global_relative_frame.alt <= (9.5):
+            time.sleep(1)
+
+        print "Reached acceptable altitude"
+        print "Starting service thread"
+
+        service_t = threading.Thread(target=self.__service_ice_dam)
+        service_t.start()
+
     def process_images(self):
         """
         run the image processing routines
@@ -141,6 +158,9 @@ class Girodicer():
         detect_hot.run()
 
         detect_ice.join()
+
+    def set_ice_dams(self, ice_dams):
+        self.ice_dams = ice_dams
 
     def stop(self):
         """
@@ -256,6 +276,14 @@ class Girodicer():
             print "Unable to finish roof scan. Interrupted"
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 
+    def __service_ice_dam(self):
+        dam = self.ice_dams[0]
+        dam.alt = house.height
+        self.__fly_single_point(dam)
+        self.__drop_salt()
+        self.ice_dams.remove(dam)
+        self.return_to_launch()
+        self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.FINISHED_DAM)
 
     def __fly_single_point(self, destination):
         print "Flying to initial"
@@ -269,6 +297,10 @@ class Girodicer():
             distance = self.__get_distance_metres(self.vehicle.location.global_frame, destination)
 
         print "Finished flying to initial"
+
+    def __drop_salt(self):
+        print "Dropping salt"
+        time.sleep(10)
 
     def __get_location_metres(self, original_location, dNorth, dEast):
         """
@@ -331,6 +363,11 @@ class Girodicer():
     def __battery_callback(self, vehicle, attr_name, battery):
         if battery.level < 30:
             self.eventQueue.add(EventHandler.HIGH_PRIORITY, EventHandler.BATTERY_LOW)
+
+    def __armed_callback(self, vehicle, attr_name, armed):
+        if not armed:
+            self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.DRONE_LANDED)
+            self.vehicle.remove_attribute_listener('armed', self.__armed_callback)
 
 class GirodicerStatus(threading.Thread):
     """
