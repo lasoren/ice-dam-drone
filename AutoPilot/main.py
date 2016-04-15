@@ -8,34 +8,33 @@ def bluetoothConnected():
 
 def bluetoothDisconnected():
     print "Bluetooth Disconnected"
+    iceCutter.status.stop()
     iceCutter.return_to_launch()
 
 def printPoints(points):
     for point in points:
-        print "lat: %d, lng: %d" % point[0] % point[1]
+        print "lat: %d, lng: %d" % (point[0], point[1])
 
 def setHouse(house):
     iceCutter.house = house
 
-def transferPath():
-    #add functionality here
-    print "Transferring path to Girodicer..."
-
 def handleBorderInterrupt():
-    # TODO: implement handle border interruption
-    None
+    iceCutter.return_to_launch()
 
 def handleRoofInterrupt():
-    # TODO: implement handle roof interruption
-    None
+    iceCutter.return_to_launch()
 
 def handleRoofFinished():
-    # TODO: implement handle roof finished
-    # start analysis of images, land, and send pictures
     iceCutter.return_to_launch()
 
 def bluetoothSendStatus():
     iceCutter.get_status()
+
+def startInspection():
+    iceCutter.start_scan()
+
+def startAnalysis():
+    iceCutter.process_images()
 
 def return_home():
     iceCutter.return_to_launch()
@@ -46,8 +45,8 @@ def battery_low():
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
-parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
-parser.add_argument('--baud', default='57600', help="connection baud rate")
+parser.add_argument('--connect', default='/dev/ttyS0', help="vehicle connection target")
+parser.add_argument('--baud', default='115200', help="connection baud rate")
 parser.add_argument('--debug', default=False, help="enable debug option")
 args = parser.parse_args()
 
@@ -61,7 +60,8 @@ eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SC
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STATUS)
 eventQueue.addEventCallback(return_home, EventHandler.RETURN_TO_LAUNCH)
-eventQueue.addEventCallback(battery_low, EventHandler.BATTERY_LOW)
+eventQueue.addEventCallback(startAnalysis, EventHandler.START_ANALYSIS)
+eventQueue.addEventCallback(startInspection, EventHandler.START_SCAN)
 
 print "Connecting to vehicle on: %s" % args.connect
 iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)

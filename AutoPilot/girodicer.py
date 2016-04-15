@@ -223,6 +223,7 @@ class Girodicer():
         else:
             print "Unable to finish border scan. Interrupted"
             blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED, 0, self.blue)
+            self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_BORDER_SCAN_INTERRUPTED)
 
     def __roof_scan(self):
         """
@@ -276,9 +277,11 @@ class Girodicer():
         if self.vehicle.mode.name == "GUIDED":
             print "Finished roof scan"
             blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN, 0, self.blue)
+            self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
         else:
             print "Unable to finish roof scan. Interrupted"
             blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED, 0, self.blue)
+            self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 
     def __service_ice_dam(self):
         dam = self.ice_dams[0]

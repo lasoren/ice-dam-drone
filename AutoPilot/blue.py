@@ -25,6 +25,7 @@ COMMAND_BLUETOOTH_SEND_LOW_BATTERY = 0x12
 COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED = 0X13
 COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED = 0X14
 COMMAND_BLUETOOTH_SEND_FINISHED_SCAN = 0X15
+COMMAND_START_ANALYSIS = 0x16
 
 class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -112,9 +113,9 @@ class BlueDataProcessor(threading.Thread):
         elif command == COMMAND_UNARM:
             None
         elif command == COMMAND_START_INSPECTION:
-            self.__transferPath()
+            self.__start_inspection()
         elif command == COMMAND_END_INSPECTION:
-            None
+            self.__end_inspection()
         elif command == COMMAND_SEND_STATUS:
             self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_SEND_STATUS)
         elif command == COMMAND_SEND_POINTS:
@@ -130,6 +131,8 @@ class BlueDataProcessor(threading.Thread):
             self.__packImages()
         elif command == COMMAND_BLUETOOTH_RETURN_HOME:
             self.__return_home()
+        elif command == COMMAND_START_ANALYSIS:
+            self.__start_analysis()
 
     def __decipherRcvdPoints(self, payloadSize):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
@@ -156,8 +159,14 @@ class BlueDataProcessor(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_NEW_HOUSE, [newhouse])
         return newhouse.path
 
-    def __transferPath(self):
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.TRANSFER_PATH)
+    def __start_inspection(self):
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.START_SCAN)
+
+    def __end_inspection(self):
+        self.queue.add(EventHandler.HIGH_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
+
+    def __start_analysis(self):
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.START_ANALYSIS)
 
     def __packImages_rgb(self):
         #packing rgb images
