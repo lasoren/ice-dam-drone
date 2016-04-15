@@ -1,15 +1,15 @@
 
-class RgbAnnotation():
+UNIDENTIFIED = 1
+RGB = 2
+THERMAL = 3
+AERIAL = 4
 
-    def __init__(self, image_num, origin, depth):
+class Annotation():
+
+    def __init__(self, image_num=None, origin=None, depth=None, type=0, detected=False):
         self.image_num = image_num
-        self.is_icedam = False
+        self.image_type = type
+        self.detected = detected
         self.origin = origin
         self.depth = depth
         self.ice_locations = []
-
-class ThermalAnnotation():
-
-    def __init__(self, num, is_hotspot):
-        self.image_num = num
-        self.hot_spot = is_hotspot
