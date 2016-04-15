@@ -392,7 +392,7 @@ class GirodicerStatus(threading.Thread):
             armable = self.vehicle.is_armable
             battery_level = self.vehicle.battery.level
 
-            payload = (float(38.847004), float(-94.67325), float(velocity[0]), self.__decipherState(state), battery_level, 1)
+            payload = (location.lat, location.lon, float(velocity[0]), self.__decipherState(state), battery_level, 1)
 
             packager = blue.BlueDataPackager(blue.COMMAND_SEND_STATUS, payload, self.bluetooth)
             packager.run()
