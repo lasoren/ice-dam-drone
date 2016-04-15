@@ -1,7 +1,11 @@
-import threading, glob, os, subprocess, utm, jsonpickle, errno, math
+import threading, glob, os, subprocess, utm, jsonpickle, errno, math, annotations, re
 from saltplacement.kmeans_icicle_clusterer import KMeansIcicleClusterer
 from house import UTMPoint
-from annotations import RgbAnnotation, ThermalAnnotation
+
+def nat_sort(s):
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key)]
+    return sorted(s, key=alphanum_key)
 
 class DetectIce(threading.Thread):
     # haven't decided whether this class should be threaded or not
@@ -16,7 +20,7 @@ class DetectIce(threading.Thread):
         :param centroid: center of house
         """
         super(DetectIce, self).__init__()
-        self.images = [str(file) for file in glob.glob(dir + "/*.jpg")]
+        self.images = nat_sort([str(file) for file in glob.glob(dir + "/*.jpg")])
         self.annotations = annotations
         self.centroid = centroid
         self.__stopped = threading.Event()
@@ -81,7 +85,7 @@ class DetectIce(threading.Thread):
             ice_loc = utm_origin.add(vec).toLatLon(7)
             annotation.ice_locations.append(str(ice_loc.lat) + "," + str(ice_loc.lon))
 
-        annotation.is_icedam = True
+        annotation.detected = True
 
 class DetectHotSpot():
 
@@ -90,7 +94,7 @@ class DetectHotSpot():
     annotations = []
 
     def __init__(self, dir):
-        self.images = [str(file) for file in glob.glob(dir + '/*.jpg')]
+        self.images = nat_sort([str(file) for file in glob.glob(dir + '/*.jpg')])
         self.owd = os.getcwd()
         try:
             os.makedirs(self.folder)
@@ -112,7 +116,7 @@ class DetectHotSpot():
             if data == 1:
                 is_hotspot = True
 
-            self.annotations.append(ThermalAnnotation(i, True))
+            self.annotations.append(annotations.Annotation(image_num=i, type=annotations.THERMAL, detected=is_hotspot))
 
         os.chdir(self.folder)
         with open("images.json", "w+") as f:

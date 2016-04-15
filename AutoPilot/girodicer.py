@@ -1,6 +1,5 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
-import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle, errno, glob
-from annotations import RgbAnnotation, ThermalAnnotation
+import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle, errno, glob, annotations
 from detect_ice import DetectIce, DetectHotSpot
 
 class Girodicer():
@@ -416,7 +415,7 @@ class GirodicerCamera(threading.Thread):
             time.sleep(0.1)
             location = self.vehicle.location.global_frame
             depth = self.lidar.readDistance()/100.00
-            self.annotations.append(RgbAnnotation(pic_num, str(location.lat) +  "," + str(location.lon), depth))
+            self.annotations.append(annotations.Annotation(pic_num, str(location.lat) + "," + str(location.lon), depth, annotations.RGB))
             file_name = str(pic_num) + ".jpg"
             os.system("fswebcam -r 1280x720 --jpeg 85 " + file_name)
             pic_num += 1
