@@ -161,16 +161,14 @@ class BlueDataProcessor(threading.Thread):
             json_bytes = bytearray(f)
             json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, json_bytes, self.bluetooth)
             json_packager.run()
-        img_list = [str(file) for file in glob.glob("*.jpg")]
-        #TODO: find right type
-        type = 0
+        img_list = [str(file) for file in sorted(glob.glob("*.jpg"))]
         #img_list = os.listdir(rgb_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
             img_name_byte.extend(image)
             img_path = rgb_img_dir + '/' + image
             img_num = img_list.index(image)
-            img_packet = struct.pack('>ii', type, img_num)
+            img_packet = struct.pack('>i', img_num)
             with open(img_path, "rb") as imageFile:
                 f = imageFile.read()
                 b_img = bytearray(f)
@@ -187,16 +185,14 @@ class BlueDataProcessor(threading.Thread):
             json_bytes = bytearray(f)
             json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, json_bytes, self.bluetooth)
             json_packager.run()
-        img_list = [str(file) for file in glob.glob("*.jpg")]
-        #TODO: find right type
-        type = 1
+        img_list = [str(file) for file in sorted(glob.glob("*.jpg"))]
         #img_list = os.listdir(therm_img_dir)
         for image in img_list:
             img_name_byte = bytearray()
             img_name_byte.extend(image)
             img_path = therm_img_dir + '/' + image
             img_num = img_list.index(image)
-            img_packet = struct.pack('>ii', type, img_num)
+            img_packet = struct.pack('>i', img_num)
             with open(img_path, "rb") as imageFile:
                 f = imageFile.read()
                 b_img = bytearray(f)
@@ -223,6 +219,8 @@ class BlueDataPackager(threading.Thread):
             self.__sendStatus()
         elif self.command == COMMAND_BLUETOOTH_SEND_IMAGES_RGB or self.command == COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
             self.__sendImage()
+        elif self.command == COMMAND_BLUETOOTH_SEND_JSON_RGB or COMMAND_BLUETOOTH_SEND_JSON_THERM:
+            self.__sendJson()
 
     def __sendStatus(self):
         payloadSize = struct.calcsize('>ffdBi')
@@ -249,6 +247,14 @@ class BlueDataPackager(threading.Thread):
         self.bluetooth.write(data)
 
     def __sendImage(self):
+        payloadSize = len(self.payload)
+
+        data = struct.pack('>Bi', self.command, payloadSize)
+        data.append(self.payload)
+
+        self.bluetooth.write(data)
+
+    def __sendJson(self):
         payloadSize = len(self.payload)
 
         data = struct.pack('>Bi', self.command, payloadSize)
