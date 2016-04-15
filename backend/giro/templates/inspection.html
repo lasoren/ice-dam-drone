@@ -66,6 +66,27 @@
         <!-- /.container -->
     </nav>
 
+    <div id="info" class="row">
+        <div class="panel panel-default col-sm-6">
+            <div class="panel-heading">
+                <h3 class="panel-title">Drone Operator</h3>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item"><p class="listgrouptext">{{ drone_operator.user.first_name }} {{ drone_operator.user.last_name }}</p></li>
+                <li class="list-group-item"><p class="listgrouptext"><a href="mailto:{{ drone_operator.user.email }}">{{ drone_operator.user.email }}</a></p></li>
+            </ul>
+        </div>
+        <div class="panel panel-default col-sm-6">
+            <div class="panel-heading">
+                <h3 class="panel-title">Client</h3>
+            </div>
+            <ul class="list-group">
+                <li class="list-group-item"><p class="listgrouptext">{{ client.user.first_name }} {{ client.user.last_name }}</p></li>
+                <li class="list-group-item"><p class="listgrouptext">{{ client.address }}</p></li>
+            </ul>
+        </div>
+    </div>
+
     <div id="tabs">
         <ul>
             <!-- <li><a href="#tabs-1" title="">Tab 1</a></li> -->

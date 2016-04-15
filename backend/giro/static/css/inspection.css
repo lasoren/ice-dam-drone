@@ -7,9 +7,31 @@ body {
 
 #tabs ul {
     -webkit-padding-start: 20px;
-    padding-top: 20px;
 }
 
 div#links {
-    -webkit-padding-start: 20px;
+   -webkit-padding-start: 20px;
+}
+
+.panel.col-sm-6 {
+  padding-left: 0;
+  padding-right: 0;
+  margin-bottom: 0;
+}
+
+.panel-title {
+    margin-left: 10px;
+}
+
+.listgrouptext {
+    margin-left: 10px;
+    margin-bottom: 0px;
+}
+
+div#info {
+    margin-bottom: 20px;
+}
+
+div#info > * {
+    border-radius: 0 !important;
 }
