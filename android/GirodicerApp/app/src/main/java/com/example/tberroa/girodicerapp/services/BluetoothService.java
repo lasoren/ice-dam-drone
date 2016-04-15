@@ -40,6 +40,7 @@ public class BluetoothService extends Service {
 
     // constants
     public static final int READ = 1;
+    private static final String TAG = "BLUETOOTH_SERVICE";
     private final int CONNECT_ATTEMPT_SUCCESS = 100;
     private final int CONNECT_ATTEMPT_FAILED = 50;
     private final UUID DRONE_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
@@ -74,7 +75,7 @@ public class BluetoothService extends Service {
     // initializes bluetooth receiver and begins connection process
     @Override
     public void onCreate() {
-        Log.d("dbg", "@BluetoothService: beginning of onCreate");
+        Log.d(TAG, "@BluetoothService: beginning of onCreate");
 
         // initialize bluetooth receiver
         IntentFilter btFilter = new IntentFilter();
@@ -89,12 +90,12 @@ public class BluetoothService extends Service {
 
                 switch (action) {
                     case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                        Log.d("dbg", "@BluetoothService: discovery started");
+                        Log.d(TAG, "@BluetoothService: discovery started");
                         break;
                     case BluetoothDevice.ACTION_FOUND:
                         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                         if (device.getName() != null) {
-                            Log.d("dbg", "@BluetoothService: device found: " + device.getName());
+                            Log.d(TAG, "@BluetoothService: device found: " + device.getName());
 
                             if (device.getName().equals(getResources().getString(R.string.drone_bt_name))) {
                                 btDevice = device;
@@ -107,10 +108,10 @@ public class BluetoothService extends Service {
                         }
                         break;
                     case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                        Log.d("dbg", "@BluetoothService: discovery finished");
+                        Log.d(TAG, "@BluetoothService: discovery finished");
 
                         if (droneNotFound) {
-                            Log.d("dbg", "@BluetoothService: drone not found");
+                            Log.d(TAG, "@BluetoothService: drone not found");
 
                             // discovery finished without finding the drone, let system know of connection failure
                             bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
@@ -122,7 +123,7 @@ public class BluetoothService extends Service {
                         }
                         break;
                     case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                        Log.d("dbg", "@BluetoothService: connection lost");
+                        Log.d(TAG, "@BluetoothService: connection lost");
 
                         // let system know the connection was lost
                         bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTION_LOST);
@@ -137,7 +138,7 @@ public class BluetoothService extends Service {
 
         // begin bluetooth connection process
         if (btAdapter.isEnabled()) {
-            Log.d("dbg", "@BluetoothService: beginning connection process");
+            Log.d(TAG, "@BluetoothService: beginning connection process");
 
             // let system know we are trying to connect to the drone
             bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTING);
@@ -145,7 +146,7 @@ public class BluetoothService extends Service {
 
             pair();
         } else {
-            Log.d("dbg", "@BluetoothService: bluetooth adapter not enabled, unable to pair");
+            Log.d(TAG, "@BluetoothService: bluetooth adapter not enabled, unable to pair");
 
             // let system know that connect attempt failed because bluetooth is not enabled
             bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
@@ -165,13 +166,13 @@ public class BluetoothService extends Service {
 
     // checks if drone is already paired, if not, begins discovery
     private void pair() {
-        Log.d("dbg", "@BluetoothService: beginning of pair()");
+        Log.d(TAG, "@BluetoothService: beginning of pair()");
 
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().equals(getResources().getString(R.string.drone_bt_name))) {
-                    Log.d("dbg", "@BluetoothService: drone already paired");
+                    Log.d(TAG, "@BluetoothService: drone already paired");
 
                     btDevice = device;
                     pairComplete();
@@ -184,7 +185,7 @@ public class BluetoothService extends Service {
 
     // once drone is paired, connection attempt is made
     private void pairComplete() {
-        Log.d("dbg", "@BluetoothService: beginning of pairComplete()");
+        Log.d(TAG, "@BluetoothService: beginning of pairComplete()");
 
         // begin connecting to drone via bluetooth device in background thread
         attemptToConnect();
@@ -210,8 +211,8 @@ public class BluetoothService extends Service {
                     try {
                         btSocket.connect();
                     } catch (IOException connectException) {
-                        Log.d("dbgg", connectException.toString());
-                        Log.d("dbgg", "socket didn't connect the first time");
+                        Log.d(TAG, connectException.toString());
+                        Log.d(TAG, "socket didn't connect the first time");
                         try {
                             btSocket =(BluetoothSocket) btDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(btDevice,1);
                             btSocket.connect();
@@ -221,7 +222,7 @@ public class BluetoothService extends Service {
                             btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                             return;
                         } catch (Exception e2){
-                            Log.d("dbgg", "fallback connection attempt failed!!!");
+                            Log.d(TAG, "fallback connection attempt failed!!!");
                             btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                         }
                         return;
@@ -234,7 +235,7 @@ public class BluetoothService extends Service {
     // unregisters broadcast receiver which was initialized in onCreate()
     @Override
     public void onDestroy() {
-        Log.d("dbg", "@BluetoothService: service destroyed");
+        Log.d(TAG, "@BluetoothService: service destroyed");
 
         // shutdown connection thread
         if (btConnectionThread != null) {
@@ -319,7 +320,7 @@ public class BluetoothService extends Service {
         public void handleMessage(Message incoming) {
             switch (incoming.what) {
                 case CONNECT_ATTEMPT_SUCCESS: // successfully connected to drone via bluetooth device
-                    Log.d("dbg", "@BluetoothService: connect attempt successful");
+                    Log.d(TAG, "@BluetoothService: connect attempt successful");
 
                     // drone has started inspection, set initializations (TEST CODE, THIS WILL LIKELY BE MOVED/DELETED)
                     droneStarted();
@@ -341,7 +342,7 @@ public class BluetoothService extends Service {
                         public void run() {
                             if (currentStatus == null) {
                                 bluetoothInfo.setErrorCode(BluetoothService.this, Params.BTE_TIMEOUT);
-                                Log.d("dbg", "@BluetoothService: timed out while waiting for initial status signal");
+                                Log.d(TAG, "@BluetoothService: timed out while waiting for initial status signal");
 
                                 // let system know of timeout
                                 sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TIMEOUT));
@@ -354,7 +355,7 @@ public class BluetoothService extends Service {
                     timer.schedule(timerTask, 3000);
                     break;
                 case CONNECT_ATTEMPT_FAILED:
-                    Log.d("dbg", "@BluetoothService: connect attempt failed");
+                    Log.d(TAG, "@BluetoothService: connect attempt failed");
 
                     // let system know that bluetooth connect attempt failed
                     bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
@@ -382,7 +383,7 @@ public class BluetoothService extends Service {
                         GProtocol received = GProtocol.Unpack(data);
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
-                                //Log.d("dbg", "@BluetoothService/BTDataHandler/COMMAND_STATUS");
+                                //Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_STATUS");
                                 currentStatus = (Status) received.read();
 
                                 // broadcast the status update
@@ -394,7 +395,7 @@ public class BluetoothService extends Service {
                                 if (needInitialStatus) {
                                     // if so, check if the context has been sent
                                     if (context != null) {
-                                        Log.d("dbg", "@BluetoothService/BTDataHandler: initial status received. broadcasting");
+                                        Log.d(TAG, "@BluetoothService/BTDataHandler: initial status received. broadcasting");
 
                                         context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
                                         context = null;
@@ -404,13 +405,13 @@ public class BluetoothService extends Service {
                                 }
                                 break;
                             case GProtocol.COMMAND_SEND_PATH:
-                                Log.d("dbg", "@BluetoothService/BTDataHandler/COMMAND_SEND_PATH");
+                                Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_SEND_PATH");
                                 // noinspection unchecked (Android Lint Suppression)
                                 houseBoundary = (ArrayList<LatLng>) received.read();
 
                                 // broadcast that the house boundary points are ready
                                 if (context != null) {
-                                    Log.d("dbg", "@BluetoothService/BTDataHandler: house boundary received. broadcasting");
+                                    Log.d(TAG, "@BluetoothService/BTDataHandler: house boundary received. broadcasting");
 
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
                                     context = null;
