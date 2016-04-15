@@ -1,0 +1,30 @@
+Transferring images and associated JSON data:
+Tom and Larry
+
+More robust autopilot code:
+Carlos
+
+Status packets (battery, placed salt, etc):
+Tom & Carlos
+
+Finish web portal design:
+Luke
+
+Requesting Client url API Endpoint on Android side:
+Tom
+
+Bluetooth disconnect:
+Tom
+
+Review Carlos' code:
+Luke
+
+Turning a motor to place "salt" and finishing salt container:
+Yaoyu and Carlos
+
+Buy CaCl and a pantyhoes:
+Yaoyu]
+
+Add provisioning to Android:
+Tom
+

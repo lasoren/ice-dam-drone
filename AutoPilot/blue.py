@@ -1,5 +1,5 @@
 from bluetooth import *
-import EventHandler, threading, glob
+import EventHandler, threading, glob, errno, socket
 import os
 from house import *
 from dronekit import LocationGlobalRelative
@@ -21,7 +21,7 @@ COMMAND_BLUETOOTH_SEND_JSON_THERM = 0xE
 
 class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-    __name = "ubuntu-mate-0"
+    __name = "girodicer-minnow"
     __client_sock = None
 
     def __init__(self, queue, debug=False):
@@ -36,6 +36,7 @@ class Blue(threading.Thread):
             self.__server_sock = BluetoothSocket(RFCOMM)
             self.__server_sock.bind(("", PORT_ANY))
             self.__server_sock.listen(1)
+            self.__server_sock.settimeout(60)
 
             advertise_service(self.__server_sock, self.__name,
                               service_id=self.__uuid,
@@ -46,23 +47,34 @@ class Blue(threading.Thread):
     def run(self):
         self.__stop.clear()
         while self.__stop.isSet() is False:
-            self.__client_sock, client_info = self.__server_sock.accept()
-            self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_CONNECTED)
             try:
+                self.__client_sock, client_info = self.__server_sock.accept()
+                self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_CONNECTED)
                 while self.__stop.isSet() is False:
                     data = self.__client_sock.recv(1024)
                     BlueDataProcessor(data, self.queue, self)
-            except IOError:
-                self.__client_sock.close()
-                self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
+            except BluetoothError as error:
+                if error.message != "timed out":
+                    if self.__client_sock is not None:
+                        self.__client_sock.close()
+                        self.__client_sock = None
+                        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
 
-        self.__client_sock.close()
-        self.__server_sock.close()
+        if self.__client_sock is not None:
+            self.__client_sock.close()
+        if self.__server_sock is not None:
+            self.__server_sock.close()
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
+        print "Bluetooth Stopped"
 
     def write(self, data):
         if self.__client_sock is not None:
-            self.__client_sock.send(data)
+            try:
+                self.__client_sock.send(data)
+            except BluetoothError as error:
+                if (error.message != "(107, 'Transport endpoint is not connected')"):
+                    raise error
+
 
     def stop(self):
         self.__stop.set()
