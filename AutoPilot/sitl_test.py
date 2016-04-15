@@ -1,5 +1,5 @@
-import girodicer, EventHandler, argparse, threading, house
-from dronekit import LocationGlobalRelative, VehicleMode
+import girodicer, EventHandler, argparse, threading, house, time
+from dronekit import LocationGlobalRelative, VehicleMode, APIException
 
 ##### Test Functions #####
 
@@ -69,8 +69,8 @@ def leave_queue():
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
-parser.add_argument('--connect', default='/dev/ttyAMA0', help="vehicle connection target")
-parser.add_argument('--baud', default='57600', help="connection baud rate")
+parser.add_argument('--connect', default='/dev/ttyS0', help="vehicle connection target")
+parser.add_argument('--baud', default='115200', help="connection baud rate")
 parser.add_argument('--debug', default=False, help="enable debug option")
 args = parser.parse_args()
 
@@ -86,7 +86,15 @@ eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_IN
 eventQueue.addEventCallback(leave_queue, EventHandler.EXIT_QUEUE)
 
 print "Connecting to vehicle on: %s" % args.connect
-iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
+
+while True:
+    try:
+        iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
+        break
+    except APIException:
+        print "Failed to connect. Retrying in 5 seconds..."
+        time.sleep(5)
+        pass
 
 running = threading.Event()
 running.clear()

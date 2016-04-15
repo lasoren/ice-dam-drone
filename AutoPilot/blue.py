@@ -30,6 +30,8 @@ class Blue(threading.Thread):
         :param queue: Main Event Queue
         """
         super(Blue, self).__init__()
+        # set bluetooth to be in visible and pairing mode
+        os.system('hciconfig hci0 piscan')
         self.queue = queue
         self.__stop = threading.Event()
         if not debug:
@@ -84,7 +86,6 @@ class Blue(threading.Thread):
 
     def stop(self):
         self.__stop.set()
-
 
 class BlueDataProcessor(threading.Thread):
 

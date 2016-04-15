@@ -20,7 +20,6 @@ class Girodicer():
         self.vehicle = connect(connection, baud=baud, wait_ready=True)
         self.vehicle.airspeed = self.flying_velocity
         self.vehicle.add_attribute_listener('battery', self.__battery_callback)
-        self.vehicle.add_attribute_listener('armed', self.__armed_callback)
         print "Initializing lidar"
         self.lidar = lidar.Lidar()
         if not debug:
@@ -56,6 +55,7 @@ class Girodicer():
 
     def return_to_launch(self):
         self.vehicle.mode = VehicleMode("RTL")
+        self.vehicle.add_attribute_listener('armed', self.__armed_callback)
 
     def setVelocity(self, velocityX, velocityY, velocityZ, duration):
         """
@@ -133,6 +133,9 @@ class Girodicer():
         scan_t.start()
 
     def start_service_ice_dams(self):
+        if len(self.ice_dams) == 0:
+            self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.FINISHED_ALL_DAMS)
+
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
 
@@ -278,7 +281,7 @@ class Girodicer():
 
     def __service_ice_dam(self):
         dam = self.ice_dams[0]
-        dam.alt = house.height
+        dam.alt = self.house.height
         self.__fly_single_point(dam)
         self.__drop_salt()
         self.ice_dams.remove(dam)
@@ -362,6 +365,7 @@ class Girodicer():
 
     def __battery_callback(self, vehicle, attr_name, battery):
         if battery.level < 30:
+            self.return_to_launch()
             self.eventQueue.add(EventHandler.HIGH_PRIORITY, EventHandler.BATTERY_LOW)
 
     def __armed_callback(self, vehicle, attr_name, armed):
