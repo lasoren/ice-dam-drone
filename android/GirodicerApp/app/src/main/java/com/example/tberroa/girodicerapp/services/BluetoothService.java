@@ -195,9 +195,7 @@ public class BluetoothService extends Service {
         new Thread(new Runnable() {
             public void run() {
                 // cancel discovery
-                if (btAdapter.isDiscovering()) {
-                    btAdapter.cancelDiscovery();
-                }
+                btAdapter.cancelDiscovery();
 
                 // initialize bluetooth socket
                 BluetoothSocket btSocket = null;
@@ -212,20 +210,27 @@ public class BluetoothService extends Service {
                     try {
                         btSocket.connect();
                     } catch (IOException connectException) {
+                        Log.d("dbgg", connectException.toString());
+                        Log.d("dbgg", "socket didn't connect the first time");
                         try {
-                            btSocket.close();
-                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            btSocket =(BluetoothSocket) btDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(btDevice,1);
+                            btSocket.connect();
+                            //btSocket.close();
+                            //btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                         } catch (IOException closeException) {
+                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            return;
+                        } catch (Exception e2){
+                            Log.d("dbgg", "fallback connection attempt failed!!!");
                             btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                         }
                         return;
                     }
+                    btConnectHandler.obtainMessage(CONNECT_ATTEMPT_SUCCESS, -1, -1, btSocket).sendToTarget();
                 }
-                btConnectHandler.obtainMessage(CONNECT_ATTEMPT_SUCCESS, -1, -1, btSocket).sendToTarget();
             }
         }).start();
     }
-
     // unregisters broadcast receiver which was initialized in onCreate()
     @Override
     public void onDestroy() {

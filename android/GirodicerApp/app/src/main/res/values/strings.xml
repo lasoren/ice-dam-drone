@@ -128,6 +128,6 @@
     <!-- other -->
     <string name="grabbing_data">Grabbing data &#8230;</string>
     <string name="image_description">image</string>
-    <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
+    <string name="google_maps_key">AIzaSyAoNcoHq4f7MQLJZN4IdYdi6jxdpOJfFbw</string>
     <string name="drone_bt_name">girodicer-minnow</string>
 </resources>
