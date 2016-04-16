@@ -31,14 +31,10 @@ def bluetoothDisconnected():
 
 def printPoints(points):
     for point in points:
-        print "lat: %d, lng: %d" % point[0] % point[1]
+        print "lat: %d, lng: %d" % (point[0], point[1])
 
 def setHouse(house):
     iceCutter.house = house
-
-def transferPath():
-    #add functionality here
-    print "Transferring path to Girodicer..."
 
 def transferData(data): # dunno if I'm gonna use yet...
     #generic transfer of data from drone to Android App
@@ -48,17 +44,28 @@ def transferData(data): # dunno if I'm gonna use yet...
         iceCutter.blue.write(data)
 
 def handleBorderInterrupt():
-    # TODO: implement handle border interruption
-    None
+    iceCutter.return_to_launch()
 
 def handleRoofInterrupt():
-    # TODO: implement handle roof interruption
-    None
+    iceCutter.return_to_launch()
 
 def handleRoofFinished():
-    # TODO: implement handle roof finished
-    # start analysis of images, land, and send pictures
     iceCutter.return_to_launch()
+
+def bluetoothSendStatus():
+    iceCutter.get_status()
+
+def startInspection():
+    iceCutter.start_scan()
+
+def startAnalysis():
+    iceCutter.process_images()
+
+def return_home():
+    iceCutter.return_to_launch()
+
+def battery_low():
+    return_home()
 
 def test_loop(iceCutter, eventQueue, running):
     while running.isSet() is False:
@@ -84,6 +91,9 @@ eventQueue.addEventCallback(handleRoofFinished, EventHandler.SCAN_ROOF_FINISHED)
 eventQueue.addEventCallback(handleBorderInterrupt, EventHandler. ERROR_BORDER_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(handleRoofInterrupt, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 eventQueue.addEventCallback(leave_queue, EventHandler.EXIT_QUEUE)
+eventQueue.addEventCallback(return_home, EventHandler.RETURN_TO_LAUNCH)
+eventQueue.addEventCallback(startAnalysis, EventHandler.START_ANALYSIS)
+eventQueue.addEventCallback(startInspection, EventHandler.START_SCAN)
 
 print "Connecting to vehicle on: %s" % args.connect
 
