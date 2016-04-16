@@ -15,25 +15,21 @@ import java.nio.ByteOrder;
  */
 
 public class GProtocol {
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_ARM = 0x1;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_UNARM = 0x2;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_START_INSPECTION = 0x3;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_END_INSPECTION = 0x4;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_STATUS = 0x5;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_SEND_POINTS = 0x6;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_READY_TO_TRANSFER = 0x7;
-    @SuppressWarnings("WeakerAccess")
     public static final byte COMMAND_NEW_HOUSE = 0x8;
-    @SuppressWarnings("WeakerAccess")
-    public static final byte COMMAND_SEND_PATH = 0x9;
-    @SuppressWarnings("WeakerAccess")
+    public static final byte COMMAND_BLUETOOTH_SEND_PATH = 0x9;
+    public static final byte COMMAND_BLUETOOTH_SEND_IMAGES_RGB = 0xA;
+    public static final byte COMMAND_BLUETOOTH_SEND_IMAGES_THERM = 0xB;
+    public static final byte COMMAND_BLUETOOTH_RETURN_HOME = 0xC;
+    public static final byte COMMAND_BLUETOOTH_SEND_JSON_RGB = 0xD;
+    public static final byte COMMAND_BLUETOOTH_SEND_JSON_THERM = 0xE;
+
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
 
     private final byte command;
@@ -73,7 +69,7 @@ public class GProtocol {
                 return new GProtocol(receivedCommand, null, false);
             case COMMAND_STATUS:
             case COMMAND_SEND_POINTS:
-            case COMMAND_SEND_PATH:
+            case COMMAND_BLUETOOTH_SEND_PATH:
                 boolean partial = ((receivedCommand & PARTIAL_MESSAGE) != 0x0);
                 if(builder.hasRemaining()){
                     int payloadSize = builder.getInt();
@@ -89,6 +85,16 @@ public class GProtocol {
                 } else {
                     throw new BluetoothException("No payload size", BluetoothException.ERRORS.NO_SIZE);
                 }
+            case COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
+
+            case COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+
+            case COMMAND_BLUETOOTH_RETURN_HOME:
+
+            case COMMAND_BLUETOOTH_SEND_JSON_RGB:
+
+            case COMMAND_BLUETOOTH_SEND_JSON_THERM:
+
             default:
                 throw new BluetoothException("Bad Command", BluetoothException.ERRORS.BAD_COMMAND);
         }
@@ -109,7 +115,7 @@ public class GProtocol {
             case COMMAND_STATUS:
                 return Status.Unpack(this.data);
             case COMMAND_SEND_POINTS:
-            case COMMAND_SEND_PATH:
+            case COMMAND_BLUETOOTH_SEND_PATH:
                 return Points.Unpack(this.data);
         }
         return null;

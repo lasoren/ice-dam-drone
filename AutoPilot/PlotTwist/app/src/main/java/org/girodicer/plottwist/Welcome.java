@@ -101,8 +101,6 @@ public class Welcome extends Activity implements View.OnClickListener {
         next = (Button) findViewById(R.id.nextButton);
         pairNote = (TextView) findViewById(R.id.pair_notification);
 
-        next.setVisibility(View.VISIBLE);
-
         pair.setOnClickListener(this);
         next.setOnClickListener(this);
 
@@ -232,7 +230,7 @@ public class Welcome extends Activity implements View.OnClickListener {
                         switch(received.getCommand()){
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
-                                //Toast.makeText(Welcome.this, "Lat:" + currentStatus.location.latitude + "Lng:" + currentStatus.location.longitude, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Welcome.this, "Lat:" + currentStatus.location.latitude + "Lng:" + currentStatus.location.longitude, Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     } catch (BluetoothException e) {
