@@ -1,5 +1,6 @@
 import girodicer
-import EventHandler, argparse, os
+import EventHandler, argparse, os, time
+from dronekit import APIException
 
 
 def bluetoothConnected():
@@ -64,8 +65,14 @@ eventQueue.addEventCallback(startAnalysis, EventHandler.START_ANALYSIS)
 eventQueue.addEventCallback(startInspection, EventHandler.START_SCAN)
 
 print "Connecting to vehicle on: %s" % args.connect
-iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
-
+while True:
+    try:
+        iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
+        break
+    except APIException:
+        print "Failed to connect. Retrying in 5 seconds..."
+        time.sleep(5)
+        pass
 running = True
 
 while running:
