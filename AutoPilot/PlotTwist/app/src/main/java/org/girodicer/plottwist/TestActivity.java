@@ -45,7 +45,6 @@ import org.girodicer.plottwist.Models.Status;
 import org.girodicer.plottwist.services.BluetoothService;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class TestActivity extends AppCompatActivity implements View.OnClickListener{

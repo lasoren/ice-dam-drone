@@ -173,71 +173,79 @@ class BlueDataProcessor(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.START_ANALYSIS)
 
     def __packImages_rgb(self):
-        #packing rgb images
         rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
         os.chdir(rgb_img_dir)
-        with open('images.json', 'r') as jsonFile:
-            print "Transferring RGB JSON packets..."
-            f = jsonFile.read()
-            packets = int (math.ceil(len(f)/512))
-            for i in range(1, packets+1):
-                sub = f[((i-1)*512):512*i]
-                json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0x80)
-                json_packager.run()
-            sub = f[(packets)*512:512*(packets+1)]
-            print sub
-            json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0xC0)
-            json_packager.run()
+        self.__sendjson_rgb()
         img_list = [str(file) for file in detect_ice.nat_sort(glob.glob("*.jpg"))]
-        print "Transferring RGB IMAGE packets..."
+        print "Transferring RGB Images..."
         for i in range(0, len(img_list)):
             print "Sending Image %d" % i
             img_path = img_list[i]
             with open(img_path, "rb") as imageFile:
-                f = imageFile.read()
-                packets = int (math.ceil(len(f)/512))
-                for i in range(1, packets+1):
-                    sub = f[(i-1)*512:512*i]
+                f_img = imageFile.read()
+                packets = int(math.ceil(len(f_img)/512))
+                for j in range(1, packets+1):
+                    sub = f_img[(j-1)*512:512*j]
                     img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_RGB, sub, self.bluetooth, flag=0x80)
                     img_packager.run()
-                sub = f[(packets)*512:512*(packets+1)]
+                sub = f_img[(packets)*512:512*(packets+1)]
                 img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_RGB, sub, self.bluetooth, flag=0xC0)
                 img_packager.run()
 
     def __packImages_therm(self):
-        #packing thermal images
         therm_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
         os.chdir(therm_img_dir)
-        with open('images.json', 'r') as jsonFile:
-            f = jsonFile.read()
-            packets = int (math.ceil(len(f)/512))
-            for i in range(1, packets+1):
-                sub = f[((i-1)*512):512*i]
-                json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_THERM, sub, self.bluetooth, flag=0x80)
-                json_packager.run()
-            sub = f[(packets)*512:512*(packets+1)]
-            json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_THERM, sub, self.bluetooth, flag=0xC0)
-            json_packager.run()
+        self.__sendjson_therm()
         img_list = [str(file) for file in detect_ice.nat_sort(glob.glob("*.jpg"))]
         for i in range(0, len(img_list)):
             print "Sending Image %d" % i
             img_path = img_list[i]
             with open(img_path, "rb") as imageFile:
-                f = imageFile.read()
-                packets = int (math.ceil(len(f)/512))
-                for i in range(1, packets+1):
-                    sub = f[(i-1)*512:512*i]
+                f_img = imageFile.read()
+                packets = int(math.ceil(len(f_img)/512))
+                for j in range(1, packets+1):
+                    sub = f_img[(j-1)*512:512*j]
                     img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_THERM, sub, self.bluetooth, flag=0x80)
                     img_packager.run()
-                sub = f[(packets)*512:512*(packets+1)]
+                sub = f_img[(packets)*512:512*(packets+1)]
                 img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_THERM, sub, self.bluetooth, flag=0xC0)
                 img_packager.run()
+
+    def __sendjson_rgb(self):
+        with open('images.json', 'r') as jsonFile:
+            print "Transferring RGB JSON packets..."
+            f_json = jsonFile.read()
+            packets = int(math.ceil(len(f_json)/512))
+            for i in range(1, packets+1):
+                sub = f_json[((i-1)*512):512*i]
+                json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0x80)
+                json_packager.run()
+            sub = f_json[(packets)*512:512*(packets+1)]
+            print sub
+            json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0xC0)
+            json_packager.run()
+            print "Finished transferring JSON data!!!"
+
+    def __sendjson_therm(self):
+        with open('images.json', 'r') as jsonFile:
+            print "Transferring THERMAL JSON packets..."
+            f_json = jsonFile.read()
+            packets = int(math.ceil(len(f_json)/512))
+            for i in range(1, packets+1):
+                sub = f_json[((i-1)*512):512*i]
+                json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_THERM, sub, self.bluetooth, flag=0x80)
+                json_packager.run()
+            sub = f_json[(packets)*512:512*(packets+1)]
+            print sub
+            json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_THERM, sub, self.bluetooth, flag=0xC0)
+            json_packager.run()
+            print "Finished transferring JSON data!!!"
 
     def __return_home(self):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
 
 
-class BlueDataPackager(): #(threading.Thread):
+class BlueDataPackager(threading.Thread):
 
     def __init__(self, command, payload, bluetooth, flag=0x0):
         super(BlueDataPackager, self).__init__()
@@ -289,6 +297,7 @@ class BlueDataPackager(): #(threading.Thread):
 
         data = struct.pack('>Bi', self.command, payloadSize)
         data = ''.join([data, self.payload])
+        print "image packet size %d" % len(data)
 
         self.bluetooth.write(data)
 
@@ -297,7 +306,7 @@ class BlueDataPackager(): #(threading.Thread):
 
         data = struct.pack('>Bi', self.command, payloadSize)
         data = ''.join([data, self.payload])
-        print "packet size %d" % len(data)
+        print "json packet size %d" % len(data)
 
         self.bluetooth.write(data)
 
