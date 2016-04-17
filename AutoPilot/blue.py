@@ -177,6 +177,7 @@ class BlueDataProcessor(threading.Thread):
         rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
         os.chdir(rgb_img_dir)
         with open('images.json', 'r') as jsonFile:
+            print "Transferring RGB JSON packets..."
             f = jsonFile.read()
             packets = int (math.ceil(len(f)/512))
             for i in range(1, packets+1):
@@ -188,6 +189,7 @@ class BlueDataProcessor(threading.Thread):
             json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0xC0)
             json_packager.run()
         img_list = [str(file) for file in detect_ice.nat_sort(glob.glob("*.jpg"))]
+        print "Transferring RGB IMAGE packets..."
         for i in range(0, len(img_list)):
             print "Sending Image %d" % i
             img_path = img_list[i]
@@ -235,7 +237,7 @@ class BlueDataProcessor(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
 
 
-class BlueDataPackager(threading.Thread):
+class BlueDataPackager(): #(threading.Thread):
 
     def __init__(self, command, payload, bluetooth, flag=0x0):
         super(BlueDataPackager, self).__init__()
