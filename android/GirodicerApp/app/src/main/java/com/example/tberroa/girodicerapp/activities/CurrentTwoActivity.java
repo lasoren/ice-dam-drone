@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
 import android.view.View;
@@ -27,8 +28,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-public class CurrentTwoActivity extends BaseActivity
-        implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener {
+public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener,
+        GoogleMap.OnMarkerClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
     private Button next;
@@ -70,6 +71,21 @@ public class CurrentTwoActivity extends BaseActivity
             getSupportActionBar().setTitle(R.string.current_inspection_title);
         }
 
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    new ClientId().clear(CurrentTwoActivity.this);
+                    startActivity(new Intent(CurrentTwoActivity.this, ClientManagerActivity.class));
+                    finish();
+                }
+            }
+        });
+
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
 
@@ -98,6 +114,15 @@ public class CurrentTwoActivity extends BaseActivity
             }
         };
         registerReceiver(broadcastReceiver, filter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
     }
 
     /**
@@ -147,6 +172,17 @@ public class CurrentTwoActivity extends BaseActivity
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            new ClientId().clear(this);
+            startActivity(new Intent(this, ClientManagerActivity.class));
+            finish();
+        }
+    }
+
     private void goToStatus() {
         BluetoothService.mapPhaseComplete = true;
         Intent status = new Intent(this, CurrentThreeActivity.class);
@@ -180,26 +216,5 @@ public class CurrentTwoActivity extends BaseActivity
         }
         pathFound = true;
         next.setEnabled(true);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            new ClientId().clear(this);
-            startActivity(new Intent(this, ClientManagerActivity.class));
-            finish();
-        }
-    }
-
-    // unregister receiver
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
-        }
     }
 }

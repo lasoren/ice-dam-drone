@@ -56,8 +56,8 @@ public class DroneStateFragment extends Fragment {
 
     @Override
     public void onResume() {
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents,
-                new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST));
+        IntentFilter filter = new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, filter);
         super.onResume();
     }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,7 +29,6 @@ public class CurrentThreeActivity extends BaseActivity {
     public static final String WHICH_FRAG = "WHICH_FRAG";
     public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
     public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
-
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -46,6 +46,21 @@ public class CurrentThreeActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.current_inspection_title);
         }
+
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    new ClientId().clear(CurrentThreeActivity.this);
+                    startActivity(new Intent(CurrentThreeActivity.this, ClientManagerActivity.class));
+                    finish();
+                }
+            }
+        });
 
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
@@ -82,6 +97,18 @@ public class CurrentThreeActivity extends BaseActivity {
 
         // pass context to bluetooth data handler
         BluetoothService.BTDataHandler.passContext(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
+
+        // destroy context reference from bluetooth data handler
+        BluetoothService.BTDataHandler.destroyContext();
     }
 
     @Override
@@ -132,17 +159,5 @@ public class CurrentThreeActivity extends BaseActivity {
             }
             return null;
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
-        }
-
-        // destroy context reference from bluetooth data handler
-        BluetoothService.BTDataHandler.destroyContext();
     }
 }

@@ -3,12 +3,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/client_inspection_portal"
-        android:icon="@drawable/client_inspection_portal"
-        android:title="@string/client_inspection_portal"
-        app:showAsAction="ifRoom"/>
-
-    <item
         android:id="@+id/open_menu"
         android:icon="@drawable/menu_button"
         android:title="@string/open_menu"

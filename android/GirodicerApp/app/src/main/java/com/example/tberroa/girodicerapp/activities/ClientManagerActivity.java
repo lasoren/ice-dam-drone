@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.activities;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -92,12 +93,21 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
     }
 
     @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         new UpdateClients().execute();
     }
 
-    class UpdateClients extends AsyncTask<Void, Void, Void> {
+    private class UpdateClients extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             List<Client> newClients = new ServerDB(ClientManagerActivity.this).getClients();

@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.activities;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -30,7 +31,7 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
 
     private List<Inspection> inspections;
     private SwipeRefreshLayout swipeRefreshLayout;
-    PastInspectionsAdapter pastInspectionsAdapter;
+    private PastInspectionsAdapter pastInspectionsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +71,21 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.past_inspections_title);
         }
+
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    new ClientId().clear(PastInspectionsActivity.this);
+                    startActivity(new Intent(PastInspectionsActivity.this, ClientManagerActivity.class));
+                    finish();
+                }
+            }
+        });
 
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
@@ -130,7 +146,7 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
         new UpdateInspections().execute();
     }
 
-    class UpdateInspections extends AsyncTask<Void, Void, Void> {
+    private class UpdateInspections extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             List<Inspection> newInspections = new ServerDB(PastInspectionsActivity.this).getInspections();

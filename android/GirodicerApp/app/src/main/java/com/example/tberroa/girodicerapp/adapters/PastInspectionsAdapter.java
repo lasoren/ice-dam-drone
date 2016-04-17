@@ -34,6 +34,30 @@ public class PastInspectionsAdapter extends RecyclerView.Adapter<PastInspections
         this.labels = labels;
     }
 
+    @Override
+    public int getItemCount() {
+        return paths.size();
+    }
+
+    @Override
+    public InspectionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        Context c = viewGroup.getContext();
+        View v = LayoutInflater.from(c).inflate(R.layout.element_thumbnail, viewGroup, false);
+        return new InspectionViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(InspectionViewHolder inspectionViewHolder, int i) {
+        // render thumbnail with Picasso
+        String url = Params.CLOUD_URL + paths.get(i);
+        int width = Utilities.getImageWidthGrid(context);
+        int height = Utilities.getImageHeightGrid(context);
+        Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.inspectionThumbnail);
+
+        // set label
+        inspectionViewHolder.inspectionDate.setText(labels.get(i));
+    }
+
     public class InspectionViewHolder extends RecyclerView.ViewHolder {
 
         final ImageView inspectionThumbnail;
@@ -62,29 +86,5 @@ public class PastInspectionsAdapter extends RecyclerView.Adapter<PastInspections
                 }
             });
         }
-    }
-
-    @Override
-    public int getItemCount() {
-        return paths.size();
-    }
-
-    @Override
-    public InspectionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        Context c = viewGroup.getContext();
-        View v = LayoutInflater.from(c).inflate(R.layout.element_thumbnail, viewGroup, false);
-        return new InspectionViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(InspectionViewHolder inspectionViewHolder, int i) {
-        // render thumbnail with Picasso
-        String url = Params.CLOUD_URL + paths.get(i);
-        int width = Utilities.getImageWidthGrid(context);
-        int height = Utilities.getImageHeightGrid(context);
-        Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.inspectionThumbnail);
-
-        // set label
-        inspectionViewHolder.inspectionDate.setText(labels.get(i));
     }
 }

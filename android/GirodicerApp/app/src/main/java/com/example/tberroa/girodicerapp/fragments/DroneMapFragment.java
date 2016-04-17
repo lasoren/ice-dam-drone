@@ -24,28 +24,24 @@ import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
 
     private FrameLayout root;
-
     private GoogleMap map;
-
 
     private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String frag = intent.getStringExtra(CurrentThreeActivity.WHICH_FRAG);
 
-            if(frag.equals(DroneStateFragment.class.getName())){
+            if (frag.equals(DroneStateFragment.class.getName())) {
                 LatLng currentLocation = intent.getParcelableExtra(CurrentThreeActivity.LOCATION_PACKAGE);
-                if(currentLocation != null)
+                if (currentLocation != null)
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
             }
         }
     };
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = (FrameLayout) inflater.inflate(R.layout.fragment_drone_map, container, false);
-
         return root;
     }
 
@@ -63,13 +59,13 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(45.59514, -65.47880), 16));
     }
 
     @Override
     public void onResume() {
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST));
+        IntentFilter filter = new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, filter);
         super.onResume();
     }
 }

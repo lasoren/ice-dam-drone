@@ -25,6 +25,20 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstName, lastName, password, confirmPassword, email;
 
+    // onClick listeners
+    private final OnClickListener createAccountButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            Register();
+        }
+    };
+    private final OnClickListener goToLoginButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            startActivity(new Intent(RegisterActivity.this, SignInActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
+            finish();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,20 +82,6 @@ public class RegisterActivity extends AppCompatActivity {
         TextView goToLoginButton = (TextView) findViewById(R.id.go_to_login);
         goToLoginButton.setOnClickListener(goToLoginButtonListener);
     }
-
-    private final OnClickListener createAccountButtonListener = new OnClickListener() {
-        public void onClick(View v) {
-            Register();
-        }
-    };
-
-    private final OnClickListener goToLoginButtonListener = new OnClickListener() {
-        public void onClick(View v) {
-            startActivity(new Intent(RegisterActivity.this, SignInActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
-            finish();
-        }
-    };
 
     private void Register() {
         String enteredFirstName = firstName.getText().toString();

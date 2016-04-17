@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
@@ -69,6 +70,20 @@ public class InspectionActivity extends BaseActivity {
             getSupportActionBar().setTitle(getString(R.string.inspection_title) + " " + Integer.toString(inspection.id));
         }
 
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    startActivity(new Intent(InspectionActivity.this, PastInspectionsActivity.class));
+                    finish();
+                }
+            }
+        });
+
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
 
@@ -114,6 +129,9 @@ public class InspectionActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.open_menu:
+                drawer.openDrawer(GravityCompat.START);
+                return true;
             case R.id.client_inspection_portal:
                 int inspectionId = new InspectionId().get(this);
                 new CIPDialog(this, inspectionId).show();
