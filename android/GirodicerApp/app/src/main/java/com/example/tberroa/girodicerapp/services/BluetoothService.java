@@ -404,7 +404,7 @@ public class BluetoothService extends Service {
 
                                 }
                                 break;
-                            case GProtocol.COMMAND_SEND_PATH:
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_PATH:
                                 Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_SEND_PATH");
                                 // noinspection unchecked (Android Lint Suppression)
                                 houseBoundary = (ArrayList<LatLng>) received.read();

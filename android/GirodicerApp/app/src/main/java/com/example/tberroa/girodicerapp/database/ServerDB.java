@@ -269,6 +269,34 @@ public class ServerDB {
         }
     }
 
+    public String getClientInspectionPortal(int inspectionId) {
+        // create the request json
+        JSONObject requestJson = new JSONObject();
+        try {
+            requestJson.put("user_id", operatorUserId);
+            requestJson.put("session_id", sessionId);
+            requestJson.put("inspection_id", inspectionId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // post
+        String postResponse = "";
+        try {
+            postResponse = new Http().postRequest(Params.CLIENT_INSPECTION_PORTAL, requestJson.toString());
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("dbg", "@ServerDB/getClientInspectionPortal: postResponse is: " + postResponse);
+        try {
+            JSONObject jsonObject = new JSONObject(postResponse);
+            return jsonObject.optString("url", "");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     class CreateImageModel {
 
         String taken;

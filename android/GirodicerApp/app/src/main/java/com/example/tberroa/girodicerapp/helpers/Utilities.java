@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -134,5 +137,19 @@ final public class Utilities {
         if (context instanceof Activity) {
             ((Activity) context).finish();
         }
+    }
+
+    public static boolean isInternetAvailable(Context context) {
+        boolean isInternetAvailable = false;
+        try {
+            ConnectivityManager cM = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = cM.getActiveNetworkInfo();
+            if (networkInfo != null && (networkInfo.isConnected())) {
+                isInternetAvailable = true;
+            }
+        } catch (Exception e) {
+            Log.e("ERROR", "@isInternetAvailable: " + e.getMessage());
+        }
+        return isInternetAvailable;
     }
 }

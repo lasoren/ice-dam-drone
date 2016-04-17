@@ -146,6 +146,7 @@ public class CreateClientDialog extends Dialog {
 
         // create initial client object
         final Client client = new Client(firstName, lastName, email, address);
+
         // backend request needs to be run in background
         Thread thread = new Thread(new Runnable() {
             @Override

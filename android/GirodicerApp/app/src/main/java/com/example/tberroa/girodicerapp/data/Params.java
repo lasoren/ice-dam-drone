@@ -79,6 +79,8 @@ public class Params {
     final public static String GET_CLIENTS_URL = Params.BASE_URL + "users/clients/get.json";
     final public static String GET_INSPECTIONS_URL = Params.BASE_URL + "inspections/get.json";
     final public static String GET_INSPECTION_IMAGES_URL = Params.BASE_URL + "inspections/images/get.json";
+    final public static String CLIENT_INSPECTION_PORTAL = Params.BASE_URL + "inspections/email/client.json";
+
     // image types
     final public static int I_TYPE_NOT_SPECIFIED = 1;
     final public static int I_TYPE_ROOF_EDGE = 2;
