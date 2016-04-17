@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.activities.PastInspectionsActivity;
@@ -30,34 +31,34 @@ public class ClientManagerAdapter extends RecyclerView.Adapter<ClientManagerAdap
         this.clients = clients;
     }
 
-    public class ClientViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ClientViewHolder extends RecyclerView.ViewHolder {
 
-        final ImageView imageThumbnail;
-        final TextView clientNumber;
+        final ImageView addressImage;
+        final TextView clientName;
+        final RelativeLayout thumbnailLayout;
 
         ClientViewHolder(View itemView) {
             super(itemView);
-            imageThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            clientNumber = (TextView) itemView.findViewById(R.id.label);
-            imageThumbnail.setOnClickListener(this);
-            clientNumber.setOnClickListener(this);
-        }
+            addressImage = (ImageView) itemView.findViewById(R.id.thumbnail);
+            clientName = (TextView) itemView.findViewById(R.id.label);
+            thumbnailLayout = (RelativeLayout) itemView.findViewById(R.id.thumbnail_layout);
+            thumbnailLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // extract clicked client
+                    int i = getLayoutPosition();
+                    Client client = clients.get(i);
 
-        @Override
-        public void onClick(View v) {
+                    // save client id to shared preference
+                    new ClientId().set(v.getContext(), client.id);
 
-            // extract clicked client
-            int i = getLayoutPosition();
-            Client client = clients.get(i);
-
-            // save client id to shared preference
-            new ClientId().set(v.getContext(), client.id);
-
-            // start past inspections activity
-            context.startActivity(new Intent(v.getContext(), PastInspectionsActivity.class));
-            if (context instanceof Activity) {
-                ((Activity) context).finish();
-            }
+                    // start past inspections activity
+                    context.startActivity(new Intent(v.getContext(), PastInspectionsActivity.class));
+                    if (context instanceof Activity) {
+                        ((Activity) context).finish();
+                    }
+                }
+            });
         }
     }
 
@@ -81,9 +82,9 @@ public class ClientManagerAdapter extends RecyclerView.Adapter<ClientManagerAdap
     public void onBindViewHolder(ClientViewHolder clientViewHolder, int i) {
         // set client name text
         String title = clients.get(i).user.first_name + "\n" + clients.get(i).user.last_name;
-        clientViewHolder.clientNumber.setText(title);
+        clientViewHolder.clientName.setText(title);
 
-        // get thumbnail url
+        // construct google map url
         String address = clients.get(i).address;
         String key = Params.GOOGLE_STATIC_MAPS_KEY;
         String baseUrl = Params.GOOGLE_STATIC_MAPS_URL;
@@ -92,6 +93,6 @@ public class ClientManagerAdapter extends RecyclerView.Adapter<ClientManagerAdap
         // render thumbnail with Picasso
         int width = Utilities.getImageWidthGrid(context);
         int height = Utilities.getImageHeightGrid(context);
-        Picasso.with(context).load(url).resize(width, height).into(clientViewHolder.imageThumbnail);
+        Picasso.with(context).load(url).resize(width, height).into(clientViewHolder.addressImage);
     }
 }
