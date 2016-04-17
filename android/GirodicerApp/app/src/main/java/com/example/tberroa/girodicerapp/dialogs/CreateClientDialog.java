@@ -160,7 +160,7 @@ public class CreateClientDialog extends Dialog {
         }
     }
 
-    class GetClient extends AsyncTask<Void, Void, Void> {
+    private class GetClient extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             // create client on backend

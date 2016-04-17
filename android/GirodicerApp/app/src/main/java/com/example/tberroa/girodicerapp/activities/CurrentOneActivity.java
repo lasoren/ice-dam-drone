@@ -3,6 +3,7 @@ package com.example.tberroa.girodicerapp.activities;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.view.View;
 import android.widget.Button;
@@ -53,6 +54,21 @@ public class CurrentOneActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.current_inspection_title);
         }
+
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    new ClientId().clear(CurrentOneActivity.this);
+                    startActivity(new Intent(CurrentOneActivity.this, ClientManagerActivity.class));
+                    finish();
+                }
+            }
+        });
 
         // turn off all ui elements to begin
         uiControl(0b00000, 0);
@@ -117,17 +133,6 @@ public class CurrentOneActivity extends BaseActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            new ClientId().clear(this);
-            startActivity(new Intent(this, ClientManagerActivity.class));
-            finish();
-        }
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_ENABLE_BT:
@@ -140,6 +145,17 @@ public class CurrentOneActivity extends BaseActivity {
                         uiControl(0b00110, R.string.bte_not_enabled);
                         break;
                 }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            new ClientId().clear(this);
+            startActivity(new Intent(this, ClientManagerActivity.class));
+            finish();
         }
     }
 

@@ -8,11 +8,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -42,6 +45,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     private boolean stateChange = false;
 
     // ui elements
+    Toolbar toolbar;
     DrawerLayout drawer;
     NavigationView navigationView;
     private SmoothActionBarDrawerToggle toggle;
@@ -133,7 +137,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         super.setContentView(drawer);
 
         // initialize toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // initialize drawer
@@ -304,7 +308,27 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    // used to smooth out drawer open/close animations
+    // inflate toolbar menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.base_menu, menu);
+        return true;
+    }
+
+    // handle toolbar menu clicks here
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.open_menu:
+                drawer.openDrawer(GravityCompat.START);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // class used to smooth out drawer open/close animations
     private class SmoothActionBarDrawerToggle extends ActionBarDrawerToggle {
 
         private Runnable runnable;

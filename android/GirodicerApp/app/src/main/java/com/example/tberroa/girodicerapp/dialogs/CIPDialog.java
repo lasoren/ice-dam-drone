@@ -46,7 +46,7 @@ public class CIPDialog extends Dialog {
         setCancelable(true);
     }
 
-    class GetURL extends AsyncTask<Void, Void, Void> {
+    private class GetURL extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             url = new ServerDB(context).getClientInspectionPortal(inspectionId);
