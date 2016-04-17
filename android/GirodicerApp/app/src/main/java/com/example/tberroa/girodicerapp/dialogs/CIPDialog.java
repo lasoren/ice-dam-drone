@@ -2,6 +2,7 @@ package com.example.tberroa.girodicerapp.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -13,7 +14,7 @@ public class CIPDialog extends Dialog {
 
     private final Context context;
     private final int inspectionId;
-    private boolean noError;
+    private TextView message;
     private String url;
 
     public CIPDialog(Context context, int inspectionId) {
@@ -28,34 +29,15 @@ public class CIPDialog extends Dialog {
         setContentView(R.layout.element_general_message);
 
         // initialize text view
-        TextView message = (TextView) findViewById(R.id.general_message);
+        message = (TextView) findViewById(R.id.general_message);
+        message.setText("...");
 
         // get internet availability
         boolean netAvailable = Utilities.isInternetAvailable(context);
 
         if (netAvailable) {
-            // backend request needs to be run in background
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    url = new ServerDB(context).getClientInspectionPortal(inspectionId);
-                    noError = (url != null && !url.equals(""));
-                }
-            });
-            thread.start();
-
-            // wait for backend request to complete before continuing (will change in the future, this is terrible i know)
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if (noError) {
-                message.setText(url);
-            } else {
-                message.setText(R.string.error_occurred);
-            }
+            // run backend request in background thread via async task
+            new GetURL().execute();
         } else {
             message.setText(R.string.internet_not_available);
         }
@@ -64,4 +46,19 @@ public class CIPDialog extends Dialog {
         setCancelable(true);
     }
 
+    class GetURL extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            url = new ServerDB(context).getClientInspectionPortal(inspectionId);
+            return null;
+        }
+
+        protected void onPostExecute(Void param) {
+            if (url != null && !url.equals("")) {
+                message.setText(url);
+            } else {
+                message.setText(R.string.error_occurred);
+            }
+        }
+    }
 }

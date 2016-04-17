@@ -54,6 +54,8 @@
     <string name="state_format">State must be 2 letters</string>
     <string name="zip_format">ZIP Code must be 5 digits</string>
     <string name="error_check_fields">Error occurred, please check fields and try again.</string>
+    <string name="client_created">Client created successfully</string>
+
     <!-- current inspection activity -->
     <string name="current_inspection_title">Current Inspection</string>
     <!-- 1st step: establish bluetooth connection -->

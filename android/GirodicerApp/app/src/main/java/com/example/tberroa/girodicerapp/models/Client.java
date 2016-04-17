@@ -74,11 +74,4 @@ public class Client extends Model {
         this.user.save();
         this.save();
     }
-
-    public String toJson() {
-        Type clientType = new TypeToken<Client>() {
-        }.getType();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(this, clientType);
-    }
 }

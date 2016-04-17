@@ -10,7 +10,7 @@ Tom & Carlos
 Finish web portal design:
 Luke
 
-Requesting Client url API Endpoint on Android side:
+COMPLETE - Requesting Client url API Endpoint on Android side:
 Tom
 
 Bluetooth disconnect:
