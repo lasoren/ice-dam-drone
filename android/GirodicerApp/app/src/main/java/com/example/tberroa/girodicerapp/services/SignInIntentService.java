@@ -30,8 +30,7 @@ public class SignInIntentService extends IntentService {
         if (clients != null && !clients.isEmpty()) {
             ActiveAndroid.beginTransaction();
             try {
-                for (int i = 0; i < clients.size(); i++) {
-                    Client client = clients.get(clients.size() - 1 - i);
+                for (Client client : clients) {
                     if (client.user != null) {
                         client.cascadeSave();
                     }
