@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
@@ -23,10 +24,12 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class ServerDB {
 
-    final int operatorUserId;
-    final String sessionId;
+    private final Context context;
+    private final int operatorUserId;
+    private final String sessionId;
 
     public ServerDB(Context context) {
+        this.context = context;
         OperatorInfo operatorInfo = new OperatorInfo();
         operatorUserId = operatorInfo.getUserId(context);
         sessionId = operatorInfo.getSessionId(context);
@@ -172,7 +175,9 @@ public class ServerDB {
     }
 
     public List<Client> getClients() {
-        int provision = 0; // hard code this for now
+        // get provision
+        Provisions provisions = new Provisions();
+        int provision = provisions.getClients(context);
 
         // build into json format
         JSONObject jsonObject = new JSONObject();
@@ -199,6 +204,7 @@ public class ServerDB {
         }.getType();
         try {
             GetClientsModel getClientsModel = new Gson().fromJson(postResponse, clientList);
+            provisions.setClients(context, getClientsModel.provision);
             return getClientsModel.clients;
         } catch (Exception e) {
             return null;
@@ -206,12 +212,16 @@ public class ServerDB {
     }
 
     public List<Inspection> getInspections() {
+        // get provision
+        Provisions provisions = new Provisions();
+        int provision = provisions.getInspections(context);
+
         // create the request json
         JSONObject requestJson = new JSONObject();
         try {
             requestJson.put("user_id", operatorUserId);
             requestJson.put("session_id", sessionId);
-            requestJson.put("provision", 0);
+            requestJson.put("provision", provision);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -231,6 +241,7 @@ public class ServerDB {
         }.getType();
         try {
             GetInspectionsModel getInspectionsModel = new Gson().fromJson(postResponse, inspectionList);
+            provisions.setInspections(context, getInspectionsModel.provision);
             return getInspectionsModel.inspections;
         } catch (Exception e) {
             return null;
@@ -238,12 +249,16 @@ public class ServerDB {
     }
 
     public List<InspectionImage> getInspectionImages() {
+        // get provision
+        Provisions provisions = new Provisions();
+        int provision = provisions.getInspectionImages(context);
+
         // create the request json
         JSONObject requestJson = new JSONObject();
         try {
             requestJson.put("user_id", operatorUserId);
             requestJson.put("session_id", sessionId);
-            requestJson.put("provision", 0);
+            requestJson.put("provision", provision);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -263,6 +278,7 @@ public class ServerDB {
         }.getType();
         try {
             GetImagesModel getImagesModel = new Gson().fromJson(postResponse, imagesList);
+            provisions.setInspectionImages(context, getImagesModel.provision);
             return getImagesModel.inspection_images;
         } catch (Exception e) {
             return null;
@@ -303,7 +319,6 @@ public class ServerDB {
         int inspection_id;
         int image_type;
 
-        @SuppressWarnings("unused")
         public CreateImageModel() {
         }
 
@@ -320,7 +335,6 @@ public class ServerDB {
         String session_id;
         List<CreateImageModel> inspection_images;
 
-        @SuppressWarnings("unused")
         public CreateImageRequest() {
         }
 
@@ -334,7 +348,6 @@ public class ServerDB {
     class GetClientsModel {
 
         List<Client> clients;
-        @SuppressWarnings("unused")
         int provision;
 
         public GetClientsModel() {
@@ -344,7 +357,6 @@ public class ServerDB {
     class GetInspectionsModel {
 
         List<Inspection> inspections;
-        @SuppressWarnings("unused")
         int provision;
 
         public GetInspectionsModel() {
@@ -353,7 +365,6 @@ public class ServerDB {
 
     class GetImagesModel {
 
-        @SuppressWarnings("unused")
         int provision;
         List<InspectionImage> inspection_images;
 

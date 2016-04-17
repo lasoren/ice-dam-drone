@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
+import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 
@@ -127,6 +128,7 @@ final public class Utilities {
         // clear old data
         new OperatorInfo().clear(context);
         new CurrentInspectionInfo().clearAll(context);
+        new Provisions().clear(context);
         new LocalDB().clear();
 
         // update user sign in status

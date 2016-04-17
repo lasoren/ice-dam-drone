@@ -17,6 +17,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -135,6 +136,7 @@ public class SignInActivity extends AppCompatActivity {
         // clear old data
         operatorInfo.clear(this);
         new CurrentInspectionInfo().clearAll(this);
+        new Provisions().clear(this);
         new LocalDB().clear();
 
         // save operator info
