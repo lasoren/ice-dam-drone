@@ -29,6 +29,7 @@ COMMAND_BLUETOOTH_SEND_FINISH_BORDER = 0x16
 COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS = 0x17
 COMMAND_BLUETOOTH_FINISHED_RGB = 0x18
 COMMAND_BLUETOOTH_FINISHED_THERM = 0x19
+COMMAND_BLUETOOTH_SERVICE_ICE_DAM = 0x20
 
 COMMAND_BLUETOOTH_OKAY_TO_SEND = 0x31
 COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30
@@ -78,6 +79,8 @@ class Blue(threading.Thread):
                         if error.message != "timed out":
                             if self.__client_sock is not None:
                                 self.__client_sock.close()
+                                self.write_okay = True
+                                self.old_data = None
                                 self.__client_sock = None
                                 self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
                         break
@@ -87,6 +90,8 @@ class Blue(threading.Thread):
 
         if self.__client_sock is not None:
             self.__client_sock.close()
+            self.write_okay = True
+            self.old_data = None
         if self.__server_sock is not None:
             self.__server_sock.close()
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.ERROR_BLUETOOTH_DISCONNECTED)
@@ -169,6 +174,11 @@ class BlueDataProcessor(threading.Thread):
             self.bluetooth.rewrite()
         elif command == COMMAND_BLUETOOTH_OKAY_TO_SEND:
             self.bluetooth.write_okay = True
+        elif command == COMMAND_BLUETOOTH_SERVICE_ICE_DAM:
+            self.__serviceIcedam()
+
+    def __serviceIcedam(self):
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SERVICE_ICE_DAM)
 
     def __decipherRcvdPoints(self, payloadSize):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))

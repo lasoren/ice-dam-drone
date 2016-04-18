@@ -13,6 +13,7 @@ def bluetoothDisconnected():
     iceCutter.return_to_launch()
 
 def printPoints(points):
+    iceCutter.set_ice_dams(points)
     for point in points:
         print "lat: %d, lng: %d" % (point[0], point[1])
 
@@ -44,6 +45,8 @@ def return_home():
 def battery_low():
     return_home()
 
+def service_icedam():
+    iceCutter.start_service_ice_dams()
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
@@ -64,6 +67,7 @@ eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STA
 eventQueue.addEventCallback(return_home, EventHandler.RETURN_TO_LAUNCH)
 eventQueue.addEventCallback(startAnalysis, EventHandler.START_ANALYSIS)
 eventQueue.addEventCallback(startInspection, EventHandler.START_SCAN)
+eventQueue.addEventCallback(service_icedam, EventHandler.SERVICE_ICE_DAM)
 
 print "Connecting to vehicle on: %s" % args.connect
 while True:
