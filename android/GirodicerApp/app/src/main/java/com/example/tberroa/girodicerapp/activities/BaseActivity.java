@@ -80,10 +80,17 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             BluetoothService.mapPhaseComplete = false;
             BluetoothService.serviceRunning = false;
             BluetoothService.currentStatus = null;
+
+            // unregister receiver
+            if (BluetoothService.btReceiver != null){
+                unregisterReceiver(BluetoothService.btReceiver);
+                BluetoothService.btReceiver = null;
+            }
         }
 
         // set up receiver to reload activity upon system updates
         IntentFilter filter = new IntentFilter();
+        filter.addAction(Params.BLUETOOTH_TERMINATED);
         filter.addAction(Params.BLUETOOTH_TIMEOUT);
         filter.addAction(Params.CONNECTING_TO_DRONE);
         filter.addAction(Params.DRONE_CONNECT_SUCCESS);
@@ -100,6 +107,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 switch (action) {
+                    case Params.BLUETOOTH_TERMINATED:
                     case Params.BLUETOOTH_TIMEOUT:
                     case Params.CONNECTING_TO_DRONE:
                     case Params.DRONE_CONNECT_SUCCESS:
@@ -142,6 +150,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         // initialize drawer
         toggle = new SmoothActionBarDrawerToggle(this, drawer, toolbar);
+        toggle.setDrawerIndicatorEnabled(false);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -313,6 +322,13 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.base_menu, menu);
+
+        // check if terminate button needs to be added
+        if (BluetoothService.currentStatus != null){
+            menu.add(0, Params.TERMINATE, Menu.NONE, R.string.terminate)
+                    .setIcon(R.drawable.terminate_button)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        }
         return true;
     }
 
@@ -322,6 +338,9 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.open_menu:
                 drawer.openDrawer(GravityCompat.START);
+                return true;
+            case Params.TERMINATE:
+                stopService(new Intent(this, BluetoothService.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

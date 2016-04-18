@@ -17,6 +17,8 @@ public class Params {
     // sign in related
     final public static String SIGN_IN_SERVICE_COMPLETE = "SIGN_IN_SERVICE_COMPLETE";
     // bluetooth related
+    final public static int TERMINATE = 1055; // dynamic menu button id
+    final public static String BLUETOOTH_TERMINATED = "BLUETOOTH_TERMINATED";
     final public static String BLUETOOTH_NOT_ENABLED = "BLUETOOTH_NOT_ENABLED";
     final public static String BLUETOOTH_TIMEOUT = "BLUETOOTH_TIMEOUT";
     final public static String CONNECTING_TO_DRONE = "CONNECTING_TO_DRONE";
