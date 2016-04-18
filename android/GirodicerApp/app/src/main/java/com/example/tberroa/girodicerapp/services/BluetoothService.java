@@ -70,7 +70,7 @@ public class BluetoothService extends Service {
     public static ConnectionThread btConnectionThread; // so legacy code compiles
 
     // receiver to handle all bluetooth state changes
-    private BroadcastReceiver btReceiver;
+    public static BroadcastReceiver btReceiver = null;
 
     // initializes bluetooth receiver and begins connection process
     @Override
@@ -232,7 +232,7 @@ public class BluetoothService extends Service {
             }
         }).start();
     }
-    // unregisters broadcast receiver which was initialized in onCreate()
+
     @Override
     public void onDestroy() {
         Log.d(TAG, "@BluetoothService: service destroyed");
@@ -245,23 +245,20 @@ public class BluetoothService extends Service {
         // reset state
         bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
 
-        /*// all inspection phases but uploading to aws require bluetooth
-        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-        if (currentInspectionInfo.getPhase(this) != Params.CI_UPLOADING){
-            currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
-        }*/
-
         // update variables
         needInitialStatus = true;
         mapPhaseComplete = false;
         serviceRunning = false;
         currentStatus = null;
 
-        // unregister receiver (this can leak because onDestroy not guaranteed, will fix later)
-        unregisterReceiver(btReceiver);
+        // unregister receiver
+        if (btReceiver != null){
+            unregisterReceiver(btReceiver);
+            btReceiver = null;
+        }
 
-        // TEST CODE
-        droneDone();
+        // broadcast
+        sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TERMINATED));
     }
 
     // if android system kills service, onDestroy is not called. This method allows us to check if service is running
@@ -321,9 +318,6 @@ public class BluetoothService extends Service {
             switch (incoming.what) {
                 case CONNECT_ATTEMPT_SUCCESS: // successfully connected to drone via bluetooth device
                     Log.d(TAG, "@BluetoothService: connect attempt successful");
-
-                    // drone has started inspection, set initializations (TEST CODE, THIS WILL LIKELY BE MOVED/DELETED)
-                    droneStarted();
 
                     // let system know that bluetooth was successfully connected
                     bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTED);

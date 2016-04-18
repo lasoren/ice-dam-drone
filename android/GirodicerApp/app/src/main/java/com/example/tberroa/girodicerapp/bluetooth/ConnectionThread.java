@@ -73,7 +73,6 @@ public class ConnectionThread extends Thread {
 
     /* Call this from the main activity to shutdown the connection */
     public void shutdown() {
-
         try {
             btSocket.close();
         } catch (IOException e) {

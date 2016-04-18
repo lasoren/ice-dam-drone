@@ -13,7 +13,7 @@ Luke
 COMPLETE - Requesting Client url API Endpoint on Android side:
 Tom
 
-Bluetooth disconnect:
+COMPLETE - Bluetooth disconnect:
 Tom
 
 Review Carlos' code:

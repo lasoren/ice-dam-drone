@@ -20,6 +20,7 @@ import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.dialogs.CIPDialog;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
+import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -123,6 +124,13 @@ public class InspectionActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.inspection_menu, menu);
+
+        // check if terminate button needs to be added
+        if (BluetoothService.currentStatus != null){
+            menu.add(0, Params.TERMINATE, Menu.NONE, R.string.terminate)
+                    .setIcon(R.drawable.terminate_button)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        }
         return true;
     }
 
@@ -131,6 +139,9 @@ public class InspectionActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.open_menu:
                 drawer.openDrawer(GravityCompat.START);
+                return true;
+            case Params.TERMINATE:
+                stopService(new Intent(this, BluetoothService.class));
                 return true;
             case R.id.client_inspection_portal:
                 int inspectionId = new InspectionId().get(this);
