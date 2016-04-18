@@ -123,6 +123,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
         json_textbox = (TextView) findViewById(R.id.json_textbox);
         json_textbox.setMovementMethod(new ScrollingMovementMethod());
+        json_textbox.setVisibility(View.GONE);
 
         rgb_imageview = (ImageView) findViewById(R.id.rgb_images);
 
@@ -191,6 +192,8 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
     private class BTMessageHandler extends Handler {
         List<GProtocol> gprotocol_list = new ArrayList<GProtocol>();
+        int rgb_img_index = 0;
+        int therm_img_index = 0;
         @Override
         public void handleMessage(Message msg){
             switch(msg.what){
@@ -200,7 +203,35 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                     try {
                         GProtocol received = GProtocol.Unpack(data);
                         switch(received.getCommand()){
+                            case GProtocol.COMMAND_START_INSPECTION:
+                                //TODO: Change to new fragment that doesn't show start command anymore
+                                Log.d("DRONE STATUS:", "Drone starting inspection...");
+                                Toast.makeText(TestActivity.this, "Starting Inspection!!!", Toast.LENGTH_SHORT).show();
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
+                                //TODO: Show message or something to notify user of border finishing (maybe a Toast statement is enough...)
+                                Log.d("DRONE STATUS:", "Drone finished border");
+                                Toast.makeText(TestActivity.this, "Drone finished border!!!", Toast.LENGTH_SHORT).show();
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
+                                //TODO: Show message or something to notify user of border finishing (maybe a Toast statement is enough...)
+                                Log.d("DRONE STATUS", "Drone finished scan");
+                                Toast.makeText(TestActivity.this, "Drone finished scan!!!", Toast.LENGTH_SHORT).show();
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
+                                //TODO: Show message or something to notify user of border finishing (maybe a Toast statement is enough...)
+                                Log.d("DRONE STATUS", "Drone landed");
+                                Toast.makeText(TestActivity.this, "Drone Landed", Toast.LENGTH_SHORT).show();
+                            case GProtocol.COMMAND_BLUETOOTH_RETURN_HOME:
+                                Log.d("DRONE STATUS", "Drone returned home");
+                                Toast.makeText(TestActivity.this, "Drone returning home...", Toast.LENGTH_SHORT).show();
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
+                                //TODO: Show the button for Receiving RGB or Thermal Images and maybe change to a new fragment w/ a gallery view of images
+                                Log.d("DRONE STATUS", "Drone finished analysis");
+                                Toast.makeText(TestActivity.this, "Drone is analyzing images...", Toast.LENGTH_SHORT).show();
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
+                                //TODO: Notify user that the drone is low battery and is heading back home now no matter what; might need to change to new screen
+                                Log.d("DRONE STATUS", "Drone LOW BATTERY");
+                                Toast.makeText(TestActivity.this, "Drone LOW BATTERY!!!", Toast.LENGTH_SHORT).show();
                             case GProtocol.COMMAND_STATUS:
+                                //TODO: Show the map and other status info in a fragment (maybe a half-the-screen fragment)
                                 Status currentStatus = (Status) received.read();
                                 Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
                                 broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
@@ -215,6 +246,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                                     GProtocol final_gprotocol = GProtocol.glue_gprotocols(gprotocol_list);
                                     JSON rgb_json = (JSON) final_gprotocol.read();
                                     json_textbox.setText(rgb_json.getJson());
+                                    gprotocol_list.clear();
                                 } else if(received.isPartial()){
                                     gprotocol_list.add(received);
                                 } else{
@@ -228,6 +260,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                                     GProtocol final_gprotocol = GProtocol.glue_gprotocols(gprotocol_list);
                                     JSON therm_json = (JSON) final_gprotocol.read();
                                     json_textbox.setText(therm_json.getJson());
+                                    gprotocol_list.clear();
                                 } else if(received.isPartial()){
                                     gprotocol_list.add(received);
                                 } else{
@@ -237,18 +270,35 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                                 break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
                                 if(received.isPartialEnd()){
+                                    rgb_img_index++;
                                     gprotocol_list.add(received);
                                     GProtocol final_gprotocol = GProtocol.glue_gprotocols(gprotocol_list);
                                     Images rgb_image = (Images) final_gprotocol.read();
                                     rgb_imageview.setImageBitmap(rgb_image.getImage());
+                                    gprotocol_list.clear();
+                                    Toast.makeText(TestActivity.this, "Showing Image: " + rgb_img_index, Toast.LENGTH_SHORT).show();
                                 } else if(received.isPartial()){
                                     gprotocol_list.add(received);
                                 } else{
-                                    Images rgb_image = (Images) received.read();
-                                    Log.d("WEIRD ERROR", "");
+                                    //Images rgb_image = (Images) received.read();
+                                    Log.d("WEIRD ERROR", "COMMAND_BLUETOOTH_SEND_IMAGES_RGB shouldn't get here...");
                                 }
                                 break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+                                if(received.isPartialEnd()){
+                                    therm_img_index++;
+                                    gprotocol_list.add(received);
+                                    GProtocol final_gprotocol = GProtocol.glue_gprotocols(gprotocol_list);
+                                    Images rgb_image = (Images) final_gprotocol.read();
+                                    rgb_imageview.setImageBitmap(rgb_image.getImage());
+                                    gprotocol_list.clear();
+                                    Toast.makeText(TestActivity.this, "Showing Image: " + therm_img_index, Toast.LENGTH_SHORT).show();
+                                } else if(received.isPartial()){
+                                    gprotocol_list.add(received);
+                                } else{
+                                    //Images therm_image = (Images) received.read();
+                                    Log.d("WEIRD ERROR", "COMMAND_BLUETOOTH_SEND_IMAGES_THERM shouldn't get here...");
+                                }
                                 break;
                         }
                         //Log.d(TAG, Integer.toString(received.getCommand()));

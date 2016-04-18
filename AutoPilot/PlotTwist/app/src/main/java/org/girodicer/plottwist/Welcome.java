@@ -230,7 +230,7 @@ public class Welcome extends Activity implements View.OnClickListener {
                         switch(received.getCommand()){
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
-                                Toast.makeText(Welcome.this, "Lat:" + currentStatus.location.latitude + "Lng:" + currentStatus.location.longitude, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(Welcome.this, "Lat:" + currentStatus.location.latitude + "Lng:" + currentStatus.location.longitude, Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     } catch (BluetoothException e) {
