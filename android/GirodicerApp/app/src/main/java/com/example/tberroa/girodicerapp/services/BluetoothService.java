@@ -478,7 +478,7 @@ public class BluetoothService extends Service {
                                     listGProtocol.add(received);
                                 } else {
                                     //Images rgb_image = (Images) received.read();
-                                    Log.d(Params.TAG_DBG + Params.TAG_DS + Params.TAG_ERROR, "@BS/DH/IMAGES_RGB: shouldn't be here");
+                                    Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BS/DH/IMAGES_RGB: shouldn't be here");
                                 }
                                 break;
 
@@ -494,13 +494,12 @@ public class BluetoothService extends Service {
                                     listGProtocol.add(received);
                                 } else {
                                     //Images therm_image = (Images) received.read();
-                                    Log.d(Params.TAG_DBG + Params.TAG_DS + Params.TAG_ERROR, "@BS/DH/IMAGES_THERM: shouldn't be here");
+                                    Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BS/DH/IMAGES_THERM: shouldn't be here");
                                 }
                                 break;
                         }
                     } catch (BluetoothException e) {
-                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH: BluetoothException occurred");
-                        e.printStackTrace();
+                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/BTException: " + e.getMessage());
                     }
                     break;
             }
