@@ -296,13 +296,15 @@ class BlueDataPackager(threading.Thread):
             self.__sendStatus()
         elif self.command == COMMAND_BLUETOOTH_SEND_IMAGES_RGB or self.command == COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
             self.__sendImage()
+        elif (self.command == COMMAND_BLUETOOTH_SEND_DRONE_LANDED or self.command == COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS
+              or self.command == COMMAND_BLUETOOTH_SEND_FINISHED_DAM or self.command == COMMAND_BLUETOOTH_SEND_LOW_BATTERY
+              or self.command == COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED or self.command == COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED
+              or self.command == COMMAND_BLUETOOTH_SEND_FINISHED_SCAN or self.command == COMMAND_START_INSPECTION
+              or self.command == COMMAND_BLUETOOTH_SEND_FINISH_BORDER or self.command == COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS
+              or self.command == COMMAND_BLUETOOTH_FINISHED_RGB or self.command == COMMAND_BLUETOOTH_FINISHED_THERM):
+            self.__send_nopayload()
         elif self.command == COMMAND_BLUETOOTH_SEND_JSON_RGB or COMMAND_BLUETOOTH_SEND_JSON_THERM:
             self.__sendJson()
-        elif (self.command == COMMAND_BLUETOOTH_SEND_DRONE_LANDED or COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS
-              or COMMAND_BLUETOOTH_SEND_FINISHED_DAM or COMMAND_BLUETOOTH_SEND_LOW_BATTERY
-              or COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED or COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED
-              or COMMAND_BLUETOOTH_SEND_FINISHED_SCAN):
-            self.__send_nopayload()
 
     def __sendStatus(self):
         payloadSize = struct.calcsize('>ffdBi')
@@ -353,7 +355,7 @@ class BlueDataPackager(threading.Thread):
         data = struct.pack('>Bi', self.command|self.flag, payloadSize)
 
         print "sending notification"
-        print ":".join(x.encode('hex') for x in self.data)
+        print ":".join(x.encode('hex') for x in data)
         self.bluetooth.getlock()
         self.bluetooth.write(data)
         self.bluetooth.unlock()
