@@ -25,7 +25,13 @@ COMMAND_BLUETOOTH_SEND_LOW_BATTERY = 0x12
 COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED = 0X13
 COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED = 0X14
 COMMAND_BLUETOOTH_SEND_FINISHED_SCAN = 0X15
-COMMAND_START_ANALYSIS = 0x16
+COMMAND_BLUETOOTH_SEND_FINISH_BORDER = 0x16
+COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS = 0x17
+COMMAND_BLUETOOTH_FINISHED_RGB = 0x18
+COMMAND_BLUETOOTH_FINISHED_THERM = 0x19
+
+COMMAND_BLUETOOTH_OKAY_TO_SEND = 0x31
+COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30
 
 class Blue(threading.Thread):
     __uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -42,6 +48,9 @@ class Blue(threading.Thread):
         os.system('hciconfig hci0 piscan')
         self.queue = queue
         self.__stop = threading.Event()
+        self.lock = threading.RLock()
+        self.old_data = None
+        self.write_okay = True
         if not debug:
             self.__server_sock = BluetoothSocket(RFCOMM)
             self.__server_sock.bind(("", PORT_ANY))
@@ -85,13 +94,34 @@ class Blue(threading.Thread):
 
     def write(self, data):
         if self.__client_sock is not None:
-            try:
-                self.__client_sock.send(data)
-                # print ":".join(x.encode('hex') for x in data[0:2])
-            except BluetoothError as error:
-                if (error.message != "(107, 'Transport endpoint is not connected')"):
-                    raise error
+            while True:
+                if self.write_okay is True:
+                    try:
+                        self.__client_sock.send(data)
+                        self.old_data = data
+                        self.write_okay = False
+                        break
+                        # print ":".join(x.encode('hex') for x in data[0:2])
+                    except BluetoothError as error:
+                        if (error.message != "(107, 'Transport endpoint is not connected')"):
+                            raise error
+                        break
 
+    def rewrite(self):
+        if self.__client_sock is not None:
+            if (self.old_data is not None) and (self.write_okay is False):
+                try:
+                    self.__client_sock.send(self.old_data)
+                except BluetoothError as error:
+                        if (error.message != "(107, 'Transport endpoint is not connected')"):
+                            raise error
+
+
+    def getlock(self):
+        self.lock.acquire()
+
+    def unlock(self):
+        self.lock.release()
 
     def stop(self):
         self.__stop.set()
@@ -106,7 +136,7 @@ class BlueDataProcessor(threading.Thread):
         self.start()
 
     def run(self):
-        print ":".join(x.encode('hex') for x in self.data)
+        # print ":".join(x.encode('hex') for x in self.data)
         (command, payloadSize) = struct.unpack_from('<Bi', self.data)
 
         if command == COMMAND_ARM:
@@ -129,14 +159,16 @@ class BlueDataProcessor(threading.Thread):
             packager.run()
         elif command == COMMAND_BLUETOOTH_RETURN_HOME:
             self.__return_home()
-        elif command == COMMAND_START_ANALYSIS:
-            self.__start_analysis()
         elif command == COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
             print "Transferring RGB Images"
             self.__packImages_rgb()
         elif command == COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
             print "Transferring THERMAL Images"
             self.__packImages_therm()
+        elif command == COMMAND_BLUETOOTH_SEND_CORRUPT:
+            self.bluetooth.rewrite()
+        elif command == COMMAND_BLUETOOTH_OKAY_TO_SEND:
+            self.bluetooth.write_okay = True
 
     def __decipherRcvdPoints(self, payloadSize):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
@@ -169,10 +201,8 @@ class BlueDataProcessor(threading.Thread):
     def __end_inspection(self):
         self.queue.add(EventHandler.HIGH_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
 
-    def __start_analysis(self):
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.START_ANALYSIS)
-
     def __packImages_rgb(self):
+        self.bluetooth.getlock()
         rgb_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'rgb_proc')
         os.chdir(rgb_img_dir)
         self.__sendjson_rgb()
@@ -191,8 +221,11 @@ class BlueDataProcessor(threading.Thread):
                 sub = f_img[(packets)*512:512*(packets+1)]
                 img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_RGB, sub, self.bluetooth, flag=0xC0)
                 img_packager.run()
+        self.bluetooth.unlock()
+        BlueDataPackager(COMMAND_BLUETOOTH_FINISHED_RGB, 0, self.bluetooth)
 
     def __packImages_therm(self):
+        self.bluetooth.getlock()
         therm_img_dir = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_proc')
         os.chdir(therm_img_dir)
         self.__sendjson_therm()
@@ -210,6 +243,8 @@ class BlueDataProcessor(threading.Thread):
                 sub = f_img[(packets)*512:512*(packets+1)]
                 img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_THERM, sub, self.bluetooth, flag=0xC0)
                 img_packager.run()
+        self.bluetooth.unlock()
+        BlueDataPackager(COMMAND_BLUETOOTH_FINISHED_THERM, 0, self.bluetooth)
 
     def __sendjson_rgb(self):
         with open('images.json', 'r') as jsonFile:
@@ -249,9 +284,10 @@ class BlueDataPackager(threading.Thread):
 
     def __init__(self, command, payload, bluetooth, flag=0x0):
         super(BlueDataPackager, self).__init__()
-        self.command = command | flag
+        self.command = command
         self.payload = payload
         self.bluetooth = bluetooth
+        self.flag = flag
 
     def run(self):
         if self.command == COMMAND_BLUETOOTH_SEND_PATH:
@@ -271,10 +307,12 @@ class BlueDataPackager(threading.Thread):
     def __sendStatus(self):
         payloadSize = struct.calcsize('>ffdBi')
 
-        data = struct.pack('>BiffdBi', self.command, payloadSize, self.payload[0], self.payload[1], self.payload[2],
+        data = struct.pack('>BiffdBi', self.command|self.flag, payloadSize, self.payload[0], self.payload[1], self.payload[2],
                            self.payload[3], self.payload[4])
 
+        self.bluetooth.getlock()
         self.bluetooth.write(data)
+        self.bluetooth.unlock()
 
     def __sendPath(self):
         """
@@ -285,7 +323,7 @@ class BlueDataPackager(threading.Thread):
         pointSize = struct.calcsize('>dd')
         payloadSize = numPoints * pointSize
 
-        data = struct.pack('>Bi', self.command, payloadSize)
+        data = struct.pack('>Bi', self.command|self.flag, payloadSize)
 
         for i in range(0, numPoints):
             data = ''.join([data, struct.pack('>dd', self.payload[i].lat, self.payload[i].lon)])
@@ -295,7 +333,7 @@ class BlueDataPackager(threading.Thread):
     def __sendImage(self):
         payloadSize = len(self.payload)
 
-        data = struct.pack('>Bi', self.command, payloadSize)
+        data = struct.pack('>Bi', self.command|self.flag, payloadSize)
         data = ''.join([data, self.payload])
         print "image packet size %d" % len(data)
 
@@ -304,7 +342,7 @@ class BlueDataPackager(threading.Thread):
     def __sendJson(self):
         payloadSize = len(self.payload)
 
-        data = struct.pack('>Bi', self.command, payloadSize)
+        data = struct.pack('>Bi', self.command|self.flag, payloadSize)
         data = ''.join([data, self.payload])
         print "json packet size %d" % len(data)
 
@@ -312,6 +350,10 @@ class BlueDataPackager(threading.Thread):
 
     def __send_nopayload(self):
         payloadSize = 0
-        data = struct.pack('>Bi', self.command, payloadSize)
+        data = struct.pack('>Bi', self.command|self.flag, payloadSize)
 
+        print "sending notification"
+        print ":".join(x.encode('hex') for x in self.data)
+        self.bluetooth.getlock()
         self.bluetooth.write(data)
+        self.bluetooth.unlock()

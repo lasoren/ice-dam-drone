@@ -131,6 +131,7 @@ class Girodicer():
         print "Starting scanning thread"
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
+        blue.BlueDataPackager(blue.COMMAND_START_INSPECTION, 0, self.blue)
 
     def start_service_ice_dams(self):
         if len(self.ice_dams) == 0:
@@ -162,6 +163,7 @@ class Girodicer():
         detect_hot.run()
 
         detect_ice.join()
+        blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS, 0, self.blue)
 
     def set_ice_dams(self, ice_dams):
         self.ice_dams = ice_dams
@@ -219,6 +221,7 @@ class Girodicer():
 
         if self.vehicle.mode.name == "GUIDED":
             print "Finished Border Scan"
+            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISH_BORDER, 0, self.blue)
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
         else:
             print "Unable to finish border scan. Interrupted"
@@ -476,7 +479,7 @@ class GirodicerCamera(threading.Thread):
 class GirodicerThermal():
 
     camera_ip = "192.168.0.168"
-    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', '%d.jpg']
+    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=1', '%d.jpg']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_raw')
 
     def __init__(self):

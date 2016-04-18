@@ -26,6 +26,7 @@ def handleRoofInterrupt():
     iceCutter.return_to_launch()
 
 def handleRoofFinished():
+    startAnalysis()
     iceCutter.return_to_launch()
 
 def bluetoothSendStatus():
