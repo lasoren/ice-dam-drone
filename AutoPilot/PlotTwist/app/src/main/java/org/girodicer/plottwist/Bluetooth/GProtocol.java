@@ -2,6 +2,7 @@ package org.girodicer.plottwist.Bluetooth;
 
 import android.util.Log;
 
+import org.girodicer.plottwist.App;
 import org.girodicer.plottwist.Models.Images;
 import org.girodicer.plottwist.Models.JSON;
 import org.girodicer.plottwist.Models.Points;
@@ -47,7 +48,14 @@ public class GProtocol {
     public static final byte COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED = 0x13;
     public static final byte COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED = 0x14;
     public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_SCAN = 0x15;
-    public static final byte COMMAND_START_ANALYSIS = 0x16;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_BORDER = 0x16;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS = 0x17;
+    public static final byte COMMAND_BLUETOOTH_FINISHED_RGB = 0x18;
+    public static final byte COMMAND_BLUETOOTH_FINISHED_THERM = 0x19;
+
+
+    public static final byte COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30;
+    public static final byte COMMAND_BLUETOOTH_OK_TO_SEND = 0x31;
 
     public static final byte PARTIAL_CLEAR_MASK = (byte) 0x3F;
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
@@ -89,6 +97,14 @@ public class GProtocol {
             case COMMAND_START_INSPECTION:
             case COMMAND_END_INSPECTION:
             case COMMAND_READY_TO_TRANSFER:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
+            case COMMAND_BLUETOOTH_FINISHED_RGB:
+            case COMMAND_BLUETOOTH_FINISHED_THERM:
+            case COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
+            case COMMAND_BLUETOOTH_RETURN_HOME:
+                App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
                 return new GProtocol(receivedCommand, null, false, false);
             case COMMAND_STATUS:
             case COMMAND_SEND_POINTS:
@@ -97,8 +113,12 @@ public class GProtocol {
             case COMMAND_BLUETOOTH_SEND_JSON_THERM:
             case COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
             case COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+                App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
                 if(builder.hasRemaining()){
                     int payloadSize = builder.getInt();
+                    if(receivedCommand == COMMAND_BLUETOOTH_SEND_IMAGES_RGB){
+                        Log.d(TAG, "RGB Image payload size: " + payloadSize);
+                    }
                     byte[] data = new byte[payloadSize];
                     if(builder.hasRemaining()){
                         builder.get(data);
@@ -112,13 +132,18 @@ public class GProtocol {
                 }
             default:
                 Log.d(TAG, "Bad Command: " + Integer.toString(receivedCommand));
+                App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_CORRUPT, 1, new byte[1], false));
                 throw new BluetoothException("Bad Command", BluetoothException.ERRORS.BAD_COMMAND);
         }
     }
 
     public GProtocol(byte command, byte[] data, boolean partial, boolean partial_end){
         this.command = command;
-        this.data = data.clone();
+        if(data == null){
+            this.data = null;
+        } else{
+            this.data = data.clone();
+        }
         this.partial = partial;
         this.partial_end = partial_end;
     }
