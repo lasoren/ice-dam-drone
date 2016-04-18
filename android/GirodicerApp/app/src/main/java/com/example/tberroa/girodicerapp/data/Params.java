@@ -17,8 +17,6 @@ public class Params {
     // sign in related
     final public static String SIGN_IN_SERVICE_COMPLETE = "SIGN_IN_SERVICE_COMPLETE";
     // bluetooth related
-    final public static int TERMINATE = 1055; // dynamic menu button id
-    final public static String BLUETOOTH_TERMINATED = "BLUETOOTH_TERMINATED";
     final public static String BLUETOOTH_NOT_ENABLED = "BLUETOOTH_NOT_ENABLED";
     final public static String BLUETOOTH_TIMEOUT = "BLUETOOTH_TIMEOUT";
     final public static String CONNECTING_TO_DRONE = "CONNECTING_TO_DRONE";
@@ -27,8 +25,11 @@ public class Params {
     final public static String DRONE_CONNECTION_LOST = "DRONE_CONNECTION_LOST";
     final public static String INITIAL_STATUS_RECEIVED = "INITIAL_STATUS_RECEIVED";
     final public static String HOUSE_BOUNDARY_RECEIVED = "HOUSE_BOUNDARY_RECEIVED";
+    final public static String START_INSPECTION_CONFIRMED = "START_INSPECTION_CONFIRMED";
     final public static String STATUS_UPDATE = "STATUS_UPDATE";
     // inspection phase related
+    final public static int TERMINATE_INSPECTION = 1055; // dynamic menu button id
+    final public static String INSPECTION_TERMINATED = "INSPECTION_TERMINATED";
     final public static String DRONE_DONE = "DRONE_DONE";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
     final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
@@ -36,8 +37,6 @@ public class Params {
     final public static String UPLOAD_COMPLETE = "UPLOAD_COMPLETE";
     final public static String UPDATING_STARTED = "UPDATING_STARTED";
     final public static String UPDATING_COMPLETE = "UPDATING_COMPLETE";
-    // ui control
-    final public static String RELOAD_AM_ACTIVITY = "RELOAD_AM_ACTIVITY";
 
     // bluetooth states
     final public static int BTS_NOT_CONNECTED = 0;
@@ -88,6 +87,7 @@ public class Params {
     final public static int I_TYPE_ROOF_EDGE = 2;
     final public static int I_TYPE_THERMAL = 3;
     final public static int I_TYPE_AERIAL = 4;
+
     // treatment options
     final public static int NOTHING_DONE = 1;
     final public static int SALTED_BY_DRONE = 2;

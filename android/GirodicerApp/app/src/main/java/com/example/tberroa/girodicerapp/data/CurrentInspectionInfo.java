@@ -96,6 +96,5 @@ public class CurrentInspectionInfo extends Application {
         setNotInProgress(context, true);
         setPhase(context, Params.CI_INACTIVE);
         setInspectionId(context, 0);
-        setLastDownload(context, 0);
     }
 }

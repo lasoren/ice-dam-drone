@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.nio.ByteBuffer;
 
 public class Status implements Parcelable {
+
     public final LatLng location;
     public final Double velocity;
     public final byte state;

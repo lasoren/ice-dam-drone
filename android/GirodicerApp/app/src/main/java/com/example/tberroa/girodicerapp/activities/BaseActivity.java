@@ -90,7 +90,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         // set up receiver to reload activity upon system updates
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Params.BLUETOOTH_TERMINATED);
+        filter.addAction(Params.RELOAD);
         filter.addAction(Params.BLUETOOTH_TIMEOUT);
         filter.addAction(Params.CONNECTING_TO_DRONE);
         filter.addAction(Params.DRONE_CONNECT_SUCCESS);
@@ -107,7 +107,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 switch (action) {
-                    case Params.BLUETOOTH_TERMINATED:
+                    case Params.RELOAD:
                     case Params.BLUETOOTH_TIMEOUT:
                     case Params.CONNECTING_TO_DRONE:
                     case Params.DRONE_CONNECT_SUCCESS:
@@ -325,7 +325,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         // check if terminate button needs to be added
         if (BluetoothService.currentStatus != null){
-            menu.add(0, Params.TERMINATE, Menu.NONE, R.string.terminate)
+            menu.add(0, Params.TERMINATE_INSPECTION, Menu.NONE, R.string.terminate)
                     .setIcon(R.drawable.terminate_button)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
@@ -339,8 +339,8 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             case R.id.open_menu:
                 drawer.openDrawer(GravityCompat.START);
                 return true;
-            case Params.TERMINATE:
-                stopService(new Intent(this, BluetoothService.class));
+            case Params.TERMINATE_INSPECTION:
+                sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -83,6 +83,9 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
+                <action android:name="INSPECTION_TERMINATED" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="DRONE_DONE" />
             </intent-filter>
             <intent-filter>

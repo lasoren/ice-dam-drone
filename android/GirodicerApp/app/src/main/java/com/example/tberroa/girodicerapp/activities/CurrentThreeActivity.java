@@ -42,6 +42,13 @@ public class CurrentThreeActivity extends BaseActivity {
             overridePendingTransition(0, 0);
         }
 
+        // check if user should be in this activity
+        if (BluetoothService.notRunning(this)) { // bluetooth needs to be setup
+            startActivity(new Intent(this, CurrentOneActivity.class));
+            finish();
+            return;
+        }
+
         // set toolbar title
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.current_inspection_title);

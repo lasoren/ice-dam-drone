@@ -1,20 +1,19 @@
 package com.example.tberroa.girodicerapp.bluetooth;
 
+import android.util.Log;
+
+import com.example.tberroa.girodicerapp.services.BluetoothService;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-/**
- * Created by Carlos on 2/21/2016.
- *
- * This class is for handling the communication protocol between the mission planner and the android app
- *
- * Possible commands are defined
- *
- * Incoming messages must have the protocol message 'Unpacked' then have the message be 'read'
- *  To know what object is being return upon 'read', the command must be deciphered
- */
+import java.util.List;
 
 public class GProtocol {
+
+    private static final String TAG = GProtocol.class.getName().toUpperCase();
+
     public static final byte COMMAND_ARM = 0x1;
     public static final byte COMMAND_UNARM = 0x2;
     public static final byte COMMAND_START_INSPECTION = 0x3;
@@ -29,19 +28,34 @@ public class GProtocol {
     public static final byte COMMAND_BLUETOOTH_RETURN_HOME = 0xC;
     public static final byte COMMAND_BLUETOOTH_SEND_JSON_RGB = 0xD;
     public static final byte COMMAND_BLUETOOTH_SEND_JSON_THERM = 0xE;
+    public static final byte COMMAND_BLUETOOTH_SEND_DRONE_LANDED = 0xF;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_DAM = 0x10;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS = 0x11;
+    public static final byte COMMAND_BLUETOOTH_SEND_LOW_BATTERY = 0x12;
+    public static final byte COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED = 0x13;
+    public static final byte COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED = 0x14;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_SCAN = 0x15;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_BORDER = 0x16;
+    public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS = 0x17;
+    public static final byte COMMAND_BLUETOOTH_FINISHED_RGB = 0x18;
+    public static final byte COMMAND_BLUETOOTH_FINISHED_THERM = 0x19;
 
+    public static final byte COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30;
+    public static final byte COMMAND_BLUETOOTH_OK_TO_SEND = 0x31;
+
+    public static final byte PARTIAL_CLEAR_MASK = (byte) 0x3F;
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
+    public static final byte PARTIAL_LAST_MESSAGE = (byte) 0xC0;
 
-    private final byte command;
-    private final byte[] data;
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final boolean partial;
+    private byte command;
+    private byte[] data;
+    private boolean partial;
+    private boolean partial_end;
 
-    @SuppressWarnings("SameParameterValue")
-    public static byte[] Pack(byte command, int payloadSize, byte[] array, boolean partial){
+    public static byte[] Pack(byte command, int payloadSize, byte[] array, boolean partial) {
         ByteBuffer builder = ByteBuffer.allocate(payloadSize + 1 + 4).order(ByteOrder.LITTLE_ENDIAN);
 
-        if(partial){
+        if (partial) {
             command |= PARTIAL_MESSAGE;
         }
         builder.put(command);
@@ -51,33 +65,50 @@ public class GProtocol {
         return builder.array();
     }
 
-    public static GProtocol Unpack(byte[] array) throws BluetoothException{
+    public static GProtocol Unpack(byte[] array) throws BluetoothException {
         ByteBuffer builder = ByteBuffer.wrap(array);
 
-        if(!builder.hasRemaining()){ // array passed in has nothing
+        if (!builder.hasRemaining()) { // array passed in has nothing
             throw new BluetoothException("Empty Array", BluetoothException.ERRORS.ARRAY_EMPTY);
         }
 
         byte receivedCommand = builder.get();
+        boolean partial = ((receivedCommand & PARTIAL_MESSAGE) == PARTIAL_MESSAGE);
+        boolean partial_end = ((receivedCommand & PARTIAL_LAST_MESSAGE) == PARTIAL_LAST_MESSAGE);
+        receivedCommand = (byte) (receivedCommand & PARTIAL_CLEAR_MASK);
 
-        switch(receivedCommand){
+        switch (receivedCommand) {
             case COMMAND_ARM:
             case COMMAND_UNARM:
             case COMMAND_START_INSPECTION:
             case COMMAND_END_INSPECTION:
             case COMMAND_READY_TO_TRANSFER:
-                return new GProtocol(receivedCommand, null, false);
+            case COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
+            case COMMAND_BLUETOOTH_FINISHED_RGB:
+            case COMMAND_BLUETOOTH_FINISHED_THERM:
+            case COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
+            case COMMAND_BLUETOOTH_RETURN_HOME:
+                BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
+                return new GProtocol(receivedCommand, null, false, false);
             case COMMAND_STATUS:
             case COMMAND_SEND_POINTS:
             case COMMAND_BLUETOOTH_SEND_PATH:
-                boolean partial = ((receivedCommand & PARTIAL_MESSAGE) != 0x0);
-                if(builder.hasRemaining()){
+            case COMMAND_BLUETOOTH_SEND_JSON_RGB:
+            case COMMAND_BLUETOOTH_SEND_JSON_THERM:
+            case COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
+            case COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+                BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
+                if (builder.hasRemaining()) {
                     int payloadSize = builder.getInt();
+                    if (receivedCommand == COMMAND_BLUETOOTH_SEND_IMAGES_RGB) {
+                        Log.d(TAG, "RGB Image payload size: " + payloadSize);
+                    }
                     byte[] data = new byte[payloadSize];
-
-                    if(builder.hasRemaining()){
+                    if (builder.hasRemaining()) {
                         builder.get(data);
-                        return new GProtocol(receivedCommand, data, partial);
+                        return new GProtocol(receivedCommand, data, partial, partial_end);
                     } else {
                         throw new BluetoothException("No Data", BluetoothException.ERRORS.NO_DATA);
                     }
@@ -85,39 +116,68 @@ public class GProtocol {
                 } else {
                     throw new BluetoothException("No payload size", BluetoothException.ERRORS.NO_SIZE);
                 }
-            case COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
-
-            case COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
-
-            case COMMAND_BLUETOOTH_RETURN_HOME:
-
-            case COMMAND_BLUETOOTH_SEND_JSON_RGB:
-
-            case COMMAND_BLUETOOTH_SEND_JSON_THERM:
-
             default:
+                Log.d(TAG, "Bad Command: " + Integer.toString(receivedCommand));
+                BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_CORRUPT, 1, new byte[1], false));
                 throw new BluetoothException("Bad Command", BluetoothException.ERRORS.BAD_COMMAND);
         }
     }
 
-    private GProtocol(byte command, byte[] data, boolean partial){
+    public GProtocol(byte command, byte[] data, boolean partial, boolean partial_end) {
         this.command = command;
-        this.data = data.clone();
+        if (data == null) {
+            this.data = null;
+        } else {
+            this.data = data.clone();
+        }
         this.partial = partial;
+        this.partial_end = partial_end;
     }
 
-    public byte getCommand(){
+    public byte getCommand() {
         return this.command;
     }
 
-    public Object read(){
-        switch(this.command){
+    public boolean isPartial() {
+        return this.partial;
+    }
+
+    public boolean isPartialEnd() {
+        return this.partial_end;
+    }
+
+    public byte[] getData() {
+        return this.data;
+    }
+
+    public Object read() {
+        switch (this.command) {
             case COMMAND_STATUS:
                 return Status.Unpack(this.data);
             case COMMAND_SEND_POINTS:
             case COMMAND_BLUETOOTH_SEND_PATH:
                 return Points.Unpack(this.data);
+            case COMMAND_BLUETOOTH_SEND_JSON_RGB:
+            case COMMAND_BLUETOOTH_SEND_JSON_THERM:
+                return JSON.Unpack(this.data);
+            case COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
+            case COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+                return Images.Unpack(this.data);
         }
         return null;
+    }
+
+    public static GProtocol glue_gprotocols(List<GProtocol> gprotocol_list) {
+        byte receivedCommand = gprotocol_list.get(0).getCommand();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        for (GProtocol temp : gprotocol_list) {
+            try {
+                outputStream.write(temp.getData());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        byte[] data = outputStream.toByteArray();
+        return new GProtocol(receivedCommand, data, false, true);
     }
 }

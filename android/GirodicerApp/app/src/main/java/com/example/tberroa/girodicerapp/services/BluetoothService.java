@@ -22,11 +22,8 @@ import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
-import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
-import com.example.tberroa.girodicerapp.database.ServerDB;
-import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -53,7 +50,6 @@ public class BluetoothService extends Service {
     public static Status currentStatus;
     public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
-    private int clientId;
 
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
@@ -160,7 +156,6 @@ public class BluetoothService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        clientId = intent.getIntExtra("client_id", 0);
         return START_NOT_STICKY;
     }
 
@@ -212,22 +207,23 @@ public class BluetoothService extends Service {
                         btSocket.connect();
                     } catch (IOException connectException) {
                         Log.d(TAG, connectException.toString());
-                        Log.d(TAG, "socket didn't connect the first time");
+                        Log.d(TAG, "socket couldn't connect");
+
+                        // try closing socket
                         try {
-                            btSocket =(BluetoothSocket) btDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(btDevice,1);
-                            btSocket.connect();
-                            //btSocket.close();
-                            //btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            btSocket.close();
                         } catch (IOException closeException) {
-                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
-                            return;
-                        } catch (Exception e2){
-                            Log.d(TAG, "fallback connection attempt failed!!!");
-                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            Log.d(TAG, closeException.toString());
+                            Log.d(TAG, "socket couldn't close");
                         }
+
+                        btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                         return;
                     }
+
                     btConnectHandler.obtainMessage(CONNECT_ATTEMPT_SUCCESS, -1, -1, btSocket).sendToTarget();
+                } else {
+                    btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                 }
             }
         }).start();
@@ -252,13 +248,10 @@ public class BluetoothService extends Service {
         currentStatus = null;
 
         // unregister receiver
-        if (btReceiver != null){
+        if (btReceiver != null) {
             unregisterReceiver(btReceiver);
             btReceiver = null;
         }
-
-        // broadcast
-        sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TERMINATED));
     }
 
     // if android system kills service, onDestroy is not called. This method allows us to check if service is running
@@ -270,37 +263,6 @@ public class BluetoothService extends Service {
             }
         }
         return true;
-    }
-
-    private void droneStarted() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // create inspection on backend
-                Inspection inspection = new ServerDB(BluetoothService.this).createInspection(clientId);
-
-                if (inspection == null) { // error occurred
-                    stopSelf();
-                } else {
-                    // save inspection locally
-                    inspection.cascadeSave();
-
-                    // inspection is now in progress
-                    CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-                    currentInspectionInfo.setNotInProgress(BluetoothService.this, false);
-
-                    // drone is active
-                    currentInspectionInfo.setPhase(BluetoothService.this, Params.CI_DRONE_ACTIVE);
-
-                    // save inspection id
-                    currentInspectionInfo.setInspectionId(BluetoothService.this, inspection.id);
-                }
-            }
-        }).start();
-    }
-
-    private void droneDone() {
-        sendBroadcast(new Intent().setAction(Params.DRONE_DONE));
     }
 
     // not used so returns null
@@ -329,7 +291,7 @@ public class BluetoothService extends Service {
                     btConnectionThread = new ConnectionThread(btSocket, new Messenger(btDataHandler));
                     btConnectionThread.start();
 
-                    // timeout after 3 seconds if current status still null (never received status signal)
+                    // timeout after 10 seconds if current status still null (never received status signal)
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
@@ -346,7 +308,7 @@ public class BluetoothService extends Service {
                             }
                         }
                     };
-                    timer.schedule(timerTask, 3000);
+                    timer.schedule(timerTask, 10000);
                     break;
                 case CONNECT_ATTEMPT_FAILED:
                     Log.d(TAG, "@BluetoothService: connect attempt failed");
@@ -398,6 +360,7 @@ public class BluetoothService extends Service {
 
                                 }
                                 break;
+
                             case GProtocol.COMMAND_BLUETOOTH_SEND_PATH:
                                 Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_SEND_PATH");
                                 // noinspection unchecked (Android Lint Suppression)
@@ -410,10 +373,22 @@ public class BluetoothService extends Service {
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
                                     context = null;
                                 }
+                                break;
 
+                            case GProtocol.COMMAND_START_INSPECTION:
+                                Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_START_INSPECTION");
+
+                                // broadcast that the start inspection command has been confirmed
+                                if (context != null) {
+                                    Log.d(TAG, "@BluetoothService/BTDataHandler: start inspection confirmed. broadcasting");
+
+                                    context.sendBroadcast(new Intent().setAction(Params.START_INSPECTION_CONFIRMED));
+                                    context = null;
+                                }
                                 break;
                         }
                     } catch (BluetoothException e) {
+                        Log.d("dbg", "@BluetoothService/BTDataHandler: BluetoothException occurred");
                         e.printStackTrace();
                     }
                     break;
