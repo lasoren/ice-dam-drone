@@ -52,6 +52,7 @@ public class GProtocol {
     public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS = 0x17;
     public static final byte COMMAND_BLUETOOTH_FINISHED_RGB = 0x18;
     public static final byte COMMAND_BLUETOOTH_FINISHED_THERM = 0x19;
+    public static final byte COMMAND_BLUETOOTH_SERVICE_ICEDAM = 0x20;
 
 
     public static final byte COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30;
@@ -99,11 +100,17 @@ public class GProtocol {
             case COMMAND_READY_TO_TRANSFER:
             case COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
             case COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
+            case COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED:
+            case COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_DAM:
+            case COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS:
             case COMMAND_BLUETOOTH_FINISHED_RGB:
             case COMMAND_BLUETOOTH_FINISHED_THERM:
             case COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
             case COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
             case COMMAND_BLUETOOTH_RETURN_HOME:
+            case COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
+            case COMMAND_BLUETOOTH_SERVICE_ICEDAM:
                 App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
                 return new GProtocol(receivedCommand, null, false, false);
             case COMMAND_STATUS:
@@ -117,7 +124,7 @@ public class GProtocol {
                 if(builder.hasRemaining()){
                     int payloadSize = builder.getInt();
                     if(receivedCommand == COMMAND_BLUETOOTH_SEND_IMAGES_RGB){
-                        Log.d(TAG, "RGB Image payload size: " + payloadSize);
+                        //Log.d(TAG, "RGB Image payload size: " + payloadSize);
                     }
                     byte[] data = new byte[payloadSize];
                     if(builder.hasRemaining()){
