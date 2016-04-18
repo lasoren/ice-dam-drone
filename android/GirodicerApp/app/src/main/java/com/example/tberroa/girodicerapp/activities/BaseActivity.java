@@ -65,7 +65,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         // check if bluetooth service was destroyed by the system (in this case onDestroy is not called)
         if (BluetoothService.notRunning(this) && BluetoothService.serviceRunning) {
-            Log.d("dbg", "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
+            Log.d(Params.TAG_DBG, "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
 
             // shutdown connection thread
             if (BluetoothService.btConnectionThread != null) {
@@ -192,8 +192,15 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
         switch (inspectionPhase) {
-            case Params.CI_DRONE_ACTIVE:
-                inspectionPhaseText.setText(R.string.ci_drone_active);
+            case Params.CI_INACTIVE:
+                inspectionPhaseText.setVisibility(View.GONE);
+                break;
+            case Params.CI_SCANNING:
+                inspectionPhaseText.setText(R.string.ci_scanning);
+                inspectionPhaseText.setVisibility(View.VISIBLE);
+                break;
+            case Params.CI_SALTING:
+                inspectionPhaseText.setText(R.string.ci_salting);
                 inspectionPhaseText.setVisibility(View.VISIBLE);
                 break;
             case Params.CI_DATA_TRANSFER:

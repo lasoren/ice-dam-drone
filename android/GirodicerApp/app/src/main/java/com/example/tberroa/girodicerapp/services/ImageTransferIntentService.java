@@ -57,7 +57,7 @@ public class ImageTransferIntentService extends IntentService {
 
                     // construct  uri
                     String uriString = Params.CLOUD_URL + "0" + "/images/" + typeString + iString + ".jpg";
-                    Log.d("dbg", "@ImageTransferIntentService: uri is: " + uriString);
+                    Log.d(Params.TAG_DBG, "@ImageTransferIntentService: uri is: " + uriString);
                     Uri uri = Uri.parse(uriString);
 
                     // initialize the download request

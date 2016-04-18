@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
@@ -150,7 +151,7 @@ final public class Utilities {
                 isInternetAvailable = true;
             }
         } catch (Exception e) {
-            Log.e("ERROR", "@isInternetAvailable: " + e.getMessage());
+            Log.e(Params.TAG_EXCEPTION, "@isInternetAvailable: " + e.getMessage());
         }
         return isInternetAvailable;
     }

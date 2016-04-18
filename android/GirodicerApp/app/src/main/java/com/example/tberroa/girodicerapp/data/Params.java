@@ -7,6 +7,14 @@ public class Params {
     private Params() {
     }
 
+    // log tags, feel free to concatenate them
+    final public static String TAG_DBG = " TAG_DBG";
+    final public static String TAG_BT = " TAG_BT";
+    final public static String TAG_GP = " TAG_GP";
+    final public static String TAG_DS = " TAG_DS";
+    final public static String TAG_ERROR = " TAG_ERROR";
+    final public static String TAG_EXCEPTION = " TAG_EXCEPTION";
+
     // parameters related to device storage
     final public static String HOME_FOLDER = "/Girodicer/";
 
@@ -52,9 +60,10 @@ public class Params {
 
     // inspection phases
     final public static int CI_INACTIVE = 0;
-    final public static int CI_DRONE_ACTIVE = 1;
-    final public static int CI_DATA_TRANSFER = 2;
-    final public static int CI_UPLOADING = 3;
+    final public static int CI_SCANNING = 1;
+    final public static int CI_SALTING = 2;
+    final public static int CI_DATA_TRANSFER = 3;
+    final public static int CI_UPLOADING = 4;
 
     // UI parameters
     final public static String RELOAD = "reload"; // reload activities without animation

@@ -52,7 +52,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         String action = getIntent().getAction();
         if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
-            Log.d("dbg", "@CurrentTwoActivity: being recreated from a reload");
+            Log.d(Params.TAG_DBG, "@CurrentTwoActivity: being recreated from a reload");
         }
 
         // check if user should be in this activity
@@ -73,7 +73,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
 
         // get location, this should be set by the time this activity is launched
         home = BluetoothService.currentStatus.location;
-        Log.d("dbg", "@CurrentTwoActivity: currentStatus.location is " + BluetoothService.currentStatus.location);
+        Log.d(Params.TAG_DBG, "@CurrentTwoActivity: currentStatus.location is " + BluetoothService.currentStatus.location);
 
         // set toolbar title
         if (getSupportActionBar() != null) {
@@ -183,7 +183,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
                     // send start inspection command to drone
                     BluetoothService.BTDataHandler.passContext(this);
                     BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_START_INSPECTION, 1, new byte[1], false));
-                    Log.d("dbg", "@CurrentTwoActivity: sent start inspection command");
+                    Log.d(Params.TAG_DBG, "@CurrentTwoActivity: sent start inspection command");
                 } else {
                     findPath();
                 }
@@ -212,14 +212,14 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         for (LatLng point : houseBoundary) {
             String latitude = Double.toString(point.latitude);
             String longitude = Double.toString(point.longitude);
-            Log.d("dbg", "@CurrentTwoActivity: houseBoundary point: (" + latitude + "," + longitude + ")");
+            Log.d(Params.TAG_DBG, "@CurrentTwoActivity: houseBoundary point: (" + latitude + "," + longitude + ")");
         }
 
         // send new house point command to drone
         byte[] points = Points.Pack(houseBoundary);
         BluetoothService.BTDataHandler.passContext(this);
         BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
-        Log.d("dbg", "@CurrentTwoActivity: sent house points");
+        Log.d(Params.TAG_DBG, "@CurrentTwoActivity: sent house points");
         Toast.makeText(CurrentTwoActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
     }
 
@@ -253,8 +253,8 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
                 CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
                 currentInspectionInfo.setNotInProgress(CurrentTwoActivity.this, false);
 
-                // drone is active
-                currentInspectionInfo.setPhase(CurrentTwoActivity.this, Params.CI_DRONE_ACTIVE);
+                // drone is starting scanning phase
+                currentInspectionInfo.setPhase(CurrentTwoActivity.this, Params.CI_SCANNING);
 
                 // save inspection id
                 currentInspectionInfo.setInspectionId(CurrentTwoActivity.this, inspection.id);

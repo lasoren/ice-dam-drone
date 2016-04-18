@@ -76,7 +76,7 @@ public class ServerDB {
 
         // convert the response from json to client object
         if (!postResponse.equals("")) {
-            Log.d("dbg", "@ServerDB/createClient: postResponse is: " + postResponse);
+            Log.d(Params.TAG_DBG, "@ServerDB/createClient: postResponse is: " + postResponse);
 
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type clientType = new TypeToken<Client>() {
@@ -120,7 +120,7 @@ public class ServerDB {
 
         // convert the response from json to inspection object
         if (!postResponse.equals("")) {
-            Log.d("dbg", "@ServerDB/createInspection: postResponse is: " + postResponse);
+            Log.d(Params.TAG_DBG, "@ServerDB/createInspection: postResponse is: " + postResponse);
 
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type inspectionType = new TypeToken<Inspection>() {
@@ -151,7 +151,7 @@ public class ServerDB {
         // make request
         String postResponse = "";
         try {
-            Log.d("dbg", "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
+            Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
             postResponse = new Http().postRequest(Params.CREATE_INSPECTION_IMAGES_URL, requestJson);
         } catch (java.io.IOException e) {
             e.printStackTrace();
@@ -159,7 +159,7 @@ public class ServerDB {
 
         // convert the response from json to a list of inspection images
         if (!postResponse.equals("")) {
-            Log.d("dbg", "@ServerDB/createInspectionImages: postResponse is: " + postResponse);
+            Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: postResponse is: " + postResponse);
 
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type imagesType = new TypeToken<List<InspectionImage>>() {
@@ -197,7 +197,7 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getClients: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getClients: postResponse is: " + postResponse);
 
         // get client list from response json
         Type clientList = new TypeToken<GetClientsModel>() {
@@ -234,7 +234,7 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getInspections: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getInspections: postResponse is: " + postResponse);
 
         // get inspection list from response json
         Type inspectionList = new TypeToken<GetInspectionsModel>() {
@@ -271,7 +271,7 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getInspectionImages: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getInspectionImages: postResponse is: " + postResponse);
 
         // get inspection images list from response json
         Type imagesList = new TypeToken<GetImagesModel>() {
@@ -304,7 +304,7 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getClientInspectionPortal: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getClientInspectionPortal: postResponse is: " + postResponse);
         try {
             JSONObject jsonObject = new JSONObject(postResponse);
             return jsonObject.optString("url", "");

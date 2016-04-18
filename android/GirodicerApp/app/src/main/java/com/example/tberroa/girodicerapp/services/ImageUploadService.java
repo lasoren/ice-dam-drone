@@ -105,7 +105,7 @@ public class ImageUploadService extends Service {
                                 File thumbFile = Environment.getExternalStoragePublicDirectory(thumbLocation);
 
                                 if (!thumbFile.createNewFile()){
-                                    Log.d("dbg", "@ImageUploadService: thumbFile not created");
+                                    Log.d(Params.TAG_DBG, "@ImageUploadService: thumbFile not created");
                                 }
 
                                 // convert bitmap to byte array
@@ -128,7 +128,7 @@ public class ImageUploadService extends Service {
                                         Thread.sleep(250);
                                         observer.refresh();
                                         if (observer.getState() == TransferState.COMPLETED) {
-                                            Log.d("dbg", "@ImageUploadService: image upload complete");
+                                            Log.d(Params.TAG_DBG, "@ImageUploadService: image upload complete");
                                             notDone = false;
                                             if (!thumbFile.delete()) {
                                                 try {
@@ -143,7 +143,7 @@ public class ImageUploadService extends Service {
                                     }
                                 }
                             } catch (Exception e) {
-                                Log.e("dbg", "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
+                                Log.e(Params.TAG_DBG, "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
                             }
 
                             // upload image
@@ -155,7 +155,7 @@ public class ImageUploadService extends Service {
                                     Thread.sleep(250);
                                     observer.refresh();
                                     if (observer.getState() == TransferState.COMPLETED) {
-                                        Log.d("dbg", "@ImageUploadService: image upload complete");
+                                        Log.d(Params.TAG_DBG, "@ImageUploadService: image upload complete");
                                         notDone = false;
                                         if (!file.delete()) {
                                             try {
@@ -175,7 +175,7 @@ public class ImageUploadService extends Service {
                         num++;
                     }
                 }
-                Log.d("dbg", "@ImageUploadService: all images are done being uploaded");
+                Log.d(Params.TAG_DBG, "@ImageUploadService: all images are done being uploaded");
 
                 // uploading is complete, delete local file directory
                 File directory = Environment.getExternalStoragePublicDirectory(basePath);

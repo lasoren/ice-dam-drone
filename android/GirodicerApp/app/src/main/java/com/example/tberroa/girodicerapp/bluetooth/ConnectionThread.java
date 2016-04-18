@@ -7,6 +7,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 import java.io.IOException;
@@ -55,13 +56,13 @@ public class ConnectionThread extends Thread {
                 bundle.putByteArray(BT_DATA, buffer);
                 msg.setData(bundle);
                 btDataHandler.send(msg);
-                Log.d("dbg", "@ConnectionThread: message sent to handler");
+                Log.d(Params.TAG_DBG, "@ConnectionThread: message sent to handler");
             } catch (IOException e) {
-                Log.d("dbg", "@ConnectionThread: IOException occurred");
+                Log.d(Params.TAG_DBG, "@ConnectionThread: IOException occurred");
                 e.printStackTrace();
                 break;
             } catch (RemoteException e) {
-                Log.d("dbg", "@ConnectionThread: RemoteException occurred");
+                Log.d(Params.TAG_DBG, "@ConnectionThread: RemoteException occurred");
                 e.printStackTrace();
             }
         }
@@ -71,7 +72,7 @@ public class ConnectionThread extends Thread {
     public void write(byte[] bytes) {
         try {
             btOutStream.write(bytes);
-            Log.d("dbg", "@ConnectionThread/write: sending drone " + bytes.toString());
+            Log.d(Params.TAG_DBG, "@ConnectionThread/write: sending drone a signal");
         } catch (IOException e) {
             e.printStackTrace();
         }

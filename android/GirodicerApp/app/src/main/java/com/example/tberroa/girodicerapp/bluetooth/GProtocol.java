@@ -2,6 +2,7 @@ package com.example.tberroa.girodicerapp.bluetooth;
 
 import android.util.Log;
 
+import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 import java.io.ByteArrayOutputStream;
@@ -11,8 +12,6 @@ import java.nio.ByteOrder;
 import java.util.List;
 
 public class GProtocol {
-
-    private static final String TAG = GProtocol.class.getName().toUpperCase();
 
     public static final byte COMMAND_ARM = 0x1;
     public static final byte COMMAND_UNARM = 0x2;
@@ -103,7 +102,7 @@ public class GProtocol {
                 if (builder.hasRemaining()) {
                     int payloadSize = builder.getInt();
                     if (receivedCommand == COMMAND_BLUETOOTH_SEND_IMAGES_RGB) {
-                        Log.d(TAG, "RGB Image payload size: " + payloadSize);
+                        Log.d(Params.TAG_DBG + Params.TAG_GP, "RGB Image payload size: " + payloadSize);
                     }
                     byte[] data = new byte[payloadSize];
                     if (builder.hasRemaining()) {
@@ -117,7 +116,7 @@ public class GProtocol {
                     throw new BluetoothException("No payload size", BluetoothException.ERRORS.NO_SIZE);
                 }
             default:
-                Log.d(TAG, "Bad Command: " + Integer.toString(receivedCommand));
+                Log.d(Params.TAG_DBG + Params.TAG_GP, "Bad Command: " + Integer.toString(receivedCommand));
                 BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_CORRUPT, 1, new byte[1], false));
                 throw new BluetoothException("Bad Command", BluetoothException.ERRORS.BAD_COMMAND);
         }
@@ -167,10 +166,10 @@ public class GProtocol {
         return null;
     }
 
-    public static GProtocol glue_gprotocols(List<GProtocol> gprotocol_list) {
-        byte receivedCommand = gprotocol_list.get(0).getCommand();
+    public static GProtocol glueGProtocols(List<GProtocol> listGProtocols) {
+        byte receivedCommand = listGProtocols.get(0).getCommand();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        for (GProtocol temp : gprotocol_list) {
+        for (GProtocol temp : listGProtocols) {
             try {
                 outputStream.write(temp.getData());
             } catch (IOException e) {
