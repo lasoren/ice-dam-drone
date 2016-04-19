@@ -178,7 +178,11 @@ public class RegisterActivity extends AppCompatActivity {
                 startActivity(new Intent(RegisterActivity.this, PostRegisterActivity.class));
                 finish();
             } else { // display error
-                Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
+                if (postResponse == null){
+                    Toast.makeText(RegisterActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

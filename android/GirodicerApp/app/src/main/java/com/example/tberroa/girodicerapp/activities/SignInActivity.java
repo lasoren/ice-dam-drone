@@ -214,7 +214,11 @@ public class SignInActivity extends AppCompatActivity {
                 // sign in
                 signIn(operator);
             } else { // display error
-                Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                if (postResponse == null){
+                    Toast.makeText(SignInActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
