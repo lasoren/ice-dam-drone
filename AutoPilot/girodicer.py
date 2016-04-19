@@ -125,6 +125,7 @@ class Girodicer():
             print "Vehicle is flying. What are you doing"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
             msg.run()
+            return
 
         self.vehicle.simple_takeoff(10)
 
@@ -150,6 +151,7 @@ class Girodicer():
             print "Vehicle is flying. What are you doing"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
             msg.run()
+            return
 
         self.vehicle.simple_takeoff(10)
 
