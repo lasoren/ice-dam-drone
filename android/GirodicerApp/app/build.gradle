@@ -40,4 +40,5 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.0.1'
     compile 'com.squareup.picasso:picasso:2.3.3'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    compile 'com.balysv:material-ripple:1.0.2'
 }

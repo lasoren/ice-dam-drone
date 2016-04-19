@@ -17,6 +17,7 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -114,7 +115,11 @@ public class SignInActivity extends AppCompatActivity {
 
         String response = Utilities.validate(enteredInfo);
         if (response.matches("")) {
-            new AttemptSignIn().execute();
+            if (Utilities.isInternetAvailable(this)) {
+                new AttemptSignIn().execute();
+            } else {
+                Toast.makeText(this, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+            }
         } else {
             if (response.contains("email")) {
                 email.setError(getResources().getString(R.string.enter_valid_email));
@@ -135,6 +140,7 @@ public class SignInActivity extends AppCompatActivity {
         // clear old data
         operatorInfo.clear(this);
         new CurrentInspectionInfo().clearAll(this);
+        new Provisions().clear(this);
         new LocalDB().clear();
 
         // save operator info
@@ -186,6 +192,7 @@ public class SignInActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            postResponse = null;
             try {
                 String url = Params.BASE_URL + "users/signin.json";
                 postResponse = new Http().postRequest(url, dataJSON);
@@ -197,7 +204,7 @@ public class SignInActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.contains("id")) {
+            if (postResponse != null && postResponse.contains("id")) {
                 // create DroneOperator model from response json
                 Type droneOperator = new TypeToken<DroneOperator>() {
                 }.getType();
@@ -207,7 +214,11 @@ public class SignInActivity extends AppCompatActivity {
                 // sign in
                 signIn(operator);
             } else { // display error
-                Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                if (postResponse == null){
+                    Toast.makeText(SignInActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

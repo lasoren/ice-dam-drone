@@ -177,7 +177,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.maps_next:
-                if(pathFound) {
+                if(pathFound){
                     goToStatus();
                 } else {
                     findPath();
@@ -187,8 +187,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void goToStatus(){
-        Intent status = new Intent(this, DroneActivity.class);
-        startActivity(status);
+        Intent testing = new Intent(this, TestActivity.class);
+        testing.putExtra(App.LOCATION, home);
+        startActivity(testing);
     }
 
     private void findPath(){
@@ -206,7 +207,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (LatLng point : points){
             mMap.addMarker(new MarkerOptions().position(point));
         }
-
         pathFound = true;
     }
 
@@ -223,7 +223,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             case GProtocol.COMMAND_STATUS:
                                 currentStatus = (Status) received.read();
                                 break;
-                            case GProtocol.COMMAND_SEND_PATH:
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_PATH:
                                 plotPoints((ArrayList<LatLng>) received.read());
                                 break;
                         }

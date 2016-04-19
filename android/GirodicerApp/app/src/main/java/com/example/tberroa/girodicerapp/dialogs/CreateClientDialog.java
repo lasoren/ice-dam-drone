@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,12 +18,14 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.ClientManagerActivity;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.ServerDB;
+import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Client;
 
 public class CreateClientDialog extends Dialog {
 
     private final Context context;
     private EditText firstName, lastName, email, streetAddress, cityTown, state, zipCode;
+    private Client client;
     private boolean noError = true;
 
     public CreateClientDialog(Context context) {
@@ -145,49 +147,53 @@ public class CreateClientDialog extends Dialog {
         String address = streetAddress + " " + cityTown + "," + state + " " + zipCode;
 
         // create initial client object
-        final Client client = new Client(firstName, lastName, email, address);
-        // backend request needs to be run in background
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // create client on backend
-                Client result = new ServerDB(context).createClient(client);
-                if (result != null) {
-                    Log.d("dbg", "@CreateClientDialog: result is: " + result.toJson());
+        client = new Client(firstName, lastName, email, address);
 
-                    // save client locally
-                    try {
-                        Client newClient = new Client(result);
-                        newClient.cascadeSave();
-                        noError = true;
-                        return;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    noError = false;
+        // get internet availability
+        boolean netAvailable = Utilities.isInternetAvailable(context);
+
+        if (netAvailable) {
+            // run backend request in background thread via async task
+            new GetClient().execute();
+        } else {
+            Toast.makeText(context, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class GetClient extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            // create client on backend
+            Client result = new ServerDB(context).createClient(client);
+            if (result != null) {
+                // save client locally
+                try {
+                    Client newClient = new Client(result);
+                    newClient.cascadeSave();
+                    noError = true;
+                    return null;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 noError = false;
             }
-        });
-        thread.start();
-
-        // wait for backend request to complete before continuing (will change in the future, this is terrible i know)
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            noError = false;
+            return null;
         }
 
-        if (noError) {
-            // reload once creating the client has been completed
-            Intent reload = new Intent(context, ClientManagerActivity.class);
-            reload.setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            context.startActivity(reload);
-            if (context instanceof Activity) {
-                ((Activity) context).finish();
+        protected void onPostExecute(Void param) {
+            if (noError) {
+                Toast.makeText(context, R.string.client_created, Toast.LENGTH_SHORT).show();
+                // reload once creating the client has been completed
+                Intent reload = new Intent(context, ClientManagerActivity.class);
+                reload.setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                context.startActivity(reload);
+                if (context instanceof Activity) {
+                    ((Activity) context).finish();
+                }
+            } else {
+                Toast.makeText(context, R.string.error_check_fields, Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(context, R.string.error_check_fields, Toast.LENGTH_LONG).show();
         }
     }
 }

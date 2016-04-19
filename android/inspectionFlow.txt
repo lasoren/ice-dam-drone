@@ -1,0 +1,46 @@
+Communication Flow During an Active Inspection
+note: end of description in parenthesis is the command information (source->destination COMMAND USED)
+      D = drone. P = phone.
+
+// initial setup
+  establish bluetooth connection, success known once status updates are being received (D->P STATUS)
+  phone sends initial user plotted boundary to drone (P->D NEW_HOUSE)
+  drone sends calculated flight path back to phone (D->P SEND_PATH)
+
+// begin aerial scan phase
+  user initiates inspection, phone lets drone know to start inspection (P->D START_INSPECTION)
+  drone sends signal confirming that it received the start inspection signal (D->P START_INSPECTION)
+  drone begins circumnavigating, border followed by roof
+  drone lets phone know that circumnavigation is complete (D->P FINISHED_SCAN)
+  drone returns home and lands (D->P DRONE_LANDED)
+
+// aerial scan phase complete, user confirmation & salting phase
+  drone notifies phone that it's analyzing images and marking potential icedams (D->P START_ANALYSIS)
+  drone sends list of the potential icedam images it will be sending to phone (D->P SEND_JSON_RGB)
+  drone sends the potential icedam images with corresponding points to phone (D->P SEND_IMAGES_RGB)
+  phone plots points and displays images to user
+  user confirms which points are icedams, phone sends those points back to drone (P->D SEND_ICEDAM_POINTS)
+LOOP:
+  THIS drone places salt at icedam location (D->P FINISHED_DAM)
+    OR drone placed salt at final icedam location, END, after landing (D->P FINISHED_ALL_DAMS)
+  drone returns home and lands (D->P DRONE_LANDED)
+  phone sends continue signal, LOOP (P->D CONTINUE)
+  phone sends end inspection signal, END (P->D END_INSPECTION) 
+
+// salting phase complete, image transfer phase
+END:
+  let drone know i want images (P->D SEND_IMAGES_RGB)
+  drone sends list of rgb images it will be sending to phone (D->P SEND_JSON_RGB)
+  drone sends rgb images to phone (D->P SEND_IMAGES_RGB)
+  i want images therm (P->D SEND_IMAGES_THERM)
+  drone sends list of thermal images it will be sending to phone (D->P SEND_JSON_THERM)
+  drone sends thermal images to phone (D->P SEND_IMAGES_THERM)
+
+// image transfer phase complete, power down
+  power down??
+
+
+asychronous signals:
+  D->P LOW_BATTERY
+  D->P BORDER_SCAN_INTERRUPTED (comes with a low battery signal)
+  D->P ROOF_SCAN_INTERRUPTED (comes with a low battery signal)

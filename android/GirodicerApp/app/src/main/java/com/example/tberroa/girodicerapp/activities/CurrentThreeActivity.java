@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,7 +29,6 @@ public class CurrentThreeActivity extends BaseActivity {
     public static final String WHICH_FRAG = "WHICH_FRAG";
     public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
     public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
-
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -42,10 +42,32 @@ public class CurrentThreeActivity extends BaseActivity {
             overridePendingTransition(0, 0);
         }
 
+        // check if user should be in this activity
+        if (BluetoothService.notRunning(this)) { // bluetooth needs to be setup
+            startActivity(new Intent(this, CurrentOneActivity.class));
+            finish();
+            return;
+        }
+
         // set toolbar title
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.current_inspection_title);
         }
+
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    new ClientId().clear(CurrentThreeActivity.this);
+                    startActivity(new Intent(CurrentThreeActivity.this, ClientManagerActivity.class));
+                    finish();
+                }
+            }
+        });
 
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
@@ -69,12 +91,22 @@ public class CurrentThreeActivity extends BaseActivity {
             public void onReceive(Context context, Intent intent) {
                 switch (intent.getAction()) {
                     case Params.STATUS_UPDATE:
+                        // get updated status
                         Status currentStatus = BluetoothService.currentStatus;
-                        Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
-                        broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
-                        broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
 
-                        LocalBroadcastManager.getInstance(CurrentThreeActivity.this).sendBroadcast(broadcastToFrag);
+                        // create intent to broadcast to state fragment
+                        Intent toStateFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
+                        toStateFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
+                        toStateFrag.putExtra(STATUS_PACKAGE, currentStatus);
+
+                        // create intent to broadcast to map fragment
+                        Intent toMapFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
+                        toMapFrag.putExtra(WHICH_FRAG, DroneMapFragment.class.getName());
+                        toMapFrag.putExtra(LOCATION_PACKAGE, currentStatus.location);
+
+                        // broadcast new status to both fragments
+                        LocalBroadcastManager.getInstance(CurrentThreeActivity.this).sendBroadcast(toStateFrag);
+                        LocalBroadcastManager.getInstance(CurrentThreeActivity.this).sendBroadcast(toMapFrag);
                 }
             }
         };
@@ -82,6 +114,15 @@ public class CurrentThreeActivity extends BaseActivity {
 
         // pass context to bluetooth data handler
         BluetoothService.BTDataHandler.passContext(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
     }
 
     @Override
@@ -132,17 +173,5 @@ public class CurrentThreeActivity extends BaseActivity {
             }
             return null;
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
-        }
-
-        // destroy context reference from bluetooth data handler
-        BluetoothService.BTDataHandler.destroyContext();
     }
 }

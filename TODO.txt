@@ -10,10 +10,10 @@ Tom & Carlos
 Finish web portal design:
 Luke
 
-Requesting Client url API Endpoint on Android side:
+COMPLETE - Requesting Client url API Endpoint on Android side:
 Tom
 
-Bluetooth disconnect:
+COMPLETE - Bluetooth disconnect:
 Tom
 
 Review Carlos' code:
@@ -25,6 +25,6 @@ Yaoyu and Carlos
 Buy CaCl and a pantyhoes:
 Yaoyu]
 
-Add provisioning to Android:
+COMPLETE - Add provisioning to Android:
 Tom
 

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
@@ -33,35 +34,6 @@ public class PastInspectionsAdapter extends RecyclerView.Adapter<PastInspections
         this.labels = labels;
     }
 
-    public class InspectionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        final ImageView imageThumbnail;
-        final TextView inspectionNumber;
-
-        InspectionViewHolder(View itemView) {
-            super(itemView);
-            imageThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-            inspectionNumber = (TextView) itemView.findViewById(R.id.label);
-            imageThumbnail.setOnClickListener(this);
-            inspectionNumber.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            // extract clicked inspection
-            int i = getLayoutPosition();
-
-            // save inspection id
-            new InspectionId().set(context, ids.get(i));
-
-            // start inspection activity
-            context.startActivity(new Intent(v.getContext(), InspectionActivity.class));
-            if (context instanceof Activity) {
-                ((Activity) context).finish();
-            }
-        }
-    }
-
     @Override
     public int getItemCount() {
         return paths.size();
@@ -80,9 +52,39 @@ public class PastInspectionsAdapter extends RecyclerView.Adapter<PastInspections
         String url = Params.CLOUD_URL + paths.get(i);
         int width = Utilities.getImageWidthGrid(context);
         int height = Utilities.getImageHeightGrid(context);
-        Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.imageThumbnail);
+        Picasso.with(context).load(url).resize(width, height).into(inspectionViewHolder.inspectionThumbnail);
 
         // set label
-        inspectionViewHolder.inspectionNumber.setText(labels.get(i));
+        inspectionViewHolder.inspectionDate.setText(labels.get(i));
+    }
+
+    public class InspectionViewHolder extends RecyclerView.ViewHolder {
+
+        final ImageView inspectionThumbnail;
+        final TextView inspectionDate;
+        final RelativeLayout thumbnailLayout;
+
+        InspectionViewHolder(View itemView) {
+            super(itemView);
+            inspectionThumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+            inspectionDate = (TextView) itemView.findViewById(R.id.label);
+            thumbnailLayout = (RelativeLayout) itemView.findViewById(R.id.thumbnail_layout);
+            thumbnailLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // extract clicked inspection
+                    int i = getLayoutPosition();
+
+                    // save inspection id
+                    new InspectionId().set(context, ids.get(i));
+
+                    // start inspection activity
+                    context.startActivity(new Intent(v.getContext(), InspectionActivity.class));
+                    if (context instanceof Activity) {
+                        ((Activity) context).finish();
+                    }
+                }
+            });
+        }
     }
 }

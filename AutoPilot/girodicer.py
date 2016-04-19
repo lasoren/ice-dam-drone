@@ -44,6 +44,9 @@ class Girodicer():
         while not self.vehicle.armed:
             time.sleep(1)
 
+        msg = blue.BlueDataPackager(blue.COMMAND_ARM, 0, self.blue)
+        msg.start()
+
         print "Vehicle Armed!!!"
 
     def disarm_vehicle(self):
@@ -121,6 +124,11 @@ class Girodicer():
     def start_scan(self):
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
+        else:
+            print "Vehicle is flying. What are you doing"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
+            msg.start()
+            return
 
         self.vehicle.simple_takeoff(10)
 
@@ -131,14 +139,24 @@ class Girodicer():
         print "Starting scanning thread"
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
+        msg = blue.BlueDataPackager(blue.COMMAND_START_INSPECTION, 0, self.blue)
+        msg.start()
 
     def start_service_ice_dams(self):
         if len(self.ice_dams) == 0:
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
+            msg.start()
             return
 
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SERVICE_ICE_DAM, 0, self.blue)
+            msg.start()
+        else:
+            print "Vehicle is flying. What are you doing"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
+            msg.start()
+            return
 
         self.vehicle.simple_takeoff(10)
 
@@ -162,9 +180,13 @@ class Girodicer():
         detect_hot.run()
 
         detect_ice.join()
+        msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS, 0, self.blue)
+        msg.start()
 
     def set_ice_dams(self, ice_dams):
         self.ice_dams = ice_dams
+        msg = blue.BlueDataPackager(blue.COMMAND_SEND_POINTS, 0, self.blue)
+        msg.start()
 
     def stop(self):
         """
@@ -219,10 +241,13 @@ class Girodicer():
 
         if self.vehicle.mode.name == "GUIDED":
             print "Finished Border Scan"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISH_BORDER, 0, self.blue)
+            msg.start()
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
         else:
             print "Unable to finish border scan. Interrupted"
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED, 0, self.blue)
+            msg.start()
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_BORDER_SCAN_INTERRUPTED)
 
     def __roof_scan(self):
@@ -276,11 +301,13 @@ class Girodicer():
 
         if self.vehicle.mode.name == "GUIDED":
             print "Finished roof scan"
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN, 0, self.blue)
+            msg.start()
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
         else:
             print "Unable to finish roof scan. Interrupted"
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED, 0, self.blue)
+            msg.start()
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 
     def __service_ice_dam(self):
@@ -290,7 +317,11 @@ class Girodicer():
         self.__drop_salt()
         self.ice_dams.remove(dam)
         self.return_to_launch()
-        blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_DAM, 0, self.blue)
+        msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_DAM, 0, self.blue)
+        msg.start()
+        if len(self.ice_dams) == 0:
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
+            msg.start()
 
     def __fly_single_point(self, destination):
         print "Flying to initial"
@@ -370,11 +401,14 @@ class Girodicer():
     def __battery_callback(self, vehicle, attr_name, battery):
         if battery.level < 30:
             self.return_to_launch()
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
+            msg.start()
+            self.vehicle.remove_attribute_listener('battery', self.__battery_callback)
 
     def __armed_callback(self, vehicle, attr_name, armed):
         if not armed:
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_DRONE_LANDED, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_DRONE_LANDED, 0, self.blue)
+            msg.start()
             self.vehicle.remove_attribute_listener('armed', self.__armed_callback)
 
 class GirodicerStatus(threading.Thread):
@@ -400,7 +434,7 @@ class GirodicerStatus(threading.Thread):
             armable = self.vehicle.is_armable
             battery_level = self.vehicle.battery.level
 
-            payload = (location.lat, location.lon, float(velocity[0]), self.__decipherState(state), battery_level, 1)
+            payload = (location.lat, location.lon, float(velocity[0]), battery_level)
 
             packager = blue.BlueDataPackager(blue.COMMAND_SEND_STATUS, payload, self.bluetooth)
             packager.run()
@@ -457,12 +491,12 @@ class GirodicerCamera(threading.Thread):
         os.chdir(self.folder)
         pic_num = 0
         while self.__stopped.isSet() is False:
-            time.sleep(0.1)
+            time.sleep(1)
             location = self.vehicle.location.global_frame
             depth = self.lidar.readDistance()/100.00
             self.annotations.append(annotations.Annotation(pic_num, str(location.lat) + "," + str(location.lon), depth, annotations.RGB))
             file_name = str(pic_num) + ".jpg"
-            os.system("fswebcam -r 1280x720 --jpeg 85 " + file_name)
+            os.system("fswebcam -r 1280x720 --jpeg 50 " + file_name)
             pic_num += 1
 
         with open("images.json", "w+") as f:
@@ -476,7 +510,7 @@ class GirodicerCamera(threading.Thread):
 class GirodicerThermal():
 
     camera_ip = "192.168.0.168"
-    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=5', '%d.jpg']
+    command = ['ffmpeg', '-i', 'rtsp://192.168.0.168:554/1', '-vf', 'fps=1', '%d.jpg']
     folder = os.path.join(os.path.expanduser('~'), 'ice-dam-drone', 'images', 'thermal_raw')
 
     def __init__(self):

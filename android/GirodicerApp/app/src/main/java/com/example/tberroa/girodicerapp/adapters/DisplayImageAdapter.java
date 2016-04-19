@@ -27,16 +27,6 @@ public class DisplayImageAdapter extends RecyclerView.Adapter<DisplayImageAdapte
         numberOfImages = images.size();
     }
 
-    public class ImageViewHolder extends RecyclerView.ViewHolder {
-
-        final ImageView image;
-
-        ImageViewHolder(View itemView) {
-            super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-        }
-    }
-
     @Override
     public int getItemCount() {
         return numberOfImages;
@@ -63,5 +53,15 @@ public class DisplayImageAdapter extends RecyclerView.Adapter<DisplayImageAdapte
 
         // render image with Picasso
         Picasso.with(context).load(url).resize(width, height).centerInside().into(imageViewHolder.image);
+    }
+
+    public class ImageViewHolder extends RecyclerView.ViewHolder {
+
+        final ImageView image;
+
+        ImageViewHolder(View itemView) {
+            super(itemView);
+            image = (ImageView) itemView.findViewById(R.id.image);
+        }
     }
 }

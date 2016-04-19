@@ -21,7 +21,7 @@ import org.girodicer.plottwist.R;
  */
 public class DroneStateFragment extends Fragment {
 
-    private TextView location, velocity, state, armable;
+    private TextView location, velocity, battery;
     private Status currentStatus;
 
     private BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
@@ -37,9 +37,7 @@ public class DroneStateFragment extends Fragment {
 
                 velocity.setText(currentStatus.velocity.toString());
 
-                state.setText(Byte.toString(currentStatus.state));
-
-                armable.setText(Integer.toString(currentStatus.armable));
+                battery.setText(Integer.toString(currentStatus.battery));
             }
         }
     };
@@ -50,8 +48,7 @@ public class DroneStateFragment extends Fragment {
 
         location = (TextView) root.findViewById(R.id.status_location);
         velocity = (TextView) root.findViewById(R.id.status_velocity);
-        state = (TextView) root.findViewById(R.id.status_state);
-        armable = (TextView) root.findViewById(R.id.status_armable);
+        battery = (TextView) root.findViewById(R.id.status_battery);
 
         return root;
     }

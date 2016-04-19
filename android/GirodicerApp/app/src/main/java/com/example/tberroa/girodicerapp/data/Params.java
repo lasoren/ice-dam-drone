@@ -7,6 +7,19 @@ public class Params {
     private Params() {
     }
 
+    // log tags, feel free to concatenate them
+    final public static String TAG_DBG = " TAG_DBG";
+    final public static String TAG_BT = " TAG_BT";
+    final public static String TAG_GP = " TAG_GP";
+    final public static String TAG_DS = " TAG_DS";
+    final public static String TAG_STATUS = "TAG_STATUS";
+    final public static String TAG_MAP = "TAG_MAP";
+    final public static String TAG_ERROR = " TAG_ERROR";
+    final public static String TAG_EXCEPTION = " TAG_EXCEPTION";
+
+    // menu button ids
+    final public static int TERMINATE_INSPECTION = 1055;
+
     // parameters related to device storage
     final public static String HOME_FOLDER = "/Girodicer/";
 
@@ -14,28 +27,25 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcasts
-    // sign in related
+    // authentication related
     final public static String SIGN_IN_SERVICE_COMPLETE = "SIGN_IN_SERVICE_COMPLETE";
-    // bluetooth related
-    final public static String BLUETOOTH_NOT_ENABLED = "BLUETOOTH_NOT_ENABLED";
+    // bluetooth connection related
     final public static String BLUETOOTH_TIMEOUT = "BLUETOOTH_TIMEOUT";
     final public static String CONNECTING_TO_DRONE = "CONNECTING_TO_DRONE";
     final public static String DRONE_CONNECT_SUCCESS = "DRONE_CONNECT_SUCCESS";
     final public static String DRONE_CONNECT_FAILURE = "DRONE_CONNECT_FAILURE";
     final public static String DRONE_CONNECTION_LOST = "DRONE_CONNECTION_LOST";
+    // drone status related
     final public static String INITIAL_STATUS_RECEIVED = "INITIAL_STATUS_RECEIVED";
     final public static String HOUSE_BOUNDARY_RECEIVED = "HOUSE_BOUNDARY_RECEIVED";
     final public static String STATUS_UPDATE = "STATUS_UPDATE";
     // inspection phase related
-    final public static String DRONE_DONE = "DRONE_DONE";
+    final public static String INSPECTION_TERMINATED = "INSPECTION_TERMINATED";
+    final public static String INSPECTION_STARTED = "INSPECTION_STARTED"; // start of scanning
+    final public static String SALTING_STARTED = "SALTING_STARTED";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
-    final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
     final public static String UPLOAD_STARTED = "UPLOAD_STARTED";
-    final public static String UPLOAD_COMPLETE = "UPLOAD_COMPLETE";
-    final public static String UPDATING_STARTED = "UPDATING_STARTED";
-    final public static String UPDATING_COMPLETE = "UPDATING_COMPLETE";
-    // ui control
-    final public static String RELOAD_AM_ACTIVITY = "RELOAD_AM_ACTIVITY";
+    final public static String INSPECTION_COMPLETE = "INSPECTION_COMPLETE"; // end of uploading
 
     // bluetooth states
     final public static int BTS_NOT_CONNECTED = 0;
@@ -51,12 +61,13 @@ public class Params {
 
     // inspection phases
     final public static int CI_INACTIVE = 0;
-    final public static int CI_DRONE_ACTIVE = 1;
-    final public static int CI_DATA_TRANSFER = 2;
-    final public static int CI_UPLOADING = 3;
+    final public static int CI_SCANNING = 1;
+    final public static int CI_SALTING = 2;
+    final public static int CI_TRANSFERRING = 3;
+    final public static int CI_UPLOADING = 4;
 
     // UI parameters
-    final public static String RELOAD = "reload"; // reload activities without animation
+    final public static String RELOAD = "reload"; // reload activity without animation
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";
     final public static String ROOF_EDGE_TAB = "roof edge";
@@ -79,11 +90,14 @@ public class Params {
     final public static String GET_CLIENTS_URL = Params.BASE_URL + "users/clients/get.json";
     final public static String GET_INSPECTIONS_URL = Params.BASE_URL + "inspections/get.json";
     final public static String GET_INSPECTION_IMAGES_URL = Params.BASE_URL + "inspections/images/get.json";
+    final public static String CLIENT_INSPECTION_PORTAL = Params.BASE_URL + "inspections/email/client.json";
+
     // image types
     final public static int I_TYPE_NOT_SPECIFIED = 1;
     final public static int I_TYPE_ROOF_EDGE = 2;
     final public static int I_TYPE_THERMAL = 3;
     final public static int I_TYPE_AERIAL = 4;
+
     // treatment options
     final public static int NOTHING_DONE = 1;
     final public static int SALTED_BY_DRONE = 2;

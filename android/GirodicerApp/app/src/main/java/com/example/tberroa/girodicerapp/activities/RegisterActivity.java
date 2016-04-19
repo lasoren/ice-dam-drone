@@ -25,6 +25,20 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstName, lastName, password, confirmPassword, email;
 
+    // onClick listeners
+    private final OnClickListener createAccountButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            Register();
+        }
+    };
+    private final OnClickListener goToLoginButtonListener = new OnClickListener() {
+        public void onClick(View v) {
+            startActivity(new Intent(RegisterActivity.this, SignInActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
+            finish();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,20 +83,6 @@ public class RegisterActivity extends AppCompatActivity {
         goToLoginButton.setOnClickListener(goToLoginButtonListener);
     }
 
-    private final OnClickListener createAccountButtonListener = new OnClickListener() {
-        public void onClick(View v) {
-            Register();
-        }
-    };
-
-    private final OnClickListener goToLoginButtonListener = new OnClickListener() {
-        public void onClick(View v) {
-            startActivity(new Intent(RegisterActivity.this, SignInActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).setAction(Params.RELOAD));
-            finish();
-        }
-    };
-
     private void Register() {
         String enteredFirstName = firstName.getText().toString();
         String enteredLastName = lastName.getText().toString();
@@ -99,7 +99,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         String string = Utilities.validate(enteredInfo);
         if (string.matches("")) {
-            new AttemptRegistration().execute();
+            if (Utilities.isInternetAvailable(this)) {
+                new AttemptRegistration().execute();
+            } else {
+                Toast.makeText(this, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+            }
         } else {
             if (string.contains("first_name")) {
                 firstName.setError(getResources().getString(R.string.name_format));
@@ -159,6 +163,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            postResponse = null;
             try {
                 String url = Params.BASE_URL + "users/register.json";
                 postResponse = new Http().postRequest(url, dataJSON);
@@ -169,11 +174,15 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.contains("id")) {
+            if (postResponse != null && postResponse.contains("id")) {
                 startActivity(new Intent(RegisterActivity.this, PostRegisterActivity.class));
                 finish();
             } else { // display error
-                Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_LONG).show();
+                if (postResponse == null){
+                    Toast.makeText(RegisterActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

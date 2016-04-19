@@ -5,8 +5,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
- // Data is packed in the order of latitude, then longitude. Rinse, repeat.
-
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class Points {
 
     public static byte[] Pack(ArrayList<LatLng> points){

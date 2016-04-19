@@ -211,7 +211,7 @@ public class DroneActivity extends AppCompatActivity {
 
                                 LocalBroadcastManager.getInstance(DroneActivity.this).sendBroadcast(broadcastToFrag);
                                 break;
-                            case GProtocol.COMMAND_SEND_POINTS:
+                            case GProtocol.COMMAND_SEND_ICEDAM_POINTS:
                                 break;
                         }
                     } catch (BluetoothException e) {

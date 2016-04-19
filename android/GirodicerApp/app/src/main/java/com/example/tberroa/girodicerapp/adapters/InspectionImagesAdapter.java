@@ -39,26 +39,6 @@ public class InspectionImagesAdapter extends RecyclerView.Adapter<InspectionImag
         numberOfImages = this.inspectionImages.size();
     }
 
-    public class ImageViewHolder extends RecyclerView.ViewHolder {
-
-        final ImageView image;
-
-        ImageViewHolder(View itemView) {
-            super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.photo);
-            image.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // get position
-                    int i = getLayoutPosition();
-
-                    // show image full screen in dialog
-                    new DisplayImageDialog(v.getContext(), inspectionImages, i).show();
-                }
-            });
-        }
-    }
-
     @Override
     public int getItemCount() {
         return numberOfImages;
@@ -83,5 +63,25 @@ public class InspectionImagesAdapter extends RecyclerView.Adapter<InspectionImag
         int width = Utilities.getImageWidthGrid(context);
         int height = Utilities.getImageHeightGrid(context);
         Picasso.with(context).load(url).resize(width, height).into(imageViewHolder.image);
+    }
+
+    public class ImageViewHolder extends RecyclerView.ViewHolder {
+
+        final ImageView image;
+
+        ImageViewHolder(View itemView) {
+            super(itemView);
+            image = (ImageView) itemView.findViewById(R.id.photo);
+            image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // get position
+                    int i = getLayoutPosition();
+
+                    // show image full screen in dialog
+                    new DisplayImageDialog(v.getContext(), inspectionImages, i).show();
+                }
+            });
+        }
     }
 }

@@ -1,5 +1,6 @@
 import girodicer
-import EventHandler, argparse, os
+import EventHandler, argparse, os, time
+from dronekit import APIException
 
 
 def bluetoothConnected():
@@ -12,8 +13,7 @@ def bluetoothDisconnected():
     iceCutter.return_to_launch()
 
 def printPoints(points):
-    for point in points:
-        print "lat: %d, lng: %d" % (point[0], point[1])
+    iceCutter.set_ice_dams(points)
 
 def setHouse(house):
     iceCutter.house = house
@@ -25,6 +25,7 @@ def handleRoofInterrupt():
     iceCutter.return_to_launch()
 
 def handleRoofFinished():
+    startAnalysis()
     iceCutter.return_to_launch()
 
 def bluetoothSendStatus():
@@ -42,6 +43,8 @@ def return_home():
 def battery_low():
     return_home()
 
+def service_icedam():
+    iceCutter.start_service_ice_dams()
 
 
 parser = argparse.ArgumentParser(description="Start the AutoMission Planner. Default connects to ArduPilot over Serial")
@@ -62,10 +65,17 @@ eventQueue.addEventCallback(bluetoothSendStatus, EventHandler.BLUETOOTH_SEND_STA
 eventQueue.addEventCallback(return_home, EventHandler.RETURN_TO_LAUNCH)
 eventQueue.addEventCallback(startAnalysis, EventHandler.START_ANALYSIS)
 eventQueue.addEventCallback(startInspection, EventHandler.START_SCAN)
+eventQueue.addEventCallback(service_icedam, EventHandler.SERVICE_ICE_DAM)
 
 print "Connecting to vehicle on: %s" % args.connect
-iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
-
+while True:
+    try:
+        iceCutter = girodicer.Girodicer(args.connect, args.baud, eventQueue, args.debug)
+        break
+    except APIException:
+        print "Failed to connect. Retrying in 5 seconds..."
+        time.sleep(5)
+        pass
 running = True
 
 while running:

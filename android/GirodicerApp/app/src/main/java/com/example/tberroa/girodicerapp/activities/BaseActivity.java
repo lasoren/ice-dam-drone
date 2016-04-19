@@ -8,11 +8,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -29,6 +32,7 @@ import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
+import com.example.tberroa.girodicerapp.services.ImageUploadService;
 
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -42,6 +46,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     private boolean stateChange = false;
 
     // ui elements
+    Toolbar toolbar;
     DrawerLayout drawer;
     NavigationView navigationView;
     private SmoothActionBarDrawerToggle toggle;
@@ -61,59 +66,63 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
         // check if bluetooth service was destroyed by the system (in this case onDestroy is not called)
         if (BluetoothService.notRunning(this) && BluetoothService.serviceRunning) {
-            Log.d("dbg", "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
+            Log.d(Params.TAG_DBG, "@BaseActivity: bluetooth service was destroyed by system. cleaning up");
 
             // shutdown connection thread
             if (BluetoothService.btConnectionThread != null) {
                 BluetoothService.btConnectionThread.shutdown();
             }
 
-            // reset state
+            // reset bluetooth state
             bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+
+            // handle current inspection based on how far the user got
+            CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+            int phase = currentInspectionInfo.getPhase(this);
+            if (phase == Params.CI_UPLOADING) { // no longer dependent on bluetooth, don't touch current inspection info
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: inspection kept in upload phase");
+            } else if (phase == Params.CI_TRANSFERRING) {// transferring gets killed but upload what we can
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: inspection pushed into upload phase");
+                currentInspectionInfo.setRoofEdgeCount(this, BluetoothService.BTDataHandler.imgIndexRGB);
+                currentInspectionInfo.setThermalCount(this, BluetoothService.BTDataHandler.imgIndexTherm);
+                currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
+                startService(new Intent(this, ImageUploadService.class));
+                sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
+            } else { // user was servicing icedams or drone was still scanning, full clean up
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
+                currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
+                currentInspectionInfo.setNotInProgress(this, true);
+            }
 
             // update variables
             BluetoothService.needInitialStatus = true;
             BluetoothService.mapPhaseComplete = false;
             BluetoothService.serviceRunning = false;
             BluetoothService.currentStatus = null;
+
+            // destroy context reference from bluetooth data handler
+            BluetoothService.BTDataHandler.destroyContext();
+
+            // unregister receiver
+            if (BluetoothService.btReceiver != null) {
+                unregisterReceiver(BluetoothService.btReceiver);
+                BluetoothService.btReceiver = null;
+            }
         }
 
         // set up receiver to reload activity upon system updates
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Params.BLUETOOTH_TIMEOUT);
-        filter.addAction(Params.CONNECTING_TO_DRONE);
-        filter.addAction(Params.DRONE_CONNECT_SUCCESS);
-        filter.addAction(Params.DRONE_CONNECT_FAILURE);
-        filter.addAction(Params.DRONE_CONNECTION_LOST);
-        filter.addAction(Params.INITIAL_STATUS_RECEIVED);
-        filter.addAction(Params.TRANSFER_STARTED);
-        filter.addAction(Params.UPLOAD_STARTED);
-        filter.addAction(Params.UPLOAD_COMPLETE);
-        filter.addAction(Params.UPDATING_STARTED);
-        filter.addAction(Params.UPDATING_COMPLETE);
+        filter.addAction(Params.RELOAD);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                switch (action) {
-                    case Params.BLUETOOTH_TIMEOUT:
-                    case Params.CONNECTING_TO_DRONE:
-                    case Params.DRONE_CONNECT_SUCCESS:
-                    case Params.DRONE_CONNECT_FAILURE:
-                    case Params.DRONE_CONNECTION_LOST:
-                    case Params.INITIAL_STATUS_RECEIVED:
-                    case Params.TRANSFER_STARTED:
-                    case Params.UPLOAD_STARTED:
-                    case Params.UPLOAD_COMPLETE:
-                    case Params.UPDATING_STARTED:
-                    case Params.UPDATING_COMPLETE:
-                        stateChange = true;
-                        if (inView){
-                            startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            stateChange = false; // state change handled
-                            finish();
-                        }
-                        break;
+                stateChange = true;
+
+                // always do a simply reload
+                if (inView) {
+                    startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    stateChange = false; // state change handled
+                    finish();
                 }
             }
         };
@@ -133,11 +142,12 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         super.setContentView(drawer);
 
         // initialize toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // initialize drawer
         toggle = new SmoothActionBarDrawerToggle(this, drawer, toolbar);
+        toggle.setDrawerIndicatorEnabled(false);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -179,11 +189,18 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
         switch (inspectionPhase) {
-            case Params.CI_DRONE_ACTIVE:
-                inspectionPhaseText.setText(R.string.ci_drone_active);
+            case Params.CI_INACTIVE:
+                inspectionPhaseText.setVisibility(View.GONE);
+                break;
+            case Params.CI_SCANNING:
+                inspectionPhaseText.setText(R.string.ci_scanning);
                 inspectionPhaseText.setVisibility(View.VISIBLE);
                 break;
-            case Params.CI_DATA_TRANSFER:
+            case Params.CI_SALTING:
+                inspectionPhaseText.setText(R.string.ci_salting);
+                inspectionPhaseText.setVisibility(View.VISIBLE);
+                break;
+            case Params.CI_TRANSFERRING:
                 inspectionPhaseText.setText(R.string.ci_data_transfer);
                 inspectionPhaseText.setVisibility(View.VISIBLE);
                 break;
@@ -195,10 +212,10 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
         inView = true;
-        if (stateChange){
+        if (stateChange) {
             // reload
             startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             stateChange = false; // state change handled
@@ -207,7 +224,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
         inView = false;
     }
@@ -235,7 +252,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                         // check if there is an ongoing active inspection
                         if (!currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
                             String message = getResources().getString(R.string.cannot_sign_out);
-                            new MessageDialog(BaseActivity.this, message).getDialog().show();
+                            new MessageDialog(BaseActivity.this, message).show();
                         } else {
                             Utilities.signOut(BaseActivity.this);
                         }
@@ -258,7 +275,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     public void run() {
                         if (currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
                             String message = getString(R.string.no_active_inspection);
-                            new MessageDialog(BaseActivity.this, message).getDialog().show();
+                            new MessageDialog(BaseActivity.this, message).show();
                         } else {
                             int inspectionPhase = currentInspectionInfo.getPhase(BaseActivity.this);
                             String message;
@@ -268,11 +285,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                                     break;
                                 case 2:
                                     message = getString(R.string.transfer_phase_text);
-                                    new MessageDialog(BaseActivity.this, message).getDialog().show();
+                                    new MessageDialog(BaseActivity.this, message).show();
                                     break;
                                 case 3:
                                     message = getString(R.string.upload_phase_text);
-                                    new MessageDialog(BaseActivity.this, message).getDialog().show();
+                                    new MessageDialog(BaseActivity.this, message).show();
                                     break;
                             }
                         }
@@ -304,7 +321,37 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    // used to smooth out drawer open/close animations
+    // inflate toolbar menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.base_menu, menu);
+
+        // check if terminate button needs to be added
+        if (BluetoothService.currentStatus != null) {
+            menu.add(0, Params.TERMINATE_INSPECTION, Menu.NONE, R.string.terminate)
+                    .setIcon(R.drawable.terminate_button)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        }
+        return true;
+    }
+
+    // handle toolbar menu clicks here
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.open_menu:
+                drawer.openDrawer(GravityCompat.START);
+                return true;
+            case Params.TERMINATE_INSPECTION:
+                sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // class used to smooth out drawer open/close animations
     private class SmoothActionBarDrawerToggle extends ActionBarDrawerToggle {
 
         private Runnable runnable;

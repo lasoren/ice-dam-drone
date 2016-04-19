@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
 import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.models.Client;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
@@ -23,10 +24,12 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class ServerDB {
 
-    final int operatorUserId;
-    final String sessionId;
+    private final Context context;
+    private final int operatorUserId;
+    private final String sessionId;
 
     public ServerDB(Context context) {
+        this.context = context;
         OperatorInfo operatorInfo = new OperatorInfo();
         operatorUserId = operatorInfo.getUserId(context);
         sessionId = operatorInfo.getSessionId(context);
@@ -73,7 +76,7 @@ public class ServerDB {
 
         // convert the response from json to client object
         if (!postResponse.equals("")) {
-            Log.d("dbg", "@ServerDB/createClient: postResponse is: " + postResponse);
+            Log.d(Params.TAG_DBG, "@ServerDB/createClient: postResponse is: " + postResponse);
 
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type clientType = new TypeToken<Client>() {
@@ -117,7 +120,7 @@ public class ServerDB {
 
         // convert the response from json to inspection object
         if (!postResponse.equals("")) {
-            Log.d("dbg", "@ServerDB/createInspection: postResponse is: " + postResponse);
+            Log.d(Params.TAG_DBG, "@ServerDB/createInspection: postResponse is: " + postResponse);
 
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type inspectionType = new TypeToken<Inspection>() {
@@ -148,7 +151,7 @@ public class ServerDB {
         // make request
         String postResponse = "";
         try {
-            Log.d("dbg", "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
+            Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
             postResponse = new Http().postRequest(Params.CREATE_INSPECTION_IMAGES_URL, requestJson);
         } catch (java.io.IOException e) {
             e.printStackTrace();
@@ -156,7 +159,7 @@ public class ServerDB {
 
         // convert the response from json to a list of inspection images
         if (!postResponse.equals("")) {
-            Log.d("dbg", "@ServerDB/createInspectionImages: postResponse is: " + postResponse);
+            Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: postResponse is: " + postResponse);
 
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type imagesType = new TypeToken<List<InspectionImage>>() {
@@ -172,7 +175,9 @@ public class ServerDB {
     }
 
     public List<Client> getClients() {
-        int provision = 0; // hard code this for now
+        // get provision
+        Provisions provisions = new Provisions();
+        int provision = provisions.getClients(context);
 
         // build into json format
         JSONObject jsonObject = new JSONObject();
@@ -192,13 +197,14 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getClients: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getClients: postResponse is: " + postResponse);
 
         // get client list from response json
         Type clientList = new TypeToken<GetClientsModel>() {
         }.getType();
         try {
             GetClientsModel getClientsModel = new Gson().fromJson(postResponse, clientList);
+            provisions.setClients(context, getClientsModel.provision);
             return getClientsModel.clients;
         } catch (Exception e) {
             return null;
@@ -206,12 +212,16 @@ public class ServerDB {
     }
 
     public List<Inspection> getInspections() {
+        // get provision
+        Provisions provisions = new Provisions();
+        int provision = provisions.getInspections(context);
+
         // create the request json
         JSONObject requestJson = new JSONObject();
         try {
             requestJson.put("user_id", operatorUserId);
             requestJson.put("session_id", sessionId);
-            requestJson.put("provision", 0);
+            requestJson.put("provision", provision);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -224,13 +234,14 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getInspections: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getInspections: postResponse is: " + postResponse);
 
         // get inspection list from response json
         Type inspectionList = new TypeToken<GetInspectionsModel>() {
         }.getType();
         try {
             GetInspectionsModel getInspectionsModel = new Gson().fromJson(postResponse, inspectionList);
+            provisions.setInspections(context, getInspectionsModel.provision);
             return getInspectionsModel.inspections;
         } catch (Exception e) {
             return null;
@@ -238,12 +249,16 @@ public class ServerDB {
     }
 
     public List<InspectionImage> getInspectionImages() {
+        // get provision
+        Provisions provisions = new Provisions();
+        int provision = provisions.getInspectionImages(context);
+
         // create the request json
         JSONObject requestJson = new JSONObject();
         try {
             requestJson.put("user_id", operatorUserId);
             requestJson.put("session_id", sessionId);
-            requestJson.put("provision", 0);
+            requestJson.put("provision", provision);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -256,14 +271,43 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        Log.d("dbg", "@ServerDB/getInspectionImages: postResponse is: " + postResponse);
+        Log.d(Params.TAG_DBG, "@ServerDB/getInspectionImages: postResponse is: " + postResponse);
 
         // get inspection images list from response json
         Type imagesList = new TypeToken<GetImagesModel>() {
         }.getType();
         try {
             GetImagesModel getImagesModel = new Gson().fromJson(postResponse, imagesList);
+            provisions.setInspectionImages(context, getImagesModel.provision);
             return getImagesModel.inspection_images;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getClientInspectionPortal(int inspectionId) {
+        // create the request json
+        JSONObject requestJson = new JSONObject();
+        try {
+            requestJson.put("user_id", operatorUserId);
+            requestJson.put("session_id", sessionId);
+            requestJson.put("inspection_id", inspectionId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // post
+        String postResponse = "";
+        try {
+            postResponse = new Http().postRequest(Params.CLIENT_INSPECTION_PORTAL, requestJson.toString());
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(Params.TAG_DBG, "@ServerDB/getClientInspectionPortal: postResponse is: " + postResponse);
+        try {
+            JSONObject jsonObject = new JSONObject(postResponse);
+            return jsonObject.optString("url", "");
         } catch (Exception e) {
             return null;
         }
@@ -275,7 +319,6 @@ public class ServerDB {
         int inspection_id;
         int image_type;
 
-        @SuppressWarnings("unused")
         public CreateImageModel() {
         }
 
@@ -292,7 +335,6 @@ public class ServerDB {
         String session_id;
         List<CreateImageModel> inspection_images;
 
-        @SuppressWarnings("unused")
         public CreateImageRequest() {
         }
 
@@ -306,7 +348,6 @@ public class ServerDB {
     class GetClientsModel {
 
         List<Client> clients;
-        @SuppressWarnings("unused")
         int provision;
 
         public GetClientsModel() {
@@ -316,7 +357,6 @@ public class ServerDB {
     class GetInspectionsModel {
 
         List<Inspection> inspections;
-        @SuppressWarnings("unused")
         int provision;
 
         public GetInspectionsModel() {
@@ -325,7 +365,6 @@ public class ServerDB {
 
     class GetImagesModel {
 
-        @SuppressWarnings("unused")
         int provision;
         List<InspectionImage> inspection_images;
 

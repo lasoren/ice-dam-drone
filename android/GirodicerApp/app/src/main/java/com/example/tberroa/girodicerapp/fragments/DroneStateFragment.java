@@ -15,10 +15,11 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
+import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 public class DroneStateFragment extends Fragment {
 
-    private TextView location, velocity, state, armable;
+    private TextView location, velocity, battery;
 
     private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
@@ -28,16 +29,14 @@ public class DroneStateFragment extends Fragment {
             if (frag.equals(DroneStateFragment.class.getName())) {
                 Status currentStatus = intent.getParcelableExtra(CurrentThreeActivity.STATUS_PACKAGE);
 
-                String latitude = String.format("%f", currentStatus.location.latitude);
-                String longitude = String.format("%f", currentStatus.location.longitude);
-                String locationFormatted = "(" + latitude + "," + longitude + ")";
-                location.setText(locationFormatted);
-
-                velocity.setText(String.format("%f", currentStatus.velocity));
-
-                state.setText(String.format("%d", currentStatus.state));
-
-                armable.setText(String.format("%d", currentStatus.armable));
+                if (currentStatus != null){
+                    String latitude = String.format("%f", currentStatus.location.latitude);
+                    String longitude = String.format("%f", currentStatus.location.longitude);
+                    String locationFormatted = "(" + latitude + "," + longitude + ")";
+                    location.setText(locationFormatted);
+                    velocity.setText(String.format("%f", currentStatus.velocity));
+                    battery.setText(String.format("%d", currentStatus.battery));
+                }
             }
         }
     };
@@ -48,17 +47,26 @@ public class DroneStateFragment extends Fragment {
 
         location = (TextView) root.findViewById(R.id.status_location);
         velocity = (TextView) root.findViewById(R.id.status_velocity);
-        state = (TextView) root.findViewById(R.id.status_state);
-        armable = (TextView) root.findViewById(R.id.status_armable);
+        battery = (TextView) root.findViewById(R.id.status_battery);
 
         return root;
     }
 
     @Override
     public void onResume() {
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents,
-                new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST));
         super.onResume();
+
+        if (BluetoothService.currentStatus != null){
+            String latitude = String.format("%f", BluetoothService.currentStatus.location.latitude);
+            String longitude = String.format("%f", BluetoothService.currentStatus.location.longitude);
+            String locationFormatted = "(" + latitude + "," + longitude + ")";
+            location.setText(locationFormatted);
+            velocity.setText(String.format("%f", BluetoothService.currentStatus.velocity));
+            battery.setText(String.format("%d", BluetoothService.currentStatus.battery));
+        }
+
+        IntentFilter filter = new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, filter);
     }
 
     @Override

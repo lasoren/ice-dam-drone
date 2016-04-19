@@ -4,13 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
 import com.example.tberroa.girodicerapp.activities.SignInActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
+import com.example.tberroa.girodicerapp.data.Params;
+import com.example.tberroa.girodicerapp.data.Provisions;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 
@@ -124,6 +129,7 @@ final public class Utilities {
         // clear old data
         new OperatorInfo().clear(context);
         new CurrentInspectionInfo().clearAll(context);
+        new Provisions().clear(context);
         new LocalDB().clear();
 
         // update user sign in status
@@ -134,5 +140,19 @@ final public class Utilities {
         if (context instanceof Activity) {
             ((Activity) context).finish();
         }
+    }
+
+    public static boolean isInternetAvailable(Context context) {
+        boolean isInternetAvailable = false;
+        try {
+            ConnectivityManager cM = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = cM.getActiveNetworkInfo();
+            if (networkInfo != null && (networkInfo.isConnected())) {
+                isInternetAvailable = true;
+            }
+        } catch (Exception e) {
+            Log.e(Params.TAG_EXCEPTION, "@isInternetAvailable: " + e.getMessage());
+        }
+        return isInternetAvailable;
     }
 }

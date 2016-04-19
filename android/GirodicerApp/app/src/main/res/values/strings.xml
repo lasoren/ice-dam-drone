@@ -54,6 +54,8 @@
     <string name="state_format">State must be 2 letters</string>
     <string name="zip_format">ZIP Code must be 5 digits</string>
     <string name="error_check_fields">Error occurred, please check fields and try again.</string>
+    <string name="client_created">Client created successfully</string>
+
     <!-- current inspection activity -->
     <string name="current_inspection_title">Current Inspection</string>
     <!-- 1st step: establish bluetooth connection -->
@@ -66,15 +68,13 @@
     <!-- 2nd step: establish house boundaries -->
     <!-- 3rd step: drone is active, keep track of status -->
     <string name="drone_active_stay_alert">
-        Please keep your eyes on the drone as it performs the inspection.</string>
+        Keep your eyes on the drone as it performs the inspection.</string>
     <string name="status_location">Location: </string>
     <string name="status_location_unit">(Lat,Lng)</string>
     <string name="status_velocity">Velocity: </string>
     <string name="status_velocity_unit">inf m/s</string>
-    <string name="status_state">State: </string>
-    <string name="status_state_placeholder">0xf8</string>
-    <string name="status_armable">Armable: </string>
-    <string name="status_armable_placeholder">true/false</string>
+    <string name="status_battery">Battery</string>
+    <string name="status_battery_unit">int</string>
     <!-- 4th step: post inspection processing -->
     <string name="transfer_phase_text">Data is being transferred to the phone &#8230;</string>
     <string name="upload_phase_text">Data is being uploaded to the cloud &#8230;</string>
@@ -86,14 +86,14 @@
 
     <!-- inspection activity -->
     <string name="inspection_title">Inspection</string>
+    <string name="client_inspection_portal">Client Inspection Portal</string>
 
     <!-- dialogs -->
     <string name="cannot_sign_out">
-        Cannot sign out until active inspection is terminated and post inspection data processing completes.
+        Cannot sign out while an inspection is in progress.
     </string>
     <string name="confirm_end_inspection">Are you sure you want to end the current inspection?</string>
     <string name="no_active_inspection">There is no active inspection to end.</string>
-    <string name="inspection_in_progress">An inspection is already in progress.</string>
 
     <!-- notification bar -->
     <!-- bluetooth state -->
@@ -101,14 +101,15 @@
     <string name="bt_state_connected">Connected to drone</string>
     <string name="bt_state_connection_lost">Drone connection lost, trying to reconnect &#8230;</string>
     <!-- active inspection phase -->
-    <string name="ci_drone_active">Inspection Phase 1: Drone is navigating home</string>
-    <string name="ci_data_transfer">Inspection Phase 2: Receiving data from drone</string>
-    <string name="ci_uploading">Inspection Phase 3: uploading data to cloud</string>
+    <string name="ci_scanning">Scan Phase</string>
+    <string name="ci_salting">Salting Phase</string>
+    <string name="ci_data_transfer">Transfer Phase</string>
+    <string name="ci_uploading">Upload Phase</string>
 
-    <!-- general buttons -->
+    <!-- buttons -->
     <string name="submit">Submit</string>
+    <string name="connect">Connect</string>
     <string name="okay">Okay</string>
-    <string name="start">Start</string>
     <string name="try_again">Try Again</string>
     <string name="next">Next</string>
     <string name="got_it">Got it!</string>
@@ -121,13 +122,26 @@
     <string name="general_message">General message</string>
     <string name="loading_message">Loading message</string>
 
-    <!-- download manager-->
-    <string name="download_title">Girodicer Image Transfer</string>
-    <string name="download_description">In process of receiving images from drone</string>
-
     <!-- other -->
+    <string name="drone_busy_in_flight">Drone is busy in flight, need to wait until the drone has landed.</string>
+    <string name="servicing_in_process">In Process &#8230;</string>
+    <string name="waiting_for_service_confirmation">Waiting For Confirmation</string>
+    <string name="skip_salting">Skip Salting</string>
+    <string name="no_icedam_points_to_send">There are no confirmed icedam points to send</string>
+    <string name="finish_salting">Finish Salting</string>
+    <string name="send_icedam_points">Send Icedam Points</string>
+    <string name="service_icedam">Service Icedam</string>
+    <string name="confirm_icedam">Confirm Icedam</string>
+    <string name="is_this_an_icedam">Is the following point, coming from the image below, an icedam?</string>
+    <string name="waiting_for_confirmation">Waiting for confirmation from drone &#8230;</string>
+    <string name="get_path">Get Path</string>
+    <string name="start_inspection">Start Inspection</string>
+    <string name="terminate">Terminate Connection</string>
+    <string name="open_menu">Open Menu</string>
+    <string name="error_occurred">Error occurred</string>
+    <string name="internet_not_available">Internet not available</string>
     <string name="grabbing_data">Grabbing data &#8230;</string>
     <string name="image_description">image</string>
-    <string name="google_maps_key">AIzaSyAoNcoHq4f7MQLJZN4IdYdi6jxdpOJfFbw</string>
+    <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
     <string name="drone_bt_name">girodicer-minnow</string>
 </resources>

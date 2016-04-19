@@ -14,14 +14,12 @@ import java.nio.ByteOrder;
 public class Status implements Parcelable {
     public LatLng location;
     public Double velocity;
-    public byte state;
-    public int armable;
+    public int battery;
 
     protected Status(Parcel in) {
         location = in.readParcelable(LatLng.class.getClassLoader());
         velocity = in.readDouble();
-        state = in.readByte();
-        armable = in.readInt();
+        battery = in.readByte();
     }
 
     public static final Creator<Status> CREATOR = new Creator<Status>() {
@@ -41,16 +39,14 @@ public class Status implements Parcelable {
         Float latitude = buffer.getFloat();
         Float longitude = buffer.getFloat();
         Double velocity = buffer.getDouble();
-        byte state = buffer.get();
-        int armable = buffer.getInt();
-        return new Status(new LatLng(latitude, longitude), velocity, state, armable);
+        int battery = buffer.getInt();
+        return new Status(new LatLng(latitude, longitude), velocity, battery);
     }
 
-    public Status(LatLng location, Double velocity, byte state, int armable){
+    public Status(LatLng location, Double velocity, int battery){
         this.location = location;
         this.velocity = velocity;
-        this.state = state;
-        this.armable = armable;
+        this.battery = battery;
     }
 
     @Override
@@ -62,7 +58,5 @@ public class Status implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(location, flags);
         dest.writeDouble(velocity);
-        dest.writeByte(state);
-        dest.writeInt(armable);
     }
 }

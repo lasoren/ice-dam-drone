@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Points;
+import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,8 +29,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-public class CurrentTwoActivity extends BaseActivity
-        implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener {
+public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener,
+        GoogleMap.OnMarkerClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
     private Button next;
@@ -46,7 +48,7 @@ public class CurrentTwoActivity extends BaseActivity
         String action = getIntent().getAction();
         if (action != null && action.equals(Params.RELOAD)) {
             overridePendingTransition(0, 0);
-            Log.d("dbg", "@CurrentTwoActivity: being recreated from a reload");
+            Log.d(Params.TAG_DBG, "@CurrentTwoActivity: being recreated from a reload");
         }
 
         // check if user should be in this activity
@@ -64,29 +66,47 @@ public class CurrentTwoActivity extends BaseActivity
 
         // get location, this should be set by the time this activity is launched
         home = BluetoothService.currentStatus.location;
+        BluetoothService.home = home;
+        Log.d(Params.TAG_DBG, "@CurrentTwoActivity: home is " + home);
 
         // set toolbar title
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.current_inspection_title);
         }
 
+        // initialize back button
+        toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else {
+                    new ClientId().clear(CurrentTwoActivity.this);
+                    startActivity(new Intent(CurrentTwoActivity.this, ClientManagerActivity.class));
+                    finish();
+                }
+            }
+        });
+
         // set navigation menu
         navigationView.inflateMenu(R.menu.nav_client_inspections);
 
         // initialize next button
         next = (Button) findViewById(R.id.maps_next);
+        next.setText(R.string.get_path);
         next.setOnClickListener(this);
         next.setEnabled(true);
 
         // Obtain the MapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         houseBoundary = new ArrayList<>();
 
         // initialize receiver, it's triggered when the house boundary points have been received from the drone
-        IntentFilter filter = new IntentFilter(Params.HOUSE_BOUNDARY_RECEIVED);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Params.HOUSE_BOUNDARY_RECEIVED);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -94,10 +114,20 @@ public class CurrentTwoActivity extends BaseActivity
                     case Params.HOUSE_BOUNDARY_RECEIVED:
                         houseBoundary = BluetoothService.houseBoundary;
                         plotPoints(houseBoundary);
+                        break;
                 }
             }
         };
         registerReceiver(broadcastReceiver, filter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
+        }
     }
 
     /**
@@ -139,47 +169,18 @@ public class CurrentTwoActivity extends BaseActivity
         switch (v.getId()) {
             case R.id.maps_next:
                 if (pathFound) {
-                    goToStatus();
+                    // send start inspection command to drone
+                    BluetoothService.BTDataHandler.passContext(this);
+                    BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_START_INSPECTION, 1, new byte[1], false));
+                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@CurrentTwoActivity: sent start inspection command");
+
+                    // open dialog to let user know the app is waiting for a response
+                    new MessageDialog(this, getString(R.string.waiting_for_confirmation)).show();
                 } else {
                     findPath();
                 }
                 break;
         }
-    }
-
-    private void goToStatus() {
-        BluetoothService.mapPhaseComplete = true;
-        Intent status = new Intent(this, CurrentThreeActivity.class);
-        startActivity(status);
-        finish();
-    }
-
-    private void findPath() {
-        if (houseBoundary.size() < 4) {
-            Toast.makeText(CurrentTwoActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
-            next.setEnabled(true);
-            return;
-        }
-
-        for (LatLng point : houseBoundary) {
-            String latitude = Double.toString(point.latitude);
-            String longitude = Double.toString(point.longitude);
-            Log.d("dbg", "@CurrentTwoActivity: houseBoundary point: (" + latitude + "," + longitude + ")");
-        }
-
-        byte[] points = Points.Pack(houseBoundary);
-        BluetoothService.BTDataHandler.passContext(this);
-        BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
-        Log.d("dbg", "@CurrentTwoActivity: sent house points");
-        Toast.makeText(CurrentTwoActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
-    }
-
-    private void plotPoints(ArrayList<LatLng> points) {
-        for (LatLng point : points) {
-            mMap.addMarker(new MarkerOptions().position(point));
-        }
-        pathFound = true;
-        next.setEnabled(true);
     }
 
     @Override
@@ -193,13 +194,33 @@ public class CurrentTwoActivity extends BaseActivity
         }
     }
 
-    // unregister receiver
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
+    private void findPath() {
+        if (houseBoundary.size() < 4) {
+            Toast.makeText(CurrentTwoActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
+            next.setEnabled(true);
+            return;
         }
+
+        for (LatLng point : houseBoundary) {
+            String latitude = Double.toString(point.latitude);
+            String longitude = Double.toString(point.longitude);
+            Log.d(Params.TAG_DBG, "@CurrentTwoActivity: houseBoundary point: (" + latitude + "," + longitude + ")");
+        }
+
+        // send new house point command to drone
+        byte[] points = Points.Pack(houseBoundary);
+        BluetoothService.BTDataHandler.passContext(this);
+        BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
+        Log.d(Params.TAG_DBG + Params.TAG_DS, "@CurrentTwoActivity: sent house points");
+        Toast.makeText(CurrentTwoActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
+    }
+
+    private void plotPoints(ArrayList<LatLng> points) {
+        for (LatLng point : points) {
+            mMap.addMarker(new MarkerOptions().position(point));
+        }
+        pathFound = true;
+        next.setEnabled(true);
+        next.setText(R.string.start_inspection);
     }
 }

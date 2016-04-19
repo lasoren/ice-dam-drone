@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<com.balysv.materialripple.MaterialRippleLayout
+    android:id="@+id/ripple"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:mrl_rippleOverlay="true"
+    app:mrl_rippleDuration="250"
+    app:mrl_rippleFadeDuration="25">
 
-    <ImageView
-        android:id="@+id/thumbnail"
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/thumbnail_layout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/image"
-        android:src="@mipmap/ic_launcher"/>
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/thumbnail"
-        android:layout_alignEnd="@id/thumbnail"
-        android:layout_alignStart="@id/thumbnail"
-        android:background="#80000000"
-        android:gravity="start"
-        android:paddingEnd="5dp"
-        android:paddingStart="5dp"
-        android:text="@string/thumbnail_label"
-        android:textColor="@color/white"
-        android:textSize="18sp"/>
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/image"
+            android:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/thumbnail"
+            android:layout_alignEnd="@id/thumbnail"
+            android:layout_alignStart="@id/thumbnail"
+            android:background="#80000000"
+            android:gravity="start"
+            android:paddingEnd="5dp"
+            android:paddingStart="5dp"
+            android:text="@string/thumbnail_label"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+    </RelativeLayout>
+</com.balysv.materialripple.MaterialRippleLayout>
