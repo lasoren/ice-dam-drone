@@ -28,16 +28,15 @@ public class DroneStateFragment extends Fragment {
             if (frag.equals(DroneStateFragment.class.getName())) {
                 Status currentStatus = intent.getParcelableExtra(CurrentThreeActivity.STATUS_PACKAGE);
 
-                String latitude = String.format("%f", currentStatus.location.latitude);
-                String longitude = String.format("%f", currentStatus.location.longitude);
-                String locationFormatted = "(" + latitude + "," + longitude + ")";
-                location.setText(locationFormatted);
-
-                velocity.setText(String.format("%f", currentStatus.velocity));
-
-                state.setText(String.format("%d", currentStatus.state));
-
-                armable.setText(String.format("%d", currentStatus.armable));
+                if (currentStatus != null){
+                    String latitude = String.format("%f", currentStatus.location.latitude);
+                    String longitude = String.format("%f", currentStatus.location.longitude);
+                    String locationFormatted = "(" + latitude + "," + longitude + ")";
+                    location.setText(locationFormatted);
+                    velocity.setText(String.format("%f", currentStatus.velocity));
+                    state.setText(String.format("%d", currentStatus.state));
+                    armable.setText(String.format("%d", currentStatus.armable));
+                }
             }
         }
     };

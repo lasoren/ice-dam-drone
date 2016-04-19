@@ -73,7 +73,8 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
 
         // get location, this should be set by the time this activity is launched
         home = BluetoothService.currentStatus.location;
-        Log.d(Params.TAG_DBG, "@CurrentTwoActivity: currentStatus.location is " + BluetoothService.currentStatus.location);
+        BluetoothService.home = home;
+        Log.d(Params.TAG_DBG, "@CurrentTwoActivity: home is " + home);
 
         // set toolbar title
         if (getSupportActionBar() != null) {
@@ -105,8 +106,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         next.setEnabled(true);
 
         // Obtain the MapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         houseBoundary = new ArrayList<>();

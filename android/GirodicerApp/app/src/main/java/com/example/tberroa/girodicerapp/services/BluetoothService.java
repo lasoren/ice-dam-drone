@@ -35,6 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -59,6 +60,7 @@ public class BluetoothService extends Service {
     public static ArrayList<LatLng> houseBoundary;
     public static boolean mapPhaseComplete = false;
     public static Status currentStatus;
+    public static LatLng home;
     public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
 
@@ -74,7 +76,7 @@ public class BluetoothService extends Service {
     private final Handler btConnectHandler = new BTConnectHandler();
 
     // main bluetooth connection thread, this is where data is transferred
-    public static ConnectionThread btConnectionThread; // so legacy code compiles
+    public static ConnectionThread btConnectionThread;
 
     // receiver to handle all bluetooth state changes
     public static BroadcastReceiver btReceiver = null;
@@ -606,6 +608,12 @@ public class BluetoothService extends Service {
             String type = Integer.toString(imageDetailsList.get(index).image_type);
             String location = basePath + type + Integer.toString(index) + ".jpg";
 
+            // create parent directories if needed
+            File baseDirectories = Environment.getExternalStoragePublicDirectory(basePath);
+            if(baseDirectories.mkdirs()){
+                Log.d(Params.TAG_DBG, "@BS/DH/saveImageLocally: base directories created");
+            }
+
             // create file
             try {
                 // convert image bitmap to byte array
@@ -614,7 +622,7 @@ public class BluetoothService extends Service {
                 byte[] bitMapData = bos.toByteArray();
 
                 // write bytes into the file
-                FileOutputStream fos = new FileOutputStream(location);
+                FileOutputStream fos = new FileOutputStream(Environment.getExternalStoragePublicDirectory(location));
                 fos.write(bitMapData);
                 fos.flush();
                 fos.close();
