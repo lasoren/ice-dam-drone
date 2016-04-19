@@ -44,6 +44,9 @@ class Girodicer():
         while not self.vehicle.armed:
             time.sleep(1)
 
+        msg = blue.BlueDataPackager(blue.COMMAND_ARM, 0, self.blue)
+        msg.start()
+
         print "Vehicle Armed!!!"
 
     def disarm_vehicle(self):
