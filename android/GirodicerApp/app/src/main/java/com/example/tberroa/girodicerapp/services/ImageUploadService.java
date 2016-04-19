@@ -188,7 +188,7 @@ public class ImageUploadService extends Service {
     @Override
     public void onDestroy() {
         // inspection is no longer in progress
-        currentInspectionInfo.setNotInProgress(this, true);
+        currentInspectionInfo.setInProgress(this, false);
 
         // post inspection processing just concluded, inspection is over
         currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
