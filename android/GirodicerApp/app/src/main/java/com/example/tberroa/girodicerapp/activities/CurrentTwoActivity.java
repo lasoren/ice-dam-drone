@@ -188,6 +188,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
                             messageDialog.show();
                         }
                     });
+                    gotItDialog.show();
 
                 } else {
                     findPath();

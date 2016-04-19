@@ -273,11 +273,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 toggle.runWhenIdle(new Runnable() {
                     @Override
                     public void run() {
-                        if (!BluetoothService.serviceRunning) {
+                        if (BluetoothService.currentStatus != null) {
+                            new ConfirmEndDialog(BaseActivity.this).show();
+                        } else {
                             String message = getString(R.string.no_active_inspection);
                             new MessageDialog(BaseActivity.this, message).show();
-                        } else {
-                            new ConfirmEndDialog(BaseActivity.this).show();
                         }
                     }
                 });

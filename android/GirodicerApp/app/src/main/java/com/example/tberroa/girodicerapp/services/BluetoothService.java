@@ -76,6 +76,7 @@ public class BluetoothService extends Service {
     public static boolean servicingIcedam = false;
     private static boolean doneAnalysisWaitingToLand = false;
     private static boolean doneServicingWaitingToLand = false;
+    private static boolean doneLastIceDam = false;
 
 
     private static int clientId;
@@ -421,7 +422,7 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_PATH:
+                            case GProtocol.COMMAND_SEND_PATH:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/PATH");
                                 // noinspection unchecked (Android Lint Suppression)
                                 houseBoundary = (ArrayList<LatLng>) received.read();
@@ -446,11 +447,11 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
+                            case GProtocol.COMMAND_SEND_FINISHED_BORDER:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_BORDER");
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
+                            case GProtocol.COMMAND_SEND_FINISHED_SCAN:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_SCAN");
 
                                 // scanning phase over, broadcast that salting phase has started
@@ -461,7 +462,7 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING:
+                            case GProtocol.COMMAND_DRONE_ALREADY_FLYING:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_ALREADY_FLYING");
                                 break;
 
@@ -470,7 +471,7 @@ public class BluetoothService extends Service {
                                 motorsArmed = true;
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
+                            case GProtocol.COMMAND_SEND_DRONE_LANDED:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED");
                                 motorsArmed = false;
 
@@ -478,7 +479,7 @@ public class BluetoothService extends Service {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED: sending request for rgb images");
 
                                     // let drone know we want the rgb images (looking to confirm icedams here)
-                                    byte[] requestRGB = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false);
+                                    byte[] requestRGB = GProtocol.Pack(GProtocol.COMMAND_SEND_IMAGES_RGB, 1, new byte[1], false);
                                     btConnectionThread.write(requestRGB);
 
                                     doneAnalysisWaitingToLand = false;
@@ -503,32 +504,45 @@ public class BluetoothService extends Service {
 
                                     doneServicingWaitingToLand = false;
                                 }
+
+                                if (doneLastIceDam){
+                                    if (currentInspectionInfo.getPhase(context) != Params.CI_TRANSFERRING) {
+                                        // broadcast that transfer phase has started
+                                        currentInspectionInfo.setPhase(context, Params.CI_TRANSFERRING);
+                                        context.sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
+
+                                        // request thermal images
+                                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB: sending request for thermal images");
+                                        byte[] requestTherm = GProtocol.Pack(GProtocol.COMMAND_SEND_IMAGES_THERM, 1, new byte[1], false);
+                                        BluetoothService.btConnectionThread.write(requestTherm);
+                                    }
+                                }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_RETURN_HOME:
+                            case GProtocol.COMMAND_RETURN_HOME:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/RETURN_HOME");
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
+                            case GProtocol.COMMAND_SEND_FINISHED_ANALYSIS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ANALYSIS");
 
                                 // waiting for drone to land
                                 doneAnalysisWaitingToLand = true;
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
+                            case GProtocol.COMMAND_SEND_LOW_BATTERY:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/LOW_BATTERY");
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED:
+                            case GProtocol.COMMAND_SEND_ROOF_SCAN_INTERRUPTED:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/ROOF_SCAN_INTERRUPTED");
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED:
+                            case GProtocol.COMMAND_SEND_BORDER_SCAN_INTERRUPTED:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/BORDER_SCAN_INTERRUPTED");
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SERVICE_ICEDAM:
+                            case GProtocol.COMMAND_SERVICE_ICEDAM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/SERVICE_ICEDAM");
                                 // confirmation received after requesting to service an icedam
                                 servicingIcedam = true;
@@ -547,23 +561,24 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_DAM:
+                            case GProtocol.COMMAND_SEND_FINISHED_DAM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_DAM");
 
                                 doneServicingWaitingToLand = true;
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS:
+                            case GProtocol.COMMAND_SEND_FINISHED_ALL_DAMS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ALL_DAMS");
 
                                 doneServicingWaitingToLand = true;
+                                doneLastIceDam = true;
                                 break;
 
                             case GProtocol.COMMAND_SEND_ICEDAM_POINTS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/POINTS");
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_RGB:
+                            case GProtocol.COMMAND_SEND_JSON_RGB:
                                 //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB");
                                 if (received.isPartialEnd()) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: json received");
@@ -608,7 +623,7 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_THERM:
+                            case GProtocol.COMMAND_SEND_JSON_THERM:
                                 //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_THERM");
                                 if (received.isPartialEnd()) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_THERM: json received");
@@ -635,7 +650,7 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
+                            case GProtocol.COMMAND_SEND_IMAGES_RGB:
                                 //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_RGB");
                                 if (received.isPartialEnd()) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGE_RGB: image received");
@@ -657,7 +672,7 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+                            case GProtocol.COMMAND_SEND_IMAGES_THERM:
                                 //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_THERM");
                                 if (received.isPartialEnd()) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_THERM: image received");
@@ -680,20 +695,24 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_FINISHED_RGB:
+                            case GProtocol.COMMAND_FINISHED_RGB:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB");
                                 receivedAllRGBImages = true;
 
-                                // set how many rgb images were received (roof edge)
-                                currentInspectionInfo.setRoofEdgeCount(context, imgIndexRGB);
+                                if (context != null) {
+                                    // set how many rgb images were received (rgb = roof edge)
+                                    currentInspectionInfo.setRoofEdgeCount(context, imgIndexRGB);
 
-                                // done receiving all rgb images, now request thermal images
-                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB: sending request for thermal images");
-                                byte[] requestTherm = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM, 1, new byte[1], false);
-                                btConnectionThread.write(requestTherm);
+                                    if (currentInspectionInfo.getPhase(context) == Params.CI_TRANSFERRING) {
+                                        // request thermal images
+                                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB: sending request for thermal images");
+                                        byte[] requestTherm = GProtocol.Pack(GProtocol.COMMAND_SEND_IMAGES_THERM, 1, new byte[1], false);
+                                        BluetoothService.btConnectionThread.write(requestTherm);
+                                    }
+                                }
                                 break;
 
-                            case GProtocol.COMMAND_BLUETOOTH_FINISHED_THERM:
+                            case GProtocol.COMMAND_FINISHED_THERM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM");
 
                                 // set how many thermal images were received

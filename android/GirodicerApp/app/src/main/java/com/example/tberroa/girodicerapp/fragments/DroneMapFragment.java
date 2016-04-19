@@ -154,17 +154,17 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
             case R.id.maps_next:
                 // icedam points have been sent, send a service icedam command
                 if (sentIcedamPoints) { // make sure icedam points have been sent to drone
-                    if (BluetoothService.receivedAllRGBImages){ // make sure all rgb images have come in
+                    if (BluetoothService.receivedAllRGBImages) { // make sure all rgb images have come in
                         if (BluetoothService.readyToServiceIcedam) { // make sure drone is ready to service icedam
-                            Log.d(Params.TAG_MAP  + Params.TAG_DS, "@DroneMapFragment: sending service icedam command");
-                            byte[] command = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SERVICE_ICEDAM, 1, new byte[1], false);
+                            Log.d(Params.TAG_MAP + Params.TAG_DS, "@DroneMapFragment: sending service icedam command");
+                            byte[] command = GProtocol.Pack(GProtocol.COMMAND_SERVICE_ICEDAM, 1, new byte[1], false);
                             BluetoothService.btConnectionThread.write(command);
                             next.setText(R.string.waiting_for_service_confirmation);
                             next.setEnabled(false);
                         } else { // drone is in the air, need to wait
                             new MessageDialog(getContext(), getString(R.string.drone_busy_in_flight)).show();
                         }
-                    } else{ // rgb images haven't finished transferring, need to wait
+                    } else { // rgb images haven't finished transferring, need to wait
                         new MessageDialog(getContext(), getString(R.string.need_rgb_images)).show();
                     }
                 } else { // icedam points have not been sent, check if drone is ready for them
@@ -194,6 +194,13 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
                     // broadcast that transfer phase has started
                     new CurrentInspectionInfo().setPhase(getContext(), Params.CI_TRANSFERRING);
                     getContext().sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
+
+                    if (BluetoothService.receivedAllRGBImages) {
+                        // request thermal images
+                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB: sending request for thermal images");
+                        byte[] requestTherm = GProtocol.Pack(GProtocol.COMMAND_SEND_IMAGES_THERM, 1, new byte[1], false);
+                        BluetoothService.btConnectionThread.write(requestTherm);
+                    }
                 } else {
                     new MessageDialog(getContext(), getString(R.string.drone_busy_in_flight)).show();
                 }
