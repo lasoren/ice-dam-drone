@@ -62,20 +62,21 @@ public class BluetoothService extends Service {
     private final UUID DRONE_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
 
     // variables
-    @SuppressWarnings("unused")
-    public static boolean needInitialStatus = true;
-    public static ArrayList<LatLng> houseBoundary;
-    public static boolean mapPhaseComplete = false;
+    public static boolean serviceRunning = true;
     public static Status currentStatus;
     public static LatLng home;
-    public static boolean serviceRunning = true;
+    public static boolean motorsArmed;
+    public static ArrayList<LatLng> houseBoundary;
     public static List<LatLng> iceDamPoints;
+    public static boolean needInitialStatus = true;
+    public static boolean mapPhaseComplete = false;
     public static boolean iceDamPointsReady = false;
-    public static boolean doneAnalysisWaitingToLand = false;
+    public static boolean receivedAllRGBImages = false;
     public static boolean readyToServiceIcedam = false;
     public static boolean servicingIcedam = false;
-    public static boolean doneServicingWaitingToLand = false;
-    public static boolean motorsArmed; // used to check if in the air
+    private static boolean doneAnalysisWaitingToLand = false;
+    private static boolean doneServicingWaitingToLand = false;
+
 
     private static int clientId;
     private boolean droneNotFound = true;
@@ -681,6 +682,7 @@ public class BluetoothService extends Service {
 
                             case GProtocol.COMMAND_BLUETOOTH_FINISHED_RGB:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB");
+                                receivedAllRGBImages = true;
 
                                 // set how many rgb images were received (roof edge)
                                 currentInspectionInfo.setRoofEdgeCount(context, imgIndexRGB);
@@ -782,10 +784,19 @@ public class BluetoothService extends Service {
                 // drone is starting scanning phase
                 currentInspectionInfo.setPhase(context, Params.CI_SCANNING);
 
-                // reset some flow related variables
+                // reset flow related control variables
+                houseBoundary = new ArrayList<>();
+                iceDamPoints = new ArrayList<>();
+                needInitialStatus = true;
+                mapPhaseComplete = false;
+                iceDamPointsReady = false;
+                receivedAllRGBImages = false;
+                readyToServiceIcedam = false;
+                servicingIcedam = false;
+                doneAnalysisWaitingToLand = false;
+                doneServicingWaitingToLand = false;
                 BTDataHandler.imgIndexRGB = 0;
                 BTDataHandler.imgIndexTherm = 0;
-                iceDamPoints = new ArrayList<>();
                 DroneMapFragment.confirmedIceDamPoints = new ArrayList<>();
                 DroneMapFragment.sentIcedamPoints = false;
                 DroneMapFragment.plottedIceDamPoints = false;

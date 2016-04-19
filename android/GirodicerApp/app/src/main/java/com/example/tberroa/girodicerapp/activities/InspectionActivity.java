@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -18,6 +19,7 @@ import com.example.tberroa.girodicerapp.data.InspectionId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.LocalDB;
 import com.example.tberroa.girodicerapp.dialogs.CIPDialog;
+import com.example.tberroa.girodicerapp.dialogs.ConfirmDialog;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
@@ -141,7 +143,14 @@ public class InspectionActivity extends BaseActivity {
                 drawer.openDrawer(GravityCompat.START);
                 return true;
             case Params.TERMINATE_INSPECTION:
-                sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
+                String message = getString(R.string.confirm_end_inspection);
+                ConfirmDialog confirmDialog = new ConfirmDialog(this, message);
+                confirmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
+                    }
+                });
                 return true;
             case R.id.client_inspection_portal:
                 int inspectionId = new InspectionId().get(this);

@@ -2,6 +2,7 @@ package com.example.tberroa.girodicerapp.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Points;
+import com.example.tberroa.girodicerapp.dialogs.GotItDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -169,13 +171,24 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         switch (v.getId()) {
             case R.id.maps_next:
                 if (pathFound) {
-                    // send start inspection command to drone
-                    BluetoothService.BTDataHandler.passContext(this);
-                    BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_START_INSPECTION, 1, new byte[1], false));
-                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@CurrentTwoActivity: sent start inspection command");
+                    GotItDialog gotItDialog = new GotItDialog(this, getString(R.string.drone_active_stay_alert));
+                    gotItDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            // send start inspection command to drone
+                            BluetoothService.BTDataHandler.passContext(CurrentTwoActivity.this);
+                            byte[] command = GProtocol.Pack(GProtocol.COMMAND_START_INSPECTION, 1, new byte[1], false);
+                            BluetoothService.btConnectionThread.write(command);
+                            Log.d(Params.TAG_DBG + Params.TAG_DS, "@CurrentTwoActivity: sent start inspection command");
 
-                    // open dialog to let user know the app is waiting for a response
-                    new MessageDialog(this, getString(R.string.waiting_for_confirmation)).show();
+                            // open dialog to let user know the app is waiting for a response
+                            String message = getString(R.string.waiting_for_confirmation);
+                            MessageDialog messageDialog =  new MessageDialog(CurrentTwoActivity.this, message);
+                            messageDialog.setCancelable(false);
+                            messageDialog.show();
+                        }
+                    });
+
                 } else {
                     findPath();
                 }

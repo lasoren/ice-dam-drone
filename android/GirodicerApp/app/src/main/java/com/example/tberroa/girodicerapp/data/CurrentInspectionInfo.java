@@ -63,6 +63,7 @@ public class CurrentInspectionInfo extends Application {
         editor.apply();
     }
 
+    @SuppressWarnings("unused")
     public void setAerialCount(Context context, int num){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putInt(AERIAL_COUNT, num);
