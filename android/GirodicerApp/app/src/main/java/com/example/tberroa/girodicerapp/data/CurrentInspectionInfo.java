@@ -7,7 +7,7 @@ import android.content.SharedPreferences;
 public class CurrentInspectionInfo extends Application {
 
     // keys
-    private final String IS_NOT_IN_PROGRESS = "is_not_in_progress";
+    private final String IS_IN_PROGRESS = "is_not_in_progress";
     private final String PHASE = "phase";
     private final String INSPECTION_ID = "inspection_id";   // id for the newly started inspection
     private final String AERIAL_COUNT = "aerial_count";
@@ -21,8 +21,8 @@ public class CurrentInspectionInfo extends Application {
         return context.getSharedPreferences("active_inspection_info", MODE_PRIVATE);
     }
 
-    public boolean isNotInProgress(Context context){
-        return getSharedPreferences(context).getBoolean(IS_NOT_IN_PROGRESS, true);
+    public boolean isInProgress(Context context){
+        return getSharedPreferences(context).getBoolean(IS_IN_PROGRESS, false);
     }
 
     public int getPhase(Context context){
@@ -45,9 +45,9 @@ public class CurrentInspectionInfo extends Application {
         return getSharedPreferences(context).getInt(ROOF_EDGE_COUNT, 0);
     }
 
-    public void setNotInProgress(Context context, boolean bool) {
+    public void setInProgress(Context context, boolean bool) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putBoolean(IS_NOT_IN_PROGRESS, bool);
+        editor.putBoolean(IS_IN_PROGRESS, bool);
         editor.apply();
     }
 
@@ -83,7 +83,7 @@ public class CurrentInspectionInfo extends Application {
     }
 
     public void clearAll(Context context){
-        setNotInProgress(context, true);
+        setInProgress(context, false);
         setPhase(context, Params.CI_INACTIVE);
         setInspectionId(context, 0);
     }

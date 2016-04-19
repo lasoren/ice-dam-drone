@@ -290,7 +290,7 @@ public class BluetoothService extends Service {
         } else { // user was servicing icedams or drone was still scanning, full clean up
             Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
             currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
-            currentInspectionInfo.setNotInProgress(this, true);
+            currentInspectionInfo.setInProgress(this, false);
         }
 
         // update variables
@@ -779,7 +779,7 @@ public class BluetoothService extends Service {
                 currentInspectionInfo.setInspectionId(context, inspection.id);
 
                 // inspection is now in progress
-                currentInspectionInfo.setNotInProgress(context, false);
+                currentInspectionInfo.setInProgress(context, true);
 
                 // drone is starting scanning phase
                 currentInspectionInfo.setPhase(context, Params.CI_SCANNING);

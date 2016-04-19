@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -28,7 +27,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
-import com.example.tberroa.girodicerapp.dialogs.ConfirmDialog;
+import com.example.tberroa.girodicerapp.dialogs.ConfirmEndDialog;
 import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -92,7 +91,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             } else { // user was servicing icedams or drone was still scanning, full clean up
                 Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
                 currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
-                currentInspectionInfo.setNotInProgress(this, true);
+                currentInspectionInfo.setInProgress(this, false);
             }
 
             // update variables
@@ -251,7 +250,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void run() {
                         // check if there is an ongoing active inspection
-                        if (!currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
+                        if (currentInspectionInfo.isInProgress(BaseActivity.this)) {
                             String message = getResources().getString(R.string.cannot_sign_out);
                             new MessageDialog(BaseActivity.this, message).show();
                         } else {
@@ -274,18 +273,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 toggle.runWhenIdle(new Runnable() {
                     @Override
                     public void run() {
-                        if (currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
+                        if (!BluetoothService.serviceRunning) {
                             String message = getString(R.string.no_active_inspection);
                             new MessageDialog(BaseActivity.this, message).show();
                         } else {
-                            String message = getString(R.string.confirm_end_inspection);
-                            ConfirmDialog confirmDialog = new ConfirmDialog(BaseActivity.this, message);
-                            confirmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                @Override
-                                public void onDismiss(DialogInterface dialog) {
-                                    sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
-                                }
-                            });
+                            new ConfirmEndDialog(BaseActivity.this).show();
                         }
                     }
                 });
@@ -338,14 +330,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 drawer.openDrawer(GravityCompat.START);
                 return true;
             case Params.TERMINATE_INSPECTION:
-                String message = getString(R.string.confirm_end_inspection);
-                ConfirmDialog confirmDialog = new ConfirmDialog(this, message);
-                confirmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
-                    }
-                });
+                new ConfirmEndDialog(this).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
