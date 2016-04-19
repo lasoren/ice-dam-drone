@@ -170,6 +170,8 @@ class Girodicer():
 
     def set_ice_dams(self, ice_dams):
         self.ice_dams = ice_dams
+        msg = blue.BlueDataPackager(blue.COMMAND_SEND_POINTS, 0, self.blue)
+        msg.run()
 
     def stop(self):
         """
