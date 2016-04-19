@@ -85,6 +85,7 @@ public class ClientManagerAdapter extends RecyclerView.Adapter<ClientManagerAdap
 
         // get thumbnail url
         String address = clients.get(i).address;
+        address = address.replaceAll(" ", "+").replaceAll(",", "+");
         String key = Params.GOOGLE_STATIC_MAPS_KEY;
         String baseUrl = Params.GOOGLE_STATIC_MAPS_URL;
         String url = baseUrl + "center=" + address + "&zoom=17&size=400x400&key=" + key + "&markers=color:red|" + address;

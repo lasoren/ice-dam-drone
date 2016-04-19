@@ -138,11 +138,11 @@ public class CreateClientDialog extends Dialog {
         final String firstName = this.firstName.getText().toString().trim();
         String lastName = this.lastName.getText().toString().trim();
         String email = this.email.getText().toString().trim();
-        String streetAddress = this.streetAddress.getText().toString().trim().replaceAll(" ", "+");
+        String streetAddress = this.streetAddress.getText().toString().trim(); // replaceAll(" ", "+");
         String cityTown = this.cityTown.getText().toString().trim();
         String state = this.state.getText().toString().trim();
         String zipCode = this.zipCode.getText().toString().trim();
-        String address = streetAddress + "+" + cityTown + "+" + state + "+" + zipCode;
+        String address = streetAddress + " " + cityTown + "," + state + " " + zipCode;
 
         // create initial client object
         final Client client = new Client(firstName, lastName, email, address);
