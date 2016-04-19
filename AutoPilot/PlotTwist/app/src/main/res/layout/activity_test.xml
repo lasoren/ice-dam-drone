@@ -59,15 +59,21 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start Image Analysis"
-                android:id="@+id/img_analysis"
-                android:visibility="gone"
+                android:text="Plot Ice Dam Points"
+                android:id="@+id/plot_icedam_points"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service Ice Dam"
+                android:id="@+id/service_icedam"
                 android:layout_gravity="center_horizontal" />
 
             <TextView
                 android:id="@+id/json_textbox"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:scrollbars="horizontal" />
 
             <ImageView
@@ -86,7 +92,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:padding="16dp">
 
                 <TextView
@@ -99,7 +105,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="right"
+                    android:gravity="left"
                     android:text="(Lat,Lng)"
                     android:id="@+id/status_location"/>
             </LinearLayout>
@@ -135,28 +141,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="State:"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right"
-                    android:text="0xf8"
-                    android:id="@+id/status_state"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Armable:"/>
+                    android:text="Battery Level:"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -164,7 +149,7 @@
                     android:layout_weight="1"
                     android:gravity="right"
                     android:text="true"
-                    android:id="@+id/status_armable"/>
+                    android:id="@+id/status_battery"/>
             </LinearLayout>
 
             <TextView
