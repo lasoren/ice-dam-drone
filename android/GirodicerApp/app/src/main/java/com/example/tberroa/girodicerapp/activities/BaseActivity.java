@@ -113,27 +113,10 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         // set up receiver to reload activity upon system updates
         IntentFilter filter = new IntentFilter();
         filter.addAction(Params.RELOAD);
-        filter.addAction(Params.BLUETOOTH_TIMEOUT);
-        filter.addAction(Params.CONNECTING_TO_DRONE);
-        filter.addAction(Params.DRONE_CONNECT_SUCCESS);
-        filter.addAction(Params.DRONE_CONNECT_FAILURE);
-        filter.addAction(Params.DRONE_CONNECTION_LOST);
-        filter.addAction(Params.INITIAL_STATUS_RECEIVED);
-        filter.addAction(Params.INSPECTION_STARTED);
-        filter.addAction(Params.SALTING_STARTED);
-        filter.addAction(Params.TRANSFER_STARTED);
-        filter.addAction(Params.UPLOAD_STARTED);
-        filter.addAction(Params.INSPECTION_COMPLETE);
-        filter.addAction(Params.INSPECTION_TERMINATED);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
                 stateChange = true;
-
-                if (action.equals(Params.INSPECTION_TERMINATED)) {
-                    stopService(new Intent(BaseActivity.this, BluetoothService.class));
-                }
 
                 // always do a simply reload
                 if (inView) {
