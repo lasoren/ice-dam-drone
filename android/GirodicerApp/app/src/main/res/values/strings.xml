@@ -104,9 +104,10 @@
     <string name="bt_state_connected">Connected to drone</string>
     <string name="bt_state_connection_lost">Drone connection lost, trying to reconnect &#8230;</string>
     <!-- active inspection phase -->
-    <string name="ci_drone_active">Inspection Phase 1: Drone is navigating home</string>
-    <string name="ci_data_transfer">Inspection Phase 2: Receiving data from drone</string>
-    <string name="ci_uploading">Inspection Phase 3: uploading data to cloud</string>
+    <string name="ci_scanning">Scan Phase</string>
+    <string name="ci_salting">Salting Phase</string>
+    <string name="ci_data_transfer">Transfer Phase</string>
+    <string name="ci_uploading">Upload Phase</string>
 
     <!-- buttons -->
     <string name="submit">Submit</string>
@@ -131,12 +132,14 @@
     <string name="download_description">In process of receiving images from drone</string>
 
     <!-- other -->
+    <string name="get_path">Get Path</string>
+    <string name="start_inspection">Start Inspection</string>
     <string name="terminate">Terminate Connection</string>
     <string name="open_menu">Open Menu</string>
     <string name="error_occurred">Error occurred</string>
     <string name="internet_not_available">Internet not available</string>
     <string name="grabbing_data">Grabbing data &#8230;</string>
     <string name="image_description">image</string>
-    <string name="google_maps_key">AIzaSyAoNcoHq4f7MQLJZN4IdYdi6jxdpOJfFbw</string>
+    <string name="google_maps_key">AIzaSyB8EAWQMMdbJAIonkn_lmI6AWlnuQsEJsc</string>
     <string name="drone_bt_name">girodicer-minnow</string>
 </resources>

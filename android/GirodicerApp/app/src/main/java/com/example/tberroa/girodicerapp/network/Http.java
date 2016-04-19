@@ -27,7 +27,7 @@ public class Http {
         Request request = new Request.Builder().url(url).post(body).build();
         Response response = httpClient.newCall(request).execute();
         String rawResponse = response.body().string().trim();
-        Log.d("dbg", "@Http/doPostRequest: rawResponse is: " + rawResponse);
+        Log.d(Params.TAG_DBG, "@Http/doPostRequest: rawResponse is: " + rawResponse);
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(rawResponse);

@@ -9,36 +9,26 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.girodicer.plottwist.Bluetooth.BluetoothException;
 import org.girodicer.plottwist.Bluetooth.ConnectionThread;
 import org.girodicer.plottwist.Bluetooth.GProtocol;
-import org.girodicer.plottwist.Fragments.DroneMapFragment;
-import org.girodicer.plottwist.Fragments.DroneStateFragment;
 import org.girodicer.plottwist.Models.Images;
 import org.girodicer.plottwist.Models.JSON;
 import org.girodicer.plottwist.Models.Status;
@@ -54,12 +44,10 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
     public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
 
-    private Button start_button;
-    private Button stop_button;
-    private Button rgb_button;
-    private Button therm_button;
-    private Button analysis_button;
-    private TextView json_textbox;
+    private LatLng home;
+
+    private Button start_button, stop_button, rgb_button, therm_button, plot_icedam_button, service_icedam_button;
+    private TextView json_textbox, notification_textbox, location, velocity, battery;
     private ImageView rgb_imageview;
 
     private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
@@ -102,6 +90,13 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
         setContentView(R.layout.activity_test);
 
+        if(savedInstanceState == null){
+            Intent incomingIntent = getIntent();
+            home = incomingIntent.getParcelableExtra(App.LOCATION);
+        } else {
+            home = savedInstanceState.getParcelable(App.LOCATION);
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -118,17 +113,27 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         therm_button = (Button) findViewById(R.id.rcv_therm_imgs);
         therm_button.setOnClickListener(this);
 
-        analysis_button = (Button) findViewById(R.id.img_analysis);
-        analysis_button.setOnClickListener(this);
+        plot_icedam_button = (Button) findViewById(R.id.plot_icedam_points);
+        plot_icedam_button.setOnClickListener(this);
+
+        service_icedam_button = (Button) findViewById(R.id.service_icedam);
+        service_icedam_button.setOnClickListener(this);
+        service_icedam_button.setVisibility(View.GONE);
 
         json_textbox = (TextView) findViewById(R.id.json_textbox);
         json_textbox.setMovementMethod(new ScrollingMovementMethod());
         json_textbox.setVisibility(View.GONE);
 
+        notification_textbox = (TextView) findViewById(R.id.notification_textbox);
+        notification_textbox.setMovementMethod(new ScrollingMovementMethod());
+
+        location = (TextView) findViewById(R.id.status_location);
+        velocity = (TextView) findViewById(R.id.status_velocity);
+        battery = (TextView) findViewById(R.id.status_battery);
+
         rgb_imageview = (ImageView) findViewById(R.id.rgb_images);
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,7 +178,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.stop:
                 App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_END_INSPECTION, 1, new byte[1], false));
-                Toast.makeText(TestActivity.this, "Requesting RGB images...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TestActivity.this, "Ending drone inspection", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.rcv_rgb_imgs:
                 App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false));
@@ -183,10 +188,28 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM, 1, new byte[1], false));
                 Toast.makeText(TestActivity.this, "Requesting Thermal images...", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.img_analysis:
-                App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM, 1, new byte[1], false));
-                Toast.makeText(TestActivity.this, "Requesting Thermal images...", Toast.LENGTH_SHORT).show();
+            case R.id.plot_icedam_points:
+                Intent testing = new Intent(this, IceDamActivity.class);
+                testing.putExtra(App.LOCATION, home);
+                startActivityForResult(testing, 1);
+                Toast.makeText(TestActivity.this, "Setting ice dam points...", Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.service_icedam:
+                App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SERVICE_ICEDAM, 1, new byte[1], false));
+                Toast.makeText(TestActivity.this, "Servicing ice dam...", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int request_code, int result_code, Intent data){
+        Log.d("In onActivityResult", "");
+        if(request_code == 1){
+            if(result_code == TestActivity.RESULT_OK){
+                Log.d("In onActivityResult", "Setting new button");
+                plot_icedam_button.setVisibility(View.GONE);
+                service_icedam_button.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -206,39 +229,81 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                             case GProtocol.COMMAND_START_INSPECTION:
                                 //TODO: Change to new fragment that doesn't show start command anymore
                                 Log.d("DRONE STATUS:", "Drone starting inspection...");
-                                Toast.makeText(TestActivity.this, "Starting Inspection!!!", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Starting Inspection!!!", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone starting inspection...");
+                                break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
                                 //TODO: Show message or something to notify user of border finishing (maybe a Toast statement is enough...)
                                 Log.d("DRONE STATUS:", "Drone finished border");
-                                Toast.makeText(TestActivity.this, "Drone finished border!!!", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Drone finished border!!!", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone finished border");
+                                break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
                                 //TODO: Show message or something to notify user of border finishing (maybe a Toast statement is enough...)
                                 Log.d("DRONE STATUS", "Drone finished scan");
-                                Toast.makeText(TestActivity.this, "Drone finished scan!!!", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Drone finished scan!!!", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone finished scan");
+                                break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
                                 //TODO: Show message or something to notify user of border finishing (maybe a Toast statement is enough...)
                                 Log.d("DRONE STATUS", "Drone landed");
-                                Toast.makeText(TestActivity.this, "Drone Landed", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Drone Landed", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone landed");
+                                break;
                             case GProtocol.COMMAND_BLUETOOTH_RETURN_HOME:
                                 Log.d("DRONE STATUS", "Drone returned home");
-                                Toast.makeText(TestActivity.this, "Drone returning home...", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Drone returning home...", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone returning home...");
+                                break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
                                 //TODO: Show the button for Receiving RGB or Thermal Images and maybe change to a new fragment w/ a gallery view of images
                                 Log.d("DRONE STATUS", "Drone finished analysis");
-                                Toast.makeText(TestActivity.this, "Drone is analyzing images...", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Drone is analyzing images...", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone finished analysis");
+                                break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
                                 //TODO: Notify user that the drone is low battery and is heading back home now no matter what; might need to change to new screen
                                 Log.d("DRONE STATUS", "Drone LOW BATTERY");
-                                Toast.makeText(TestActivity.this, "Drone LOW BATTERY!!!", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(TestActivity.this, "Drone LOW BATTERY!!!", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone LOW BATTERY");
+                                break;
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED:
+                                //TODO: Notify user, maybe just a message would be fine
+                                Log.d("DRONE STATUS", "Drone roof scan interrupted");
+                                //Toast.makeText(TestActivity.this, "Drone had roof scan interrupted", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone had roof scan interrupted");
+                                break;
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED:
+                                //TODO: Notify user, maybe just a message would be fine
+                                Log.d("DRONE STATUS", "Drone border scan interrupted");
+                                //Toast.makeText(TestActivity.this, "Drone had border scan interrupted", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone had border scan interrupted");
+                                break;
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_DAM:
+                                //TODO: Notify user, maybe just a message would be fine
+                                Log.d("DRONE STATUS", "Drone finished one dam");
+                                //Toast.makeText(TestActivity.this, "Drone finished one dam", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone finished salting an ice dam");
+                                break;
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS:
+                                //TODO: Notify user, maybe just a message would be fine
+                                Log.d("DRONE STATUS", "Drone finished all dams");
+                                //Toast.makeText(TestActivity.this, "Drone finished all dams", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone finished all dams");
+                                break;
+                            case GProtocol.COMMAND_BLUETOOTH_SERVICE_ICEDAM:
+                                Log.d("DRONE STATUS", "Drone servicing dams");
+                                //Toast.makeText(TestActivity.this, "Drone servicing dams", Toast.LENGTH_SHORT).show();
+                                notification_textbox.append("\nDrone servicing ice dam");
+                                break;
                             case GProtocol.COMMAND_STATUS:
                                 //TODO: Show the map and other status info in a fragment (maybe a half-the-screen fragment)
                                 Status currentStatus = (Status) received.read();
-                                Intent broadcastToFrag = new Intent(DRONE_ACTIVITY_BROADCAST);
-                                broadcastToFrag.putExtra(WHICH_FRAG, DroneStateFragment.class.getName());
-                                broadcastToFrag.putExtra(STATUS_PACKAGE, currentStatus);
-                                LocalBroadcastManager.getInstance(TestActivity.this).sendBroadcast(broadcastToFrag);
+                                location.setText("Lat: " + currentStatus.location.latitude + "\nLong:" + currentStatus.location.longitude);
+                                velocity.setText(currentStatus.velocity.toString());
+                                battery.setText(Integer.toString(currentStatus.battery));
                                 break;
-                            case GProtocol.COMMAND_SEND_POINTS:
+                            case GProtocol.COMMAND_SEND_ICEDAM_POINTS:
                                 break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_RGB:
                                 if(received.isPartialEnd()){
@@ -270,13 +335,13 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                                 break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
                                 if(received.isPartialEnd()){
-                                    rgb_img_index++;
                                     gprotocol_list.add(received);
                                     GProtocol final_gprotocol = GProtocol.glue_gprotocols(gprotocol_list);
                                     Images rgb_image = (Images) final_gprotocol.read();
                                     rgb_imageview.setImageBitmap(rgb_image.getImage());
                                     gprotocol_list.clear();
                                     Toast.makeText(TestActivity.this, "Showing Image: " + rgb_img_index, Toast.LENGTH_SHORT).show();
+                                    rgb_img_index++;
                                 } else if(received.isPartial()){
                                     gprotocol_list.add(received);
                                 } else{
@@ -286,13 +351,13 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                                 break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
                                 if(received.isPartialEnd()){
-                                    therm_img_index++;
                                     gprotocol_list.add(received);
                                     GProtocol final_gprotocol = GProtocol.glue_gprotocols(gprotocol_list);
                                     Images rgb_image = (Images) final_gprotocol.read();
                                     rgb_imageview.setImageBitmap(rgb_image.getImage());
                                     gprotocol_list.clear();
                                     Toast.makeText(TestActivity.this, "Showing Image: " + therm_img_index, Toast.LENGTH_SHORT).show();
+                                    therm_img_index++;
                                 } else if(received.isPartial()){
                                     gprotocol_list.add(received);
                                 } else{

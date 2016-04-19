@@ -61,9 +61,14 @@
             android:label="testingActivity"
             android:parentActivityName=".MapsActivity"
             android:theme="@style/AppTheme.NoActionBar">
-
         </activity>
 
+        <activity
+            android:name=".IceDamActivity"
+            android:label="testingActivity"
+            android:parentActivityName=".MapsActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
 
     </application>
 

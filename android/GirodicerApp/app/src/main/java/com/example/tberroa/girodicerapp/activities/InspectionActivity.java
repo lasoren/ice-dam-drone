@@ -127,7 +127,7 @@ public class InspectionActivity extends BaseActivity {
 
         // check if terminate button needs to be added
         if (BluetoothService.currentStatus != null){
-            menu.add(0, Params.TERMINATE, Menu.NONE, R.string.terminate)
+            menu.add(0, Params.TERMINATE_INSPECTION, Menu.NONE, R.string.terminate)
                     .setIcon(R.drawable.terminate_button)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
@@ -140,8 +140,8 @@ public class InspectionActivity extends BaseActivity {
             case R.id.open_menu:
                 drawer.openDrawer(GravityCompat.START);
                 return true;
-            case Params.TERMINATE:
-                stopService(new Intent(this, BluetoothService.class));
+            case Params.TERMINATE_INSPECTION:
+                sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
                 return true;
             case R.id.client_inspection_portal:
                 int inspectionId = new InspectionId().get(this);

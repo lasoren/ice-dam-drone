@@ -7,6 +7,7 @@ import android.content.Intent;
 
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
+import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.example.tberroa.girodicerapp.services.ImageTransferIntentService;
 import com.example.tberroa.girodicerapp.services.ImageUploadService;
 
@@ -17,19 +18,28 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String reload = Params.RELOAD_AM_ACTIVITY;
+        String reload = Params.RELOAD;
         String action = intent.getAction();
         CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
         switch (action) {
+            case Params.INSPECTION_TERMINATED:
+                context.stopService(new Intent(context, BluetoothService.class));
+                currentInspectionInfo.clearAll(context);
+
+                // reload activity
+                context.sendBroadcast(new Intent().setAction(reload));
+                break;
+
             case Params.DRONE_DONE:
                 // begin image transfer
                 context.startService(new Intent(context, ImageTransferIntentService.class));
-                // reload active mission activity
+
+                // reload activity
                 context.sendBroadcast(new Intent().setAction(reload));
                 break;
 
             case Params.TRANSFER_COMPLETE:
-                // reload active mission activity
+                // reload activity
                 context.sendBroadcast(new Intent().setAction(reload));
 
                 // check if anything is being downloaded
@@ -38,7 +48,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
                     // start uploading
                     context.startService(new Intent(context, ImageUploadService.class));
 
-                    // reload active mission activity
+                    // reload activity
                     context.sendBroadcast(new Intent().setAction(reload));
                 }
                 break;
@@ -54,7 +64,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
                     // start uploading
                     context.startService(new Intent(context, ImageUploadService.class));
 
-                    // reload active mission activity
+                    // reload activity
                     context.sendBroadcast(new Intent().setAction(reload));
                 }
                 break;
@@ -65,7 +75,7 @@ public class ActiveInspectionReceiver extends BroadcastReceiver {
                     currentInspectionInfo.setPhase(context, Params.CI_INACTIVE);
                 }
 
-                // reload active mission activity
+                // reload activity
                 context.sendBroadcast(new Intent().setAction(reload));
                 break;
         }

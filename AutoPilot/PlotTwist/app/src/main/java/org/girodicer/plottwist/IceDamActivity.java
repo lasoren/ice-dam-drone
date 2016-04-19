@@ -29,27 +29,24 @@ import org.girodicer.plottwist.Bluetooth.BluetoothException;
 import org.girodicer.plottwist.Bluetooth.ConnectionThread;
 import org.girodicer.plottwist.Bluetooth.GProtocol;
 import org.girodicer.plottwist.Models.Points;
-import org.girodicer.plottwist.Models.Status;
 import org.girodicer.plottwist.services.BluetoothService;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener{
-
+/**
+ * Created by Larry on 4/18/2016.
+ */
+public class IceDamActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener, View.OnClickListener{
     private GoogleMap mMap;
     private Button next;
 
     private ArrayList<LatLng> houseBoundary;
     private LatLng home;
 
-    private Status currentStatus;
-
     private final Messenger btMessageHandler = new Messenger(new BTMessageHandler());
 
     private static Messenger bluetoothMessenger; // only for the handler in this class
     private static boolean bluetoothServiceBound = false;
-
-    private boolean pathFound = false;
 
     private ServiceConnection bluetoothConnection = new ServiceConnection() {
         @Override
@@ -90,14 +87,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             home = savedInstanceState.getParcelable(App.LOCATION);
         }
 
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_icedam_service);
 
         next = (Button) findViewById(R.id.maps_next);
         next.setOnClickListener(this);
 
+        /*
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().show();
+        */
 
         // Obtain the MapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -177,37 +176,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.maps_next:
-                if(pathFound){
-                    goToStatus();
-                } else {
-                    findPath();
-                }
+                findIceDams();
+                goToTestActivity();
                 break;
         }
     }
 
-    private void goToStatus(){
-        Intent testing = new Intent(this, TestActivity.class);
-        testing.putExtra(App.LOCATION, home);
-        startActivity(testing);
+    private void goToTestActivity(){
+        Intent returnIntent = new Intent();
+        setResult(TestActivity.RESULT_OK, returnIntent);
+        finish();
     }
 
-    private void findPath(){
-        if(houseBoundary.size() < 4){
-            Toast.makeText(MapsActivity.this, "Need more points to complete house boundary.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+    private void findIceDams(){
         byte[] points = Points.Pack(houseBoundary);
-        App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
-        Toast.makeText(MapsActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
+        App.BTConnection.write(GProtocol.Pack(GProtocol.COMMAND_SEND_ICEDAM_POINTS, points.length, points, false));
+        Toast.makeText(IceDamActivity.this, "Sent ice dam points", Toast.LENGTH_SHORT).show();
     }
 
     private void plotPoints(ArrayList<LatLng> points){
         for (LatLng point : points){
             mMap.addMarker(new MarkerOptions().position(point));
         }
-        pathFound = true;
     }
 
     private class BTMessageHandler extends Handler {
@@ -221,7 +211,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         GProtocol received = GProtocol.Unpack(data);
                         switch(received.getCommand()){
                             case GProtocol.COMMAND_STATUS:
-                                currentStatus = (Status) received.read();
                                 break;
                             case GProtocol.COMMAND_BLUETOOTH_SEND_PATH:
                                 plotPoints((ArrayList<LatLng>) received.read());
@@ -232,14 +221,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     break;
                 case BluetoothService.MESSAGE_BT_CONNECTION_LOST:
-                    Toast.makeText(MapsActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(MapsActivity.this, "Reconnecting....", Toast.LENGTH_LONG).show();
+                    Toast.makeText(IceDamActivity.this, "Connection lost", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IceDamActivity.this, "Reconnecting....", Toast.LENGTH_LONG).show();
                     break;
                 case BluetoothService.MESSAGE_BT_FAILED_RECONNECT:
-                    Toast.makeText(MapsActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IceDamActivity.this, "Still reconnecting", Toast.LENGTH_SHORT).show();
                     break;
                 case BluetoothService.MESSAGE_BT_SUCCESS_RECONNECT:
-                    Toast.makeText(MapsActivity.this, "Successfully reconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IceDamActivity.this, "Successfully reconnected", Toast.LENGTH_SHORT).show();
             }
         }
     }

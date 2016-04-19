@@ -55,7 +55,7 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
         clients = localDB.getClients();
         Type type = new TypeToken<List<Client>>(){}.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        Log.d("dbg", "@ClientManagerActivity: clients is: " + gson.toJson(clients, type));
+        Log.d(Params.TAG_DBG, "@ClientManagerActivity: clients is: " + gson.toJson(clients, type));
 
         // set toolbar title
         if (getSupportActionBar() != null) {

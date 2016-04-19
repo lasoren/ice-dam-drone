@@ -21,16 +21,16 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
+import com.example.tberroa.girodicerapp.bluetooth.Images;
+import com.example.tberroa.girodicerapp.bluetooth.JSON;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
-import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
-import com.example.tberroa.girodicerapp.database.ServerDB;
-import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,7 +40,6 @@ public class BluetoothService extends Service {
 
     // constants
     public static final int READ = 1;
-    private static final String TAG = "BLUETOOTH_SERVICE";
     private final int CONNECT_ATTEMPT_SUCCESS = 100;
     private final int CONNECT_ATTEMPT_FAILED = 50;
     private final UUID DRONE_UUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
@@ -53,7 +52,6 @@ public class BluetoothService extends Service {
     public static Status currentStatus;
     public static boolean serviceRunning = true;
     private boolean droneNotFound = true;
-    private int clientId;
 
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
@@ -75,7 +73,7 @@ public class BluetoothService extends Service {
     // initializes bluetooth receiver and begins connection process
     @Override
     public void onCreate() {
-        Log.d(TAG, "@BluetoothService: beginning of onCreate");
+        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: beginning of onCreate");
 
         // initialize bluetooth receiver
         IntentFilter btFilter = new IntentFilter();
@@ -90,12 +88,12 @@ public class BluetoothService extends Service {
 
                 switch (action) {
                     case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-                        Log.d(TAG, "@BluetoothService: discovery started");
+                        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: discovery started");
                         break;
                     case BluetoothDevice.ACTION_FOUND:
                         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                         if (device.getName() != null) {
-                            Log.d(TAG, "@BluetoothService: device found: " + device.getName());
+                            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: device found: " + device.getName());
 
                             if (device.getName().equals(getResources().getString(R.string.drone_bt_name))) {
                                 btDevice = device;
@@ -108,10 +106,10 @@ public class BluetoothService extends Service {
                         }
                         break;
                     case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-                        Log.d(TAG, "@BluetoothService: discovery finished");
+                        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: discovery finished");
 
                         if (droneNotFound) {
-                            Log.d(TAG, "@BluetoothService: drone not found");
+                            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: drone not found");
 
                             // discovery finished without finding the drone, let system know of connection failure
                             bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
@@ -123,7 +121,7 @@ public class BluetoothService extends Service {
                         }
                         break;
                     case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                        Log.d(TAG, "@BluetoothService: connection lost");
+                        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: connection lost");
 
                         // let system know the connection was lost
                         bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTION_LOST);
@@ -138,7 +136,7 @@ public class BluetoothService extends Service {
 
         // begin bluetooth connection process
         if (btAdapter.isEnabled()) {
-            Log.d(TAG, "@BluetoothService: beginning connection process");
+            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: beginning connection process");
 
             // let system know we are trying to connect to the drone
             bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTING);
@@ -146,7 +144,7 @@ public class BluetoothService extends Service {
 
             pair();
         } else {
-            Log.d(TAG, "@BluetoothService: bluetooth adapter not enabled, unable to pair");
+            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: bluetooth adapter not enabled, unable to pair");
 
             // let system know that connect attempt failed because bluetooth is not enabled
             bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
@@ -160,19 +158,18 @@ public class BluetoothService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        clientId = intent.getIntExtra("client_id", 0);
         return START_NOT_STICKY;
     }
 
     // checks if drone is already paired, if not, begins discovery
     private void pair() {
-        Log.d(TAG, "@BluetoothService: beginning of pair()");
+        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: beginning of pair()");
 
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().equals(getResources().getString(R.string.drone_bt_name))) {
-                    Log.d(TAG, "@BluetoothService: drone already paired");
+                    Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: drone already paired");
 
                     btDevice = device;
                     pairComplete();
@@ -185,7 +182,7 @@ public class BluetoothService extends Service {
 
     // once drone is paired, connection attempt is made
     private void pairComplete() {
-        Log.d(TAG, "@BluetoothService: beginning of pairComplete()");
+        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: beginning of pairComplete()");
 
         // begin connecting to drone via bluetooth device in background thread
         attemptToConnect();
@@ -211,23 +208,24 @@ public class BluetoothService extends Service {
                     try {
                         btSocket.connect();
                     } catch (IOException connectException) {
-                        Log.d(TAG, connectException.toString());
-                        Log.d(TAG, "socket didn't connect the first time");
+                        Log.d(Params.TAG_DBG + Params.TAG_BT, connectException.toString());
+                        Log.d(Params.TAG_DBG + Params.TAG_BT, "socket couldn't connect");
+
+                        // try closing socket
                         try {
-                            btSocket =(BluetoothSocket) btDevice.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(btDevice,1);
-                            btSocket.connect();
-                            //btSocket.close();
-                            //btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            btSocket.close();
                         } catch (IOException closeException) {
-                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
-                            return;
-                        } catch (Exception e2){
-                            Log.d(TAG, "fallback connection attempt failed!!!");
-                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            Log.d(Params.TAG_DBG + Params.TAG_BT, closeException.toString());
+                            Log.d(Params.TAG_DBG + Params.TAG_BT, "socket couldn't close");
                         }
+
+                        btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                         return;
                     }
+
                     btConnectHandler.obtainMessage(CONNECT_ATTEMPT_SUCCESS, -1, -1, btSocket).sendToTarget();
+                } else {
+                    btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                 }
             }
         }).start();
@@ -235,7 +233,7 @@ public class BluetoothService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "@BluetoothService: service destroyed");
+        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: service destroyed");
 
         // shutdown connection thread
         if (btConnectionThread != null) {
@@ -252,13 +250,10 @@ public class BluetoothService extends Service {
         currentStatus = null;
 
         // unregister receiver
-        if (btReceiver != null){
+        if (btReceiver != null) {
             unregisterReceiver(btReceiver);
             btReceiver = null;
         }
-
-        // broadcast
-        sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TERMINATED));
     }
 
     // if android system kills service, onDestroy is not called. This method allows us to check if service is running
@@ -270,37 +265,6 @@ public class BluetoothService extends Service {
             }
         }
         return true;
-    }
-
-    private void droneStarted() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // create inspection on backend
-                Inspection inspection = new ServerDB(BluetoothService.this).createInspection(clientId);
-
-                if (inspection == null) { // error occurred
-                    stopSelf();
-                } else {
-                    // save inspection locally
-                    inspection.cascadeSave();
-
-                    // inspection is now in progress
-                    CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-                    currentInspectionInfo.setNotInProgress(BluetoothService.this, false);
-
-                    // drone is active
-                    currentInspectionInfo.setPhase(BluetoothService.this, Params.CI_DRONE_ACTIVE);
-
-                    // save inspection id
-                    currentInspectionInfo.setInspectionId(BluetoothService.this, inspection.id);
-                }
-            }
-        }).start();
-    }
-
-    private void droneDone() {
-        sendBroadcast(new Intent().setAction(Params.DRONE_DONE));
     }
 
     // not used so returns null
@@ -317,7 +281,7 @@ public class BluetoothService extends Service {
         public void handleMessage(Message incoming) {
             switch (incoming.what) {
                 case CONNECT_ATTEMPT_SUCCESS: // successfully connected to drone via bluetooth device
-                    Log.d(TAG, "@BluetoothService: connect attempt successful");
+                    Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: connect attempt successful");
 
                     // let system know that bluetooth was successfully connected
                     bluetoothInfo.setState(BluetoothService.this, Params.BTS_CONNECTED);
@@ -329,14 +293,14 @@ public class BluetoothService extends Service {
                     btConnectionThread = new ConnectionThread(btSocket, new Messenger(btDataHandler));
                     btConnectionThread.start();
 
-                    // timeout after 3 seconds if current status still null (never received status signal)
+                    // timeout after 10 seconds if current status still null (never received status signal)
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
                             if (currentStatus == null) {
                                 bluetoothInfo.setErrorCode(BluetoothService.this, Params.BTE_TIMEOUT);
-                                Log.d(TAG, "@BluetoothService: timed out while waiting for initial status signal");
+                                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: timed out while waiting for initial status signal");
 
                                 // let system know of timeout
                                 sendBroadcast(new Intent().setAction(Params.BLUETOOTH_TIMEOUT));
@@ -346,10 +310,10 @@ public class BluetoothService extends Service {
                             }
                         }
                     };
-                    timer.schedule(timerTask, 3000);
+                    timer.schedule(timerTask, 10000);
                     break;
                 case CONNECT_ATTEMPT_FAILED:
-                    Log.d(TAG, "@BluetoothService: connect attempt failed");
+                    Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: connect attempt failed");
 
                     // let system know that bluetooth connect attempt failed
                     bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
@@ -366,6 +330,9 @@ public class BluetoothService extends Service {
     public static class BTDataHandler extends Handler {
 
         static Context context = null;
+        List<GProtocol> listGProtocol = new ArrayList<>();
+        int imgIndexRGB = 0;
+        int imgIndexTherm = 0;
 
         @Override
         public void handleMessage(Message msg) {
@@ -377,7 +344,7 @@ public class BluetoothService extends Service {
                         GProtocol received = GProtocol.Unpack(data);
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
-                                //Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_STATUS");
+                                //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BluetoothService/BTDataHandler/COMMAND_STATUS");
                                 currentStatus = (Status) received.read();
 
                                 // broadcast the status update
@@ -389,7 +356,7 @@ public class BluetoothService extends Service {
                                 if (needInitialStatus) {
                                     // if so, check if the context has been sent
                                     if (context != null) {
-                                        Log.d(TAG, "@BluetoothService/BTDataHandler: initial status received. broadcasting");
+                                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/STATUS: initial status received, broadcasting");
 
                                         context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
                                         context = null;
@@ -398,23 +365,141 @@ public class BluetoothService extends Service {
 
                                 }
                                 break;
+
                             case GProtocol.COMMAND_BLUETOOTH_SEND_PATH:
-                                Log.d(TAG, "@BluetoothService/BTDataHandler/COMMAND_SEND_PATH");
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/PATH");
                                 // noinspection unchecked (Android Lint Suppression)
                                 houseBoundary = (ArrayList<LatLng>) received.read();
 
                                 // broadcast that the house boundary points are ready
                                 if (context != null) {
-                                    Log.d(TAG, "@BluetoothService/BTDataHandler: house boundary received. broadcasting");
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/PATH: broadcasting");
 
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
                                     context = null;
                                 }
+                                break;
 
+                            case GProtocol.COMMAND_START_INSPECTION:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/START_INSPECTION");
+
+                                // broadcast that the start inspection command has been confirmed
+                                if (context != null) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/START_INSPECTION: broadcasting");
+
+                                    context.sendBroadcast(new Intent().setAction(Params.START_INSPECTION_CONFIRMED));
+                                    context = null;
+                                }
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_BORDER:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_BORDER");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_SCAN");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_RETURN_HOME:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/RETURN_HOME");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ANALYSIS");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/LOW_BATTERY");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/ROOF_SCAN_INTERRUPTED");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/BORDER_SCAN_INTERRUPTED");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_DAM:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_DAM");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ALL_DAMS");
+                                break;
+
+                            case GProtocol.COMMAND_SEND_POINTS:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/POINTS");
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_RGB:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB");
+                                if (received.isPartialEnd()) {
+                                    listGProtocol.add(received);
+                                    GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
+                                    JSON jsonRGB = (JSON) finalGProtocol.read();
+                                    listGProtocol.clear();
+                                } else if (received.isPartial()) {
+                                    listGProtocol.add(received);
+                                } else {
+                                    JSON jsonRGB = (JSON) received.read();
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, jsonRGB.getJson());
+                                }
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_THERM:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_THERM");
+                                if (received.isPartialEnd()) {
+                                    listGProtocol.add(received);
+                                    GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
+                                    JSON jsonTherm = (JSON) finalGProtocol.read();
+                                    listGProtocol.clear();
+                                } else if (received.isPartial()) {
+                                    listGProtocol.add(received);
+                                } else {
+                                    JSON jsonTherm = (JSON) received.read();
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, jsonTherm.getJson());
+                                }
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_RGB");
+                                if (received.isPartialEnd()) {
+                                    listGProtocol.add(received);
+                                    GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
+                                    Images imageRGB = (Images) finalGProtocol.read();
+                                    listGProtocol.clear();
+                                    imgIndexRGB++;
+                                } else if (received.isPartial()) {
+                                    listGProtocol.add(received);
+                                } else {
+                                    //Images rgb_image = (Images) received.read();
+                                    Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BS/DH/IMAGES_RGB: shouldn't be here");
+                                }
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_THERM");
+                                if (received.isPartialEnd()) {
+                                    listGProtocol.add(received);
+                                    GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
+                                    Images imageRGB = (Images) finalGProtocol.read();
+                                    listGProtocol.clear();
+                                    imgIndexTherm++;
+                                } else if (received.isPartial()) {
+                                    listGProtocol.add(received);
+                                } else {
+                                    //Images therm_image = (Images) received.read();
+                                    Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BS/DH/IMAGES_THERM: shouldn't be here");
+                                }
                                 break;
                         }
                     } catch (BluetoothException e) {
-                        e.printStackTrace();
+                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/BTException: " + e.getMessage());
                     }
                     break;
             }
