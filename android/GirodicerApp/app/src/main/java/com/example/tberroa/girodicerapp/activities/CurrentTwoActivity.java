@@ -172,7 +172,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
                     // send start inspection command to drone
                     BluetoothService.BTDataHandler.passContext(this);
                     BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_START_INSPECTION, 1, new byte[1], false));
-                    Log.d(Params.TAG_DBG, "@CurrentTwoActivity: sent start inspection command");
+                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@CurrentTwoActivity: sent start inspection command");
 
                     // open dialog to let user know the app is waiting for a response
                     new MessageDialog(this, getString(R.string.waiting_for_confirmation)).show();
@@ -211,7 +211,7 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         byte[] points = Points.Pack(houseBoundary);
         BluetoothService.BTDataHandler.passContext(this);
         BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_NEW_HOUSE, points.length, points, false));
-        Log.d(Params.TAG_DBG, "@CurrentTwoActivity: sent house points");
+        Log.d(Params.TAG_DBG + Params.TAG_DS, "@CurrentTwoActivity: sent house points");
         Toast.makeText(CurrentTwoActivity.this, "Sent house points", Toast.LENGTH_SHORT).show();
     }
 

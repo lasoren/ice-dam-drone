@@ -40,6 +40,7 @@ public class GProtocol {
     public static final byte COMMAND_BLUETOOTH_FINISHED_RGB = 0x18;
     public static final byte COMMAND_BLUETOOTH_FINISHED_THERM = 0x19;
     public static final byte COMMAND_BLUETOOTH_SERVICE_ICEDAM = 0x20;
+    public static final byte COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING = 0x21;
 
     public static final byte COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30;
     public static final byte COMMAND_BLUETOOTH_OK_TO_SEND = 0x31;
@@ -91,6 +92,7 @@ public class GProtocol {
             case COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
             case COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
             case COMMAND_BLUETOOTH_RETURN_HOME:
+            case COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING:
                 BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
                 return new GProtocol(receivedCommand, null, false, false);
             case COMMAND_STATUS:

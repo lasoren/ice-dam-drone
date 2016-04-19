@@ -71,6 +71,12 @@ public class BluetoothService extends Service {
     public static boolean serviceRunning = true;
     public static List<LatLng> iceDamPoints;
     public static boolean iceDamPointsReady = false;
+    public static boolean doneAnalysisWaitingToLand = false;
+    public static boolean readyToServiceIcedam = false;
+    public static boolean servicingIcedam = false;
+    public static boolean doneServicingWaitingToLand = false;
+    public static boolean motorsArmed; // used to check if in the air
+
     private static int clientId;
     private boolean droneNotFound = true;
 
@@ -454,8 +460,48 @@ public class BluetoothService extends Service {
                                 }
                                 break;
 
+                            case GProtocol.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_ALREADY_FLYING");
+                                break;
+
+                            case GProtocol.COMMAND_ARM:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/ARM");
+                                motorsArmed = true;
+                                break;
+
                             case GProtocol.COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED");
+                                motorsArmed = false;
+
+                                if (doneAnalysisWaitingToLand) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED: sending request for rgb images");
+
+                                    // let drone know we want the rgb images (looking to confirm icedams here)
+                                    byte[] requestRGB = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false);
+                                    btConnectionThread.write(requestRGB);
+
+                                    doneAnalysisWaitingToLand = false;
+                                    readyToServiceIcedam = true;
+                                }
+
+                                if (doneServicingWaitingToLand) {
+                                    // raise flag up letting system know drone is ready to service an icedam
+                                    readyToServiceIcedam = true;
+
+                                    // broadcast to trigger the map fragment to check conditions
+                                    if (context != null) {
+                                        Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED: broadcasting to map fragment");
+
+                                        // create intent to broadcast to map fragment
+                                        Intent toMapFrag = new Intent(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+                                        toMapFrag.putExtra(CurrentThreeActivity.WHICH_FRAG, DroneMapFragment.class.getName());
+
+                                        // send broadcast to map fragment
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(toMapFrag);
+                                    }
+
+                                    doneServicingWaitingToLand = false;
+                                }
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_RETURN_HOME:
@@ -465,9 +511,8 @@ public class BluetoothService extends Service {
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ANALYSIS");
 
-                                // let drone know we want the rgb images (looking to confirm icedams here)
-                                byte[] requestRGB = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false);
-                                btConnectionThread.write(requestRGB);
+                                // waiting for drone to land
+                                doneAnalysisWaitingToLand = true;
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
@@ -482,12 +527,35 @@ public class BluetoothService extends Service {
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/BORDER_SCAN_INTERRUPTED");
                                 break;
 
+                            case GProtocol.COMMAND_BLUETOOTH_SERVICE_ICEDAM:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/SERVICE_ICEDAM");
+                                // confirmation received after requesting to service an icedam
+                                servicingIcedam = true;
+                                readyToServiceIcedam = false;
+
+                                // broadcast to trigger the map fragment to check conditions
+                                if (context != null) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/SERVICE_ICEDAM: broadcasting to map fragment");
+
+                                    // create intent to broadcast to map fragment
+                                    Intent toMapFrag = new Intent(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+                                    toMapFrag.putExtra(CurrentThreeActivity.WHICH_FRAG, DroneMapFragment.class.getName());
+
+                                    // send broadcast to map fragment
+                                    LocalBroadcastManager.getInstance(context).sendBroadcast(toMapFrag);
+                                }
+                                break;
+
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_DAM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_DAM");
+
+                                doneServicingWaitingToLand = true;
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ALL_DAMS");
+
+                                doneServicingWaitingToLand = true;
                                 break;
 
                             case GProtocol.COMMAND_SEND_ICEDAM_POINTS:
@@ -551,9 +619,13 @@ public class BluetoothService extends Service {
                                     listGProtocol.clear();
 
                                     // turn json string into list of image detail objects
-                                    Type type = new TypeToken<List<ImageDetails>>() {
-                                    }.getType();
-                                    imageDetailsList = new Gson().fromJson(jsonTherm, type);
+                                    try {
+                                        Type type = new TypeToken<List<ImageDetails>>() {
+                                        }.getType();
+                                        imageDetailsList = new Gson().fromJson(jsonTherm, type);
+                                    } catch (Exception e) {
+                                        Log.e(Params.TAG_EXCEPTION, e.getMessage());
+                                    }
                                 } else if (received.isPartial()) {
                                     listGProtocol.add(received);
                                 } else {
@@ -573,15 +645,9 @@ public class BluetoothService extends Service {
                                     Images imageRGB = (Images) finalGProtocol.read();
                                     listGProtocol.clear();
 
-                                    // check if this is an icedam the user needs to confirm
-                                    if (saltingPhaseImages) {
-                                        // do confirmation stuff here
-                                        // save it locally for now
-                                        saveImageLocally(imageRGB, imgIndexRGB);
-                                    } else { // these images are part of the image transfer phase
-                                        // save image locally
-                                        saveImageLocally(imageRGB, imgIndexRGB);
-                                    }
+                                    // save image locally
+                                    saveImageLocally(imageRGB, imgIndexRGB, Params.I_TYPE_ROOF_EDGE);
+
                                     imgIndexRGB++;
                                 } else if (received.isPartial()) {
                                     listGProtocol.add(received);
@@ -601,8 +667,8 @@ public class BluetoothService extends Service {
                                     Images imageTherm = (Images) finalGProtocol.read();
                                     listGProtocol.clear();
 
-                                    // thermal images are always received as part of image transfer phase, save locally
-                                    saveImageLocally(imageTherm, imgIndexTherm);
+                                    // save image locally
+                                    saveImageLocally(imageTherm, imgIndexTherm, Params.I_TYPE_THERMAL);
 
                                     // increment index counter
                                     imgIndexTherm++;
@@ -620,6 +686,7 @@ public class BluetoothService extends Service {
                                 currentInspectionInfo.setRoofEdgeCount(context, imgIndexRGB);
 
                                 // done receiving all rgb images, now request thermal images
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB: sending request for thermal images");
                                 byte[] requestTherm = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM, 1, new byte[1], false);
                                 btConnectionThread.write(requestTherm);
                                 break;
@@ -654,9 +721,9 @@ public class BluetoothService extends Service {
             context = null;
         }
 
-        private void saveImageLocally(Images image, int index) {
+        private void saveImageLocally(Images image, int index, int typeInt) {
             // construct path
-            String type = Integer.toString(imageDetailsList.get(index).image_type);
+            String type = Integer.toString(typeInt);
             String location = basePath + type + Integer.toString(index) + ".jpg";
 
             // create parent directories if needed
