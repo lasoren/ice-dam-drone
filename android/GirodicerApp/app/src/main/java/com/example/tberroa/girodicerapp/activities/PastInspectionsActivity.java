@@ -23,7 +23,9 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.models.Inspection;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,7 +61,13 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
                 if (path != null) {
                     ids.add(inspection.id);
                     paths.add(path);
-                    labels.add(inspection.created);
+                    try {
+                        Date date = Params.DATE_FORMAT.parse(inspection.created);
+                        String dateLabel = Params.OUT_FORMAT.format(date);
+                        labels.add(dateLabel);
+                    } catch (ParseException e) {
+                        labels.add(inspection.created);
+                    }
                 } else { // delete any inspections which cant produce a path. inspection contains corrupted data
                     iterator.remove();
                     inspection.delete();
