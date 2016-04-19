@@ -210,7 +210,7 @@ class BlueDataProcessor(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.START_SCAN)
 
     def __end_inspection(self):
-        self.queue.add(EventHandler.HIGH_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.RETURN_TO_LAUNCH)
 
     def __packImages_rgb(self):
         self.bluetooth.getlock()

@@ -122,6 +122,12 @@ class Girodicer():
         return self.lidar.readDistance()
 
     def start_scan(self):
+        if self.vehicle.battery.level < 30:
+            print "Not taking off. Battery level too low"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
+            msg.start()
+            return
+
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
         else:
@@ -143,6 +149,12 @@ class Girodicer():
         msg.start()
 
     def start_service_ice_dams(self):
+        if self.vehicle.battery.level < 30:
+            print "Not taking off. Battery level too low"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
+            msg.start()
+            return
+
         if len(self.ice_dams) == 0:
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
             msg.start()
@@ -399,7 +411,7 @@ class Girodicer():
         return bearing
 
     def __battery_callback(self, vehicle, attr_name, battery):
-        if battery.level < 30:
+        if (battery.level < 30) and (self.vehicle.mode.name == "GUIDED"):
             self.return_to_launch()
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
             msg.start()
