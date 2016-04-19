@@ -315,7 +315,8 @@ class BlueDataPackager(threading.Thread):
               or self.command == COMMAND_BLUETOOTH_SEND_FINISHED_SCAN or self.command == COMMAND_START_INSPECTION
               or self.command == COMMAND_BLUETOOTH_SEND_FINISH_BORDER or self.command == COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS
               or self.command == COMMAND_BLUETOOTH_FINISHED_RGB or self.command == COMMAND_BLUETOOTH_FINISHED_THERM
-              or self.command == COMMAND_BLUETOOTH_SERVICE_ICE_DAM or self.command == COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING):
+              or self.command == COMMAND_BLUETOOTH_SERVICE_ICE_DAM or self.command == COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING
+              or self.command == COMMAND_ARM):
             self.__send_nopayload()
         elif self.command == COMMAND_BLUETOOTH_SEND_JSON_RGB or COMMAND_BLUETOOTH_SEND_JSON_THERM:
             self.__sendJson()
