@@ -233,7 +233,8 @@ class BlueDataProcessor(threading.Thread):
                 img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_RGB, sub, self.bluetooth, flag=0xC0)
                 img_packager.run()
         self.bluetooth.unlock()
-        BlueDataPackager(COMMAND_BLUETOOTH_FINISHED_RGB, 0, self.bluetooth)
+        msg = BlueDataPackager(COMMAND_BLUETOOTH_FINISHED_RGB, 0, self.bluetooth)
+        msg.start()
 
     def __packImages_therm(self):
         self.bluetooth.getlock()
@@ -255,7 +256,8 @@ class BlueDataProcessor(threading.Thread):
                 img_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_IMAGES_THERM, sub, self.bluetooth, flag=0xC0)
                 img_packager.run()
         self.bluetooth.unlock()
-        BlueDataPackager(COMMAND_BLUETOOTH_FINISHED_THERM, 0, self.bluetooth)
+        msg = BlueDataPackager(COMMAND_BLUETOOTH_FINISHED_THERM, 0, self.bluetooth)
+        msg.start()
 
     def __sendjson_rgb(self):
         with open('images.json', 'r') as jsonFile:
