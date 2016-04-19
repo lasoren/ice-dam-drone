@@ -10,7 +10,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -21,14 +23,21 @@ import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
+import com.example.tberroa.girodicerapp.bluetooth.ImageDetails;
 import com.example.tberroa.girodicerapp.bluetooth.Images;
 import com.example.tberroa.girodicerapp.bluetooth.JSON;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -225,6 +234,7 @@ public class BluetoothService extends Service {
 
                     btConnectHandler.obtainMessage(CONNECT_ATTEMPT_SUCCESS, -1, -1, btSocket).sendToTarget();
                 } else {
+                    Log.d(Params.TAG_DBG + Params.TAG_BT, "socket null");
                     btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
                 }
             }
@@ -242,12 +252,18 @@ public class BluetoothService extends Service {
 
         // reset state
         bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
+        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+        currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
+        currentInspectionInfo.setNotInProgress(this, true);
 
         // update variables
         needInitialStatus = true;
         mapPhaseComplete = false;
         serviceRunning = false;
         currentStatus = null;
+
+        // destroy context reference from bluetooth data handler
+        BTDataHandler.destroyContext();
 
         // unregister receiver
         if (btReceiver != null) {
@@ -329,10 +345,13 @@ public class BluetoothService extends Service {
     // handler for reading data from ConnectionThread (reading data from drone)
     public static class BTDataHandler extends Handler {
 
-        static Context context = null;
-        List<GProtocol> listGProtocol = new ArrayList<>();
-        int imgIndexRGB = 0;
-        int imgIndexTherm = 0;
+        private static Context context = null;
+        private List<GProtocol> listGProtocol = new ArrayList<>();
+        private int imgIndexRGB = 0;
+        private int imgIndexTherm = 0;
+        private List<ImageDetails> imageDetailsList;
+        private boolean saltingPhaseImages = true;
+        private final String basePath = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER + "/images/";
 
         @Override
         public void handleMessage(Message msg) {
@@ -359,7 +378,6 @@ public class BluetoothService extends Service {
                                         Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/STATUS: initial status received, broadcasting");
 
                                         context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
-                                        context = null;
                                         needInitialStatus = false;
                                     }
 
@@ -376,19 +394,20 @@ public class BluetoothService extends Service {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/PATH: broadcasting");
 
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
-                                    context = null;
                                 }
                                 break;
 
                             case GProtocol.COMMAND_START_INSPECTION:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/START_INSPECTION");
 
+                                // initial RGB images will be related to the salting phase
+                                saltingPhaseImages = true;
+
                                 // broadcast that the start inspection command has been confirmed
                                 if (context != null) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/START_INSPECTION: broadcasting");
 
                                     context.sendBroadcast(new Intent().setAction(Params.START_INSPECTION_CONFIRMED));
-                                    context = null;
                                 }
                                 break;
 
@@ -410,6 +429,10 @@ public class BluetoothService extends Service {
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ANALYSIS");
+
+                                // let drone know we want the icedam marked images
+                                byte[] request = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false);
+                                btConnectionThread.write(request);
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
@@ -437,12 +460,30 @@ public class BluetoothService extends Service {
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_RGB:
-                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB");
+                                //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB");
                                 if (received.isPartialEnd()) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: json received");
+
+                                    // construct complete json string
                                     listGProtocol.add(received);
                                     GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
-                                    JSON jsonRGB = (JSON) finalGProtocol.read();
+                                    String jsonRGB = ((JSON) finalGProtocol.read()).getJson();
                                     listGProtocol.clear();
+
+                                    // turn json string into list of image detail objects
+                                    Type type = new TypeToken<List<ImageDetails>>() {
+                                    }.getType();
+                                    imageDetailsList = new Gson().fromJson(jsonRGB, type);
+
+                                    // if these RGB images are not part of the salting phase, then transfer phase has begun
+                                    if (!saltingPhaseImages){
+                                        // broadcast that transfer phase has started
+                                        if (context != null){
+                                            Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: broadcasting");
+
+                                            context.sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
+                                        }
+                                    }
                                 } else if (received.isPartial()) {
                                     listGProtocol.add(received);
                                 } else {
@@ -452,12 +493,20 @@ public class BluetoothService extends Service {
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_JSON_THERM:
-                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_THERM");
+                                //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_THERM");
                                 if (received.isPartialEnd()) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_THERM: json received");
+
+                                    // construct complete json string
                                     listGProtocol.add(received);
                                     GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
-                                    JSON jsonTherm = (JSON) finalGProtocol.read();
+                                    String jsonTherm = ((JSON) finalGProtocol.read()).getJson();
                                     listGProtocol.clear();
+
+                                    // turn json string into list of image detail objects
+                                    Type type = new TypeToken<List<ImageDetails>>() {
+                                    }.getType();
+                                    imageDetailsList = new Gson().fromJson(jsonTherm, type);
                                 } else if (received.isPartial()) {
                                     listGProtocol.add(received);
                                 } else {
@@ -467,34 +516,73 @@ public class BluetoothService extends Service {
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB:
-                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_RGB");
+                                //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_RGB");
                                 if (received.isPartialEnd()) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGE_RGB: image received");
+
+                                    // construct image from byte packets
                                     listGProtocol.add(received);
                                     GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
                                     Images imageRGB = (Images) finalGProtocol.read();
                                     listGProtocol.clear();
+
+                                    // check if this is an icedam the user needs to confirm
+                                    if (saltingPhaseImages) {
+                                        // do confirmation stuff here
+                                        // save it locally for now
+                                        saveImageLocally(imageRGB, imgIndexRGB);
+                                    } else { // these images are part of the image transfer phase
+                                        // save image locally
+                                        saveImageLocally(imageRGB, imgIndexRGB);
+                                    }
                                     imgIndexRGB++;
                                 } else if (received.isPartial()) {
                                     listGProtocol.add(received);
                                 } else {
-                                    //Images rgb_image = (Images) received.read();
                                     Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BS/DH/IMAGES_RGB: shouldn't be here");
                                 }
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM:
-                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_THERM");
+                                //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_THERM");
                                 if (received.isPartialEnd()) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/IMAGES_THERM: image received");
+
+                                    // construct the image from byte packets
                                     listGProtocol.add(received);
                                     GProtocol finalGProtocol = GProtocol.glueGProtocols(listGProtocol);
-                                    Images imageRGB = (Images) finalGProtocol.read();
+                                    Images imageTherm = (Images) finalGProtocol.read();
                                     listGProtocol.clear();
+
+                                    // thermal images are always received as part of image transfer phase, save locally
+                                    saveImageLocally(imageTherm, imgIndexTherm);
+
+                                    // increment index counter
                                     imgIndexTherm++;
                                 } else if (received.isPartial()) {
                                     listGProtocol.add(received);
                                 } else {
-                                    //Images therm_image = (Images) received.read();
                                     Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BS/DH/IMAGES_THERM: shouldn't be here");
+                                }
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_FINISHED_RGB:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB");
+                                // check if these images were sent as part of the confirmation/salting phase
+                                if (saltingPhaseImages){
+                                    // all images received from now on should be part of image transfer phase
+                                    saltingPhaseImages = false;
+                                }
+                                break;
+
+                            case GProtocol.COMMAND_BLUETOOTH_FINISHED_THERM:
+                                Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM");
+                                // transfer phase complete, broadcast this
+
+                                if (context != null){
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM: broadcasting");
+
+                                    context.sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
                                 }
                                 break;
                         }
@@ -511,6 +599,28 @@ public class BluetoothService extends Service {
 
         public static void destroyContext() {
             context = null;
+        }
+
+        private void saveImageLocally(Images image, int index) {
+            // construct path
+            String type = Integer.toString(imageDetailsList.get(index).image_type);
+            String location = basePath + type + Integer.toString(index) + ".jpg";
+
+            // create file
+            try {
+                // convert image bitmap to byte array
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                image.getImage().compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                byte[] bitMapData = bos.toByteArray();
+
+                // write bytes into the file
+                FileOutputStream fos = new FileOutputStream(location);
+                fos.write(bitMapData);
+                fos.flush();
+                fos.close();
+            } catch (Exception e) {
+                Log.e(Params.TAG_EXCEPTION, "@BS/DH/saveImageLocally: FAILED TO CREATE IMAGE FILE", e);
+            }
         }
     }
 }

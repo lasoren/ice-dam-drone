@@ -115,7 +115,11 @@ public class SignInActivity extends AppCompatActivity {
 
         String response = Utilities.validate(enteredInfo);
         if (response.matches("")) {
-            new AttemptSignIn().execute();
+            if (Utilities.isInternetAvailable(this)) {
+                new AttemptSignIn().execute();
+            } else {
+                Toast.makeText(this, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+            }
         } else {
             if (response.contains("email")) {
                 email.setError(getResources().getString(R.string.enter_valid_email));
@@ -188,6 +192,7 @@ public class SignInActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            postResponse = null;
             try {
                 String url = Params.BASE_URL + "users/signin.json";
                 postResponse = new Http().postRequest(url, dataJSON);
@@ -199,7 +204,7 @@ public class SignInActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.contains("id")) {
+            if (postResponse != null && postResponse.contains("id")) {
                 // create DroneOperator model from response json
                 Type droneOperator = new TypeToken<DroneOperator>() {
                 }.getType();

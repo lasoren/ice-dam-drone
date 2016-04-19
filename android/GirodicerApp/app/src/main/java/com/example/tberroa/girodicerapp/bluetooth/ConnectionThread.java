@@ -46,7 +46,8 @@ public class ConnectionThread extends Thread {
         int bytes; // bytes returned from read()
 
         // Keep listening to the InputStream until an exception occurs
-        while (true) {
+        boolean listen = true;
+        while (listen) {
             try {
                 // Read from the InputStream
                 bytes = btInStream.read(buffer);
@@ -60,12 +61,15 @@ public class ConnectionThread extends Thread {
             } catch (IOException e) {
                 Log.d(Params.TAG_DBG, "@ConnectionThread: IOException occurred");
                 e.printStackTrace();
-                break;
+                listen = false;
             } catch (RemoteException e) {
                 Log.d(Params.TAG_DBG, "@ConnectionThread: RemoteException occurred");
                 e.printStackTrace();
+                listen = false;
             }
         }
+        // exception occurred, shutdown
+        shutdown();
     }
 
     /* Call this to send data to the remote device */

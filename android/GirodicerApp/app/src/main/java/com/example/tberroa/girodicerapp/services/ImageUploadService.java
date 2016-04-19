@@ -143,7 +143,7 @@ public class ImageUploadService extends Service {
                                     }
                                 }
                             } catch (Exception e) {
-                                Log.e(Params.TAG_DBG, "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
+                                Log.e(Params.TAG_EXCEPTION, "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
                             }
 
                             // upload image

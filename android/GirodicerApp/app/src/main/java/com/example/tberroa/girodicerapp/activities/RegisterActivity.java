@@ -99,7 +99,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         String string = Utilities.validate(enteredInfo);
         if (string.matches("")) {
-            new AttemptRegistration().execute();
+            if (Utilities.isInternetAvailable(this)) {
+                new AttemptRegistration().execute();
+            } else {
+                Toast.makeText(this, R.string.internet_not_available, Toast.LENGTH_SHORT).show();
+            }
         } else {
             if (string.contains("first_name")) {
                 firstName.setError(getResources().getString(R.string.name_format));
@@ -159,6 +163,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            postResponse = null;
             try {
                 String url = Params.BASE_URL + "users/register.json";
                 postResponse = new Http().postRequest(url, dataJSON);
@@ -169,7 +174,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Void param) {
-            if (postResponse.contains("id")) {
+            if (postResponse != null && postResponse.contains("id")) {
                 startActivity(new Intent(RegisterActivity.this, PostRegisterActivity.class));
                 finish();
             } else { // display error

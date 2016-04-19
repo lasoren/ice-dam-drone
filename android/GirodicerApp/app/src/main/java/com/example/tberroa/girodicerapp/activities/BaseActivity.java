@@ -74,12 +74,18 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
             // reset state
             bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+            CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+            currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
+            currentInspectionInfo.setNotInProgress(this, true);
 
             // update variables
             BluetoothService.needInitialStatus = true;
             BluetoothService.mapPhaseComplete = false;
             BluetoothService.serviceRunning = false;
             BluetoothService.currentStatus = null;
+
+            // destroy context reference from bluetooth data handler
+            BluetoothService.BTDataHandler.destroyContext();
 
             // unregister receiver
             if (BluetoothService.btReceiver != null){

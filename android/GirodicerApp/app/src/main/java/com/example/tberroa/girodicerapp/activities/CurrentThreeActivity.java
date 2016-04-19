@@ -113,9 +113,6 @@ public class CurrentThreeActivity extends BaseActivity {
             unregisterReceiver(broadcastReceiver);
             broadcastReceiver = null;
         }
-
-        // destroy context reference from bluetooth data handler
-        BluetoothService.BTDataHandler.destroyContext();
     }
 
     @Override
