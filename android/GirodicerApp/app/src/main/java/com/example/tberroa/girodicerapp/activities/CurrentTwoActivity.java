@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -16,11 +15,9 @@ import android.widget.Toast;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.ClientId;
-import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Points;
-import com.example.tberroa.girodicerapp.database.ServerDB;
-import com.example.tberroa.girodicerapp.models.Inspection;
+import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,7 +32,6 @@ import java.util.ArrayList;
 public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener,
         GoogleMap.OnMarkerClickListener, View.OnClickListener {
 
-    private int clientId;
     private GoogleMap mMap;
     private Button next;
     private ArrayList<LatLng> houseBoundary;
@@ -67,9 +63,6 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
             finish();
             return;
         }
-
-        // get client id, will be needed later in async task
-        clientId = new ClientId().get(CurrentTwoActivity.this);
 
         // get location, this should be set by the time this activity is launched
         home = BluetoothService.currentStatus.location;
@@ -114,7 +107,6 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         // initialize receiver, it's triggered when the house boundary points have been received from the drone
         IntentFilter filter = new IntentFilter();
         filter.addAction(Params.HOUSE_BOUNDARY_RECEIVED);
-        filter.addAction(Params.START_INSPECTION_CONFIRMED);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -122,9 +114,6 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
                     case Params.HOUSE_BOUNDARY_RECEIVED:
                         houseBoundary = BluetoothService.houseBoundary;
                         plotPoints(houseBoundary);
-                        break;
-                    case Params.START_INSPECTION_CONFIRMED:
-                        new StartInspection().execute();
                         break;
                 }
             }
@@ -184,6 +173,9 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
                     BluetoothService.BTDataHandler.passContext(this);
                     BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_START_INSPECTION, 1, new byte[1], false));
                     Log.d(Params.TAG_DBG, "@CurrentTwoActivity: sent start inspection command");
+
+                    // open dialog to let user know the app is waiting for a response
+                    new MessageDialog(this, getString(R.string.waiting_for_confirmation)).show();
                 } else {
                     findPath();
                 }
@@ -230,46 +222,5 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         pathFound = true;
         next.setEnabled(true);
         next.setText(R.string.start_inspection);
-    }
-
-    private class StartInspection extends AsyncTask<Void, Void, Void> {
-
-        boolean noError;
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            // create inspection on backend
-            Inspection inspection = new ServerDB(CurrentTwoActivity.this).createInspection(clientId);
-
-            if (inspection == null) { // error occurred
-                noError = false;
-            } else {
-                noError = true;
-
-                // save inspection locally
-                inspection.cascadeSave();
-
-                // inspection is now in progress
-                CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-                currentInspectionInfo.setNotInProgress(CurrentTwoActivity.this, false);
-
-                // drone is starting scanning phase
-                currentInspectionInfo.setPhase(CurrentTwoActivity.this, Params.CI_SCANNING);
-
-                // save inspection id
-                currentInspectionInfo.setInspectionId(CurrentTwoActivity.this, inspection.id);
-            }
-            return null;
-        }
-
-        protected void onPostExecute(Void param) {
-            if (noError) {
-                BluetoothService.mapPhaseComplete = true;
-                startActivity(new Intent(CurrentTwoActivity.this, CurrentThreeActivity.class));
-                finish();
-            } else {
-                Toast.makeText(CurrentTwoActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 }

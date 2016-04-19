@@ -2,8 +2,10 @@ package com.example.tberroa.girodicerapp.bluetooth;
 
 import java.io.UnsupportedEncodingException;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class JSON {
-    private String json;
+
+    private final String json;
 
     public JSON(String json) {
         this.json = json;

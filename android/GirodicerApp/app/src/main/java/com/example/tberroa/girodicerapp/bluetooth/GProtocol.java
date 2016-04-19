@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class GProtocol {
 
     public static final byte COMMAND_ARM = 0x1;
@@ -46,10 +47,10 @@ public class GProtocol {
     public static final byte PARTIAL_MESSAGE = (byte) 0x80;
     public static final byte PARTIAL_LAST_MESSAGE = (byte) 0xC0;
 
-    private byte command;
-    private byte[] data;
-    private boolean partial;
-    private boolean partial_end;
+    private final byte command;
+    private final byte[] data;
+    private final boolean partial;
+    private final boolean partial_end;
 
     public static byte[] Pack(byte command, int payloadSize, byte[] array, boolean partial) {
         ByteBuffer builder = ByteBuffer.allocate(payloadSize + 1 + 4).order(ByteOrder.LITTLE_ENDIAN);

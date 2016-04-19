@@ -13,7 +13,6 @@ public class CurrentInspectionInfo extends Application {
     private final String AERIAL_COUNT = "aerial_count";
     private final String THERMAL_COUNT = "thermal_count";
     private final String ROOF_EDGE_COUNT = "roof_edge_count";
-    private final String LAST_DOWNLOAD = "last_download";
 
     public CurrentInspectionInfo() {
     }
@@ -44,10 +43,6 @@ public class CurrentInspectionInfo extends Application {
 
     public int getRoofEdgeCount(Context context){
         return getSharedPreferences(context).getInt(ROOF_EDGE_COUNT, 0);
-    }
-
-    public long getLastDownload(Context context){
-        return getSharedPreferences(context).getLong(LAST_DOWNLOAD, 0);
     }
 
     public void setNotInProgress(Context context, boolean bool) {
@@ -83,12 +78,6 @@ public class CurrentInspectionInfo extends Application {
     public void setRoofEdgeCount(Context context, int num){
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putInt(ROOF_EDGE_COUNT, num);
-        editor.apply();
-    }
-
-    public void setLastDownload(Context context, long lastDownload){
-        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putLong(LAST_DOWNLOAD, lastDownload);
         editor.apply();
     }
 

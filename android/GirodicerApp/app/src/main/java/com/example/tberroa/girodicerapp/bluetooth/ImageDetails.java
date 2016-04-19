@@ -1,5 +1,6 @@
 package com.example.tberroa.girodicerapp.bluetooth;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class ImageDetails {
 
     public int image_num;

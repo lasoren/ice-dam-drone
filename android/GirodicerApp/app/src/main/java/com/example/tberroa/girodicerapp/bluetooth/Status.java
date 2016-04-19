@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.nio.ByteBuffer;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class Status implements Parcelable {
 
     public final LatLng location;

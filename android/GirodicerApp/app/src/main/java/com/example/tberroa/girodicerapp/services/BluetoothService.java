@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -27,9 +28,12 @@ import com.example.tberroa.girodicerapp.bluetooth.ImageDetails;
 import com.example.tberroa.girodicerapp.bluetooth.Images;
 import com.example.tberroa.girodicerapp.bluetooth.JSON;
 import com.example.tberroa.girodicerapp.data.BluetoothInfo;
+import com.example.tberroa.girodicerapp.data.ClientId;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
+import com.example.tberroa.girodicerapp.database.ServerDB;
+import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -62,7 +66,9 @@ public class BluetoothService extends Service {
     public static Status currentStatus;
     public static LatLng home;
     public static boolean serviceRunning = true;
+    private static int clientId;
     private boolean droneNotFound = true;
+
 
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
@@ -85,6 +91,9 @@ public class BluetoothService extends Service {
     @Override
     public void onCreate() {
         Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: beginning of onCreate");
+
+        // save client id
+        clientId = new ClientId().get(this);
 
         // initialize bluetooth receiver
         IntentFilter btFilter = new IntentFilter();
@@ -160,7 +169,7 @@ public class BluetoothService extends Service {
             // let system know that connect attempt failed because bluetooth is not enabled
             bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
             bluetoothInfo.setErrorCode(BluetoothService.this, Params.BTE_NOT_ENABLED);
-            sendBroadcast(new Intent().setAction(Params.BLUETOOTH_NOT_ENABLED));
+            sendBroadcast(new Intent().setAction(Params.DRONE_CONNECT_FAILURE));
 
             // end bluetooth service
             stopSelf();
@@ -348,12 +357,13 @@ public class BluetoothService extends Service {
     public static class BTDataHandler extends Handler {
 
         private static Context context = null;
-        private List<GProtocol> listGProtocol = new ArrayList<>();
+        private final List<GProtocol> listGProtocol = new ArrayList<>();
         private int imgIndexRGB = 0;
         private int imgIndexTherm = 0;
         private List<ImageDetails> imageDetailsList;
         private boolean saltingPhaseImages = true;
         private final String basePath = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER + "/images/";
+        private final CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
 
         @Override
         public void handleMessage(Message msg) {
@@ -378,7 +388,6 @@ public class BluetoothService extends Service {
                                     // if so, check if the context has been sent
                                     if (context != null) {
                                         Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/STATUS: initial status received, broadcasting");
-
                                         context.sendBroadcast(new Intent().setAction(Params.INITIAL_STATUS_RECEIVED));
                                         needInitialStatus = false;
                                     }
@@ -394,7 +403,6 @@ public class BluetoothService extends Service {
                                 // broadcast that the house boundary points are ready
                                 if (context != null) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/PATH: broadcasting");
-
                                     context.sendBroadcast(new Intent().setAction(Params.HOUSE_BOUNDARY_RECEIVED));
                                 }
                                 break;
@@ -405,11 +413,10 @@ public class BluetoothService extends Service {
                                 // initial RGB images will be related to the salting phase
                                 saltingPhaseImages = true;
 
-                                // broadcast that the start inspection command has been confirmed
+                                // attempt to start inspection
                                 if (context != null) {
-                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/START_INSPECTION: broadcasting");
-
-                                    context.sendBroadcast(new Intent().setAction(Params.START_INSPECTION_CONFIRMED));
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/START_INSPECTION: attempting inspection start");
+                                    new StartInspection(context).execute();
                                 }
                                 break;
 
@@ -419,6 +426,13 @@ public class BluetoothService extends Service {
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_SCAN");
+
+                                // scanning phase over, broadcast that salting phase has started
+                                if (context != null){
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_SCAN: broadcasting");
+                                    currentInspectionInfo.setPhase(context, Params.CI_SALTING);
+                                    context.sendBroadcast(new Intent().setAction(Params.SALTING_STARTED));
+                                }
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_DRONE_LANDED:
@@ -482,7 +496,7 @@ public class BluetoothService extends Service {
                                         // broadcast that transfer phase has started
                                         if (context != null){
                                             Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: broadcasting");
-
+                                            currentInspectionInfo.setPhase(context, Params.CI_TRANSFERRING);
                                             context.sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
                                         }
                                     }
@@ -579,12 +593,11 @@ public class BluetoothService extends Service {
 
                             case GProtocol.COMMAND_BLUETOOTH_FINISHED_THERM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM");
-                                // transfer phase complete, broadcast this
-
+                                // transfer phase complete, broadcast that upload phase has started
                                 if (context != null){
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM: broadcasting");
-
-                                    context.sendBroadcast(new Intent().setAction(Params.TRANSFER_COMPLETE));
+                                    currentInspectionInfo.setPhase(context, Params.CI_UPLOADING);
+                                    context.sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
                                 }
                                 break;
                         }
@@ -628,6 +641,51 @@ public class BluetoothService extends Service {
                 fos.close();
             } catch (Exception e) {
                 Log.e(Params.TAG_EXCEPTION, "@BS/DH/saveImageLocally: FAILED TO CREATE IMAGE FILE", e);
+            }
+        }
+    }
+
+    private static class StartInspection extends AsyncTask<Void, Void, Void> {
+
+        final Context context;
+        boolean noError;
+
+        public StartInspection(Context context){
+            this.context = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            // create inspection on backend
+            Inspection inspection = new ServerDB(context).createInspection(clientId);
+
+            if (inspection == null) { // error occurred
+                noError = false;
+            } else {
+                noError = true;
+
+                // save inspection locally
+                inspection.cascadeSave();
+
+                // save inspection id
+                CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
+                currentInspectionInfo.setInspectionId(context, inspection.id);
+
+                // inspection is now in progress
+                currentInspectionInfo.setNotInProgress(context, false);
+
+                // drone is starting scanning phase
+                currentInspectionInfo.setPhase(context, Params.CI_SCANNING);
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void param) {
+            if (noError) {
+                mapPhaseComplete = true;
+                context.sendBroadcast(new Intent().setAction(Params.INSPECTION_STARTED));
+            } else {
+                context.sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
             }
         }
     }

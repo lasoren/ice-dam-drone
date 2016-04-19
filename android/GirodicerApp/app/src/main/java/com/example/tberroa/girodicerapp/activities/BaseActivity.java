@@ -88,7 +88,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             BluetoothService.BTDataHandler.destroyContext();
 
             // unregister receiver
-            if (BluetoothService.btReceiver != null){
+            if (BluetoothService.btReceiver != null) {
                 unregisterReceiver(BluetoothService.btReceiver);
                 BluetoothService.btReceiver = null;
             }
@@ -103,35 +103,28 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         filter.addAction(Params.DRONE_CONNECT_FAILURE);
         filter.addAction(Params.DRONE_CONNECTION_LOST);
         filter.addAction(Params.INITIAL_STATUS_RECEIVED);
+        filter.addAction(Params.INSPECTION_STARTED);
+        filter.addAction(Params.SALTING_STARTED);
         filter.addAction(Params.TRANSFER_STARTED);
         filter.addAction(Params.UPLOAD_STARTED);
-        filter.addAction(Params.UPLOAD_COMPLETE);
-        filter.addAction(Params.UPDATING_STARTED);
-        filter.addAction(Params.UPDATING_COMPLETE);
+        filter.addAction(Params.INSPECTION_COMPLETE);
+        filter.addAction(Params.INSPECTION_TERMINATED);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                switch (action) {
-                    case Params.RELOAD:
-                    case Params.BLUETOOTH_TIMEOUT:
-                    case Params.CONNECTING_TO_DRONE:
-                    case Params.DRONE_CONNECT_SUCCESS:
-                    case Params.DRONE_CONNECT_FAILURE:
-                    case Params.DRONE_CONNECTION_LOST:
-                    case Params.INITIAL_STATUS_RECEIVED:
-                    case Params.TRANSFER_STARTED:
-                    case Params.UPLOAD_STARTED:
-                    case Params.UPLOAD_COMPLETE:
-                    case Params.UPDATING_STARTED:
-                    case Params.UPDATING_COMPLETE:
-                        stateChange = true;
-                        if (inView){
-                            startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                            stateChange = false; // state change handled
-                            finish();
-                        }
-                        break;
+                stateChange = true;
+
+                if (action.equals(Params.INSPECTION_TERMINATED)) {
+                    stopService(new Intent(BaseActivity.this, BluetoothService.class));
+                    currentInspectionInfo.clearAll(BaseActivity.this);
+                }
+
+                // always do a simply reload
+                if (inView) {
+                    startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                    stateChange = false; // state change handled
+                    finish();
                 }
             }
         };
@@ -209,7 +202,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 inspectionPhaseText.setText(R.string.ci_salting);
                 inspectionPhaseText.setVisibility(View.VISIBLE);
                 break;
-            case Params.CI_DATA_TRANSFER:
+            case Params.CI_TRANSFERRING:
                 inspectionPhaseText.setText(R.string.ci_data_transfer);
                 inspectionPhaseText.setVisibility(View.VISIBLE);
                 break;
@@ -221,10 +214,10 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
         inView = true;
-        if (stateChange){
+        if (stateChange) {
             // reload
             startActivity(getIntent().setAction(Params.RELOAD).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             stateChange = false; // state change handled
@@ -233,7 +226,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
         inView = false;
     }
@@ -261,7 +254,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                         // check if there is an ongoing active inspection
                         if (!currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
                             String message = getResources().getString(R.string.cannot_sign_out);
-                            new MessageDialog(BaseActivity.this, message).getDialog().show();
+                            new MessageDialog(BaseActivity.this, message).show();
                         } else {
                             Utilities.signOut(BaseActivity.this);
                         }
@@ -284,7 +277,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                     public void run() {
                         if (currentInspectionInfo.isNotInProgress(BaseActivity.this)) {
                             String message = getString(R.string.no_active_inspection);
-                            new MessageDialog(BaseActivity.this, message).getDialog().show();
+                            new MessageDialog(BaseActivity.this, message).show();
                         } else {
                             int inspectionPhase = currentInspectionInfo.getPhase(BaseActivity.this);
                             String message;
@@ -294,11 +287,11 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                                     break;
                                 case 2:
                                     message = getString(R.string.transfer_phase_text);
-                                    new MessageDialog(BaseActivity.this, message).getDialog().show();
+                                    new MessageDialog(BaseActivity.this, message).show();
                                     break;
                                 case 3:
                                     message = getString(R.string.upload_phase_text);
-                                    new MessageDialog(BaseActivity.this, message).getDialog().show();
+                                    new MessageDialog(BaseActivity.this, message).show();
                                     break;
                             }
                         }
@@ -337,7 +330,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
         inflater.inflate(R.menu.base_menu, menu);
 
         // check if terminate button needs to be added
-        if (BluetoothService.currentStatus != null){
+        if (BluetoothService.currentStatus != null) {
             menu.add(0, Params.TERMINATE_INSPECTION, Menu.NONE, R.string.terminate)
                     .setIcon(R.drawable.terminate_button)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);

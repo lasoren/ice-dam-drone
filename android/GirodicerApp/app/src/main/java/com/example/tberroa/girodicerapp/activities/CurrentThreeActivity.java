@@ -29,7 +29,6 @@ public class CurrentThreeActivity extends BaseActivity {
     public static final String WHICH_FRAG = "WHICH_FRAG";
     public static final String STATUS_PACKAGE = "STATUS_PACKAGE";
     public static final String LOCATION_PACKAGE = "LOCATION_PACKAGE";
-    public static FragmentManager fragmentManager;
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -54,9 +53,6 @@ public class CurrentThreeActivity extends BaseActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(R.string.current_inspection_title);
         }
-
-        // initialize fragment manager (used to access google map fragment)
-        fragmentManager = getSupportFragmentManager();
 
         // initialize back button
         toolbar.setNavigationIcon(ContextCompat.getDrawable(this, R.drawable.back_button));

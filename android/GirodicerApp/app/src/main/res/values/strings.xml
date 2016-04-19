@@ -112,9 +112,7 @@
     <!-- buttons -->
     <string name="submit">Submit</string>
     <string name="connect">Connect</string>
-    <string name="start_aerial_scan">Begin Aerial Scan</string>
     <string name="okay">Okay</string>
-    <string name="start">Start</string>
     <string name="try_again">Try Again</string>
     <string name="next">Next</string>
     <string name="got_it">Got it!</string>
@@ -127,11 +125,8 @@
     <string name="general_message">General message</string>
     <string name="loading_message">Loading message</string>
 
-    <!-- download manager-->
-    <string name="download_title">Girodicer Image Transfer</string>
-    <string name="download_description">In process of receiving images from drone</string>
-
     <!-- other -->
+    <string name="waiting_for_confirmation">Waiting for confirmation from drone &#8230;</string>
     <string name="get_path">Get Path</string>
     <string name="start_inspection">Start Inspection</string>
     <string name="terminate">Terminate Connection</string>

@@ -201,7 +201,7 @@ public class ImageUploadService extends Service {
         currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
 
         // broadcast that the upload is complete
-        sendBroadcast(new Intent().setAction(Params.UPLOAD_COMPLETE));
+        sendBroadcast(new Intent().setAction(Params.INSPECTION_COMPLETE));
     }
 
     private void deleteDirectory(File fileOrDirectory) {

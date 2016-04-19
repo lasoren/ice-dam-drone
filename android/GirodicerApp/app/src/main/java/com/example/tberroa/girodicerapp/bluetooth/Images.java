@@ -5,8 +5,10 @@ import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayInputStream;
 
+@SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class Images {
-    private Bitmap image;
+
+    private final Bitmap image;
 
     public Images(Bitmap image){
         this.image = image;

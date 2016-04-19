@@ -15,6 +15,9 @@ public class Params {
     final public static String TAG_ERROR = " TAG_ERROR";
     final public static String TAG_EXCEPTION = " TAG_EXCEPTION";
 
+    // menu button ids
+    final public static int TERMINATE_INSPECTION = 1055;
+
     // parameters related to device storage
     final public static String HOME_FOLDER = "/Girodicer/";
 
@@ -22,29 +25,25 @@ public class Params {
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
     // broadcasts
-    // sign in related
+    // authentication related
     final public static String SIGN_IN_SERVICE_COMPLETE = "SIGN_IN_SERVICE_COMPLETE";
-    // bluetooth related
-    final public static String BLUETOOTH_NOT_ENABLED = "BLUETOOTH_NOT_ENABLED";
+    // bluetooth connection related
     final public static String BLUETOOTH_TIMEOUT = "BLUETOOTH_TIMEOUT";
     final public static String CONNECTING_TO_DRONE = "CONNECTING_TO_DRONE";
     final public static String DRONE_CONNECT_SUCCESS = "DRONE_CONNECT_SUCCESS";
     final public static String DRONE_CONNECT_FAILURE = "DRONE_CONNECT_FAILURE";
     final public static String DRONE_CONNECTION_LOST = "DRONE_CONNECTION_LOST";
+    // drone status related
     final public static String INITIAL_STATUS_RECEIVED = "INITIAL_STATUS_RECEIVED";
     final public static String HOUSE_BOUNDARY_RECEIVED = "HOUSE_BOUNDARY_RECEIVED";
-    final public static String START_INSPECTION_CONFIRMED = "START_INSPECTION_CONFIRMED";
     final public static String STATUS_UPDATE = "STATUS_UPDATE";
     // inspection phase related
-    final public static int TERMINATE_INSPECTION = 1055; // dynamic menu button id
     final public static String INSPECTION_TERMINATED = "INSPECTION_TERMINATED";
-    final public static String DRONE_DONE = "DRONE_DONE";
+    final public static String INSPECTION_STARTED = "INSPECTION_STARTED"; // start of scanning
+    final public static String SALTING_STARTED = "SALTING_STARTED";
     final public static String TRANSFER_STARTED = "TRANSFER_STARTED";
-    final public static String TRANSFER_COMPLETE = "TRANSFER_COMPLETE";
     final public static String UPLOAD_STARTED = "UPLOAD_STARTED";
-    final public static String UPLOAD_COMPLETE = "UPLOAD_COMPLETE";
-    final public static String UPDATING_STARTED = "UPDATING_STARTED";
-    final public static String UPDATING_COMPLETE = "UPDATING_COMPLETE";
+    final public static String INSPECTION_COMPLETE = "INSPECTION_COMPLETE"; // end of uploading
 
     // bluetooth states
     final public static int BTS_NOT_CONNECTED = 0;
@@ -62,11 +61,11 @@ public class Params {
     final public static int CI_INACTIVE = 0;
     final public static int CI_SCANNING = 1;
     final public static int CI_SALTING = 2;
-    final public static int CI_DATA_TRANSFER = 3;
+    final public static int CI_TRANSFERRING = 3;
     final public static int CI_UPLOADING = 4;
 
     // UI parameters
-    final public static String RELOAD = "reload"; // reload activities without animation
+    final public static String RELOAD = "reload"; // reload activity without animation
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";
     final public static String ROOF_EDGE_TAB = "roof edge";
