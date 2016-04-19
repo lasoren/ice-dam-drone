@@ -70,7 +70,7 @@ class DetectIce(threading.Thread):
         :return:
         """
         width = 3.70419 * annotation.depth # calculated using super accurate picture taking
-        meter_per_pixel = width/1280
+        meter_per_pixel = width/640.0
         origin = [float(x) for x in annotation.origin.split(",")]
         utm_origin = UTMPoint(utm.from_latlon(origin[0], origin[1]))
 
