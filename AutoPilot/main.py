@@ -14,8 +14,6 @@ def bluetoothDisconnected():
 
 def printPoints(points):
     iceCutter.set_ice_dams(points)
-    for point in points:
-        print "lat: %d, lng: %d" % (point[0], point[1])
 
 def setHouse(house):
     iceCutter.house = house

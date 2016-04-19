@@ -181,7 +181,7 @@ class BlueDataProcessor(threading.Thread):
         self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SERVICE_ICE_DAM)
 
     def __decipherRcvdPoints(self, payloadSize):
-        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, self.__unpackagePoints(payloadSize))
+        self.queue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.BLUETOOTH_GET_POINTS, [self.__unpackagePoints(payloadSize)])
 
     def __unpackagePoints(self, payloadSize):
         offset = struct.calcsize('<Bi')
@@ -319,8 +319,8 @@ class BlueDataPackager(threading.Thread):
     def __sendStatus(self):
         payloadSize = struct.calcsize('>ffdBi')
 
-        data = struct.pack('>BiffdBi', self.command|self.flag, payloadSize, self.payload[0], self.payload[1], self.payload[2],
-                           self.payload[3], self.payload[4])
+        data = struct.pack('>Biffdi', self.command|self.flag, payloadSize, self.payload[0], self.payload[1], self.payload[2],
+                           self.payload[3])
 
         self.bluetooth.getlock()
         self.bluetooth.write(data)

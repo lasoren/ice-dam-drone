@@ -136,7 +136,8 @@ class Girodicer():
 
     def start_service_ice_dams(self):
         if len(self.ice_dams) == 0:
-            blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
+            msg.run()
             return
 
         if not self.vehicle.armed:
@@ -301,6 +302,9 @@ class Girodicer():
         self.return_to_launch()
         msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_DAM, 0, self.blue)
         msg.run()
+        if len(self.ice_dams) == 0:
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
+            msg.run()
 
     def __fly_single_point(self, destination):
         print "Flying to initial"
@@ -382,6 +386,7 @@ class Girodicer():
             self.return_to_launch()
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
             msg.run()
+            self.vehicle.remove_attribute_listener('battery', self.__battery_callback)
 
     def __armed_callback(self, vehicle, attr_name, armed):
         if not armed:
@@ -412,7 +417,7 @@ class GirodicerStatus(threading.Thread):
             armable = self.vehicle.is_armable
             battery_level = self.vehicle.battery.level
 
-            payload = (location.lat, location.lon, float(velocity[0]), self.__decipherState(state), battery_level, 1)
+            payload = (location.lat, location.lon, float(velocity[0]), battery_level)
 
             packager = blue.BlueDataPackager(blue.COMMAND_SEND_STATUS, payload, self.bluetooth)
             packager.run()
