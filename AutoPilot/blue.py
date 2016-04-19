@@ -312,7 +312,8 @@ class BlueDataPackager(threading.Thread):
               or self.command == COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED or self.command == COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED
               or self.command == COMMAND_BLUETOOTH_SEND_FINISHED_SCAN or self.command == COMMAND_START_INSPECTION
               or self.command == COMMAND_BLUETOOTH_SEND_FINISH_BORDER or self.command == COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS
-              or self.command == COMMAND_BLUETOOTH_FINISHED_RGB or self.command == COMMAND_BLUETOOTH_FINISHED_THERM):
+              or self.command == COMMAND_BLUETOOTH_FINISHED_RGB or self.command == COMMAND_BLUETOOTH_FINISHED_THERM
+              or self.command == COMMAND_BLUETOOTH_SERVICE_ICE_DAM or self.command == COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING):
             self.__send_nopayload()
         elif self.command == COMMAND_BLUETOOTH_SEND_JSON_RGB or COMMAND_BLUETOOTH_SEND_JSON_THERM:
             self.__sendJson()
@@ -341,7 +342,9 @@ class BlueDataPackager(threading.Thread):
         for i in range(0, numPoints):
             data = ''.join([data, struct.pack('>dd', self.payload[i].lat, self.payload[i].lon)])
 
+        self.bluetooth.getlock()
         self.bluetooth.write(data)
+        self.bluetooth.unlock()
 
     def __sendImage(self):
         payloadSize = len(self.payload)

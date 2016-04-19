@@ -124,7 +124,7 @@ class Girodicer():
         else:
             print "Vehicle is flying. What are you doing"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
-            msg.run()
+            msg.start()
             return
 
         self.vehicle.simple_takeoff(10)
@@ -137,20 +137,22 @@ class Girodicer():
         scan_t = threading.Thread(target=self.__border_scan)
         scan_t.start()
         msg = blue.BlueDataPackager(blue.COMMAND_START_INSPECTION, 0, self.blue)
-        msg.run()
+        msg.start()
 
     def start_service_ice_dams(self):
         if len(self.ice_dams) == 0:
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
-            msg.run()
+            msg.start()
             return
 
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SERVICE_ICE_DAM, 0, self.blue)
+            msg.start()
         else:
             print "Vehicle is flying. What are you doing"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
-            msg.run()
+            msg.start()
             return
 
         self.vehicle.simple_takeoff(10)
@@ -176,12 +178,12 @@ class Girodicer():
 
         detect_ice.join()
         msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS, 0, self.blue)
-        msg.run()
+        msg.start()
 
     def set_ice_dams(self, ice_dams):
         self.ice_dams = ice_dams
         msg = blue.BlueDataPackager(blue.COMMAND_SEND_POINTS, 0, self.blue)
-        msg.run()
+        msg.start()
 
     def stop(self):
         """
@@ -237,12 +239,12 @@ class Girodicer():
         if self.vehicle.mode.name == "GUIDED":
             print "Finished Border Scan"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISH_BORDER, 0, self.blue)
-            msg.run()
+            msg.start()
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_BORDER_FINISHED)
         else:
             print "Unable to finish border scan. Interrupted"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_BORDER_SCAN_INTERRUPTED, 0, self.blue)
-            msg.run()
+            msg.start()
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_BORDER_SCAN_INTERRUPTED)
 
     def __roof_scan(self):
@@ -297,12 +299,12 @@ class Girodicer():
         if self.vehicle.mode.name == "GUIDED":
             print "Finished roof scan"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_SCAN, 0, self.blue)
-            msg.run()
+            msg.start()
             self.eventQueue.add(EventHandler.DEFAULT_PRIORITY, EventHandler.SCAN_ROOF_FINISHED)
         else:
             print "Unable to finish roof scan. Interrupted"
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_ROOF_SCAN_INTERRUPTED, 0, self.blue)
-            msg.run()
+            msg.start()
             self.eventQueue.add(EventHandler.ERROR_PRIORITY, EventHandler.ERROR_ROOF_SCAN_INTERRUPTED)
 
     def __service_ice_dam(self):
@@ -313,10 +315,10 @@ class Girodicer():
         self.ice_dams.remove(dam)
         self.return_to_launch()
         msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_DAM, 0, self.blue)
-        msg.run()
+        msg.start()
         if len(self.ice_dams) == 0:
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_FINISHED_ALL_DAMS, 0, self.blue)
-            msg.run()
+            msg.start()
 
     def __fly_single_point(self, destination):
         print "Flying to initial"
@@ -397,13 +399,13 @@ class Girodicer():
         if battery.level < 30:
             self.return_to_launch()
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_LOW_BATTERY, 0, self.blue)
-            msg.run()
+            msg.start()
             self.vehicle.remove_attribute_listener('battery', self.__battery_callback)
 
     def __armed_callback(self, vehicle, attr_name, armed):
         if not armed:
             msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_SEND_DRONE_LANDED, 0, self.blue)
-            msg.run()
+            msg.start()
             self.vehicle.remove_attribute_listener('armed', self.__armed_callback)
 
 class GirodicerStatus(threading.Thread):
