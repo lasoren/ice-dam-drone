@@ -508,7 +508,7 @@ class GirodicerCamera(threading.Thread):
             depth = self.lidar.readDistance()/100.00
             self.annotations.append(annotations.Annotation(pic_num, str(location.lat) + "," + str(location.lon), depth, annotations.RGB))
             file_name = str(pic_num) + ".jpg"
-            os.system("fswebcam -r 1280x720 --jpeg 50 " + file_name)
+            os.system("fswebcam -S 20 -r 1280x720 --jpeg 50 " + file_name)
             pic_num += 1
 
         with open("images.json", "w+") as f:
