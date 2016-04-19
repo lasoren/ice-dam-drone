@@ -121,6 +121,10 @@ class Girodicer():
     def start_scan(self):
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
+        else:
+            print "Vehicle is flying. What are you doing"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
+            msg.run()
 
         self.vehicle.simple_takeoff(10)
 
@@ -142,6 +146,10 @@ class Girodicer():
 
         if not self.vehicle.armed:
             self.arm_vehicle(VehicleMode("GUIDED"))
+        else:
+            print "Vehicle is flying. What are you doing"
+            msg = blue.BlueDataPackager(blue.COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING, 0, self.blue)
+            msg.run()
 
         self.vehicle.simple_takeoff(10)
 
