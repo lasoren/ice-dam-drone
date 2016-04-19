@@ -486,7 +486,7 @@ class GirodicerCamera(threading.Thread):
         os.chdir(self.folder)
         pic_num = 0
         while self.__stopped.isSet() is False:
-            time.sleep(0.1)
+            time.sleep(1)
             location = self.vehicle.location.global_frame
             depth = self.lidar.readDistance()/100.00
             self.annotations.append(annotations.Annotation(pic_num, str(location.lat) + "," + str(location.lon), depth, annotations.RGB))
