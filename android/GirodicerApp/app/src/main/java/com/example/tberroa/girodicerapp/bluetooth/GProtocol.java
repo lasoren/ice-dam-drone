@@ -19,7 +19,7 @@ public class GProtocol {
     public static final byte COMMAND_START_INSPECTION = 0x3;
     public static final byte COMMAND_END_INSPECTION = 0x4;
     public static final byte COMMAND_STATUS = 0x5;
-    public static final byte COMMAND_SEND_POINTS = 0x6;
+    public static final byte COMMAND_SEND_ICEDAM_POINTS = 0x6;
     public static final byte COMMAND_READY_TO_TRANSFER = 0x7;
     public static final byte COMMAND_NEW_HOUSE = 0x8;
     public static final byte COMMAND_BLUETOOTH_SEND_PATH = 0x9;
@@ -39,6 +39,7 @@ public class GProtocol {
     public static final byte COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS = 0x17;
     public static final byte COMMAND_BLUETOOTH_FINISHED_RGB = 0x18;
     public static final byte COMMAND_BLUETOOTH_FINISHED_THERM = 0x19;
+    public static final byte COMMAND_BLUETOOTH_SERVICE_ICEDAM = 0x20;
 
     public static final byte COMMAND_BLUETOOTH_SEND_CORRUPT = 0x30;
     public static final byte COMMAND_BLUETOOTH_OK_TO_SEND = 0x31;
@@ -93,7 +94,7 @@ public class GProtocol {
                 BluetoothService.btConnectionThread.write(GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_OK_TO_SEND, 1, new byte[1], false));
                 return new GProtocol(receivedCommand, null, false, false);
             case COMMAND_STATUS:
-            case COMMAND_SEND_POINTS:
+            case COMMAND_SEND_ICEDAM_POINTS:
             case COMMAND_BLUETOOTH_SEND_PATH:
             case COMMAND_BLUETOOTH_SEND_JSON_RGB:
             case COMMAND_BLUETOOTH_SEND_JSON_THERM:
@@ -154,7 +155,7 @@ public class GProtocol {
         switch (this.command) {
             case COMMAND_STATUS:
                 return Status.Unpack(this.data);
-            case COMMAND_SEND_POINTS:
+            case COMMAND_SEND_ICEDAM_POINTS:
             case COMMAND_BLUETOOTH_SEND_PATH:
                 return Points.Unpack(this.data);
             case COMMAND_BLUETOOTH_SEND_JSON_RGB:

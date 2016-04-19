@@ -53,7 +53,8 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
 
         // get clients
         clients = localDB.getClients();
-        Type type = new TypeToken<List<Client>>(){}.getType();
+        Type type = new TypeToken<List<Client>>() {
+        }.getType();
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         Log.d(Params.TAG_DBG, "@ClientManagerActivity: clients is: " + gson.toJson(clients, type));
 
@@ -84,10 +85,10 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, spacing));
 
         // populate view
-        if (!clients.isEmpty()){
+        if (!clients.isEmpty()) {
             clientManagerAdapter = new ClientManagerAdapter(this, clients);
             recyclerView.setAdapter(clientManagerAdapter);
-        }else{
+        } else {
             noClients.setVisibility(View.VISIBLE);
         }
     }
@@ -108,9 +109,13 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
     }
 
     private class UpdateClients extends AsyncTask<Void, Void, Void> {
+
+        private List<Client> newClients;
+        private boolean foundNewClients;
+
         @Override
         protected Void doInBackground(Void... params) {
-            List<Client> newClients = new ServerDB(ClientManagerActivity.this).getClients();
+            newClients = new ServerDB(ClientManagerActivity.this).getClients();
             if (newClients != null && !newClients.isEmpty()) {
                 // save new clients locally
                 ActiveAndroid.beginTransaction();
@@ -124,15 +129,19 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
                 } finally {
                     ActiveAndroid.endTransaction();
                 }
-
-                // update the recycler view
-                clients.addAll(0, newClients);
-                clientManagerAdapter.notifyDataSetChanged();
+                foundNewClients = true;
+            } else {
+                foundNewClients = false;
             }
             return null;
         }
 
         protected void onPostExecute(Void param) {
+            if (foundNewClients) {
+                // update the recycler view
+                clients.addAll(0, newClients);
+                clientManagerAdapter.notifyDataSetChanged();
+            }
             swipeRefreshLayout.setRefreshing(false);
         }
     }

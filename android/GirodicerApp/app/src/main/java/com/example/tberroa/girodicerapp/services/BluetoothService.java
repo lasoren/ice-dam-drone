@@ -18,9 +18,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.tberroa.girodicerapp.R;
+import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 import com.example.tberroa.girodicerapp.bluetooth.BluetoothException;
 import com.example.tberroa.girodicerapp.bluetooth.ConnectionThread;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
@@ -33,6 +35,7 @@ import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.database.ServerDB;
+import com.example.tberroa.girodicerapp.fragments.DroneMapFragment;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
@@ -66,6 +69,8 @@ public class BluetoothService extends Service {
     public static Status currentStatus;
     public static LatLng home;
     public static boolean serviceRunning = true;
+    public static List<LatLng> iceDamPoints;
+    public static boolean iceDamPointsReady = false;
     private static int clientId;
     private boolean droneNotFound = true;
 
@@ -428,7 +433,7 @@ public class BluetoothService extends Service {
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_SCAN");
 
                                 // scanning phase over, broadcast that salting phase has started
-                                if (context != null){
+                                if (context != null) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_SCAN: broadcasting");
                                     currentInspectionInfo.setPhase(context, Params.CI_SALTING);
                                     context.sendBroadcast(new Intent().setAction(Params.SALTING_STARTED));
@@ -471,7 +476,7 @@ public class BluetoothService extends Service {
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ALL_DAMS");
                                 break;
 
-                            case GProtocol.COMMAND_SEND_POINTS:
+                            case GProtocol.COMMAND_SEND_ICEDAM_POINTS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/POINTS");
                                 break;
 
@@ -491,10 +496,29 @@ public class BluetoothService extends Service {
                                     }.getType();
                                     imageDetailsList = new Gson().fromJson(jsonRGB, type);
 
-                                    // if these RGB images are not part of the salting phase, then transfer phase has begun
-                                    if (!saltingPhaseImages){
+                                    if (saltingPhaseImages) {
+                                        // get icedam points
+                                        for (ImageDetails imageDetails : imageDetailsList) {
+                                            iceDamPoints.addAll(imageDetails.getIceDamPoints());
+                                        }
+
+                                        // raise flag up letting system know icedam points are ready
+                                        iceDamPointsReady = true;
+
+                                        // broadcast that icedam points are ready to map fragment
+                                        if (context != null) {
+                                            Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: broadcasting to map fragment");
+
+                                            // create intent to broadcast to map fragment
+                                            Intent toMapFrag = new Intent(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+                                            toMapFrag.putExtra(CurrentThreeActivity.WHICH_FRAG, DroneMapFragment.class.getName());
+
+                                            // send broadcast to map fragment
+                                            LocalBroadcastManager.getInstance(context).sendBroadcast(toMapFrag);
+                                        }
+                                    } else { // transfer phase has begun
                                         // broadcast that transfer phase has started
-                                        if (context != null){
+                                        if (context != null) {
                                             Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: broadcasting");
                                             currentInspectionInfo.setPhase(context, Params.CI_TRANSFERRING);
                                             context.sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
@@ -585,7 +609,7 @@ public class BluetoothService extends Service {
                             case GProtocol.COMMAND_BLUETOOTH_FINISHED_RGB:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB");
                                 // check if these images were sent as part of the confirmation/salting phase
-                                if (saltingPhaseImages){
+                                if (saltingPhaseImages) {
                                     // all images received from now on should be part of image transfer phase
                                     saltingPhaseImages = false;
                                 }
@@ -594,7 +618,7 @@ public class BluetoothService extends Service {
                             case GProtocol.COMMAND_BLUETOOTH_FINISHED_THERM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM");
                                 // transfer phase complete, broadcast that upload phase has started
-                                if (context != null){
+                                if (context != null) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM: broadcasting");
                                     currentInspectionInfo.setPhase(context, Params.CI_UPLOADING);
                                     context.sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
@@ -623,7 +647,7 @@ public class BluetoothService extends Service {
 
             // create parent directories if needed
             File baseDirectories = Environment.getExternalStoragePublicDirectory(basePath);
-            if(baseDirectories.mkdirs()){
+            if (baseDirectories.mkdirs()) {
                 Log.d(Params.TAG_DBG, "@BS/DH/saveImageLocally: base directories created");
             }
 
@@ -650,7 +674,7 @@ public class BluetoothService extends Service {
         final Context context;
         boolean noError;
 
-        public StartInspection(Context context){
+        public StartInspection(Context context) {
             this.context = context;
         }
 
@@ -676,6 +700,12 @@ public class BluetoothService extends Service {
 
                 // drone is starting scanning phase
                 currentInspectionInfo.setPhase(context, Params.CI_SCANNING);
+
+                // reset some flow related variables
+                iceDamPoints = new ArrayList<>();
+                DroneMapFragment.confirmedIceDamPoints = new ArrayList<>();
+                DroneMapFragment.sentIcedamPoints = false;
+                DroneMapFragment.plottedIceDamPoints = false;
             }
             return null;
         }

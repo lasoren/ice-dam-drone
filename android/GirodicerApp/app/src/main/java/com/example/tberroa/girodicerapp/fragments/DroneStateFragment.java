@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
+import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 public class DroneStateFragment extends Fragment {
 
@@ -55,9 +56,20 @@ public class DroneStateFragment extends Fragment {
 
     @Override
     public void onResume() {
+        super.onResume();
+
+        if (BluetoothService.currentStatus != null){
+            String latitude = String.format("%f", BluetoothService.currentStatus.location.latitude);
+            String longitude = String.format("%f", BluetoothService.currentStatus.location.longitude);
+            String locationFormatted = "(" + latitude + "," + longitude + ")";
+            location.setText(locationFormatted);
+            velocity.setText(String.format("%f", BluetoothService.currentStatus.velocity));
+            state.setText(String.format("%d", BluetoothService.currentStatus.state));
+            armable.setText(String.format("%d", BluetoothService.currentStatus.armable));
+        }
+
         IntentFilter filter = new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, filter);
-        super.onResume();
     }
 
     @Override

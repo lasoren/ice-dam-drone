@@ -126,6 +126,11 @@
     <string name="loading_message">Loading message</string>
 
     <!-- other -->
+    <string name="finish_salting">Finish Salting</string>
+    <string name="send_icedam_points">Send Icedam Points</string>
+    <string name="service_icedam">Service Icedam</string>
+    <string name="confirm_icedam">Confirm Icedam</string>
+    <string name="is_this_an_icedam">Is the following point, coming from the image below, an icedam?</string>
     <string name="waiting_for_confirmation">Waiting for confirmation from drone &#8230;</string>
     <string name="get_path">Get Path</string>
     <string name="start_inspection">Start Inspection</string>

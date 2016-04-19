@@ -10,7 +10,7 @@ import com.example.tberroa.girodicerapp.R;
 
 public class MessageDialog extends Dialog {
 
-    private String message;
+    private final String message;
 
     public MessageDialog(final Context context, String message) {
         super(context, R.style.dialogStyle);

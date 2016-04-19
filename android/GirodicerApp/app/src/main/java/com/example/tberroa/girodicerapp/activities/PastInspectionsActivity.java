@@ -147,9 +147,13 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
     }
 
     private class UpdateInspections extends AsyncTask<Void, Void, Void> {
+
+        private List<Inspection> newInspections;
+        private boolean foundNewInspections;
+
         @Override
         protected Void doInBackground(Void... params) {
-            List<Inspection> newInspections = new ServerDB(PastInspectionsActivity.this).getInspections();
+            newInspections = new ServerDB(PastInspectionsActivity.this).getInspections();
             if (newInspections != null && !newInspections.isEmpty()) {
                 // save new inspections locally
                 ActiveAndroid.beginTransaction();
@@ -161,15 +165,19 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
                 } finally {
                     ActiveAndroid.endTransaction();
                 }
-
-                // update the recycler view
-                inspections.addAll(0, newInspections);
-                pastInspectionsAdapter.notifyDataSetChanged();
+                foundNewInspections = true;
+            } else {
+                foundNewInspections = false;
             }
             return null;
         }
 
         protected void onPostExecute(Void param) {
+            if (foundNewInspections) {
+                // update the recycler view
+                inspections.addAll(0, newInspections);
+                pastInspectionsAdapter.notifyDataSetChanged();
+            }
             swipeRefreshLayout.setRefreshing(false);
         }
     }
