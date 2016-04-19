@@ -68,15 +68,13 @@
     <!-- 2nd step: establish house boundaries -->
     <!-- 3rd step: drone is active, keep track of status -->
     <string name="drone_active_stay_alert">
-        Please keep your eyes on the drone as it performs the inspection.</string>
+        Keep your eyes on the drone as it performs the inspection.</string>
     <string name="status_location">Location: </string>
     <string name="status_location_unit">(Lat,Lng)</string>
     <string name="status_velocity">Velocity: </string>
     <string name="status_velocity_unit">inf m/s</string>
-    <string name="status_state">State: </string>
-    <string name="status_state_placeholder">0xf8</string>
-    <string name="status_armable">Armable: </string>
-    <string name="status_armable_placeholder">true/false</string>
+    <string name="status_battery">Battery</string>
+    <string name="status_battery_unit">int</string>
     <!-- 4th step: post inspection processing -->
     <string name="transfer_phase_text">Data is being transferred to the phone &#8230;</string>
     <string name="upload_phase_text">Data is being uploaded to the cloud &#8230;</string>
@@ -92,11 +90,10 @@
 
     <!-- dialogs -->
     <string name="cannot_sign_out">
-        Cannot sign out until active inspection is terminated and post inspection data processing completes.
+        Cannot sign out while an inspection is in progress.
     </string>
     <string name="confirm_end_inspection">Are you sure you want to end the current inspection?</string>
     <string name="no_active_inspection">There is no active inspection to end.</string>
-    <string name="inspection_in_progress">An inspection is already in progress.</string>
 
     <!-- notification bar -->
     <!-- bluetooth state -->
@@ -126,6 +123,8 @@
     <string name="loading_message">Loading message</string>
 
     <!-- other -->
+    <string name="skip_salting">Skip Salting</string>
+    <string name="no_icedam_points_to_send">There are no confirmed icedam points to send</string>
     <string name="finish_salting">Finish Salting</string>
     <string name="send_icedam_points">Send Icedam Points</string>
     <string name="service_icedam">Service Icedam</string>

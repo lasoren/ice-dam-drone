@@ -19,7 +19,7 @@ import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 public class DroneStateFragment extends Fragment {
 
-    private TextView location, velocity, state, armable;
+    private TextView location, velocity, battery;
 
     private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
@@ -35,8 +35,7 @@ public class DroneStateFragment extends Fragment {
                     String locationFormatted = "(" + latitude + "," + longitude + ")";
                     location.setText(locationFormatted);
                     velocity.setText(String.format("%f", currentStatus.velocity));
-                    state.setText(String.format("%d", currentStatus.state));
-                    armable.setText(String.format("%d", currentStatus.armable));
+                    battery.setText(String.format("%d", currentStatus.battery));
                 }
             }
         }
@@ -48,8 +47,7 @@ public class DroneStateFragment extends Fragment {
 
         location = (TextView) root.findViewById(R.id.status_location);
         velocity = (TextView) root.findViewById(R.id.status_velocity);
-        state = (TextView) root.findViewById(R.id.status_state);
-        armable = (TextView) root.findViewById(R.id.status_armable);
+        battery = (TextView) root.findViewById(R.id.status_battery);
 
         return root;
     }
@@ -64,8 +62,7 @@ public class DroneStateFragment extends Fragment {
             String locationFormatted = "(" + latitude + "," + longitude + ")";
             location.setText(locationFormatted);
             velocity.setText(String.format("%f", BluetoothService.currentStatus.velocity));
-            state.setText(String.format("%d", BluetoothService.currentStatus.state));
-            armable.setText(String.format("%d", BluetoothService.currentStatus.armable));
+            battery.setText(String.format("%d", BluetoothService.currentStatus.battery));
         }
 
         IntentFilter filter = new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);

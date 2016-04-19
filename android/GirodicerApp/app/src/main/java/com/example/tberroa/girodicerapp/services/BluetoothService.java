@@ -74,7 +74,6 @@ public class BluetoothService extends Service {
     private static int clientId;
     private boolean droneNotFound = true;
 
-
     // shared preference used to save state
     private final BluetoothInfo bluetoothInfo = new BluetoothInfo();
 
@@ -259,18 +258,33 @@ public class BluetoothService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService: service destroyed");
+        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: service destroyed");
 
         // shutdown connection thread
         if (btConnectionThread != null) {
             btConnectionThread.shutdown();
         }
 
-        // reset state
+        // reset bluetooth state
         bluetoothInfo.setState(BluetoothService.this, Params.BTS_NOT_CONNECTED);
+
+        // handle current inspection based on how far the user got
         CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-        currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
-        currentInspectionInfo.setNotInProgress(this, true);
+        int phase = currentInspectionInfo.getPhase(this);
+        if (phase == Params.CI_UPLOADING) { // no longer dependent on bluetooth, don't touch current inspection info
+            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: inspection kept in upload phase");
+        } else if (phase == Params.CI_TRANSFERRING) {// transferring gets killed but upload what we can
+            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: inspection pushed into upload phase");
+            currentInspectionInfo.setRoofEdgeCount(this, BTDataHandler.imgIndexRGB);
+            currentInspectionInfo.setThermalCount(this, BTDataHandler.imgIndexTherm);
+            currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
+            startService(new Intent(this, ImageUploadService.class));
+            sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
+        } else { // user was servicing icedams or drone was still scanning, full clean up
+            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
+            currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
+            currentInspectionInfo.setNotInProgress(this, true);
+        }
 
         // update variables
         needInitialStatus = true;
@@ -361,10 +375,10 @@ public class BluetoothService extends Service {
     // handler for reading data from ConnectionThread (reading data from drone)
     public static class BTDataHandler extends Handler {
 
+        public static int imgIndexRGB = 0;
+        public static int imgIndexTherm = 0;
         private static Context context = null;
         private final List<GProtocol> listGProtocol = new ArrayList<>();
-        private int imgIndexRGB = 0;
-        private int imgIndexTherm = 0;
         private List<ImageDetails> imageDetailsList;
         private boolean saltingPhaseImages = true;
         private final String basePath = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER + "/images/";
@@ -380,7 +394,7 @@ public class BluetoothService extends Service {
                         GProtocol received = GProtocol.Unpack(data);
                         switch (received.getCommand()) {
                             case GProtocol.COMMAND_STATUS:
-                                //Log.d(Params.TAG_DBG + Params.TAG_DS, "@BluetoothService/BTDataHandler/COMMAND_STATUS");
+                                Log.d(Params.TAG_STATUS, "@BS/DH/STATUS");
                                 currentStatus = (Status) received.read();
 
                                 // broadcast the status update
@@ -451,9 +465,9 @@ public class BluetoothService extends Service {
                             case GProtocol.COMMAND_BLUETOOTH_SEND_FINISHED_ANALYSIS:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_ANALYSIS");
 
-                                // let drone know we want the icedam marked images
-                                byte[] request = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false);
-                                btConnectionThread.write(request);
+                                // let drone know we want the rgb images (looking to confirm icedams here)
+                                byte[] requestRGB = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_RGB, 1, new byte[1], false);
+                                btConnectionThread.write(requestRGB);
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_SEND_LOW_BATTERY:
@@ -505,7 +519,7 @@ public class BluetoothService extends Service {
                                         // raise flag up letting system know icedam points are ready
                                         iceDamPointsReady = true;
 
-                                        // broadcast that icedam points are ready to map fragment
+                                        // broadcast to trigger the map fragment to plot the icedam points
                                         if (context != null) {
                                             Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: broadcasting to map fragment");
 
@@ -515,13 +529,6 @@ public class BluetoothService extends Service {
 
                                             // send broadcast to map fragment
                                             LocalBroadcastManager.getInstance(context).sendBroadcast(toMapFrag);
-                                        }
-                                    } else { // transfer phase has begun
-                                        // broadcast that transfer phase has started
-                                        if (context != null) {
-                                            Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/JSON_RGB: broadcasting");
-                                            currentInspectionInfo.setPhase(context, Params.CI_TRANSFERRING);
-                                            context.sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
                                         }
                                     }
                                 } else if (received.isPartial()) {
@@ -608,19 +615,26 @@ public class BluetoothService extends Service {
 
                             case GProtocol.COMMAND_BLUETOOTH_FINISHED_RGB:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_RGB");
-                                // check if these images were sent as part of the confirmation/salting phase
-                                if (saltingPhaseImages) {
-                                    // all images received from now on should be part of image transfer phase
-                                    saltingPhaseImages = false;
-                                }
+
+                                // set how many rgb images were received (roof edge)
+                                currentInspectionInfo.setRoofEdgeCount(context, imgIndexRGB);
+
+                                // done receiving all rgb images, now request thermal images
+                                byte[] requestTherm = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SEND_IMAGES_THERM, 1, new byte[1], false);
+                                btConnectionThread.write(requestTherm);
                                 break;
 
                             case GProtocol.COMMAND_BLUETOOTH_FINISHED_THERM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM");
+
+                                // set how many thermal images were received
+                                currentInspectionInfo.setThermalCount(context, imgIndexTherm);
+
                                 // transfer phase complete, broadcast that upload phase has started
                                 if (context != null) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM: broadcasting");
                                     currentInspectionInfo.setPhase(context, Params.CI_UPLOADING);
+                                    context.startService(new Intent(context, ImageUploadService.class));
                                     context.sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
                                 }
                                 break;
@@ -702,6 +716,8 @@ public class BluetoothService extends Service {
                 currentInspectionInfo.setPhase(context, Params.CI_SCANNING);
 
                 // reset some flow related variables
+                BTDataHandler.imgIndexRGB = 0;
+                BTDataHandler.imgIndexTherm = 0;
                 iceDamPoints = new ArrayList<>();
                 DroneMapFragment.confirmedIceDamPoints = new ArrayList<>();
                 DroneMapFragment.sentIcedamPoints = false;

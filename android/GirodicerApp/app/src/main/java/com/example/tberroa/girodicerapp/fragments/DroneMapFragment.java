@@ -16,8 +16,10 @@ import android.widget.Button;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.bluetooth.Points;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.dialogs.ConfirmIceDamDialog;
+import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -91,18 +93,22 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
 
         // initialize finish salting button
         finishSalting = (Button) v.findViewById(R.id.finish_salting);
-        finishSalting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                byte[] command = GProtocol.Pack(GProtocol.COMMAND_END_INSPECTION, 1, new byte[1], false);
-                BluetoothService.btConnectionThread.write(command);
-            }
-        });
+        finishSalting.setText(R.string.skip_salting);
+        finishSalting.setOnClickListener(this);
         finishSalting.setVisibility(View.GONE);
 
         // initialize next button
         next = (Button) v.findViewById(R.id.maps_next);
         next.setOnClickListener(this);
+        next.setVisibility(View.GONE);
+
+        // show buttons only if in salting phase
+        if (new CurrentInspectionInfo().getPhase(getContext()) == Params.CI_SALTING) {
+            next.setVisibility(View.VISIBLE);
+            finishSalting.setVisibility(View.VISIBLE);
+        }
+
+        // set next button text based off whether icedam points have already been sent or not
         if (sentIcedamPoints) {
             next.setText(R.string.service_icedam);
         } else {
@@ -131,19 +137,43 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
 
     @Override
     public void onClick(View v) {
-        next.setEnabled(false);
         switch (v.getId()) {
             case R.id.maps_next:
+                next.setEnabled(false);
+                // icedam points have been sent, send a service icedam command
                 if (sentIcedamPoints) {
+                    Log.d(Params.TAG_DBG + Params.TAG_MAP, "@DroneMapFragment: sending service icedam command");
                     byte[] command = GProtocol.Pack(GProtocol.COMMAND_BLUETOOTH_SERVICE_ICEDAM, 1, new byte[1], false);
                     BluetoothService.btConnectionThread.write(command);
-                    finishSalting.setVisibility(View.VISIBLE);
-                } else {
-                    ArrayList<LatLng> pointsList = new ArrayList<>(confirmedIceDamPoints);
-                    byte[] points = Points.Pack(pointsList);
-                    byte[] pointsPacked = GProtocol.Pack(GProtocol.COMMAND_SEND_ICEDAM_POINTS, points.length, points, false);
-                    BluetoothService.btConnectionThread.write(pointsPacked);
+                    next.setEnabled(true);
+                } else { // icedam points have not been sent, check if drone is ready for them
+                    if (confirmedIceDamPoints != null && !confirmedIceDamPoints.isEmpty()) {
+                        Log.d(Params.TAG_DBG + Params.TAG_MAP, "@DroneMapFragment: sending icedam points");
+                        ArrayList<LatLng> pointsList = new ArrayList<>(confirmedIceDamPoints);
+                        byte[] points = Points.Pack(pointsList);
+                        byte[] pointsPacked = GProtocol.Pack(GProtocol.COMMAND_SEND_ICEDAM_POINTS, points.length, points, false);
+                        BluetoothService.btConnectionThread.write(pointsPacked);
+                        sentIcedamPoints = true;
+                        next.setText(R.string.service_icedam);
+                        next.setEnabled(true);
+                        finishSalting.setText(R.string.finish_salting);
+                    } else { // let user know that there are no points to send
+                        new MessageDialog(getContext(), getString(R.string.no_icedam_points_to_send)).show();
+                        next.setEnabled(true);
+                    }
                 }
+                break;
+
+            case R.id.finish_salting:
+                Log.d(Params.TAG_DBG + Params.TAG_MAP, "@DroneMapFragment: finish salting button clicked");
+                next.setEnabled(false);
+                next.setVisibility(View.GONE);
+                finishSalting.setEnabled(false);
+                finishSalting.setVisibility(View.GONE);
+
+                // broadcast that transfer phase has started
+                new CurrentInspectionInfo().setPhase(getContext(), Params.CI_TRANSFERRING);
+                getContext().sendBroadcast(new Intent().setAction(Params.TRANSFER_STARTED));
                 break;
         }
     }
@@ -153,13 +183,13 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
         super.onResume();
         mapView.onResume();
 
-        if (BluetoothService.currentStatus != null) {
+        if (map != null && BluetoothService.currentStatus != null) {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(BluetoothService.currentStatus.location, 24));
             droneMarker.setPosition(BluetoothService.currentStatus.location);
         }
 
-        if (BluetoothService.iceDamPointsReady && !plottedIceDamPoints) {
-            Log.d(Params.TAG_DBG, "@DroneMapFragment: plotting icedam points");
+        if (map != null && BluetoothService.iceDamPointsReady && !plottedIceDamPoints) {
+            Log.d(Params.TAG_DBG + Params.TAG_MAP, "@DroneMapFragment: plotting icedam points");
 
             // plot points in blue
             for (LatLng point : BluetoothService.iceDamPoints) {
@@ -169,6 +199,12 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
             }
 
             plottedIceDamPoints = true;
+        }
+
+        // show buttons only if in salting phase
+        if (next != null && new CurrentInspectionInfo().getPhase(getContext()) == Params.CI_SALTING) {
+            next.setVisibility(View.VISIBLE);
+            finishSalting.setVisibility(View.VISIBLE);
         }
 
         IntentFilter filter = new IntentFilter(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);

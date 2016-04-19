@@ -27,6 +27,6 @@ public class MessageDialog extends Dialog {
         TextView textView = (TextView) findViewById(R.id.general_message);
         textView.setText(message);
 
-        setCancelable(false);
+        setCancelable(true);
     }
 }

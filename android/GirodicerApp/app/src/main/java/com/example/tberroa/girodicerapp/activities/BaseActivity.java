@@ -32,6 +32,7 @@ import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
+import com.example.tberroa.girodicerapp.services.ImageUploadService;
 
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -72,11 +73,26 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 BluetoothService.btConnectionThread.shutdown();
             }
 
-            // reset state
+            // reset bluetooth state
             bluetoothInfo.setState(this, Params.BTS_NOT_CONNECTED);
+
+            // handle current inspection based on how far the user got
             CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-            currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
-            currentInspectionInfo.setNotInProgress(this, true);
+            int phase = currentInspectionInfo.getPhase(this);
+            if (phase == Params.CI_UPLOADING) { // no longer dependent on bluetooth, don't touch current inspection info
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: inspection kept in upload phase");
+            } else if (phase == Params.CI_TRANSFERRING) {// transferring gets killed but upload what we can
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: inspection pushed into upload phase");
+                currentInspectionInfo.setRoofEdgeCount(this, BluetoothService.BTDataHandler.imgIndexRGB);
+                currentInspectionInfo.setThermalCount(this, BluetoothService.BTDataHandler.imgIndexTherm);
+                currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
+                startService(new Intent(this, ImageUploadService.class));
+                sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
+            } else { // user was servicing icedams or drone was still scanning, full clean up
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
+                currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
+                currentInspectionInfo.setNotInProgress(this, true);
+            }
 
             // update variables
             BluetoothService.needInitialStatus = true;
@@ -117,7 +133,6 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
 
                 if (action.equals(Params.INSPECTION_TERMINATED)) {
                     stopService(new Intent(BaseActivity.this, BluetoothService.class));
-                    currentInspectionInfo.clearAll(BaseActivity.this);
                 }
 
                 // always do a simply reload

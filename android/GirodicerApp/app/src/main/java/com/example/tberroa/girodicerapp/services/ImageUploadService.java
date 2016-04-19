@@ -39,13 +39,6 @@ public class ImageUploadService extends Service {
 
     @Override
     public void onCreate() {
-        // update phase
-        CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
-        currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
-
-        // broadcast that upload phase has begun
-        sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
-
         // grab data
         inspectionId = currentInspectionInfo.getInspectionId(this);
         int numberOfAerials = currentInspectionInfo.getAerialCount(this);
