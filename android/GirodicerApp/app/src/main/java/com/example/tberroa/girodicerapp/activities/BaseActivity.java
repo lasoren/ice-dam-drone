@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.data.UserInfo;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
-import com.example.tberroa.girodicerapp.dialogs.EndInspectionDialog;
+import com.example.tberroa.girodicerapp.dialogs.ConfirmDialog;
 import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
@@ -277,21 +278,14 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                             String message = getString(R.string.no_active_inspection);
                             new MessageDialog(BaseActivity.this, message).show();
                         } else {
-                            int inspectionPhase = currentInspectionInfo.getPhase(BaseActivity.this);
-                            String message;
-                            switch (inspectionPhase) {
-                                case 1:
-                                    new EndInspectionDialog(BaseActivity.this).getDialog().show();
-                                    break;
-                                case 2:
-                                    message = getString(R.string.transfer_phase_text);
-                                    new MessageDialog(BaseActivity.this, message).show();
-                                    break;
-                                case 3:
-                                    message = getString(R.string.upload_phase_text);
-                                    new MessageDialog(BaseActivity.this, message).show();
-                                    break;
-                            }
+                            String message = getString(R.string.confirm_end_inspection);
+                            ConfirmDialog confirmDialog = new ConfirmDialog(BaseActivity.this, message);
+                            confirmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialog) {
+                                    sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
+                                }
+                            });
                         }
                     }
                 });
@@ -344,7 +338,14 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 drawer.openDrawer(GravityCompat.START);
                 return true;
             case Params.TERMINATE_INSPECTION:
-                sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
+                String message = getString(R.string.confirm_end_inspection);
+                ConfirmDialog confirmDialog = new ConfirmDialog(this, message);
+                confirmDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
+                    }
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

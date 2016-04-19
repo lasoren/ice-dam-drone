@@ -75,9 +75,6 @@
     <string name="status_velocity_unit">inf m/s</string>
     <string name="status_battery">Battery</string>
     <string name="status_battery_unit">int</string>
-    <!-- 4th step: post inspection processing -->
-    <string name="transfer_phase_text">Data is being transferred to the phone &#8230;</string>
-    <string name="upload_phase_text">Data is being uploaded to the cloud &#8230;</string>
 
     <!-- past inspections activity -->
     <string name="past_inspections_title">Past Inspections</string>
@@ -123,6 +120,9 @@
     <string name="loading_message">Loading message</string>
 
     <!-- other -->
+    <string name="need_rgb_images">
+        Roof edge images are still being transferred. Need all roof edge images before beginning to service ice dams.
+    </string>
     <string name="drone_busy_in_flight">Drone is busy in flight, need to wait until the drone has landed.</string>
     <string name="servicing_in_process">In Process &#8230;</string>
     <string name="waiting_for_service_confirmation">Waiting For Confirmation</string>

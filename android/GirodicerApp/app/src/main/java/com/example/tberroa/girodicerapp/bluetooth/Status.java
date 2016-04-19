@@ -9,9 +9,9 @@ import java.nio.ByteBuffer;
 
 @SuppressWarnings({"WeakerAccess", "unused", "MismatchedQueryAndUpdateOfCollection"})
 public class Status implements Parcelable {
-    public LatLng location;
-    public Double velocity;
-    public int battery;
+    public final LatLng location;
+    public final Double velocity;
+    public final int battery;
 
     protected Status(Parcel in) {
         location = in.readParcelable(LatLng.class.getClassLoader());

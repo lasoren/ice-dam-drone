@@ -77,7 +77,7 @@ public class LocalDB {
 
         for (InspectionImage image : images){
             if (image != null && image.path != null){ // loop through until a valid image is found
-                return image.path + "_s.jpg"; // once a valid image is found, use that as the thumbnail
+                return image.path + ".jpg"; // once a valid image is found, use that as the thumbnail
             }
         }
         return null;
