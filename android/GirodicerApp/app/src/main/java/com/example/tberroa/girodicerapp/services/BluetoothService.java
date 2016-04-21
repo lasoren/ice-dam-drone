@@ -824,11 +824,8 @@ public class BluetoothService extends Service {
                 currentInspectionInfo.setPhase(context, Params.CI_SCANNING);
 
                 // reset flow related control variables
-                houseBoundary = new ArrayList<>();
                 iceDamPoints = new ArrayList<>();
                 pointToImageIndex = new HashMap<>();
-                needInitialStatus = true;
-                mapPhaseComplete = false;
                 iceDamPointsReady = false;
                 receivedAllRGBImages = false;
                 readyToServiceIcedam = false;

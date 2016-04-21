@@ -183,7 +183,7 @@ public class CurrentOneActivity extends BaseActivity {
         intent.putExtra("client_id", clientId);
         startService(intent);
 
-        // pass context to the service (needed to broadcast initial status, context unreferenced afterwards)
+        // pass context to the data handler
         BluetoothService.BTDataHandler.passContext(CurrentOneActivity.this);
     }
 
