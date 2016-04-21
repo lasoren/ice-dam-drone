@@ -40,15 +40,19 @@ public class ConfirmIceDamDialog extends Dialog {
         String pointFormatted = "(" + latitude + "," + longitude + ")";
         pointView.setText(pointFormatted);
 
+        // initialize image view
+        ImageView imageView = (ImageView) findViewById(R.id.icedam_image);
+
         // initialize no image text view
         TextView noImageView = (TextView) findViewById(R.id.no_image);
 
         // set image
         if (image != null){
             noImageView.setVisibility(View.GONE);
-            ImageView imageView = (ImageView) findViewById(R.id.icedam_image);
+            imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(image);
         } else{
+            imageView.setVisibility(View.GONE);
             noImageView.setVisibility(View.VISIBLE);
         }
 

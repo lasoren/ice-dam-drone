@@ -15,8 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class ConnectionThread extends Thread {
-    public static final String BT_DATA = "BTDATA";
 
+    public static final String BT_DATA = "BTDATA";
     private final BluetoothSocket btSocket;
     private final InputStream btInStream;
     private final OutputStream btOutStream;
@@ -45,7 +45,7 @@ public class ConnectionThread extends Thread {
         byte[] buffer = new byte[1024];  // buffer store for the stream
         int bytes; // bytes returned from read()
 
-        // Keep listening to the InputStream until an exception occurs
+        // Keep listening to the InputStream until an io exception occurs
         boolean listen = true;
         while (listen) {
             try {
@@ -57,26 +57,24 @@ public class ConnectionThread extends Thread {
                 bundle.putByteArray(BT_DATA, buffer);
                 msg.setData(bundle);
                 btDataHandler.send(msg);
-                Log.d(Params.TAG_DBG, "@ConnectionThread: message sent to handler");
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@ConnectionThread: message sent to handler");
             } catch (IOException e) {
-                Log.d(Params.TAG_DBG, "@ConnectionThread: IOException occurred");
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@ConnectionThread: IOException occurred");
                 e.printStackTrace();
                 listen = false;
+                shutdown();
             } catch (RemoteException e) {
-                Log.d(Params.TAG_DBG, "@ConnectionThread: RemoteException occurred");
+                Log.d(Params.TAG_DBG + Params.TAG_BT, "@ConnectionThread: RemoteException occurred");
                 e.printStackTrace();
-                listen = false;
             }
         }
-        // exception occurred, shutdown
-        shutdown();
     }
 
     /* Call this to send data to the remote device */
     public void write(byte[] bytes) {
         try {
             btOutStream.write(bytes);
-            Log.d(Params.TAG_DBG, "@ConnectionThread/write: sending drone a signal");
+            Log.d(Params.TAG_DBG + Params.TAG_BT, "@ConnectionThread/write: sending drone a signal");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,6 +82,20 @@ public class ConnectionThread extends Thread {
 
     /* Call this to shutdown the connection */
     public void shutdown() {
+
+        // close streams
+        try {
+            btInStream.close();
+        } catch (IOException inCloseException) {
+            inCloseException.printStackTrace();
+        }
+        try {
+            btOutStream.close();
+        } catch (IOException outCloseException) {
+            outCloseException.printStackTrace();
+        }
+
+        // close socket
         try {
             btSocket.close();
         } catch (IOException e) {

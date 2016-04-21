@@ -230,7 +230,9 @@ public class BluetoothService extends Service {
         new Thread(new Runnable() {
             public void run() {
                 // cancel discovery
-                btAdapter.cancelDiscovery();
+                if (btAdapter.isDiscovering()) {
+                    btAdapter.cancelDiscovery();
+                }
 
                 // initialize bluetooth socket
                 BluetoothSocket btSocket = null;
@@ -244,22 +246,29 @@ public class BluetoothService extends Service {
                 if (btSocket != null) {
                     try {
                         btSocket.connect();
-                    } catch (IOException connectException) {
-                        Log.d(Params.TAG_DBG + Params.TAG_BT, connectException.toString());
-                        Log.d(Params.TAG_DBG + Params.TAG_BT, "socket couldn't connect");
+                    } catch (Exception connectException) {
+                        Log.d(Params.TAG_DBG + Params.TAG_BT, "@BT/attemptToConnect: first socket couldn't connect");
 
-                        // try closing socket
                         try {
-                            btSocket.close();
-                        } catch (IOException closeException) {
-                            Log.d(Params.TAG_DBG + Params.TAG_BT, closeException.toString());
-                            Log.d(Params.TAG_DBG + Params.TAG_BT, "socket couldn't close");
+                            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BT/attemptToConnect: trying fallback socket");
+                            btSocket = (BluetoothSocket) btDevice.getClass()
+                                    .getMethod("createRfcommSocket", new Class[]{int.class})
+                                    .invoke(btDevice, 1);
+                            btSocket.connect();
+                        } catch (Exception fallbackConnectException) {
+                            Log.d(Params.TAG_DBG + Params.TAG_BT, "@BT/attemptToConnect: fallback socket couldn't connect");
+
+                            // fallback socket couldn't connect, try closing socket
+                            try {
+                                btSocket.close();
+                            } catch (IOException closeException) {
+                                Log.d(Params.TAG_DBG + Params.TAG_BT, closeException.toString());
+                                Log.d(Params.TAG_DBG + Params.TAG_BT, "socket couldn't close");
+                            }
+                            btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
+                            return;
                         }
-
-                        btConnectHandler.obtainMessage(CONNECT_ATTEMPT_FAILED).sendToTarget();
-                        return;
                     }
-
                     btConnectHandler.obtainMessage(CONNECT_ATTEMPT_SUCCESS, -1, -1, btSocket).sendToTarget();
                 } else {
                     Log.d(Params.TAG_DBG + Params.TAG_BT, "socket null");
@@ -535,7 +544,7 @@ public class BluetoothService extends Service {
                                     doneServicingWaitingToLand = false;
                                 }
 
-                                if (doneLastIceDam){
+                                if (doneLastIceDam) {
                                     if (currentInspectionInfo.getPhase(context) != Params.CI_TRANSFERRING) {
                                         // broadcast that transfer phase has started
                                         currentInspectionInfo.setPhase(context, Params.CI_TRANSFERRING);
@@ -626,14 +635,14 @@ public class BluetoothService extends Service {
 
                                     if (saltingPhaseImages) {
                                         // get icedam points
-                                        for (int i=0; i<imageDetailsList.size(); i++) {
+                                        for (int i = 0; i < imageDetailsList.size(); i++) {
                                             List<LatLng> points = imageDetailsList.get(i).getIceDamPoints();
 
                                             // save points
                                             iceDamPoints.addAll(points);
 
                                             // save point to image mapping
-                                            for (LatLng point : points){
+                                            for (LatLng point : points) {
                                                 pointToImageIndex.put(point, i);
                                             }
                                         }
@@ -699,7 +708,7 @@ public class BluetoothService extends Service {
                                     Images imageRGB = (Images) finalGProtocol.read();
                                     listGProtocol.clear();
 
-                                    if (imgIndexRGB == 0){ // on first image, create the new cache
+                                    if (imgIndexRGB == 0) { // on first image, create the new cache
                                         imageIndexToImage = new LruCache<>(imageDetailsList.size());
                                     }
 

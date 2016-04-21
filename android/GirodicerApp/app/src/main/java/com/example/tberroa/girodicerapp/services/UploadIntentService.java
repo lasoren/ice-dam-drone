@@ -32,6 +32,9 @@ public class UploadIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        // bluetooth no longer necessary
+        stopService(new Intent(this, BluetoothService.class));
+
         // initialize constants
         CurrentInspectionInfo currentInspectionInfo = new CurrentInspectionInfo();
         String aerialType = Integer.toString(Params.I_TYPE_AERIAL);
@@ -69,10 +72,10 @@ public class UploadIntentService extends IntentService {
         List<InspectionImage> images = serverDB.createInspectionImages(inspectionId, inspectionImages, taken);
 
         // using the backend-generated path provided in the inspection image objects, upload to aws
-        int num = 0;
-        for (int type : imageType) { // loop per image type
-            for (int i = 0; i < numberOfImages.getInt(Integer.toString(type)); i++) { // loop per image of that type
-                if (images != null) {
+        if (images != null) {
+            int num = 0;
+            for (int type : imageType) { // loop per image type
+                for (int i = 0; i < numberOfImages.getInt(Integer.toString(type)); i++) { // loop per image of that type
                     // initialize some variables
                     InspectionImage image = images.get(num);
                     String typeString = Integer.toString(image.image_type);

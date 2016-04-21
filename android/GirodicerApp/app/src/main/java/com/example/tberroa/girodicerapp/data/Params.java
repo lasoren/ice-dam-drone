@@ -17,6 +17,7 @@ public class Params {
     final public static String TAG_DS = " TAG_DS";
     final public static String TAG_STATUS = "TAG_STATUS";
     final public static String TAG_MAP = "TAG_MAP";
+    final public static String TAG_HTTP = "TAG_HTTP";
     final public static String TAG_ERROR = " TAG_ERROR";
     final public static String TAG_EXCEPTION = " TAG_EXCEPTION";
 
