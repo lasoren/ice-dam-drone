@@ -17,6 +17,7 @@ import android.view.View;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.fragments.DroneMapFragment;
 import com.example.tberroa.girodicerapp.fragments.DroneStateFragment;
@@ -43,7 +44,14 @@ public class CurrentThreeActivity extends BaseActivity {
         }
 
         // check if user should be in this activity
-        if (BluetoothService.notRunning(this)) { // bluetooth needs to be setup
+        if (new CurrentInspectionInfo().getPhase(this) == Params.CI_UPLOADING){
+            // done inspection but still uploading, go to fourth activity
+            startActivity(new Intent(this, CurrentFourActivity.class));
+            finish();
+            return;
+        }
+        if (BluetoothService.notRunning(this)) {
+            // bluetooth needs to be setup, go back to first activity
             startActivity(new Intent(this, CurrentOneActivity.class));
             finish();
             return;

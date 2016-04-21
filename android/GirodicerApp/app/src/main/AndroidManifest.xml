@@ -58,6 +58,7 @@
         <activity android:name=".activities.CurrentOneActivity"/>
         <activity android:name=".activities.CurrentTwoActivity"/>
         <activity android:name=".activities.CurrentThreeActivity"/>
+        <activity android:name=".activities.CurrentFourActivity"/>
         <activity android:name=".activities.PastInspectionsActivity"/>
         <activity android:name=".activities.InspectionActivity"/>
 

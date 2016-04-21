@@ -120,6 +120,9 @@
     <string name="loading_message">Loading message</string>
 
     <!-- other -->
+    <string name="uploading_aerial_images">Uploading Aerial Images</string>
+    <string name="uploading_thermal_images">Uploading Thermal Images</string>
+    <string name="uploading_rgb_images">Uploading Roof Edge Images</string>
     <string name="drone_is_in_the_air">Drone is in the air</string>
     <string name="drone_is_landed">Drone is landed</string>
     <string name="image_not_yet_received">Image not yet received</string>

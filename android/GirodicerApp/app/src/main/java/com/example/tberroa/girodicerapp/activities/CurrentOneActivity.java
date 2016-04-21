@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
 
@@ -81,6 +82,14 @@ public class CurrentOneActivity extends BaseActivity {
         } else {
             // user just arrived, reset bluetooth error code
             bluetoothInfo.setErrorCode(this, 0);
+        }
+
+        // check if user should be in this activity
+        if (new CurrentInspectionInfo().getPhase(this) == Params.CI_UPLOADING){
+            // done inspection but still uploading, go to fourth activity
+            startActivity(new Intent(this, CurrentFourActivity.class));
+            finish();
+            return;
         }
         if (bluetoothInfo.getState(this) == Params.BTS_CONNECTED && BluetoothService.currentStatus != null) {
             // go to next activity if connection process has already been completed

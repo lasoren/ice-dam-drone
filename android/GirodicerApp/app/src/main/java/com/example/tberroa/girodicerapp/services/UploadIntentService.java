@@ -12,6 +12,7 @@ import android.util.Log;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.example.tberroa.girodicerapp.activities.CurrentFourActivity;
 import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.database.ServerDB;
@@ -25,6 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UploadIntentService extends IntentService {
+
+    public static int uploadingType;
+    public static int numOfAerials;
+    public static int numOfThermals;
+    public static int numOfRoofEdges;
 
     public UploadIntentService() {
         super("UploadIntentService");
@@ -43,17 +49,21 @@ public class UploadIntentService extends IntentService {
         int imageType[] = {Params.I_TYPE_AERIAL, Params.I_TYPE_THERMAL, Params.I_TYPE_ROOF_EDGE};
         String basePath = Environment.DIRECTORY_PICTURES + Params.HOME_FOLDER;
 
+        // initialize static ui variables
+        CurrentFourActivity.progressStatus = 0;
+        CurrentFourActivity.previousUploadType = Params.I_TYPE_NOT_SPECIFIED;
+
         // grab data
         int inspectionId = currentInspectionInfo.getInspectionId(this);
-        int numberOfAerials = currentInspectionInfo.getAerialCount(this);
-        int numberOfThermals = currentInspectionInfo.getThermalCount(this);
-        int numberOfRoofEdges = currentInspectionInfo.getRoofEdgeCount(this);
+        numOfAerials = currentInspectionInfo.getAerialCount(this);
+        numOfThermals = currentInspectionInfo.getThermalCount(this);
+        numOfRoofEdges = currentInspectionInfo.getRoofEdgeCount(this);
 
         // pack data into bundle to make iterative access simpler
         Bundle numberOfImages = new Bundle();
-        numberOfImages.putInt(aerialType, numberOfAerials);
-        numberOfImages.putInt(thermalType, numberOfThermals);
-        numberOfImages.putInt(roofEdgeType, numberOfRoofEdges);
+        numberOfImages.putInt(aerialType, numOfAerials);
+        numberOfImages.putInt(thermalType, numOfThermals);
+        numberOfImages.putInt(roofEdgeType, numOfRoofEdges);
 
         // initialize transfer utility
         TransferUtility transfer = CloudTools.getTransferUtility(UploadIntentService.this);
@@ -75,6 +85,7 @@ public class UploadIntentService extends IntentService {
         if (images != null) {
             int num = 0;
             for (int type : imageType) { // loop per image type
+                uploadingType = type;
                 for (int i = 0; i < numberOfImages.getInt(Integer.toString(type)); i++) { // loop per image of that type
                     // initialize some variables
                     InspectionImage image = images.get(num);
@@ -157,6 +168,9 @@ public class UploadIntentService extends IntentService {
                                     }
                                     // save image locally
                                     image.save();
+
+                                    // broadcast the successful upload
+                                    sendBroadcast(new Intent().setAction(Params.IMAGE_UPLOAD_COMPLETE));
                                 }
                             } catch (InterruptedException e) {
                                 e.printStackTrace();

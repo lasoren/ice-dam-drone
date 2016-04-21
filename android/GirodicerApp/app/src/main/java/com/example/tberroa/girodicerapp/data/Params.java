@@ -77,6 +77,7 @@ public class Params {
 
     // UI parameters
     final public static String RELOAD = "reload"; // reload activity without animation
+    final public static String IMAGE_UPLOAD_COMPLETE = "IMAGE_UPLOAD_COMPLETE";
     final public static String AERIAL_TAB = "aerial";
     final public static String THERMAL_TAB = "thermal";
     final public static String ROOF_EDGE_TAB = "roof edge";

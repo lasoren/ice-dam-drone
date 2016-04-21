@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.bluetooth.GProtocol;
 import com.example.tberroa.girodicerapp.data.ClientId;
+import com.example.tberroa.girodicerapp.data.CurrentInspectionInfo;
 import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Points;
 import com.example.tberroa.girodicerapp.dialogs.GotItDialog;
@@ -54,13 +55,20 @@ public class CurrentTwoActivity extends BaseActivity implements OnMapReadyCallba
         }
 
         // check if user should be in this activity
-        if (BluetoothService.notRunning(this)) { // bluetooth needs to be setup
+        if (new CurrentInspectionInfo().getPhase(this) == Params.CI_UPLOADING){
+            // done inspection but still uploading, go to fourth activity
+            startActivity(new Intent(this, CurrentFourActivity.class));
+            finish();
+            return;
+        }
+        if (BluetoothService.notRunning(this)) {
+            // bluetooth needs to be setup, go back to first activity
             startActivity(new Intent(this, CurrentOneActivity.class));
             finish();
             return;
         }
         if (BluetoothService.mapPhaseComplete) {
-            // go to next activity
+            // done setting up flight path, go to next activity
             startActivity(new Intent(this, CurrentThreeActivity.class));
             finish();
             return;
