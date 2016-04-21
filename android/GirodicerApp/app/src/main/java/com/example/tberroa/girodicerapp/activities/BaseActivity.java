@@ -32,7 +32,7 @@ import com.example.tberroa.girodicerapp.dialogs.CreateClientDialog;
 import com.example.tberroa.girodicerapp.dialogs.MessageDialog;
 import com.example.tberroa.girodicerapp.helpers.Utilities;
 import com.example.tberroa.girodicerapp.services.BluetoothService;
-import com.example.tberroa.girodicerapp.services.ImageUploadService;
+import com.example.tberroa.girodicerapp.services.UploadIntentService;
 
 public class BaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -87,7 +87,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
                 currentInspectionInfo.setRoofEdgeCount(this, BluetoothService.BTDataHandler.imgIndexRGB);
                 currentInspectionInfo.setThermalCount(this, BluetoothService.BTDataHandler.imgIndexTherm);
                 currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
-                startService(new Intent(this, ImageUploadService.class));
+                startService(new Intent(this, UploadIntentService.class));
                 sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
             } else { // user was servicing icedams or drone was still scanning, full clean up
                 Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");

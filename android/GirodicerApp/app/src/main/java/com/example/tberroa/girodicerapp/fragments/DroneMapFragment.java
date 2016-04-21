@@ -208,21 +208,14 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
                 } else {
                     new MessageDialog(getContext(), getString(R.string.drone_busy_in_flight)).show();
                 }
-
                 break;
         }
     }
 
+    // register receiver and update view
     @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
-
-        // show buttons only if in salting phase
-        if (next != null && new CurrentInspectionInfo().getPhase(getContext()) == Params.CI_SALTING) {
-            next.setVisibility(View.VISIBLE);
-            finishSalting.setVisibility(View.VISIBLE);
-        }
+    public void onStart(){
+        super.onStart();
 
         // update camera
         if (map != null && BluetoothService.currentStatus != null) {
@@ -260,23 +253,39 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiveActivityEvents, filter);
     }
 
+    // handle map view lifecycle
     @Override
-    public void onPause() {
-        super.onPause();
-        mapView.onPause();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiveActivityEvents);
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
     }
 
+    // handle map view lifecycle
+    @Override
+    public void onPause(){
+        mapView.onPause();
+        super.onPause();
+    }
+
+    // unregister receiver
+    @Override
+    public void onStop() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiveActivityEvents);
+        super.onStop();
+    }
+
+    // handle map view life cycle
     @Override
     public void onDestroy() {
-        super.onDestroy();
         mapView.onDestroy();
         plottedIceDamPoints = false;
+        super.onDestroy();
     }
 
+    // handle map view life cycle
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
         mapView.onLowMemory();
+        super.onLowMemory();
     }
 }

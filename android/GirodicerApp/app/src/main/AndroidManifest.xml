@@ -71,7 +71,7 @@
             android:name=".services.BluetoothService"
             android:exported="false"/>
         <service
-            android:name=".services.ImageUploadService"
+            android:name=".services.UploadIntentService"
             android:exported="false"/>
 
         <receiver

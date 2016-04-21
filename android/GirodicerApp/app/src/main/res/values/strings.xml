@@ -120,6 +120,8 @@
     <string name="loading_message">Loading message</string>
 
     <!-- other -->
+    <string name="drone_is_in_the_air">Drone is in the air</string>
+    <string name="drone_is_landed">Drone is landed</string>
     <string name="image_not_yet_received">Image not yet received</string>
     <string name="need_rgb_images">
         Roof edge images are still being transferred. Need all roof edge images before beginning to service ice dams.

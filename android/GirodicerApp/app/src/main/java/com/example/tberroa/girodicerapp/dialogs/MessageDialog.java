@@ -15,6 +15,7 @@ public class MessageDialog extends Dialog {
     public MessageDialog(final Context context, String message) {
         super(context, R.style.dialogStyle);
         this.message = message;
+        setCancelable(true);
     }
 
     @Override
@@ -26,7 +27,5 @@ public class MessageDialog extends Dialog {
         // initialize text view
         TextView textView = (TextView) findViewById(R.id.general_message);
         textView.setText(message);
-
-        setCancelable(true);
     }
 }

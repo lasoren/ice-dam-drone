@@ -37,6 +37,7 @@ import com.example.tberroa.girodicerapp.data.Params;
 import com.example.tberroa.girodicerapp.bluetooth.Status;
 import com.example.tberroa.girodicerapp.database.ServerDB;
 import com.example.tberroa.girodicerapp.fragments.DroneMapFragment;
+import com.example.tberroa.girodicerapp.fragments.DroneStateFragment;
 import com.example.tberroa.girodicerapp.models.Inspection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
@@ -291,7 +292,7 @@ public class BluetoothService extends Service {
             currentInspectionInfo.setRoofEdgeCount(this, BTDataHandler.imgIndexRGB);
             currentInspectionInfo.setThermalCount(this, BTDataHandler.imgIndexTherm);
             currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
-            startService(new Intent(this, ImageUploadService.class));
+            startService(new Intent(this, UploadIntentService.class));
             sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
         } else { // full clean up
             Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
@@ -474,11 +475,35 @@ public class BluetoothService extends Service {
                             case GProtocol.COMMAND_ARM:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/ARM");
                                 motorsArmed = true;
+
+                                // broadcast to trigger the status fragment to check conditions
+                                if (context != null) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED: broadcasting to status fragment");
+
+                                    // create intent to broadcast to status fragment
+                                    Intent toMapFrag = new Intent(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+                                    toMapFrag.putExtra(CurrentThreeActivity.WHICH_FRAG, DroneStateFragment.class.getName());
+
+                                    // send broadcast to map fragment
+                                    LocalBroadcastManager.getInstance(context).sendBroadcast(toMapFrag);
+                                }
                                 break;
 
                             case GProtocol.COMMAND_SEND_DRONE_LANDED:
                                 Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED");
                                 motorsArmed = false;
+
+                                // broadcast to trigger the status fragment to check conditions
+                                if (context != null) {
+                                    Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED: broadcasting to status fragment");
+
+                                    // create intent to broadcast to status fragment
+                                    Intent toMapFrag = new Intent(CurrentThreeActivity.DRONE_ACTIVITY_BROADCAST);
+                                    toMapFrag.putExtra(CurrentThreeActivity.WHICH_FRAG, DroneStateFragment.class.getName());
+
+                                    // send broadcast to map fragment
+                                    LocalBroadcastManager.getInstance(context).sendBroadcast(toMapFrag);
+                                }
 
                                 if (doneAnalysisWaitingToLand) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/DRONE_LANDED: sending request for rgb images");
@@ -742,7 +767,7 @@ public class BluetoothService extends Service {
                                 if (context != null) {
                                     Log.d(Params.TAG_DBG + Params.TAG_DS, "@BS/DH/FINISHED_THERM: broadcasting");
                                     currentInspectionInfo.setPhase(context, Params.CI_UPLOADING);
-                                    context.startService(new Intent(context, ImageUploadService.class));
+                                    context.startService(new Intent(context, UploadIntentService.class));
                                     context.sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
                                 }
                                 break;

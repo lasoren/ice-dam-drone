@@ -19,7 +19,7 @@ import com.example.tberroa.girodicerapp.services.BluetoothService;
 
 public class DroneStateFragment extends Fragment {
 
-    private TextView location, velocity, battery;
+    private TextView landOrAir, location, velocity, battery;
 
     private final BroadcastReceiver receiveActivityEvents = new BroadcastReceiver() {
         @Override
@@ -28,6 +28,12 @@ public class DroneStateFragment extends Fragment {
 
             if (frag.equals(DroneStateFragment.class.getName())) {
                 Status currentStatus = intent.getParcelableExtra(CurrentThreeActivity.STATUS_PACKAGE);
+
+                if (BluetoothService.motorsArmed){
+                    landOrAir.setText(R.string.drone_is_in_the_air);
+                } else{
+                    landOrAir.setText(R.string.drone_is_landed);
+                }
 
                 if (currentStatus != null){
                     String latitude = String.format("%f", currentStatus.location.latitude);
@@ -45,6 +51,7 @@ public class DroneStateFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_drone_status, container, false);
 
+        landOrAir = (TextView) root.findViewById(R.id.land_or_air);
         location = (TextView) root.findViewById(R.id.status_location);
         velocity = (TextView) root.findViewById(R.id.status_velocity);
         battery = (TextView) root.findViewById(R.id.status_battery);
@@ -53,10 +60,14 @@ public class DroneStateFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
+    public void onStart(){
+        super.onStart();
         if (BluetoothService.currentStatus != null){
+            if (BluetoothService.motorsArmed){
+                landOrAir.setText(R.string.drone_is_in_the_air);
+            } else{
+                landOrAir.setText(R.string.drone_is_landed);
+            }
             String latitude = String.format("%f", BluetoothService.currentStatus.location.latitude);
             String longitude = String.format("%f", BluetoothService.currentStatus.location.longitude);
             String locationFormatted = "(" + latitude + "," + longitude + ")";
@@ -70,8 +81,8 @@ public class DroneStateFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
+    public void onStop(){
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiveActivityEvents);
-        super.onPause();
+        super.onStop();
     }
 }

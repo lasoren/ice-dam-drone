@@ -32,6 +32,7 @@ public class Http {
             JSONObject jsonObject;
             jsonObject = new JSONObject(rawResponse);
             int code = jsonObject.optInt("code", 0);
+            Log.d(Params.TAG_DBG, "@Http/doPostRequest: code is: " + code);
             if (code == 0) {
                 return rawResponse;
             } else {

@@ -153,8 +153,8 @@ public class ServerDB {
                 return gson.fromJson(postResponse, imagesType);
             } catch (Exception e) {
                 e.printStackTrace();
+                return null;
             }
-            return null;
         }
         return null;
     }
