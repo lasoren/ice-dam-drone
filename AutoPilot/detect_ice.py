@@ -40,6 +40,8 @@ class DetectIce(threading.Thread):
             self.command[1] = self.images[i]
             self.command[2] = self.folder + '/' + str(i) + '.jpg'
 
+            os.system('mogrify -resize 854x480 ' + str(self.command[2]))
+
             print self.command
             proc = subprocess.Popen(self.command, stdout=subprocess.PIPE)
             data = proc.stdout.readline().strip().split(",")
@@ -70,7 +72,7 @@ class DetectIce(threading.Thread):
         :return:
         """
         width = 3.70419 * annotation.depth # calculated using super accurate picture taking
-        meter_per_pixel = width/1280.0
+        meter_per_pixel = width/854.0
         origin = [float(x) for x in annotation.origin.split(",")]
         utm_origin = UTMPoint(utm.from_latlon(origin[0], origin[1]))
 

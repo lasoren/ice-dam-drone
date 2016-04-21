@@ -269,7 +269,7 @@ class BlueDataProcessor(threading.Thread):
                 json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0x80)
                 json_packager.run()
             sub = f_json[(packets)*512:512*(packets+1)]
-            print sub
+            # print sub
             json_packager = BlueDataPackager(COMMAND_BLUETOOTH_SEND_JSON_RGB, sub, self.bluetooth, flag=0xC0)
             json_packager.run()
             print "Finished transferring JSON data!!!"
@@ -316,7 +316,7 @@ class BlueDataPackager(threading.Thread):
               or self.command == COMMAND_BLUETOOTH_SEND_FINISH_BORDER or self.command == COMMAND_BLUETOOTH_SEND_FINISH_ANALYSIS
               or self.command == COMMAND_BLUETOOTH_FINISHED_RGB or self.command == COMMAND_BLUETOOTH_FINISHED_THERM
               or self.command == COMMAND_BLUETOOTH_SERVICE_ICE_DAM or self.command == COMMAND_BLUETOOTH_DRONE_ALREADY_FLYING
-              or self.command == COMMAND_ARM):
+              or self.command == COMMAND_ARM or self.command == COMMAND_SEND_POINTS):
             self.__send_nopayload()
         elif self.command == COMMAND_BLUETOOTH_SEND_JSON_RGB or COMMAND_BLUETOOTH_SEND_JSON_THERM:
             self.__sendJson()
@@ -354,7 +354,7 @@ class BlueDataPackager(threading.Thread):
 
         data = struct.pack('>Bi', self.command|self.flag, payloadSize)
         data = ''.join([data, self.payload])
-        print "image packet size %d" % len(data)
+        # print "image packet size %d" % len(data)
 
         self.bluetooth.write(data)
 
@@ -363,7 +363,7 @@ class BlueDataPackager(threading.Thread):
 
         data = struct.pack('>Bi', self.command|self.flag, payloadSize)
         data = ''.join([data, self.payload])
-        print "json packet size %d" % len(data)
+        # print "json packet size %d" % len(data)
 
         self.bluetooth.write(data)
 
