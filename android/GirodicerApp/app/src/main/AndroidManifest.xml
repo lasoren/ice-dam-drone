@@ -109,7 +109,7 @@
                 <action android:name="UPLOAD_STARTED"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="INSPECTION_COMPLTETE"/>
+                <action android:name="INSPECTION_COMPLETE"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="INSPECTION_TERMINATED"/>
