@@ -20,6 +20,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.util.LruCache;
 
 import com.example.tberroa.girodicerapp.R;
 import com.example.tberroa.girodicerapp.activities.CurrentThreeActivity;
@@ -47,6 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
@@ -68,6 +70,8 @@ public class BluetoothService extends Service {
     public static boolean motorsArmed;
     public static ArrayList<LatLng> houseBoundary;
     public static List<LatLng> iceDamPoints;
+    public static HashMap<LatLng, Integer> pointToImageIndex;
+    public static LruCache<Integer, Bitmap> imageIndexToImage;
     public static boolean needInitialStatus = true;
     public static boolean mapPhaseComplete = false;
     public static boolean iceDamPointsReady = false;
@@ -596,8 +600,16 @@ public class BluetoothService extends Service {
 
                                     if (saltingPhaseImages) {
                                         // get icedam points
-                                        for (ImageDetails imageDetails : imageDetailsList) {
-                                            iceDamPoints.addAll(imageDetails.getIceDamPoints());
+                                        for (int i=0; i<imageDetailsList.size(); i++) {
+                                            List<LatLng> points = imageDetailsList.get(i).getIceDamPoints();
+
+                                            // save points
+                                            iceDamPoints.addAll(points);
+
+                                            // save point to image mapping
+                                            for (LatLng point : points){
+                                                pointToImageIndex.put(point, i);
+                                            }
                                         }
 
                                         // raise flag up letting system know icedam points are ready
@@ -661,7 +673,14 @@ public class BluetoothService extends Service {
                                     Images imageRGB = (Images) finalGProtocol.read();
                                     listGProtocol.clear();
 
-                                    // save image locally
+                                    if (imgIndexRGB == 0){ // on first image, create the new cache
+                                        imageIndexToImage = new LruCache<>(imageDetailsList.size());
+                                    }
+
+                                    // save image in memory
+                                    imageIndexToImage.put(imgIndexRGB, imageRGB.getImage());
+
+                                    // save image in local disk storage
                                     saveImageLocally(imageRGB, imgIndexRGB, Params.I_TYPE_ROOF_EDGE);
 
                                     imgIndexRGB++;
@@ -806,6 +825,7 @@ public class BluetoothService extends Service {
                 // reset flow related control variables
                 houseBoundary = new ArrayList<>();
                 iceDamPoints = new ArrayList<>();
+                pointToImageIndex = new HashMap<>();
                 needInitialStatus = true;
                 mapPhaseComplete = false;
                 iceDamPointsReady = false;
@@ -828,6 +848,7 @@ public class BluetoothService extends Service {
                 mapPhaseComplete = true;
                 context.sendBroadcast(new Intent().setAction(Params.INSPECTION_STARTED));
             } else {
+                Log.d(Params.TAG_DBG + Params.TAG_ERROR, "@BT/StartInspection: unable to create inspection, inspection terminated");
                 context.sendBroadcast(new Intent().setAction(Params.INSPECTION_TERMINATED));
             }
         }

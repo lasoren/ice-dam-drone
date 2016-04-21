@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -144,7 +145,10 @@ public class DroneMapFragment extends Fragment implements OnMapReadyCallback, Go
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.d(Params.TAG_DBG + Params.TAG_MAP, "@DroneMapFragment: marker clicked");
-        new ConfirmIceDamDialog(getContext(), marker, null).show();
+        // get the image
+        int imageIndex = BluetoothService.pointToImageIndex.get(marker.getPosition());
+        Bitmap image = BluetoothService.imageIndexToImage.get(imageIndex);
+        new ConfirmIceDamDialog(getContext(), marker, image).show();
         return true;
     }
 

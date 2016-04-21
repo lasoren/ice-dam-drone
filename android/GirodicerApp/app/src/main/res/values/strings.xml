@@ -120,6 +120,7 @@
     <string name="loading_message">Loading message</string>
 
     <!-- other -->
+    <string name="image_not_yet_received">Image not yet received</string>
     <string name="need_rgb_images">
         Roof edge images are still being transferred. Need all roof edge images before beginning to service ice dams.
     </string>
