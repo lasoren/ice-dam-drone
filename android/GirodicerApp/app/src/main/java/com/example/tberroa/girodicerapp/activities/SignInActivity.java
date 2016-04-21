@@ -192,13 +192,8 @@ public class SignInActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            postResponse = null;
-            try {
-                String url = Params.BASE_URL + "users/signin.json";
-                postResponse = new Http().postRequest(url, dataJSON);
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            }
+            String url = Params.BASE_URL + "users/signin.json";
+            postResponse = new Http().postRequest(url, dataJSON);
 
             return null;
         }
@@ -214,9 +209,9 @@ public class SignInActivity extends AppCompatActivity {
                 // sign in
                 signIn(operator);
             } else { // display error
-                if (postResponse == null){
+                if (postResponse == null) {
                     Toast.makeText(SignInActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
-                } else{
+                } else {
                     Toast.makeText(SignInActivity.this, postResponse, Toast.LENGTH_SHORT).show();
                 }
             }

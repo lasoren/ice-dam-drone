@@ -115,21 +115,25 @@ public class ClientManagerActivity extends BaseActivity implements SwipeRefreshL
 
         @Override
         protected Void doInBackground(Void... params) {
-            newClients = new ServerDB(ClientManagerActivity.this).getClients();
-            if (newClients != null && !newClients.isEmpty()) {
-                // save new clients locally
-                ActiveAndroid.beginTransaction();
-                try {
-                    for (Client client : newClients) {
-                        if (client.user != null) {
-                            client.cascadeSave();
+            if (Utilities.isInternetAvailable(ClientManagerActivity.this)) {
+                newClients = new ServerDB(ClientManagerActivity.this).getClients();
+                if (newClients != null && !newClients.isEmpty()) {
+                    // save new clients locally
+                    ActiveAndroid.beginTransaction();
+                    try {
+                        for (Client client : newClients) {
+                            if (client.user != null) {
+                                client.cascadeSave();
+                            }
                         }
+                        ActiveAndroid.setTransactionSuccessful();
+                    } finally {
+                        ActiveAndroid.endTransaction();
                     }
-                    ActiveAndroid.setTransactionSuccessful();
-                } finally {
-                    ActiveAndroid.endTransaction();
+                    foundNewClients = true;
+                } else {
+                    foundNewClients = false;
                 }
-                foundNewClients = true;
             } else {
                 foundNewClients = false;
             }

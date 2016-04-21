@@ -161,19 +161,23 @@ public class PastInspectionsActivity extends BaseActivity implements SwipeRefres
 
         @Override
         protected Void doInBackground(Void... params) {
-            newInspections = new ServerDB(PastInspectionsActivity.this).getInspections();
-            if (newInspections != null && !newInspections.isEmpty()) {
-                // save new inspections locally
-                ActiveAndroid.beginTransaction();
-                try {
-                    for (Inspection inspection : newInspections) {
-                        inspection.cascadeSave();
+            if (Utilities.isInternetAvailable(PastInspectionsActivity.this)) {
+                newInspections = new ServerDB(PastInspectionsActivity.this).getInspections();
+                if (newInspections != null && !newInspections.isEmpty()) {
+                    // save new inspections locally
+                    ActiveAndroid.beginTransaction();
+                    try {
+                        for (Inspection inspection : newInspections) {
+                            inspection.cascadeSave();
+                        }
+                        ActiveAndroid.setTransactionSuccessful();
+                    } finally {
+                        ActiveAndroid.endTransaction();
                     }
-                    ActiveAndroid.setTransactionSuccessful();
-                } finally {
-                    ActiveAndroid.endTransaction();
+                    foundNewInspections = true;
+                } else {
+                    foundNewInspections = false;
                 }
-                foundNewInspections = true;
             } else {
                 foundNewInspections = false;
             }

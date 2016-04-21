@@ -275,6 +275,7 @@ public class BluetoothService extends Service {
         // shutdown connection thread
         if (btConnectionThread != null) {
             btConnectionThread.shutdown();
+            btConnectionThread = null;
         }
 
         // reset bluetooth state
@@ -292,7 +293,7 @@ public class BluetoothService extends Service {
             currentInspectionInfo.setPhase(this, Params.CI_UPLOADING);
             startService(new Intent(this, ImageUploadService.class));
             sendBroadcast(new Intent().setAction(Params.UPLOAD_STARTED));
-        } else { // user was servicing icedams or drone was still scanning, full clean up
+        } else { // full clean up
             Log.d(Params.TAG_DBG + Params.TAG_BT, "@BluetoothService/onDestroy: full inspection clean up");
             currentInspectionInfo.setPhase(this, Params.CI_INACTIVE);
             currentInspectionInfo.setInProgress(this, false);

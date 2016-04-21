@@ -1,6 +1,7 @@
 package com.example.tberroa.girodicerapp.database;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.tberroa.girodicerapp.data.OperatorInfo;
@@ -35,6 +36,7 @@ public class ServerDB {
         sessionId = operatorInfo.getSessionId(context);
     }
 
+    @Nullable
     public Client createClient(Client client) {
         // create user json object
         JSONObject userJson = new JSONObject();
@@ -66,18 +68,12 @@ public class ServerDB {
         }
 
         // make request
-        String postResponse = "";
-        try {
-            String dataJSON = clientRequestJson.toString();
-            postResponse = new Http().postRequest(Params.CREATE_CLIENT_URL, dataJSON);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+        String dataJSON = clientRequestJson.toString();
+        String postResponse = new Http().postRequest(Params.CREATE_CLIENT_URL, dataJSON);
+        Log.d(Params.TAG_DBG, "@ServerDB/createClient: postResponse is: " + postResponse);
 
         // convert the response from json to client object
-        if (!postResponse.equals("")) {
-            Log.d(Params.TAG_DBG, "@ServerDB/createClient: postResponse is: " + postResponse);
-
+        if (postResponse != null) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type clientType = new TypeToken<Client>() {
             }.getType();
@@ -91,6 +87,7 @@ public class ServerDB {
         return null;
     }
 
+    @Nullable
     public Inspection createInspection(int clientId) {
         // build into json format
         JSONObject innerJson = new JSONObject();
@@ -110,18 +107,12 @@ public class ServerDB {
         }
 
         // make request
-        String postResponse = "";
-        try {
-            String dataJSON = requestJson.toString();
-            postResponse = new Http().postRequest(Params.CREATE_INSPECTION_URL, dataJSON);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+        String dataJSON = requestJson.toString();
+        String postResponse = new Http().postRequest(Params.CREATE_INSPECTION_URL, dataJSON);
+        Log.d(Params.TAG_DBG, "@ServerDB/createInspection: postResponse is: " + postResponse);
 
         // convert the response from json to inspection object
-        if (!postResponse.equals("")) {
-            Log.d(Params.TAG_DBG, "@ServerDB/createInspection: postResponse is: " + postResponse);
-
+        if (postResponse != null) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type inspectionType = new TypeToken<Inspection>() {
             }.getType();
@@ -135,6 +126,7 @@ public class ServerDB {
         return null;
     }
 
+    @Nullable
     public List<InspectionImage> createInspectionImages(int inspectionId, List<Integer> imageType, String taken) {
         // create the list of images to create
         List<CreateImageModel> imagesToCreate = new ArrayList<>();
@@ -149,18 +141,11 @@ public class ServerDB {
         String requestJson = new Gson().toJson(createImageRequest, createImagesType);
 
         // make request
-        String postResponse = "";
-        try {
-            Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: requestJson is: " + requestJson);
-            postResponse = new Http().postRequest(Params.CREATE_INSPECTION_IMAGES_URL, requestJson);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+        String postResponse = new Http().postRequest(Params.CREATE_INSPECTION_IMAGES_URL, requestJson);
+        Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: postResponse is: " + postResponse);
 
         // convert the response from json to a list of inspection images
-        if (!postResponse.equals("")) {
-            Log.d(Params.TAG_DBG, "@ServerDB/createInspectionImages: postResponse is: " + postResponse);
-
+        if (postResponse != null) {
             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Type imagesType = new TypeToken<List<InspectionImage>>() {
             }.getType();
@@ -174,6 +159,7 @@ public class ServerDB {
         return null;
     }
 
+    @Nullable
     public List<Client> getClients() {
         // get provision
         Provisions provisions = new Provisions();
@@ -189,28 +175,26 @@ public class ServerDB {
             e.printStackTrace();
         }
 
-        String postResponse = "";
-        try {
-            String dataJSON = jsonObject.toString();
-            postResponse = new Http().postRequest(Params.GET_CLIENTS_URL, dataJSON);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-
+        String dataJSON = jsonObject.toString();
+        String postResponse = new Http().postRequest(Params.GET_CLIENTS_URL, dataJSON);
         Log.d(Params.TAG_DBG, "@ServerDB/getClients: postResponse is: " + postResponse);
 
-        // get client list from response json
-        Type clientList = new TypeToken<GetClientsModel>() {
-        }.getType();
-        try {
-            GetClientsModel getClientsModel = new Gson().fromJson(postResponse, clientList);
-            provisions.setClients(context, getClientsModel.provision);
-            return getClientsModel.clients;
-        } catch (Exception e) {
-            return null;
+        if (postResponse != null) {
+            // get client list from response json
+            Type clientList = new TypeToken<GetClientsModel>() {
+            }.getType();
+            try {
+                GetClientsModel getClientsModel = new Gson().fromJson(postResponse, clientList);
+                provisions.setClients(context, getClientsModel.provision);
+                return getClientsModel.clients;
+            } catch (Exception e) {
+                return null;
+            }
         }
+        return null;
     }
 
+    @Nullable
     public List<Inspection> getInspections() {
         // get provision
         Provisions provisions = new Provisions();
@@ -227,27 +211,25 @@ public class ServerDB {
         }
 
         // post
-        String postResponse = "";
-        try {
-            postResponse = new Http().postRequest(Params.GET_INSPECTIONS_URL, requestJson.toString());
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-
+        String postResponse = new Http().postRequest(Params.GET_INSPECTIONS_URL, requestJson.toString());
         Log.d(Params.TAG_DBG, "@ServerDB/getInspections: postResponse is: " + postResponse);
 
-        // get inspection list from response json
-        Type inspectionList = new TypeToken<GetInspectionsModel>() {
-        }.getType();
-        try {
-            GetInspectionsModel getInspectionsModel = new Gson().fromJson(postResponse, inspectionList);
-            provisions.setInspections(context, getInspectionsModel.provision);
-            return getInspectionsModel.inspections;
-        } catch (Exception e) {
-            return null;
+        if (postResponse != null) {
+            // get inspection list from response json
+            Type inspectionList = new TypeToken<GetInspectionsModel>() {
+            }.getType();
+            try {
+                GetInspectionsModel getInspectionsModel = new Gson().fromJson(postResponse, inspectionList);
+                provisions.setInspections(context, getInspectionsModel.provision);
+                return getInspectionsModel.inspections;
+            } catch (Exception e) {
+                return null;
+            }
         }
+        return null;
     }
 
+    @Nullable
     public List<InspectionImage> getInspectionImages() {
         // get provision
         Provisions provisions = new Provisions();
@@ -264,27 +246,25 @@ public class ServerDB {
         }
 
         // post
-        String postResponse = "";
-        try {
-            postResponse = new Http().postRequest(Params.GET_INSPECTION_IMAGES_URL, requestJson.toString());
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-
+        String postResponse = new Http().postRequest(Params.GET_INSPECTION_IMAGES_URL, requestJson.toString());
         Log.d(Params.TAG_DBG, "@ServerDB/getInspectionImages: postResponse is: " + postResponse);
 
-        // get inspection images list from response json
-        Type imagesList = new TypeToken<GetImagesModel>() {
-        }.getType();
-        try {
-            GetImagesModel getImagesModel = new Gson().fromJson(postResponse, imagesList);
-            provisions.setInspectionImages(context, getImagesModel.provision);
-            return getImagesModel.inspection_images;
-        } catch (Exception e) {
-            return null;
+        if (postResponse != null) {
+            // get inspection images list from response json
+            Type imagesList = new TypeToken<GetImagesModel>() {
+            }.getType();
+            try {
+                GetImagesModel getImagesModel = new Gson().fromJson(postResponse, imagesList);
+                provisions.setInspectionImages(context, getImagesModel.provision);
+                return getImagesModel.inspection_images;
+            } catch (Exception e) {
+                return null;
+            }
         }
+        return null;
     }
 
+    @Nullable
     public String getClientInspectionPortal(int inspectionId) {
         // create the request json
         JSONObject requestJson = new JSONObject();
@@ -297,20 +277,18 @@ public class ServerDB {
         }
 
         // post
-        String postResponse = "";
-        try {
-            postResponse = new Http().postRequest(Params.CLIENT_INSPECTION_PORTAL, requestJson.toString());
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-
+        String postResponse = new Http().postRequest(Params.CLIENT_INSPECTION_PORTAL, requestJson.toString());
         Log.d(Params.TAG_DBG, "@ServerDB/getClientInspectionPortal: postResponse is: " + postResponse);
-        try {
-            JSONObject jsonObject = new JSONObject(postResponse);
-            return jsonObject.optString("url", "");
-        } catch (Exception e) {
-            return null;
+
+        if (postResponse != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(postResponse);
+                return jsonObject.optString("url", "");
+            } catch (Exception e) {
+                return null;
+            }
         }
+        return null;
     }
 
     class CreateImageModel {

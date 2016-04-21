@@ -1,6 +1,5 @@
 package com.example.tberroa.girodicerapp.data;
 
-
 import android.annotation.SuppressLint;
 
 import java.text.SimpleDateFormat;
@@ -30,8 +29,10 @@ public class Params {
     // network parameters
     final public static String POST_MEDIA_TYPE = "application/json; charset=utf-8";
 
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
-    public static final SimpleDateFormat OUT_FORMAT = new SimpleDateFormat("h:mm aa - E M/d");
+    @SuppressLint("SimpleDateFormat")
+    final public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+    @SuppressLint("SimpleDateFormat")
+    final public static SimpleDateFormat OUT_FORMAT = new SimpleDateFormat("h:mm aa - E M/d");
 
     // broadcasts
     // authentication related

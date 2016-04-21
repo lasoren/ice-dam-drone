@@ -1,12 +1,11 @@
 package com.example.tberroa.girodicerapp.network;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.tberroa.girodicerapp.data.Params;
 
 import org.json.JSONObject;
-
-import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -22,14 +21,15 @@ public class Http {
     public Http() {
     }
 
-    public String postRequest(String url, String jsonString) throws IOException {
-        RequestBody body = RequestBody.create(mediaType, jsonString);
-        Request request = new Request.Builder().url(url).post(body).build();
-        Response response = httpClient.newCall(request).execute();
-        String rawResponse = response.body().string().trim();
-        Log.d(Params.TAG_DBG, "@Http/doPostRequest: rawResponse is: " + rawResponse);
-        JSONObject jsonObject;
+    @Nullable
+    public String postRequest(String url, String jsonString) {
         try {
+            RequestBody body = RequestBody.create(mediaType, jsonString);
+            Request request = new Request.Builder().url(url).post(body).build();
+            Response response = httpClient.newCall(request).execute();
+            String rawResponse = response.body().string().trim();
+            Log.d(Params.TAG_DBG, "@Http/doPostRequest: rawResponse is: " + rawResponse);
+            JSONObject jsonObject;
             jsonObject = new JSONObject(rawResponse);
             int code = jsonObject.optInt("code", 0);
             if (code == 0) {
@@ -38,8 +38,7 @@ public class Http {
                 return jsonObject.optString("detail", "");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return rawResponse;
     }
 }

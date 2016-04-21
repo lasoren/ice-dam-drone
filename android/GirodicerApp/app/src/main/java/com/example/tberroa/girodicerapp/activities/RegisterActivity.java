@@ -163,13 +163,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            postResponse = null;
-            try {
-                String url = Params.BASE_URL + "users/register.json";
-                postResponse = new Http().postRequest(url, dataJSON);
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            }
+            String url = Params.BASE_URL + "users/register.json";
+            postResponse = new Http().postRequest(url, dataJSON);
+
             return null;
         }
 
@@ -178,9 +174,9 @@ public class RegisterActivity extends AppCompatActivity {
                 startActivity(new Intent(RegisterActivity.this, PostRegisterActivity.class));
                 finish();
             } else { // display error
-                if (postResponse == null){
+                if (postResponse == null) {
                     Toast.makeText(RegisterActivity.this, R.string.error_occurred, Toast.LENGTH_SHORT).show();
-                } else{
+                } else {
                     Toast.makeText(RegisterActivity.this, postResponse, Toast.LENGTH_SHORT).show();
                 }
             }

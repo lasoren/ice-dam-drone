@@ -1,5 +1,7 @@
 package com.example.tberroa.girodicerapp.database;
 
+import android.support.annotation.Nullable;
+
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.example.tberroa.girodicerapp.models.Client;
@@ -69,6 +71,7 @@ public class LocalDB {
         return inspections;
     }
 
+    @Nullable
     public String getInspectionThumbnail(int inspectionId){
         List<InspectionImage> images = new Select()
                 .from(InspectionImage.class)

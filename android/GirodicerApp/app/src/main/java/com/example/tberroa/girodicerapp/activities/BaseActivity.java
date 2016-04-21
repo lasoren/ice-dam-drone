@@ -71,6 +71,7 @@ public class BaseActivity extends AppCompatActivity implements NavigationView.On
             // shutdown connection thread
             if (BluetoothService.btConnectionThread != null) {
                 BluetoothService.btConnectionThread.shutdown();
+                BluetoothService.btConnectionThread = null;
             }
 
             // reset bluetooth state

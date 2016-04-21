@@ -78,43 +78,71 @@ public class ImageUploadService extends Service {
                 int num = 0;
                 for (int type : imageType) { // loop per image type
                     for (int i = 0; i < numberOfImages.getInt(Integer.toString(type)); i++) { // loop per image of that type
-                        // initialize some variables
-                        InspectionImage image = images.get(num);
-                        String typeString = Integer.toString(image.image_type);
-                        String iString = Integer.toString(i);
-                        String locationGeneric = basePath + "/images/" + typeString + iString;
-                        String location = locationGeneric + ".jpg";
-                        String thumbLocation = locationGeneric + "_s.jpg";  // S for small :)
+                        if (images != null) {
+                            // initialize some variables
+                            InspectionImage image = images.get(num);
+                            String typeString = Integer.toString(image.image_type);
+                            String iString = Integer.toString(i);
+                            String locationGeneric = basePath + "/images/" + typeString + iString;
+                            String location = locationGeneric + ".jpg";
+                            String thumbLocation = locationGeneric + "_s.jpg";  // S for small :)
 
-                        // get image file from local directory (images are saved during image transfer phase)
-                        final File file = Environment.getExternalStoragePublicDirectory(location);
+                            // get image file from local directory (images are saved during image transfer phase)
+                            final File file = Environment.getExternalStoragePublicDirectory(location);
 
-                        if (file.exists()) { // check if file exists before trying to upload
-                            // create thumbnail image from full size image to be uploaded to AWS
-                            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                            Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, Params.THUMB_SIZE, Params.THUMB_SIZE);
+                            if (file.exists()) { // check if file exists before trying to upload
+                                // create thumbnail image from full size image to be uploaded to AWS
+                                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                                Bitmap thumbImage = ThumbnailUtils.extractThumbnail(bitmap, Params.THUMB_SIZE, Params.THUMB_SIZE);
 
-                            try {
-                                File thumbFile = Environment.getExternalStoragePublicDirectory(thumbLocation);
+                                try {
+                                    File thumbFile = Environment.getExternalStoragePublicDirectory(thumbLocation);
 
-                                if (!thumbFile.createNewFile()){
-                                    Log.d(Params.TAG_DBG, "@ImageUploadService: thumbFile not created");
+                                    if (!thumbFile.createNewFile()) {
+                                        Log.d(Params.TAG_DBG, "@ImageUploadService: thumbFile not created");
+                                    }
+
+                                    // convert bitmap to byte array
+                                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                                    thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                                    byte[] bitMapData = bos.toByteArray();
+
+                                    FileOutputStream fos = new FileOutputStream(thumbFile);
+                                    fos.write(bitMapData);
+                                    fos.flush();
+                                    fos.close();
+
+                                    // upload thumbnail image
+                                    TransferObserver observer; // used to monitor upload status
+                                    observer = transfer.upload(Params.CLOUD_BUCKET_NAME,
+                                            image.path + "_s.jpg", thumbFile);
+                                    boolean notDone = true;
+                                    while (notDone) {
+                                        try {
+                                            Thread.sleep(250);
+                                            observer.refresh();
+                                            if (observer.getState() == TransferState.COMPLETED) {
+                                                Log.d(Params.TAG_DBG, "@ImageUploadService: image upload complete");
+                                                notDone = false;
+                                                if (!thumbFile.delete()) {
+                                                    try {
+                                                        throw new Exception("Cannot delete file");
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(Params.TAG_EXCEPTION, "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
                                 }
 
-                                // convert bitmap to byte array
-                                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                                thumbImage.compress(Bitmap.CompressFormat.JPEG, 100, bos);
-                                byte[] bitMapData = bos.toByteArray();
-
-                                FileOutputStream fos = new FileOutputStream(thumbFile);
-                                fos.write(bitMapData);
-                                fos.flush();
-                                fos.close();
-
-                                // upload thumbnail image
+                                // upload image
                                 TransferObserver observer; // used to monitor upload status
-                                observer = transfer.upload(Params.CLOUD_BUCKET_NAME,
-                                        image.path + "_s.jpg", thumbFile);
+                                observer = transfer.upload(Params.CLOUD_BUCKET_NAME, image.path + ".jpg", file);
                                 boolean notDone = true;
                                 while (notDone) {
                                     try {
@@ -123,49 +151,23 @@ public class ImageUploadService extends Service {
                                         if (observer.getState() == TransferState.COMPLETED) {
                                             Log.d(Params.TAG_DBG, "@ImageUploadService: image upload complete");
                                             notDone = false;
-                                            if (!thumbFile.delete()) {
+                                            if (!file.delete()) {
                                                 try {
                                                     throw new Exception("Cannot delete file");
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
                                             }
+                                            // save image locally
+                                            image.save();
                                         }
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
                                 }
-                            } catch (Exception e) {
-                                Log.e(Params.TAG_EXCEPTION, "@ImageUploadService: FAILED TO CREATE THUMBNAIL IMAGE", e);
                             }
-
-                            // upload image
-                            TransferObserver observer; // used to monitor upload status
-                            observer = transfer.upload(Params.CLOUD_BUCKET_NAME, image.path + ".jpg", file);
-                            boolean notDone = true;
-                            while (notDone) {
-                                try {
-                                    Thread.sleep(250);
-                                    observer.refresh();
-                                    if (observer.getState() == TransferState.COMPLETED) {
-                                        Log.d(Params.TAG_DBG, "@ImageUploadService: image upload complete");
-                                        notDone = false;
-                                        if (!file.delete()) {
-                                            try {
-                                                throw new Exception("Cannot delete file");
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                        // save image locally
-                                        image.save();
-                                    }
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                            num++;
                         }
-                        num++;
                     }
                 }
                 Log.d(Params.TAG_DBG, "@ImageUploadService: all images are done being uploaded");

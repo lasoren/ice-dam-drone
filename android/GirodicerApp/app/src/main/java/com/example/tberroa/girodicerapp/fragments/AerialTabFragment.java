@@ -76,19 +76,23 @@ public class AerialTabFragment extends Fragment implements SwipeRefreshLayout.On
 
         @Override
         protected Void doInBackground(Void... params) {
-            List<InspectionImage> newImages = new ServerDB(context).getInspectionImages();
-            if (newImages != null && !newImages.isEmpty()) {
-                receivedNewImages = true;
+            if (Utilities.isInternetAvailable(context)) {
+                List<InspectionImage> newImages = new ServerDB(context).getInspectionImages();
+                if (newImages != null && !newImages.isEmpty()) {
+                    receivedNewImages = true;
 
-                // save new images locally
-                ActiveAndroid.beginTransaction();
-                try {
-                    for (InspectionImage image : newImages) {
-                        image.save();
+                    // save new images locally
+                    ActiveAndroid.beginTransaction();
+                    try {
+                        for (InspectionImage image : newImages) {
+                            image.save();
+                        }
+                        ActiveAndroid.setTransactionSuccessful();
+                    } finally {
+                        ActiveAndroid.endTransaction();
                     }
-                    ActiveAndroid.setTransactionSuccessful();
-                } finally {
-                    ActiveAndroid.endTransaction();
+                } else {
+                    receivedNewImages = false;
                 }
             } else {
                 receivedNewImages = false;
