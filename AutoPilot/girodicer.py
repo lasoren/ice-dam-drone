@@ -35,7 +35,7 @@ class Girodicer():
             print "Debug Mode On, No Bluetooth Running"
             self.blue = blue.Blue(self.eventQueue, debug)
 
-        self.ft232h.setup(self.motor_pin, GPIO.IN)
+        self.ft232h.setup(self.motor_pin, GPIO.OUT)
         self.ft232h.output(self.motor_pin, GPIO.LOW)
 
     def arm_vehicle(self, mode):
