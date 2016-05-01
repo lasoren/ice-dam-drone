@@ -1,6 +1,8 @@
 from dronekit import connect, VehicleMode, LocationGlobal, LocationGlobalRelative, mavutil
 import blue, EventHandler, time, math, threading, lidar, os, subprocess, jsonpickle, errno, glob, annotations
 from detect_ice import DetectIce, DetectHotSpot
+import Adafruit_GPIO.FT232H as FT232H
+import Adafruit_GPIO as GPIO
 
 class Girodicer():
 
@@ -9,6 +11,7 @@ class Girodicer():
     rgb_annotations = None
     thermal_annotations = None
     ice_dams = None
+    motor_pin = 3
 
     flying_velocity = 1.4 # m/s
 
@@ -21,13 +24,19 @@ class Girodicer():
         self.vehicle.airspeed = self.flying_velocity
         self.vehicle.add_attribute_listener('battery', self.__battery_callback)
         print "Initializing lidar"
-        self.lidar = lidar.Lidar()
+        FT232H.use_FT232H()
+        self.ft232h = FT232H.FT232H()
+        self.bus = FT232H.I2CDevice(self.ft232h, lidar.Lidar.DEF_ADDR)
+        self.lidar = lidar.Lidar(self.bus)
         if not debug:
             print "Initializing bluetooth"
             self.blue = blue.Blue(self.eventQueue)
         else:
             print "Debug Mode On, No Bluetooth Running"
             self.blue = blue.Blue(self.eventQueue, debug)
+
+        self.ft232h.setup(self.motor_pin, GPIO.IN)
+        self.ft232h.output(self.motor_pin, GPIO.LOW)
 
     def arm_vehicle(self, mode):
         """
@@ -212,6 +221,7 @@ class Girodicer():
 
             self.blue.join()
         self.lidar.stop()
+        self.bus._ft232h.close()
         self.vehicle.close()
 
     def __border_scan(self):
@@ -350,7 +360,9 @@ class Girodicer():
 
     def __drop_salt(self):
         print "Dropping salt"
-        time.sleep(10)
+        self.ft232h.output(self.motor_pin, GPIO.HIGH)
+        time.sleep(12)
+        self.ft232h.output(self.motor_pin, GPIO.LOW)
 
     def __get_location_metres(self, original_location, dNorth, dEast):
         """

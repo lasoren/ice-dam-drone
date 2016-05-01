@@ -3,7 +3,7 @@ import Adafruit_GPIO.FT232H as FT232H
 import time, threading
 
 class Lidar(threading.Thread):
-    __DEF_ADDR = 0x62
+    DEF_ADDR = 0x62
 
     # register addresses
     __CONTROL_REG = 0x00
@@ -25,12 +25,10 @@ class Lidar(threading.Thread):
 
     distance = -1
 
-    def __init__(self):
+    def __init__(self, bus):
         super(Lidar, self).__init__()
         self.lock = threading.RLock()
-        FT232H.use_FT232H()
-        ft232h = FT232H.FT232H()
-        self.bus = FT232H.I2CDevice(ft232h, self.__DEF_ADDR)
+        self.bus = bus
         if self.bus.ping():
             print "Connected"
         self.bus.write8(self.__CONTROL_REG, self.__RESET_FPGA)
@@ -69,7 +67,6 @@ class Lidar(threading.Thread):
             self.distance = self.__getDistance()
             self.lock.release()
             time.sleep(0.02)
-        self.bus._ft232h.close()
         print "Lidar stopped"
 
     def stop(self):
