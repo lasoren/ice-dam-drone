@@ -40,7 +40,7 @@ class DetectIce(threading.Thread):
             self.command[1] = self.images[i]
             self.command[2] = self.folder + '/' + str(i) + '.jpg'
 
-            os.system('mogrify -resize 854x480 ' + str(self.command[2]))
+            os.system('sudo mogrify -resize 854x480 ' + str(self.command[2]))
 
             print self.command
             proc = subprocess.Popen(self.command, stdout=subprocess.PIPE)
