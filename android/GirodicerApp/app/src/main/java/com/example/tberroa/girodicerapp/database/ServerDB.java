@@ -13,6 +13,7 @@ import com.example.tberroa.girodicerapp.models.InspectionImage;
 import com.example.tberroa.girodicerapp.network.Http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
@@ -184,10 +185,12 @@ public class ServerDB {
             Type clientList = new TypeToken<GetClientsModel>() {
             }.getType();
             try {
-                GetClientsModel getClientsModel = new Gson().fromJson(postResponse, clientList);
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                GetClientsModel getClientsModel = gson.fromJson(postResponse, clientList);
                 provisions.setClients(context, getClientsModel.provision);
                 return getClientsModel.clients;
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
         }
@@ -219,10 +222,12 @@ public class ServerDB {
             Type inspectionList = new TypeToken<GetInspectionsModel>() {
             }.getType();
             try {
-                GetInspectionsModel getInspectionsModel = new Gson().fromJson(postResponse, inspectionList);
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                GetInspectionsModel getInspectionsModel = gson.fromJson(postResponse, inspectionList);
                 provisions.setInspections(context, getInspectionsModel.provision);
                 return getInspectionsModel.inspections;
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
         }
@@ -254,10 +259,12 @@ public class ServerDB {
             Type imagesList = new TypeToken<GetImagesModel>() {
             }.getType();
             try {
-                GetImagesModel getImagesModel = new Gson().fromJson(postResponse, imagesList);
+                Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+                GetImagesModel getImagesModel = gson.fromJson(postResponse, imagesList);
                 provisions.setInspectionImages(context, getImagesModel.provision);
                 return getImagesModel.inspection_images;
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
         }
@@ -325,7 +332,9 @@ public class ServerDB {
 
     class GetClientsModel {
 
+        @Expose
         List<Client> clients;
+        @Expose
         int provision;
 
         public GetClientsModel() {
@@ -334,7 +343,9 @@ public class ServerDB {
 
     class GetInspectionsModel {
 
+        @Expose
         List<Inspection> inspections;
+        @Expose
         int provision;
 
         public GetInspectionsModel() {
@@ -343,7 +354,9 @@ public class ServerDB {
 
     class GetImagesModel {
 
+        @Expose
         int provision;
+        @Expose
         List<InspectionImage> inspection_images;
 
         public GetImagesModel() {
