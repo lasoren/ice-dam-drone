@@ -2,6 +2,7 @@ package com.example.tberroa.girodicerapp.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import com.activeandroid.ActiveAndroid;
 import com.example.tberroa.girodicerapp.data.Params;
@@ -28,6 +29,7 @@ public class SignInIntentService extends IntentService {
         // get clients from server & save them locally
         List<Client> clients = serverDB.getClients();
         if (clients != null && !clients.isEmpty()) {
+            Log.d(Params.TAG_DBG, "@SignInIntentService: clients not null and not empty");
             ActiveAndroid.beginTransaction();
             try {
                 for (Client client : clients) {
@@ -44,6 +46,7 @@ public class SignInIntentService extends IntentService {
         // get inspections from server & save them locally
         List<Inspection> inspections = serverDB.getInspections();
         if (inspections != null && !inspections.isEmpty()) {
+            Log.d(Params.TAG_DBG, "@SignInIntentService: inspections not null and not empty");
             ActiveAndroid.beginTransaction();
             try {
                 for (Inspection inspection : inspections) {
@@ -58,6 +61,7 @@ public class SignInIntentService extends IntentService {
         // get inspection images from server & save them locally
         List<InspectionImage> images = serverDB.getInspectionImages();
         if (images != null && !images.isEmpty()) {
+            Log.d(Params.TAG_DBG, "@SignInIntentService: images not null and not empty");
             ActiveAndroid.beginTransaction();
             try {
                 for (InspectionImage image : images) {
@@ -93,5 +97,6 @@ public class SignInIntentService extends IntentService {
 
         // broadcast that service is complete
         sendBroadcast(new Intent().setAction(Params.SIGN_IN_SERVICE_COMPLETE));
+        Log.d(Params.TAG_DBG, "@SignInIntentService: service complete");
     }
 }
